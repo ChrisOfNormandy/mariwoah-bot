@@ -1,0 +1,12 @@
+Add duration to song queue?
+
+Add an exclude feature, to remove a song from the active queue.
+~playlist exclude {index}
+
+Doing playlist list {name} -l lags to a point it only lists the last array
+
+Catching fish, displaying an image does not display the image. It drops a file
+of the image, but it seems to have some errors. Need better links.
+
+Inventory listing from stats doesn't italics correctly for fish that have
+_ in their name. Should display without _.
