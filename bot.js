@@ -79,15 +79,8 @@ client.on('message', async message => {
 
     switch (command) {
         // Regular Commands
-        case 'setmainchannel': {
-            global.botChannel = message.channel;
-            fs.writeFile('./standard.json', JSON.stringify(global), function (err, data) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-            });
-            global.botChannel.send('Success!');
+        case 'toggleremote': {
+            global.remote = !global.remote;
             break;
         }
         case 'ping': {

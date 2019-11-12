@@ -5,6 +5,7 @@ module.exports = {
     playlistPath:"./main/playlists/",
     statsPath:"./main/stats.json",
     client: null,
+    remote: true,
 
     log: async function (string, flag) {
         let _this = this;
@@ -44,13 +45,15 @@ module.exports = {
             }
             str += `"${string}"`;
             try {
-                _this.client.channels.get("643564636326592523").send(str);
+                if (_this.remote) _this.client.channels.get("643564636326592523").send(str);
+                else console.log(str);
                 resolve(true);
             }
             catch (e) {
                 console.log(e);
                 try {
-                    _this.client.users.get("188020615989428224").send(`Could not global log string:\n${str}`);
+                    if (_this.remote) _this.client.users.get("188020615989428224").send(`Could not global log string:\n${str}`);
+                    else console.log(str);
                 }
                 catch (err) {
                     console.log(err);
