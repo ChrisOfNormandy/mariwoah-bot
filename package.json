@@ -1,0 +1,24 @@
+{
+    "name": "dread-bot",
+    "version": "69.420.0",
+    "description": "Misc. Utilities bot.",
+    "main": "bot.js",
+    "author": "Chris of Normandy",
+    "dependencies": {
+        "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+        "discord.js": "^11.5.1",
+        "discord.js-commando": "^0.10.0",
+        "ffmpeg": "0.0.4",
+        "ffmpeg-static": "^2.7.0",
+        "node-opus": "^0.3.3",
+        "simple-youtube-api": "^5.2.1",
+        "winston": "^3.2.1",
+        "ytdl-core": "^1.0.0"
+    },
+    "repository": {},
+    "private": true,
+    "license": "GNU General Public License (GPL)",
+    "nodemonConfig": {
+        "ignore": ["/main/stats.json", "/main/playlists/*.json"]
+    }
+}
