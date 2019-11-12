@@ -102,36 +102,8 @@ client.on('message', async message => {
         case '?': {}
         case 'help': {
             let msg = '';
-            if (msgArray[1]) { // Has a subcommand
-                
-            }
-            else {
-                msg += `__**${help.main.header}**__\n`;
-                for (s in help.main.commands) {
-                    msg += `${s} - ${help.main.commands[s].str}\n`
-                    if (help.main.commands[s].alts) {
-                        msg += 'Alternates: ';
-                        for (let i = 0; i < help.main.commands[s].alts.length; i++) {
-                            if (i < help.main.commands[s].alts.length - 1)
-                                msg += `${help.main.commands[s].alts[i]}, `;
-                        }
-                    }
-                    if (help.main.commands[s].args) {
-                        msg += 'Arguments:\n';
-                        for (let i = 0; i < help.main.commands[s].args[0].length; i++) {
-                            msg += `   <${help.main.commands[s].args[0][i]}> - ${help.main.commands[s].args[1][i]}\n`;
-                        }
-                    }
-                    if (help.main.commands[s].flags) {
-                        msg += 'Flags:\n';
-                        for (let i = 0; i < help.main.commands[s].flags[0].length; i++) {
-                            msg += `   -${help.main.commands[s].flags[0][i]}: ${help.main.commands[s].flags[1][i]}\n`;
-                        }
-                    }
-                }
-                message.channel.send(msg);
-                break;
-            }
+            global.listHelp(message);
+            break;
         }
         case 'whoami': {
             let str = `Name: ${message.author.username}#${message.author.discriminator} | Nickname: ${message.member.nickname}\nID: ${message.author.id}`;

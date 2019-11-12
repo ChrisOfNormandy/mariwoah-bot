@@ -147,7 +147,7 @@ module.exports = {
                 str: 'Resets your user profile. Use only in case of corruption or to zero-out all stats.'
             }
         },
-        games: {
+        subcommands: {
             'fishing': {
                 header: '### Fishing Minigame Commands ###',
                 commands: {
