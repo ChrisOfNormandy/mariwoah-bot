@@ -25,7 +25,7 @@ client.on('ready', () => {
             console.log('After startup:');
             console.log(s);
             gaming.stats = s;
-            if (gaming.stats) client.user.setActivity("TILDA {CMD} | ~?");
+            if (gaming.stats) client.user.setActivity("with Chris' nuts | .?");
             else client.user.setActivity("Technical difficulties...");
         }
         else {
