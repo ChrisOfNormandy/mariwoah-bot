@@ -61,6 +61,13 @@ module.exports = {
         }
     },
 
+    adjustFish: function (costPerLb, weight) {
+        fish.price = costPerLb * weight;
+        fish.salePrice = Number(fish.price * ((Math.random() * 10) / 10).toFixed(2));
+        global.log(JSON.stringify(fish));
+        return fish;
+    },
+
     sellInv: async function(message) {
         console.log('Getting user...');
         gaming.getUser(message)
@@ -75,11 +82,10 @@ module.exports = {
             if (list.length) {
                 for (let i = 0; i < list.length; i++) {
                     try {
-                        price = fishlist.common[list[i].type].costPerLb;
-                        sellFor = (list[i].weight * price).toFixed(2);
+                        let fish = this.adjustFish(fishlist.common[list[i].type].costPerLb, list[i].weight)
 
-                        msg += `Sold ${list[i].type} at $${price}/lb. Recieved: $${sellFor}\n`
-                        gaming.pay(message, Number(sellFor));
+                        msg += `Sold ${list[i].type} at $${fish.price}/lb. Recieved: $${fish.salePrice}\n`
+                        gaming.pay(message, Number(fish.salePrice));
                     }
                     catch (e) {
                         console.log(e);
