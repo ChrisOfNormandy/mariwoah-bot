@@ -1,5 +1,5 @@
-const gaming = require('../../../scripts/gaming');
-const global = require('../../../main/global');
+const gaming = require('../gaming');
+const global = require('../../main/global');
 const itemlist = require('../itemList');
 const fishlist = itemlist.fish;
 const fishlootlist = itemlist.fishloot;

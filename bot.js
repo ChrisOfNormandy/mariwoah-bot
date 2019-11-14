@@ -2,16 +2,17 @@ const Discord = require('discord.js');
 
 const fs = require('fs');
 
-const auth = require('./auth.json');
-const config = require('./config.json');
+const config = require('./src/main/bot/config');
+const settings = config.settings;
+const auth = config.auth;
 
-const music = require('./scripts/music');
-const gaming = require('./scripts/gaming');
-const fishing = require('./main/gaming/fishing/fishing');
-const mining = require('./main/gaming/mining/mining');
-const gathering = require('./main/gaming/gathering/gathering');
-const global = require('./main/global');
-const help = require('./help');
+const music = require('./src/music/music');
+const gaming = require('./src/minigames/gaming');
+const fishing = require('./src/minigames/fishing/core');
+const mining = require('./src/minigames/mining/core');
+const gathering = require('./src/minigames/gathering/core');
+const global = require('./src/main/global');
+const help = require('./src/main/help');
 
 const client = new Discord.Client();
 client.token = auth.token;
@@ -69,7 +70,7 @@ client.on('message', async message => {
         return;
     }
     if (message.author.bot) return;
-    if (!config.prefix.includes(message.content.charAt(0))) return;
+    if (!settings.prefix.includes(message.content.charAt(0))) return;
 
     const msgArray = message.content.split(' ');
     const args = message.content.slice(1).trim().split(/ +/g);
@@ -452,4 +453,4 @@ client.on('message', async message => {
     }
 });
 
-client.login(config.token);
+client.login(auth.token);

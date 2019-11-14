@@ -6,25 +6,6 @@ const nonfishlist = itemlist.fish_loot;
 
 // Private Functions
 
-async function pullStandardJson () {
-    return new Promise (function (resolve, reject) {
-        fs.readFile('./standard.json', function (err, data) {
-            if (err) {
-                console.log(err);
-                reject(false);
-            }
-
-            try {
-                resolve(JSON.parse(data));
-            }
-            catch (e) {
-                console.log(e);
-                reject(false);
-            }
-        })
-    })
-}
-
 async function pullStats () {
     global.log('Executing pullStats.', 'info')
     return new Promise (function (resolve, reject) {
@@ -107,15 +88,6 @@ module.exports = {
     startup: async function() {
         let _this = this;
         return new Promise (function (resolve, reject) {
-            pullStandardJson()
-            .then(s => {
-                if (s) console.log('Pulled standard.json successfully.')
-            })
-            .catch(e => {
-                console.log(e);
-                reject(false);
-            });
-
             pullStats()
             .then(f => {
                 if (f) {

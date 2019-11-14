@@ -1,4 +1,4 @@
-const gaming = require('../../../scripts/gaming');
+const gaming = require('../gaming');
 const itemlist = require('../itemList');
 
 module.exports = {

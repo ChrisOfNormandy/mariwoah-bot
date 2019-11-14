@@ -1,9 +1,9 @@
-let help = require('../help');
+let help = require('./help');
 
 module.exports = {
     chatBreak:"-------------------------",
-    playlistPath:"./main/playlists/",
-    statsPath:"./main/stats.json",
+    playlistPath:"./src/music/playlists/",
+    statsPath:"./src/minigames/stats.json",
     client: null,
     remote: true,
 

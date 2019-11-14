@@ -1,5 +1,5 @@
-const gaming = require('../../../scripts/gaming')
-const global = require('../../global');
+const gaming = require('../gaming')
+const global = require('../../main/global');
 
 module.exports = {
     mine: async function(message) {
