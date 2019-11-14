@@ -12,7 +12,6 @@ const fishing = require('./src/minigames/fishing/core');
 const mining = require('./src/minigames/mining/core');
 const gathering = require('./src/minigames/gathering/core');
 const global = require('./src/main/global');
-const help = require('./src/main/help');
 
 const client = new Discord.Client();
 client.token = auth.token;
@@ -453,4 +452,4 @@ client.on('message', async message => {
     }
 });
 
-client.login(auth.token);
+client.login(client.token);

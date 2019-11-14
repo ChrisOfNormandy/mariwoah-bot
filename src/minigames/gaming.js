@@ -1,15 +1,15 @@
 const fs = require('fs');
 const global = require('../main/global');
-const itemlist = require('../main/gaming/itemList');
+const itemlist = require('../minigames/itemList');
 const fishlist = itemlist.fish;
-const nonfishlist = itemlist.fish_loot;
+const statsPath = './src/minigames/stats.json';
 
 // Private Functions
 
 async function pullStats () {
     global.log('Executing pullStats.', 'info')
     return new Promise (function (resolve, reject) {
-        fs.readFile(global.statsPath, function (err, data) {
+        fs.readFile(statsPath, function (err, data) {
             if (err) {
                 console.log('Error when pulling data from stats file.')
                 console.log(err);
@@ -31,7 +31,7 @@ async function pullStats () {
 
 function pushStats (stats) {
     global.log('Executing pushStats.', 'info');
-    fs.writeFile(global.statsPath, JSON.stringify(stats), (err, data) => {
+    fs.writeFile(statsPath, JSON.stringify(stats), (err, data) => {
         if (err) {
             console.log('Error writing to file' + err);
         }

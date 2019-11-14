@@ -19,6 +19,9 @@
     "private": true,
     "license": "GNU General Public License (GPL)",
     "nodemonConfig": {
-        "ignore": ["*.md", "*.json"]
+        "ignore": [
+            "*.md",
+            "*.json"
+        ]
     }
 }

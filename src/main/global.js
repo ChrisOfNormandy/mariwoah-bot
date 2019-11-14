@@ -3,7 +3,6 @@ let help = require('./help');
 module.exports = {
     chatBreak:"-------------------------",
     playlistPath:"./src/music/playlists/",
-    statsPath:"./src/minigames/stats.json",
     client: null,
     remote: true,
 
