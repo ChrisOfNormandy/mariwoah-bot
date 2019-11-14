@@ -55,7 +55,6 @@ module.exports = {
             if (!s) return;
 
             let list = s.inventories.fishing;
-
             let msg = ''
 
             if (list.length) {

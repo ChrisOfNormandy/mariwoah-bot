@@ -13,53 +13,59 @@ const mining = require('./src/minigames/mining/core');
 const gathering = require('./src/minigames/gathering/core');
 const global = require('./src/main/global');
 
+// Helpers
+const sell = require('./src/main/bot/helpers/sell');
+const teststats = require('./src/main/bot/helpers/teststats');
+const startup = require('./src/minigames/helpers/startupRoutine');
+const saveStats = require('./src/minigames/helpers/saveStats');
+
 const client = new Discord.Client();
 client.token = auth.token;
 
 client.on('ready', () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
 
-    gaming.startup()
-    .then(s => {
-        if (s) {
+    startup()
+    .then(stats => {
+        if (stats) {
             console.log('After startup:');
-            console.log(s);
-            gaming.stats = s;
-            if (gaming.stats) client.user.setActivity("with Chris' nuts | .?");
-            else client.user.setActivity("Technical difficulties...");
+            console.log(stats);
+            gaming.stats = stats;
+
+            client.user.setActivity((gaming.stats) ? `with Chris' nuts | .?` : `with faulty code...`);
         }
         else {
             client.user.setActivity("Failed startup.");
         }
+
+        saveStats()
+        .then(r => {
+            if (r) global.log('Successfully saved stats.');
+            else global.log('Failed to save stats.', 'warn')
+        })
+        .catch(e => {
+            global.log('Exception: Error thrown from bot gaming.startup -> gaming.save promise - caught.', 'error');
+            global.log(e, 'warn');
+            if (e == null) global.log('This is null because the await for loading stats from file has not resolved.', 'info');
+        });
+
+        gaming.client = client;
+        global.client = client;
+
+        fishing.updateAvailableFish();
+
+        global.log('Started', 'info')
+        .then(s => {
+            //
+        })
+        .catch(e => {
+            console.log(e);
+            client.users.get("188020615989428224").send('Failed to log out startup.');
+        });
     })
     .catch(e => {
         console.log(e);
         client.user.setActivity("Caught on startup.");
-    });
-
-    gaming.client = client;
-    global.client = client;
-
-    fishing.updateAvailableFish();
-
-    global.log('Started', 'info')
-    .then(s => {
-        //
-    })
-    .catch(e => {
-        console.log(e);
-        client.users.get("188020615989428224").send('Failed to log out startup.');
-    });
-
-    gaming.save()
-    .then(r => {
-        if (r) global.log('Successfully saved stats.');
-        else global.log('Failed to save stats.', 'warn')
-    })
-    .catch(e => {
-        global.log('Exception: Error thrown from bot gaming.startup -> gaming.save promise - caught.', 'error');
-        global.log(e, 'warn');
-        if (e == null) global.log('This is null because the await for loading stats from file has not resolved.', 'info');
     });
 });
 
@@ -168,60 +174,11 @@ client.on('message', async message => {
             break;
         }
         case 'sell': {
-            if (msgArray[1]) {
-                switch (msgArray[1]) {
-                    case 'fish': {
-                        fishing.sellInv(message);
-                        break;
-                    }
-                    case 'ores': {
-                        message.channel.send('Not implemented.');
-                        break;
-                    }
-                    case 'items': {
-                        gathering.sellInv(message);
-                        break;
-                    }
-                }
-            }
-            else {
-                message.channel.send('_Info will go here on inventory total worths._');
-            }
+            sell(message);
             break;
         }
         case 'teststats': {
-            let results = {};
-            if (music) results.music = true;
-            else results.music = false;
-            if (gaming) {
-                results.gaming = true;
-                if (gaming.stats) {
-                    results.stats = true;
-                    console.log(gaming.stats);
-                }
-                else results.stats = false;
-            }
-            else results.music = false;
-            if (global) results.global = true;
-            else results.global = false;
-            if (fishing) results.fishing = true;
-            else results.fishing = false;
-            if (mining) results.mining = true;
-            else results.mining = false;
-
-            console.log(results);
-            let msg = '';
-            let bool = true;
-            for (i in results) {
-                if (results[i]) msg += `${i} - Loaded\n`
-                else {
-                    msg += `${i} - Unloaded\n`
-                    if (bool) bool = false;
-                }
-            }
-            message.channel.send(msg);
-            if (bool) client.user.setActivity('Technical difficulties...');
-            else client.user.setActivity('TILDA {CMD} | ~?');
+            message.channel.send(teststats(music, gaming, global, fishing, mining, gathering));
             break;
         }
         case 'inv': {}

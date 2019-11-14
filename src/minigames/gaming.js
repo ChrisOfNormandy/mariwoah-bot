@@ -1,83 +1,10 @@
-const fs = require('fs');
 const global = require('../main/global');
 const itemlist = require('../minigames/itemList');
+const pullStats = require('./helpers/pullStats');
+const pushStats = require('./helpers/pushStats');
+const newUser = require('./helpers/createUser');
+
 const fishlist = itemlist.fish;
-const statsPath = './src/minigames/stats.json';
-
-// Private Functions
-
-async function pullStats () {
-    global.log('Executing pullStats.', 'info')
-    return new Promise (function (resolve, reject) {
-        fs.readFile(statsPath, function (err, data) {
-            if (err) {
-                console.log('Error when pulling data from stats file.')
-                console.log(err);
-                reject(false);
-            }
-
-            try {
-                let obj = JSON.parse(data);
-                resolve(obj);
-            }
-            catch (e) {
-                console.log('Failed to pull data from stats file.')
-                console.log(e);
-                reject(false);
-            }
-        });
-    });
-}
-
-function pushStats (stats) {
-    global.log('Executing pushStats.', 'info');
-    fs.writeFile(statsPath, JSON.stringify(stats), (err, data) => {
-        if (err) {
-            console.log('Error writing to file' + err);
-        }
-    });
-}
-
-function newUser (message) {
-    let object = {
-        user: {
-            id: message.author.id,
-            name: message.author.username
-        },
-        stats: {
-            money: 0,
-            experience: 0
-        },
-        inventories: {
-            items: [],
-            fishing: [],
-            mining: []
-        },
-        fishing: {
-            level: 0,
-            rod: {
-                durability: 20,
-                catches: 0,
-                inUse: false
-            }
-        },
-        gathering: {
-            level: 0
-        },
-        mining: {
-            level: 0,
-            timer: 0,
-            result: null,
-            pick: {
-                durability: 20,
-                veins: 0,
-                inUse: false
-            }
-        }
-    };
-
-    return object;
-}
 
 // Exports
 module.exports = {
@@ -85,53 +12,11 @@ module.exports = {
     stats: null,
     client: null,
 
-    startup: async function() {
-        let _this = this;
-        return new Promise (function (resolve, reject) {
-            pullStats()
-            .then(f => {
-                if (f) {
-                    try {
-                        _this.stats = f;
-                        _this.restartTimers();
-                        console.log('Restarted timers.');
-                        resolve(_this.stats);
-                    }
-                    catch (e) {
-                        console.log('Cannot restart timers, because there is nothing to restart.');
-                        console.log(e);
-                        reject(false);
-                    }
-                }
-            })
-            .catch(e => {
-                console.log(e);
-                console.log('Setting new stats after bad read.')
-                _this.stats = {};
-                pushStats();
-                resolve(_this.stats)
-            });
-        })
-    },
-
-    restartTimers: function () {
-        for (i in this.stats) {
-            if (this.stats[i].mining.timer > 0) {
-                this.stats[i].mining.timer = 0;
-                this.stats[i].mining.pick.inUse = false;
-            }
-            if (this.stats[i].fishing.rod.inUse) this.stats[i].fishing.rod.inUse = false;
-            if (this.stats[i].mining.pick.inUse || this.stats[i].mining.timer > 0) {
-    
-            }
-        }
-    },
-
     getUser: async function (message) {
         let _this = this;
         return new Promise (function (resolve, reject) {
             try {
-                if (!_this.stats || !_this.stats[message.author.id]) {
+                if (_this.stats === null || !_this.stats[message.author.id]) {
                     let newUser = _this.addUser(message);
                     if (newUser !== null) resolve(newUser);
                     else reject(false);
