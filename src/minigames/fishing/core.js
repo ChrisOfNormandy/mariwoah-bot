@@ -4,6 +4,10 @@ const itemlist = require('../itemList');
 const fishlist = itemlist.fish;
 const fishlootlist = itemlist.fishloot;
 
+// Helpers
+const getInfo = require('./helpers/getInfo');
+const getPrice = require('./helpers/getPrice');
+
 module.exports = {
     availableFish: [],
     availableItems: [],
@@ -41,31 +45,7 @@ module.exports = {
     },
 
     fishInfo: async function (message, fishType) {
-        try {
-            let fish = fishlist.common[fishType];
-            let msg = `Here's some facts:\n` +
-            `> Water type: ${fish.type}\n` +
-            `> Time of day for catching: ${fish.time}\n` +
-            `> Size: ${fish.minSize}" - ${fish.maxSize}"\n` +
-            `> Weight: ${fish.weightFunc(fish.minSize).toFixed(2)} lbs - ${fish.weightFunc(fish.maxSize).toFixed(2)} lbs\n` +
-            `> Average cost per lb: $${fish.costPerLb.toFixed(2)}\n` +
-            '> \n' +
-            `> More info: ${fish.link}`;
-            console.log(fish);
-            message.channel.send(msg);
-        }
-        catch (e) {
-            console.log(e);
-            global.log('Exception: Error displaying fish info for .', 'error');
-            global.log(`Variables from exception: fishType: ${fishType}.`);
-        }
-    },
-
-    adjustFish: function (costPerLb, weight) {
-        fish.price = costPerLb * weight;
-        fish.salePrice = Number(fish.price * ((Math.random() * 10) / 10).toFixed(2));
-        global.log(JSON.stringify(fish));
-        return fish;
+        message.channel.send(getInfo(fishType));
     },
 
     sellInv: async function(message) {
@@ -76,13 +56,12 @@ module.exports = {
 
             let list = s.inventories.fishing;
 
-            let price, sellFor;
             let msg = ''
 
             if (list.length) {
                 for (let i = 0; i < list.length; i++) {
                     try {
-                        let fish = this.adjustFish(fishlist.common[list[i].type].costPerLb, list[i].weight)
+                        let fish = getPrice(fishlist.common[list[i].type].costPerLb, list[i].weight);
 
                         msg += `Sold ${list[i].type} at $${fish.price}/lb. Recieved: $${fish.salePrice}\n`
                         gaming.pay(message, Number(fish.salePrice));
