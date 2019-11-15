@@ -7,41 +7,16 @@ const fishlootlist = itemlist.fishloot;
 // Helpers
 const getInfo = require('./helpers/getInfo');
 const getPrice = require('./helpers/getPrice');
+const updateLists = require('./helpers/updateLists');
 
 module.exports = {
-    availableFish: [],
-    availableItems: [],
-
-    updateAvailableFish: async function () {
-        this.availableFish = [];
-        for (i in fishlist.common) {
-            try {
-                if (fishlist.common[i].minSize && fishlist.common[i].maxSize)
-                    this.availableFish.push(i);
-            }
-            catch (e) {
-                global.log('Exception: Error updating available fish.', 'error');
-                console.log(e);
-            }
-        }
-        global.log('Updated available fish.', 'info');
-        this.updateAvailableItems();
+    lootpool: {
+        fish: [],
+        items: []
     },
 
-    updateAvailableItems: async function() {
-        this.availableItems = [];
-        for (i in fishlootlist.common) {
-            try {
-                if (fishlootlist.common[i].minSize && fishlootlist.common[i].maxSize) {
-                    this.availableItems.push(i);
-                }
-            }
-            catch (e) {
-                global.log('Exception: Error updating available fishing items.', 'error');
-                console.log(e);
-            }
-        }
-        global.log('Updated available items.', 'info');
+    setLootpool: function () {
+        this.lootpool = updateLists('a');
     },
 
     fishInfo: async function (message, fishType) {
@@ -88,38 +63,22 @@ module.exports = {
 
     listFish: async function(message) {
         const m = await message.channel.send('Grabbing a list of available fish...');
-        this.updateAvailableFish()
-        .then(s => {
-            console.log('Refreshed available fish in the pool.');
-            message.channel.send('Updated the fish in the pool.');
-        })
-        .catch(e => {
-            console.log(e);
-            global.log('Exception: Error thrown from fishing listFish -> updateAvailableFish promise - caught.', 'error')
-        });
         let msg = '';
+        this.lootpool = updateLists('f');
 
-        for (let i = 0; i < this.availableFish.length; i++) {
-            msg += `${this.availableFish[i].replace('_',' ')} - Min size: ${fishlist.common[this.availableFish[i]].minSize}"; Max size: ${fishlist.common[this.availableFish[i]].maxSize}"\n`;
+        for (let i = 0; i < this.lootpool.fish.length; i++) {
+            msg += `${this.lootpool.fish[i].replace('_',' ')} - Min size: ${fishlist.common[this.lootpool.fish[i]].minSize}"; Max size: ${fishlist.common[this.lootpool.fish[i]].maxSize}"\n`;
         }
         m.edit(msg);
     },
 
     listItems: async function(message) {
         const m = await message.channel.send('Grabbing a list of available items...');
-        this.updateAvailableItems()
-        .then(s => {
-            console.log('Refreshed available items in the pool.');
-            message.channel.send('Updated the items in the pool.');
-        })
-        .catch(e => {
-            console.log(e);
-            global.log('Exception: Error thrown from fishing listItems -> updateAvailableItems promise - caught.', 'error')
-        });
+        this.lootpool = updateLists('i');
         let msg = '';
 
-        for (let i = 0; i < this.availableItems.length; i++) {
-            msg += `${this.availableItems[i].replace('_',' ')}\n`;
+        for (let i = 0; i < this.lootpool.items.length; i++) {
+            msg += `${this.lootpool.items[i].replace('_',' ')}\n`;
         }
         m.edit(msg);
     },
@@ -161,7 +120,7 @@ module.exports = {
     },
 
     generateFishObject: function (lvl, index) {
-        let fishToUse = fishlist.common[this.availableFish[index]];
+        let fishToUse = fishlist.common[this.lootpool.fish[index]];
         let maxSize = (lvl < 72)
         ? (lvl <= 50)
             ? (lvl <= 30)
@@ -175,7 +134,7 @@ module.exports = {
         if (size < fishToUse.minSize) size = fishToUse.minSize;
         let weight = fishToUse.weightFunc(size).toFixed(2);
         let fish = {
-            type: this.availableFish[index],
+            type: this.lootpool.fish[index],
             size: size,
             weight: weight,
             expPerLb: fishToUse.expPerLb 
@@ -185,12 +144,12 @@ module.exports = {
     },
 
     generateItemObject: function (lvl, index) {
-        let itemToUse = fishlootlist.common[this.availableItems[index]];
+        let itemToUse = fishlootlist.common[this.lootpool.items[index]];
         let size = (itemToUse.minSize == itemToUse.maxSize)
         ? Number(((Math.random() * (itemToUse.maxSize - itemToUse.minSize) + 1) + itemToUse.minSize).toFixed(2))
         : itemToUse.minSize;
         let item = {
-            type: this.availableItems[index],
+            type: this.lootpool.items[index],
             size: size,
             expPer: itemToUse.expPer,
             price: itemToUse.costPerItem
@@ -200,7 +159,7 @@ module.exports = {
     },
 
     caughtFish: async function (message, usr, obj) {
-        let index = Math.round(Math.random() * (this.availableFish.length - 1));
+        let index = Math.round(Math.random() * (this.lootpool.fish.length - 1));
         let fish;
 
         try {
@@ -265,7 +224,7 @@ module.exports = {
     },
 
     caughtItem: async function (message, usr, obj) {
-        let index = Math.round(Math.random() * (this.availableItems.length - 1));
+        let index = Math.round(Math.random() * (this.lootpool.items.length - 1));
         let item;
 
         try {

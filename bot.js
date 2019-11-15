@@ -51,8 +51,7 @@ client.on('ready', () => {
 
         gaming.client = client;
         global.client = client;
-
-        fishing.updateAvailableFish();
+        fishing.setLootpool();
 
         global.log('Started', 'info')
         .then(s => {
@@ -87,6 +86,8 @@ client.on('message', async message => {
         // Regular Commands
         case 'toggleremote': {
             global.remote = !global.remote;
+            global.log(`Toggled remote state to ${global.remote}.`);
+            console.log(`Toggled remote state to ${global.remote}.`);
             break;
         }
         case 'ping': {
@@ -117,6 +118,10 @@ client.on('message', async message => {
         }
         case 'f': {
             message.channel.send('F',{files:['https://i1.sndcdn.com/avatars-000171827536-fu8j6k-t500x500.jpg']});
+            break;
+        }
+        case 'bitch': {
+            message.channel.send('You a bitch. B I, C... T H.',{files:['https://tenor.com/view/bicth-gif-8411913']});
             break;
         }
 

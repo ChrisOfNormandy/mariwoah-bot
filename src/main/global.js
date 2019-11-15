@@ -45,7 +45,7 @@ module.exports = {
             str += `"${string}"`;
             try {
                 if (_this.remote && _this.client) _this.client.channels.get("643564636326592523").send(str);
-                else console.log(str);
+                console.log(str);
                 resolve(true);
             }
             catch (e) {
