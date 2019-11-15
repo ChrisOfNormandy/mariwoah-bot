@@ -1,7 +1,7 @@
 # Dread Bot
 
 Misc. utilities bot for discord, written in JavaScript.
-This project DOES NOT INCLUDE NODE MODULES.
+This project DOES NOT INCLUDE NODE MODULES. Requires npm install.
 
 Functions in the bot:
 
