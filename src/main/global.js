@@ -1,4 +1,4 @@
-let help = require('./help');
+const help = require('./help');
 
 module.exports = {
     chatBreak:"-------------------------",
@@ -6,13 +6,18 @@ module.exports = {
     client: null,
     remote: true,
 
+    toggleRemote: function () {
+        this.remote = !this.remote;
+        this.log(`Toggled remote state to ${this.remote}.`);
+    },
+
     log: async function (string, flag) {
         let _this = this;
         return new Promise(function (resolve, reject) {
             let date = new Date();
             let dmy = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
             let time =
-            `${(date.getHours() < 12)
+            `${(date.getHours() <= 12)
             ? (date.getHours == 0) ? 12 : date.getHours()
             : date.getHours() - 12
             }:${(date.getMinutes() < 10)
