@@ -16,6 +16,7 @@ const global = require('./src/main/global');
 // Helpers
 const sell = require('./src/main/bot/helpers/sell');
 const teststats = require('./src/main/bot/helpers/teststats');
+const cleanChat = require('./src/main/bot/helpers/cleanChat');
 const startup = require('./src/minigames/helpers/startupRoutine');
 const saveStats = require('./src/minigames/helpers/saveStats');
 
@@ -80,36 +81,37 @@ client.on('message', async message => {
     const args = message.content.slice(1).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
-    const serverQueue = music.queue.get(message.guild.id);
-
     switch (command) {
         // Regular Commands
         case 'toggleremote': {
-            global.remote = !global.remote;
-            global.log(`Toggled remote state to ${global.remote}.`);
-            console.log(`Toggled remote state to ${global.remote}.`);
+            global.toggleRemote();
+            break;
+        }
+        case 'clean': {
+            cleanChat(message);
             break;
         }
         case 'ping': {
-            const m = await message.channel.send('You rang?');
-            m.edit(`Some stats: Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API latency is ${Math.round(client.ping)}ms.`);
+            message.channel.send('You rang?')
+            .then(msg => {
+                msg.edit(`Some stats: Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API latency is ${Math.round(client.ping)}ms.`);
+            })
+            .catch(e => {
+                console.log(e);
+            });
             break;
         }
         case 'crabravelink': {
-            const m = await message.channel.send('> https://www.youtube.com/watch?v=LDU_Txk06tM');
+            message.channel.send('> https://www.youtube.com/watch?v=LDU_Txk06tM');
             break;
         }
         case '?': {}
         case 'help': {
-            let msg = '';
             global.listHelp(message);
             break;
         }
         case 'whoami': {
-            let str = `Name: ${message.author.username}#${message.author.discriminator} | Nickname: ${message.member.nickname}\nID: ${message.author.id}`;
-            console.log(str);
-            //console.log(message.author);
-            message.channel.send(str);
+            message.channel.send(`Name: ${message.author.username}#${message.author.discriminator} | Nickname: ${message.member.nickname}\nID: ${message.author.id}`);
             break;
         }
         case 'fuck': {
@@ -120,11 +122,6 @@ client.on('message', async message => {
             message.channel.send('F',{files:['https://i1.sndcdn.com/avatars-000171827536-fu8j6k-t500x500.jpg']});
             break;
         }
-        case 'bitch': {
-            message.channel.send('You a bitch. B I, C... T H.',{files:['https://tenor.com/view/bicth-gif-8411913']});
-            break;
-        }
-
         // Gaming
 
         // Fishing
@@ -145,15 +142,10 @@ client.on('message', async message => {
             break;
         }
         case 'tolevel': {
-            if (msgArray[1]) {
-                try {
-                    message.channel.send(fishing.getRequiredCatch(msgArray[1]));
-                }
-                catch {
-                    message.channel.send('Invalid level, try providing a whole number...');
-                }
-            }
-            else message.channel.send('Syntax: tolevel {number}\nExample: tolevel 3');
+            message.channel.send((msgArray[1])
+                ? fishing.getRequiredCatch(msgArray[1])
+                : 'Syntax: tolevel {number}\nExample: tolevel 3'
+            );
             break;
         }
 
@@ -193,103 +185,60 @@ client.on('message', async message => {
         }
         case 'rs': {}
         case 'restart': {
-            const m = await message.channel.send('Restarting, one moment please...')
+            message.channel.send('Restarting, one moment please...')
             .then(msg => client.destroy())
-            .then(() => client.login(auth.token));
-            break;
-        }
-        case 'pushupdate': {
-            let obj = {
-                level: 0,
-                rod: {
-                    durability: 20,
-                    catches: 0,
-                    inUse: false
-                }
-            }
-            gaming.updateAllUsers('fishing', obj);
-            message.channel.send('Updated all users');
+            .then(() => client.login(config.token));
             break;
         }
         case 'resetuser': {
             try {
                 let user = await gaming.newUser(message);
                 gaming.stats[message.author.id] = user;
-                gaming.pushStats();
-                message.channel.send(`Reset user <@${message.author.id}>.`);
-                console.log(gaming.stats[message.author.id]);
+                saveStats()
+                .then(r => {
+                    if (r) message.channel.send(`Reset user <@${message.author.id}>.`);
+                    else message.channel.send(`Failed to reset user <@${message.author.id}>.`);
+                })
+                .catch(e => {
+                    console.log(e);
+                    global.log('Exception: Error thrown from bot -> resetuser -> saveStats promise - caught.', 'error');
+                    global.log(`User ID: ${message.author.id}`, 'error');
+                })
             }
             catch (e) {
                 console.log(e);
+                global.log('Exception: Error resetting user stat data.', 'error');
+                global.log(`User ID: ${message.author.id}`, 'error');
             }
             break;
         }
 
         // Music Commands
         case 'join': {
-            const vc = music.getVC(message);
-            if (!vc) {
-                message.channel.send("You're not in a voice channel, dummy...");
-                return;
-            }
-            else {
-                vc.join()
-                .then(connection => {
-                    console.log('Success!');
-                })
-                .catch(e => {
-                    console.log(e);
-                })
-            }
-            
+            music.join(message);
             break;
         }
         case 'play': {
-            music.playSong(message, serverQueue);
+            music.playSong(message);
             return;
         }
         case 'skip': {
-            const m = await message.channel.send("Skipping...");
-            music.skip(message, serverQueue);
+            message.channel.send("Skipping...");
+            music.skip(message);
             break;
         }
         case 'stop': {
-            const m = await message.channel.send("Stopping all music.");
-            music.stop(message, serverQueue);
+            music.stop(message);
             break;
         }
         case 'q': {}
         case 'queue': {
-            if (!serverQueue) {
-                message.channel.send(`The queue contains... _n o t h i n g . . ._`);
-                return;
-            }
-            let msg = '';
-            if (music.previousSong != null) msg += `**Previous** - ${music.previousSong.title}.\n${global.chatBreak}\n`;
-            let upTo = serverQueue.songs.length <= 10 ? serverQueue.songs.length : 10;
-            msg += `**Now Playing...** ${serverQueue.songs[0].title}\n${global.chatBreak}\n**Up next**:\n`;
-
-            if (serverQueue.songs.length > 1) {
-                for (let i = 1; i <= upTo; i++) {
-                    msg += `${i}. ${serverQueue.songs[i].title}\n`;
-                }
-                if (serverQueue.songs.length > 10) {
-                    msg += `... and ${serverQueue.songs.length - 10} more!`;
-                }
-                message.channel.send(msg);
-            }
-            else if (serverQueue.songs.length == 1) {
-                message.channel.send(`**Now Playing...** ${serverQueue.songs[0].title}`);
-            }
-            else {
-                message.channel.send(`The queue contains... _n o t h i n g . . ._`);
-            }
+            music.getMusicQueue(message);
             break;
         }
         case 'p': {}
         case 'playlist': {
-            const subCommand = message.content.split(' ')[1];
-            switch (subCommand) {
+            switch (msgArray[1]) {
                 case 'create': {
                     music.createPlaylist(message);
                     break;
@@ -299,30 +248,7 @@ client.on('message', async message => {
                     break;
                 }
                 case 'play': {
-                    try {
-                        const m = await message.channel.send(`Starting playlist ${msgArray[2]}.`)
-                        fs.readFile(`${global.playlistPath}${msgArray[2]}.json`, function (err, data) {
-                            if (err) {
-                                console.log(err);
-                                return;
-                            }
-                    
-                            if (data == '') {
-                                message.channel.send('Playlist contains 0 items.');
-                                return;
-                            }
-                        
-                            let obj = JSON.parse(data);
-                            m.edit(`Starting playlist ${msgArray[2]}.\nSong count - ${obj.playlist.length}`);
-                            let shuffle;
-                            if (msgArray[3] === '-s') shuffle = true;
-                            else shuffle = false;
-                            music.addToQueue(obj, message, serverQueue, shuffle);
-                        });
-                    }
-                    catch (e) {
-                        console.log(e);
-                    }
+                    music.playPlaylist(message);
                     break;
                 }
                 case 'list': {
@@ -332,32 +258,20 @@ client.on('message', async message => {
                                 console.log(err);
                                 return;
                             }
-                    
-                            if (data == '') {
-                                message.channel.send('Playlist contains 0 items.');
-                                return;
-                            }
                         
-                            let obj = JSON.parse(data);
-
-                            music.listPlaylist(obj, message, msgArray[3] === '-l')
-                            .then(s => {
-                                console.log('Listed.');
-                            })
-                            .catch(e => {
-                                console.log(e);
-                            })                            
+                            music.listPlaylist(JSON.parse(data), message, msgArray[3] === '-l');                          
                         });
                     }
                     else {
                         fs.readdir(global.playlistPath, function(err, items) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            }
 
-                            let msg = '';
-                            let m;
-                            
-                            for (var i=0; i<items.length; i++) {
-                                m = items[i].split('.')[0];
-                                msg += (i + 1) + '. ' + m + '\n';
+                            let msg = '';                            
+                            for (let i = 0; i < items.length; i++) {
+                                msg += `${i + 1}. ${items[i].split('.')[0]}\n`;
                             }
                             message.channel.send(msg);
                         });
@@ -377,17 +291,13 @@ client.on('message', async message => {
                                 return;
                             }
                     
-                            if (data == '') {
-                                message.channel.send('Playlist contains 0 items.');
-                                return;
-                            }
-                        
                             let obj = JSON.parse(data);
                             obj.playlist.splice(index, 1);
 
                             fs.writeFile(`${global.playlistPath}${msgArray[2]}.json`, JSON.stringify(obj), (err, data) => {
                                 if (err) {
                                     console.log('Error writing to file' + err);
+                                    return;
                                 }
                             });
 
@@ -398,7 +308,7 @@ client.on('message', async message => {
                                 try {
                                     msg += `${i + 1}. ${obj.playlist[i].title}\n`;
                                 }
-                                catch {}
+                                catch { return; }
                             }
 
                             message.channel.send(msg);
@@ -407,8 +317,9 @@ client.on('message', async message => {
                     catch (e) {
                         console.log(e);
                     }
+                    break;
                 }
-            }
+            } // End switch
             break;
         }
     }
