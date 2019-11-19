@@ -100,12 +100,17 @@ module.exports = {
     },
 
     getRequiredCatch: function (level) {
-        let powOne = Math.round((2 * level - 1) / 32);
-        let powTwo = (level % 4) / 2;
-        let amount = 8 * Math.round(Math.pow(2, powOne - powTwo))
-        if (level > 0)
-            return amount + this.getRequiredCatch(level - 1);
-        return amount;
+        try {
+            let powOne = Math.round((2 * level - 1) / 32);
+            let powTwo = (level % 4) / 2;
+            let amount = 8 * Math.round(Math.pow(2, powOne - powTwo))
+            if (level > 0)
+                return amount + this.getRequiredCatch(level - 1);
+            return amount;
+        }
+        catch {
+            return -1;
+        }
     },
 
     checkLevelUp: async function (message) {
