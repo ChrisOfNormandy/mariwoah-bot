@@ -1,7 +1,4 @@
-const gaming = require('../gaming');
-const slots = require('./helpers/slots');
-const printSlotResult = require('./helpers/printSlotResult');
-const blackjack = require('./helpers/blackjack');
+const blackjack = require('./games/blackjack/adapter');
 
 module.exports = {
     roll: function (message, bet, rollAmt) {
@@ -70,13 +67,9 @@ module.exports = {
         slots.list(message);
     },
 
-    blackJack: function (message) {
-        let payout = blackjack(message);
-        console.log(`blackJack result:`);
-        console.log(payout);
-        if (payout != undefined) {
-            return (payout.bet * payout.payout) - payout.bet;
-        }
+    blackjack: function (message) {
+        let obj = blackjack.execute(message);
+        if (obj != null) return (obj.bet * obj.payout) - obj.bet;
         return null;
     }
 }
