@@ -1,10 +1,10 @@
 const bot = require('./bot/adapter');
 
 module.exports = {
-    chatBreak:"-------------------------",
-    playlistPath:"./src/music/playlists/",
-    client: null,
+    chatBreak: "-------------------------",
+    client: bot.preStartup(),
     bot: bot,
+    config: bot.config,
     
     minigames: require('../minigames/core'),
     music: require('../music/core'),

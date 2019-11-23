@@ -2,6 +2,7 @@ const cleanChat = require('./helpers/cleanChat');
 const divideArray = require('./helpers/divideArray');
 const getVoicechat = require('./helpers/getVC');
 const listHelp = require('./helpers/listHelp');
+const preStartup = require('./helpers/preStartup');
 const printLog = require('./helpers/printLog');
 const startup = require('./helpers/startup');
 
@@ -14,8 +15,7 @@ module.exports = {
     divideArray: async (array, size) => divideArray(array, size),
     getVoicechat: (message) => getVoicechat(message),
     listHelp: (message) => listHelp(message),
+    preStartup: () => preStartup(),
     printLog: async (client, string, flag) => printLog(client, string, flag),
     startup: () => startup(),
-    
-    updateUserObject: (message, object) => updateUserObject(message, object)
 }

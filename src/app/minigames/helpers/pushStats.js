@@ -1,15 +1,16 @@
 const fs = require('fs');
+const mapToJson = require('../../common/bot/helpers/mapToJson');
+const minigames = require('../../minigames/core');
 
-module.exports = async function (stats) {
-    global.log('Executing pushStats.', 'info');
-
-    return new Promise( function (resolve, reject) {
-        fs.writeFile(statsPath, JSON.stringify(stats), (err, data) => {
-            if (err) {
-                console.log('Error writing to file' + err);
-                reject(false);
-            }
-            resolve(true);
-        });
-    });
+module.exports = async function () {
+    mapToJson(minigames.stats);
+    // return new Promise( function (resolve, reject) {
+    //     fs.writeFile('../stats.json', JSON.stringify(stats), (err, data) => {
+    //         if (err) {
+    //             console.log('Error writing to file' + err);
+    //             reject(false);
+    //         }
+    //         resolve(true);
+    //     });
+    // });
 }

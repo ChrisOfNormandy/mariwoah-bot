@@ -6,8 +6,5 @@ module.exports = function (message) {
         message.channel.send("You're not in a voice channel, dummy...");
         return;
     }
-    else {
-        vc.join().then(connection => console.log('Success! - ' + connection))
-        .catch(e => console.log(e));
-    }
+    else vc.leave();
 }

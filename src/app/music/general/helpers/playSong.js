@@ -1,8 +1,8 @@
 const ytdl = require('ytdl-core');
 
-const music = require('../music');
-const getVC = require('../../main/bot/helpers/getVC');
 const play = require('./play');
+const getVC = require('../../../common/bot/helpers/getVC');
+const queue = require('../../queue');
 
 module.exports = async function (message) {
     const args = message.content.split(' ');
@@ -16,8 +16,8 @@ module.exports = async function (message) {
         url: songInfo.video_url,
     };
 
-    if (!music.serverQueue) {
-        music.queueContruct = {
+    if (!queue.serverQueue) {
+        queue.queueContruct = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
             connection: null,
@@ -25,25 +25,25 @@ module.exports = async function (message) {
             volume: 5,
             playing: true,
         };
-        if (!music.queue) music.queue = new Map();
+        if (!queue.queue) queue.queue = new Map();
 
-        music.queue.set(message.guild.id, music.queueContruct);
+        queue.queue.set(message.guild.id, queue.queueContruct);
 
-        music.queueContruct.songs.push(song);
+        queue.queueContruct.songs.push(song);
 
         try {
             let connection = await voiceChannel.join();
-            music.queueContruct.connection = connection;
-            play(message.guild, music.queueContruct.songs[0]);
+            queue.queueContruct.connection = connection;
+            play(message.guild, queue.queueContruct.songs[0]);
         }
         catch (err) {
             console.log(err);
-            music.queue.delete(message.guild.id);
+            queue.queue.delete(message.guild.id);
             return message.channel.send(err);
         }
     }
     else {
-        music.serverQueue.songs.push(song);
+        queue.serverQueue.songs.push(song);
         console.log(serverQueue.songs);
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
