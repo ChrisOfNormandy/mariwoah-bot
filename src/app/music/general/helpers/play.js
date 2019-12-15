@@ -3,10 +3,12 @@ const queue = require('../../queue');
 
 function play (guild, song) {
     queue.serverQueue = queue.queue.get(guild.id);
-
-    if (!song) {
+    if (queue.serverQueue.songs[0]) console.log(`Now playing: ${queue.serverQueue.songs[0].title}`);
+    else {
         queue.serverQueue.voiceChannel.leave();
+        console.log('Ending queue.');
         queue.queue.delete(guild.id);
+        queue.serverQueue = null;
         return;
     }
     
@@ -14,9 +16,7 @@ function play (guild, song) {
         .on('end', () => {
             console.log('Music ended!');
             previousSong = song;
-            queue.serverQueue.songs.shift();
-            if (!queue.serverQueue.songs[0]) return;
-            console.log(`Now playing: ${queue.serverQueue.songs[0]}`);
+            queue.serverQueue.songs.shift();           
             play(guild, queue.serverQueue.songs[0]);
         })
         .on('error', error => console.error(error));

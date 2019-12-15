@@ -1,15 +1,15 @@
 const bot = require('./bot/adapter');
 
 module.exports = {
-    chatBreak: "-------------------------",
     client: bot.preStartup(),
     bot: bot,
     config: bot.config,
     
     minigames: require('../minigames/core'),
     music: require('../music/core'),
+    memes: require('../memes/core'),
 
-    log: async (string, flag) => bot.printLog(this.client, string, flag),
+    log: async function(string, flag) {bot.printLog(this.client, string, flag);},
     
     listHelp: (message) => bot.listHelp(message)
 }

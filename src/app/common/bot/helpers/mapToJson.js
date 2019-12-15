@@ -1,6 +1,6 @@
 module.exports = function(map) {
-    console.log(map);
-    map.array.forEach(element => {
-        console.log(element);
-    });
+    let stats = {};
+    for (let [key, val] of map)
+        stats[key] = val;
+    return stats;
 }

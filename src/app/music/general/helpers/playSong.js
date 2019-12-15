@@ -44,7 +44,7 @@ module.exports = async function (message) {
     }
     else {
         queue.serverQueue.songs.push(song);
-        console.log(serverQueue.songs);
+        console.log(queue.serverQueue.songs);
         return message.channel.send(`${song.title} has been added to the queue!`);
     }
 }

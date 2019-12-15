@@ -1,8 +1,8 @@
-const music = require('../music');
-const global = require('../../../common/core');
+const queue = require('../../queue');
+const chatFormats = require('../../../common/bot/helpers/chatFormats');
 
 module.exports = function (message) {
-    let serverQueue = music.serverQueue;
+    let serverQueue = queue.serverQueue;
 
     if (!serverQueue) {
         message.channel.send(`The queue contains... _n o t h i n g . . ._`);
@@ -11,11 +11,11 @@ module.exports = function (message) {
 
     let msg = '';
     
-    if (music.previousSong != null) msg += `**Previous** - ${music.previousSong.title}.\n${global.chatBreak}\n`;
+    if (queue.previousSong != null) msg += `**Previous** - ${queue.previousSong.title}.\n${chatFormats.chatBreak}\n`;
 
     let upTo = serverQueue.songs.length <= 10 ? serverQueue.songs.length : 10;
 
-    msg += `**Now Playing...** ${serverQueue.songs[0].title}\n${global.chatBreak}\n**Up next**:\n`;
+    msg += `**Now Playing...** ${serverQueue.songs[0].title}\n${chatFormats.chatBreak}\n**Up next**:\n`;
     
     if (serverQueue.songs.length > 1) {
         for (let i = 1; i <= upTo; i++) {

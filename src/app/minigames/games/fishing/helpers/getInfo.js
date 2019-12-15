@@ -1,5 +1,4 @@
-const global = require('../../../main/global');
-const fishlist = require('../../itemList').fish;
+const fishlist = require('../../../helpers/items/itemlist').fish;
 
 module.exports = function (fishType) {
     try {
@@ -18,8 +17,6 @@ module.exports = function (fishType) {
     }
     catch (e) {
         console.log(e);
-        global.log('Exception: Error displaying fish info for .', 'error');
-        global.log(`Variables from exception: fishType: ${fishType}.`);
     }
     return 'Oops! Had a problem getting a list of fish - sorry...';
 }

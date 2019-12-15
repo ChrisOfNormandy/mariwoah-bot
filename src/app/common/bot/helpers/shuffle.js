@@ -6,6 +6,6 @@ module.exports = async function (array) {
             [array[i], array[j]] = [array[j], array[i]];
         }
     
-        return array;
+        resolve(array);
     })
 }

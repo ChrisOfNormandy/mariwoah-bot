@@ -1,4 +1,4 @@
-const slots = require('./slots');
+const slots = require('../adapter');
 
 module.exports = function (obj, bet) {
     let msg = '> |#######################|\n> **||** ';

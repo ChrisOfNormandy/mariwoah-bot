@@ -1,23 +1,28 @@
 const drawCard = require('../../../helpers/drawCard');
 
-module.exports = function(message) {
+module.exports = function(message, user) {
     let msgArray = message.content.split(' ');
 
     if (!msgArray[1]) {
         message.channel.send('Please place a bet.');
-        return;
+        return -1;
     }
     if (isNaN(msgArray[1])) {
         message.channel.send('Please place a valid bet.');
-        return;
+        return -1;
     }
     const bet = Math.floor(msgArray[1]);
     if (bet == 0) {
         message.channel.send('Please place a positive whole number bet.');
-        return;
+        return -1;
+    }
+    if (user.stats.money < bet) {
+        message.channel.send("You don't have enough money to make that bet.");
+        return -1;
     }
 
     message.channel.send('Starting blackjack...');
+    
 
     let game = {
         dealerHand: [],

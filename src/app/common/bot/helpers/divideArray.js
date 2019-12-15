@@ -1,7 +1,6 @@
 module.exports = async function (array, size) {
     return new Promise (function (resolve, reject) {
         if (!array.length) reject(array);
-        if (array.length <= size) resolve(array);
         
         let arraySize = Math.ceil(array.length / size);
         let toReturn = new Array(arraySize);

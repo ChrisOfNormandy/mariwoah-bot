@@ -62,7 +62,7 @@ module.exports = {
         }
     },
     playlist: {
-        header: '### Playlist Commands ###\nUsage: playlist {subcommand} OR p {subcommand}',
+        header: '### Playlist Commands ###\nUsage: playlist {subcommand} OR pl {subcommand}',
         commands: {
             'create': {
                 str: 'Creates a playlist of the given name.',
@@ -119,32 +119,10 @@ module.exports = {
                 str: 'Displays your gaming statistics. If none found, generates a user profile.'
             },
             'inv': {
-                str: 'Displays your inventory amounts.',
-                flags: [
-                    ['f', 'g', 'm'],
-                    [
-                        'Displays all items in fishing inventory.',
-                        'Displays all items in global items inventory.',
-                        'Displays all items in mining inventory.'
-                    ]
-                ]
+                str: 'Displays your inventory amounts.'
             },
             'sell': {
-                str: 'Sells the inventory of the provided name.',
-                args: [
-                    ['fish', 'items', 'ores'],
-                    [
-                        'Sells all fish in the fishing inventory.',
-                        'Sells all items in the global items inventory.',
-                        'Sells all ores in the mining items inventory.'
-                    ]
-                ]
-            },
-            'teststats': {
-                str: 'Determines the active status of all imported functions.'
-            },
-            'resetuser': {
-                str: 'Resets your user profile. Use only in case of corruption or to zero-out all stats.'
+                str: 'Sells all items in your inventory.'
             }
         },
         subcommands: {
@@ -153,26 +131,6 @@ module.exports = {
                 commands: {
                     'cast': {
                         str: 'Casts your fishing rod. Will return a result within a couple seconds.'
-                    },
-                    'fishlist': {
-                        str: 'Refreshes available fish and items to catch; Displays available catchables.'
-                    },
-                    'fishfact': {
-                        str: 'Displays information about the fish of the given name.',
-                        args: [
-                            ['fish_name'],
-                            ['Name of a fish; replace spaces with underscores when providing names.']
-                        ]
-                    },
-                    'tolevel': {
-                        str: 'Returns how many catches are required to progress to the next level.',
-                        args: [
-                            ['level'],
-                            ['Should be a whole number; returns amount (total) to NEXT level. Input of 0 would return requirement for getting level 1.']
-                        ]
-                    },
-                    'breakmyrod': {
-                        'str': 'Snaps your fishing rod over your knee, setting durability to 0. Good for resetting a bugged rod.'
                     }
                 }
             },
@@ -187,20 +145,6 @@ module.exports = {
             'gambling': {
                 header: '### Gambling Minigame Commands ###',
                 commands: {
-                    'roll': {
-                        str: 'Slot machine with 5 reels.',
-                        args: [
-                            ['bet', 'bet count'],
-                            [
-                                'Positive whole number pay-in amount.',
-                                'Positive whole number pay-in amount; number of times to roll. Should be greater or equal to bet value.'
-                            ]
-                        ],
-                        flags:[
-                            ['c'],
-                            ['Used without arguments, lists payouts for each reel value.']
-                        ]
-                    },
                     'blackjack': {
                         str: 'Standard game of blackjack. Dealer rests at soft 17. 2x payout.',
                         args: [

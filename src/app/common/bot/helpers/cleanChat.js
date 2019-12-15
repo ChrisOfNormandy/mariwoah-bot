@@ -3,7 +3,11 @@ const config = require('./config');
 module.exports = async function (channel) {
     if (channel.type == 'text') {
         channel.fetchMessages().then(messages => {
-            const botMessages = messages.filter(msg => msg.author.bot || config.settings.prefix.includes(msg.content.charAt(0)) || config.settings.otherPrefixes.includes(msg.content.charAt(0)));
+            const botMessages = messages.filter(msg => 
+                (msg.author.bot ||
+                config.settings.prefix.includes(msg.content.charAt(0)) ||
+                config.settings.otherPrefixes.includes(msg.content.charAt(0)))
+            );
             channel.bulkDelete(botMessages);
             messagesDeleted = botMessages.array().length; // number of messages deleted
     

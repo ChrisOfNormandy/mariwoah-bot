@@ -27,6 +27,7 @@ module.exports = async function (object, message, doShuffle) {
     if (doShuffle) {
         playlistArray = await shuffle(object.playlist)
         .then(state => {
+            console.log(state)
             if (!state) return;
 
             console.log('Shuffled playlist successfully.');

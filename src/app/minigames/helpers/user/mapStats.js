@@ -4,9 +4,9 @@ module.exports = function() {
     let map = new Map();
     pullStats()
     .then(stats => {
-        for (obj in stats) {
-            if (map.has(obj.user.id)) continue;
-            map.set(obj.user.id, obj);
+        for (let id in stats) {
+            if (map.has(id)) continue;
+            map.set(id, stats[id]);
         }
     })
     .catch(e => {console.log(e);});

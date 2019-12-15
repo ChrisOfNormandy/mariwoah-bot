@@ -3,17 +3,15 @@ const getOutcome_Hit = require('./getOutcome_Hit');
 const getPayout = require('./getPayout');
 const listHand = require('../../../helpers/listHand');
 
-function end(message, game, instances) {
+function end(message, game) {
     console.log('END OF BLACKJACK GAME. RETURNING.');
     message.channel.send(`**Payout**: $${game.payout * game.bet}. **Earned**: $${(game.payout * game.bet) - game.bet}.`);
-    instances.delete(message.author.id);
     return {
-        game: game,
-        instances: instances
+        game: game
     }
 }
 
-module.exports = function(message, game, instances) {
+module.exports = function(message, game) {
     msgArray = message.content.split(' ');
 
     if (!msgArray[1]) {
@@ -60,7 +58,7 @@ module.exports = function(message, game, instances) {
             message.channel.send(msg);
             game.payout = payout;
 
-            return end(message, game, instances);
+            return end(message, game);
         }
         default: {
             return;
