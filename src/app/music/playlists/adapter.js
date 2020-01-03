@@ -27,9 +27,13 @@ module.exports = {
     add: async function(message) {
         let result = await add(message, paths.playlists);
         console.log((result) ? 'Added song successfully!' : 'Failed to add song!');
+        message.channel.send((result) ? `Added song to the playlist!\n${message.content.split(' ')[3]}` : 'Failed to add song to playlist');
+        message.delete();
     },
     remove: async function(message) {
         let result = await remove(message, paths.playlists);
         console.log((result) ? 'Removed song successfully!' : 'Failed to remove song!');
+        message.channel.send((result) ? 'Removed song from the playlist!' : 'Failed to remove song from playlist');
+        message.delete();
     }
 }

@@ -2,7 +2,7 @@ module.exports = {
     main: {
         header: '### Help Commands ###\nUsage: ~help {subcommand} OR ~? {subcommand}\n_Allowed prefixes:_ . - ~',
         commands: {
-            'basic': {
+            'common': {
                 str: 'General use commands.',
             },
             'music': {
@@ -13,26 +13,38 @@ module.exports = {
             },
             'minigames': {
                 str: 'Minigames related commands. Try ~help minigames {game} for a specific minigame.'
+            },
+            'memes': {
+                str: 'Meme commands. Just for fun.'
             }
         }
     },
-    basic: {
-        header: '### Basic Commands ###',
+    common: {
+        header: '### Common Commands ###',
         commands: {
             'ping': {
                 str: 'Gets the Discord latency (delay between send and edit) and bot-to-server latency.',
             },
-            'crabravelink': {
-                str: 'Gets the YouTube URL for crab rave.',
+            'clean': {
+                str: 'Cleans the chat of bot messages and commands.',
+            },
+            'restart': {
+                str: 'Runs the bot prestartup script. Use only when Discord has a fit.',
+                alts: ['rs'],
+            },
+            'help': {
+                str: 'Lists help, duh.',
+                alts: ['?'],
             },
             'whoami': {
-                str: 'Gets you.',
+                str: 'Lists your Discord name and discriminator (#numb), server join date and roles.'
             },
-            'fuck': {
-                str: 'Rage comic fuuuuu... Good for when times are rough.',
-            },
-            'f': {
-                str: 'Drops an F in chat.',
+            'whoareyou': {
+                str: 'Lists a user Discord name and discriminator (#numb), server join date and roles.',
+                args: [
+                    ['@Username'],
+                    ['The user you want information about.']
+                ]
             }
         }
     },
@@ -48,6 +60,9 @@ module.exports = {
                     ['url'],
                     ['YouTube URL for a given video/song.']
                 ]
+            },
+            'leave': {
+                str: 'Kicks the bot out of its active voice chat.'
             },
             'skip': {
                 str: 'Skips the current song, plays next if another available in queue.',
@@ -158,6 +173,33 @@ module.exports = {
                         ]
                     }
                 }
+            }
+        }
+    },
+    memes: {
+        header: '### MEMES, HELL YEAH! ###',
+        commands: {
+            'f': {
+                str: 'Drops an f in the chat.'
+            },
+            'fuck': {
+                str: 'Rage comic fuuuuu!'
+            },
+            'yey': {
+                str: 'Rage comic yey!'
+            },
+            'crabrave': {
+                str: 'Starts playing Crabrave by Noisestorm in the voice chat.',
+                alts: ['cr'],
+            },
+            'furry': {
+                str: 'Drops an uwu in the voice chat. ;)'
+            },
+            'earrape': {
+                str: 'Protect your ears.'
+            },
+            'turtlesex': {
+                str: 'Added just because I could.'
             }
         }
     }

@@ -24,12 +24,12 @@ module.exports = function(message) {
         if (sect.commands[s].alts) {
             msg += '> --- alternates: ';
             for (let i = 0; i < sect.commands[s].alts.length; i++) {
-                if (i == 0) msg += '> '
                 if (i < sect.commands[s].alts.length - 1)
                     msg += `${sect.commands[s].alts[i]}, `;
                 else
                     msg += `${sect.commands[s].alts[i]}`;
             }
+            msg += '\n'
         }
         if (sect.commands[s].args) {
             msg += '> --- arguments:\n';

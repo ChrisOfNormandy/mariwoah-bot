@@ -13,7 +13,7 @@ module.exports = {
     config: require('./helpers/config'),
     help: require('./helpers/help'),
 
-    cleanChat: (message) => cleanChat(message.channel),
+    cleanChat: (message) => cleanChat(message),
     divideArray: async (array, size) => divideArray(array, size),
     getVoicechat: (message) => getVoicechat(message),
     listHelp: (message) => listHelp(message),

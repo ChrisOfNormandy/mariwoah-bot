@@ -1,12 +1,14 @@
 const config = require('./config');
 
-module.exports = async function (channel) {
+module.exports = async function (message) {
+    let channel = message.channel;
+
     if (channel.type == 'text') {
         channel.fetchMessages().then(messages => {
             const botMessages = messages.filter(msg => 
-                (msg.author.bot ||
-                config.settings.prefix.includes(msg.content.charAt(0)) ||
-                config.settings.otherPrefixes.includes(msg.content.charAt(0)))
+                (
+                    msg.author.bot
+                )
             );
             channel.bulkDelete(botMessages);
             messagesDeleted = botMessages.array().length; // number of messages deleted
@@ -25,5 +27,6 @@ module.exports = async function (channel) {
             console.log('Error while doing Bulk Delete');
             console.log(err);
         });
+        message.delete();
     }
 }

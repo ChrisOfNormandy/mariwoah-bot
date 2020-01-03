@@ -17,7 +17,7 @@ module.exports = async function (message) {
         
             let obj = JSON.parse(data);
             m.edit(`Starting playlist ${msgArray[2]}.\nSong count - ${obj.playlist.length}`);
-            let bool = msgArray[3] == '-s'
+            let bool = msgArray[3] == '-s';
             addToQueue(obj, message, bool);
         });
     }
