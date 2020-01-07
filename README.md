@@ -1,7 +1,6 @@
-# Dread Bot
+# Mariwoah Bot
 
 Misc. utilities bot for discord, written in JavaScript.
-This project DOES NOT INCLUDE NODE MODULES.
 
 Functions in the bot:
 
@@ -21,4 +20,3 @@ Functions in the bot:
 # List of planned features needing implementation
 
 * queue -l should include current playing song url.
-* clean command is shit. Fix it. Currently deletes EVERYTHING in the chat. Should only delete bot messages and commands. Dumbass.
