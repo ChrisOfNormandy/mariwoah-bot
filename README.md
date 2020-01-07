@@ -1,4 +1,4 @@
-# Dread Bot
+# Mariwoah Bot
 
 Misc. utilities bot for discord, written in JavaScript.
 This project DOES NOT INCLUDE NODE MODULES. Requires npm install.
