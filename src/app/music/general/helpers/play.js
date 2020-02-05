@@ -11,15 +11,17 @@ function play (guild, song) {
         queue.serverQueue = null;
         return;
     }
-    
+
     const dispatcher = queue.serverQueue.connection.playStream(ytdl(song.url,{filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1<<25 }), {highWaterMark: 1})
         .on('end', () => {
             console.log('Music ended!');
             previousSong = song;
-            queue.serverQueue.songs.shift();           
-            play(guild, queue.serverQueue.songs[0]);
+            queue.serverQueue.songs.shift();
+            setTimeout(() => play(guild, queue.serverQueue.songs[0]), 5000);
         })
-        .on('error', error => console.error(error));
+        .on('error', error => {
+            console.error(error);
+        });
     dispatcher.setVolumeLogarithmic(queue.serverQueue.volume / 5);
 }
 

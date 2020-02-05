@@ -7,5 +7,6 @@ module.exports = {
                 file: memeDispatcher(meme)
             }
         );
+        message.delete();
     }
 }

@@ -9,8 +9,6 @@ client.on('ready', () => {
 
     common.bot.startup();
     common.log('Ready!');
-    console.log('Using stats:');
-    console.log(common.minigames.stats);
 
     client.user.setActivity('you. ;)', { type: 'watching' })
 });
@@ -27,7 +25,7 @@ client.on('message', async message => {
 });
 
 client.on('voiceStateUpdate', (oldMember, newMember) => {
-    joinAlertSound(client, oldMember, newMember);
+    //joinAlertSound(client, oldMember, newMember);
 })
 
 client.login(client.token);

@@ -1,2 +1,4 @@
 /node_modules
+/src/app/common/roleManager/users
+/src/app/common/playlists
 .gitignore

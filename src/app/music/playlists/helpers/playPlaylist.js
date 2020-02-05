@@ -14,7 +14,7 @@ module.exports = async function (message) {
                 console.log(err);
                 return;
             }
-        
+
             let obj = JSON.parse(data);
             m.edit(`Starting playlist ${msgArray[2]}.\nSong count - ${obj.playlist.length}`);
             let bool = msgArray[3] == '-s';

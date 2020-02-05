@@ -27,8 +27,8 @@ module.exports = function(userID, action, argsObject) {
                     let flag = true;
                     let i = 0;
                     while (flag && i < user.inventories.items.length) {
-                        if (user.inventories.items[istack].item.name == argsObject.item.name) {
-                            user.inventories.items[istack].amount++;
+                        if (user.inventories.items[i].item.name == argsObject.item.name) {
+                            user.inventories.items[i].amount++;
                             flag = false;
                         }
                     }

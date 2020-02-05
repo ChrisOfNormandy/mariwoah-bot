@@ -5,6 +5,9 @@ module.exports = {
             'common': {
                 str: 'General use commands.',
             },
+            'roleManager': {
+                str: 'Role management commands.'
+            },
             'music': {
                 str: 'Music related commands.',
             },
@@ -27,10 +30,11 @@ module.exports = {
             },
             'clean': {
                 str: 'Cleans the chat of bot messages and commands.',
-            },
-            'restart': {
-                str: 'Runs the bot prestartup script. Use only when Discord has a fit.',
-                alts: ['rs'],
+                args: [
+                    ['@Username'],
+                    ['The user you want to remove messages for.']
+                ],
+                admin: true,
             },
             'help': {
                 str: 'Lists help, duh.',
@@ -45,6 +49,27 @@ module.exports = {
                     ['@Username'],
                     ['The user you want information about.']
                 ]
+            }
+        }
+    },
+    roleManager: {
+        header: '### Role Manager Commands ###',
+        commands: {
+            'warn': {
+                str: 'Warns the user with or without a specified reason.',
+                args: [
+                    ['@user', 'reason'],
+                    ['Ping of the target user', 'Optional; if supplied, will list reason for warning when checking user history.']
+                ],
+                admin: true
+            },
+            'rm_info': {
+                str: 'Provides user history of warnings, kicks, bans and ban reverts.',
+                args: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ],
+                admin: true
             }
         }
     },
