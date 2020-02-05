@@ -17,11 +17,5 @@
     },
     "repository": {},
     "private": true,
-    "license": "GNU General Public License (GPL)",
-    "nodemonConfig": {
-        "ignore": [
-            "*.md",
-            "*.json"
-        ]
-    }
+    "license": "GNU General Public License (GPL)"
 }

@@ -1,0 +1,5 @@
+/node_modules
+/src/app/common/roleManager/users
+/src/app/common/roleManager/servers
+/src/app/common/playlists
+.gitignore

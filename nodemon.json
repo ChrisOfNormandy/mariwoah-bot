@@ -1,0 +1,12 @@
+{
+    "events": {
+        "exit": "node onrestart.js"
+    },
+    "ignore": [
+        "*.md",
+        "*.json"
+    ],
+    "watch": [
+        "*.js"
+    ]
+}
