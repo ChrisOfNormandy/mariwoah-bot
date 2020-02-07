@@ -27,7 +27,7 @@ module.exports = async function(message) {
         for (s in sect.commands) {
             if (!admin && (sect.commands[s].admin || sect.commands[s].devOnly)) continue;
     
-            msg += `${sect.commands[s].str}\n`;
+            msg += `${sect.commands[s].description}\n`;
     
             if (sect.commands[s].alternatives) {
                 msg += '> Alternatives: ';

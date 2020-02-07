@@ -18,7 +18,7 @@ module.exports = async function(message) {
     const args = message.content.slice(1).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
-    const common = commandList.common.commands;
+    const cmn = commandList.common.commands;
     const roleMan = commandList.roleManager.commands;
     const music = commandList.music.commands;
     const playlist = commandList.playlist.commands;
@@ -27,13 +27,13 @@ module.exports = async function(message) {
 
     switch (command) {
         // Common
-        case 'ping': return (await verify(message, common.ping.permissionLevel)) ? common.bot.ping(message, common.client) : false;
-        case 'clean': return (await verify(message, common.clean.permissionLevel)) ? common.bot.cleanChat(message) : false;
+        case 'ping': return (await verify(message, cmn.ping.permissionLevel)) ? common.bot.ping(message, common.client) : false;
+        case 'clean': return (await verify(message, cmn.clean.permissionLevel)) ? common.bot.cleanChat(message) : false;
         case '?': {}
-        case 'help': return (await verify(message, common.listHelp.permissionLevel)) ? common.bot.listHelp(message) : false;
-        case 'whoami': return (await verify(message, common.whoami.permissionLevel)) ? common.bot.whoami(message) : false;
-        case 'whoareyou': return (await verify(message, common.whoareyou.permissionLevel)) ? common.bot.whoareyou(message) : false;
-        case 'roll': return (await verify(message, common.roll.permissionLevel)) ? common.roll(message, args) : false;
+        case 'help': return (await verify(message, cmn.help.permissionLevel)) ? common.bot.listHelp(message) : false;
+        case 'whoami': return (await verify(message, cmn.whoami.permissionLevel)) ? common.bot.whoami(message) : false;
+        case 'whoareyou': return (await verify(message, cmn.whoareyou.permissionLevel)) ? common.bot.whoareyou(message) : false;
+        case 'roll': return (await verify(message, cmn.roll.permissionLevel)) ? common.roll(message, args) : false;
         
         // RoleManager
         case 'setmotd': return (await verify(message, roleMan.setmotd.permissionLevel)) ? common.roleManager.setmotd(message, args) : false;
