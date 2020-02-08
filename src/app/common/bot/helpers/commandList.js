@@ -34,7 +34,7 @@ module.exports = {
                 permissionLevel: 3,
                 arguments: [
                     ['@Username'],
-                    ['The user you want to remove messages for.']
+                    ['Optional; the user you want to remove messages for.']
                 ],
             },
             'help': {
