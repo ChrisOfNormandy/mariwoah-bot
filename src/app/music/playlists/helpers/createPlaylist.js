@@ -7,7 +7,7 @@ module.exports = function (message) {
 
     try {
         const name = args[2];
-        const path = `${paths.playlists}${name}.json`;
+        const path = `${paths.getPlaylistPath(message)}${name}.json`;
 
         fs.access(path, fs.F_OK, (err) => {
             if (err) {

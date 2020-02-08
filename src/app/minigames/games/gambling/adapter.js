@@ -7,7 +7,14 @@ module.exports = {
         if (!isNaN(rollAmt)) rollCount = Math.floor(rollAmt);
 
         message.channel.send(`> Starting slots using $${bet} ${rollCount} times.`)
-        .then(msg => setTimeout(() => msg.delete(), 3000))
+        .then(msg => setTimeout(() => {
+            try {
+                msg.delete();
+            }
+            catch (e) {
+                message.channel.send('I require admin permissions to operate correctly.');
+            }
+        }, 3000))
         .then(setTimeout(() => {
             message.channel.send('> Rolling slots...')
             .then(m => {

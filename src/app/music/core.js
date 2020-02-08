@@ -1,5 +1,21 @@
 const music = require('./general/adapter');
 const playlist = require('./playlists/adapter');
+const roleManager = require('../common/roleManager/adapter');
+const commandList = require('../common/bot/helpers/commandList');
+
+async function verify(message, permissionLevel) {
+    if (message.member.hasPermission("ADMINISTRATOR")) return true;
+
+    let verification = await roleManager.verifyPermission(message, message.author.id, permissionLevel);
+    if (!verification.status) {
+        if (verification.reason) message.channel.send(verification.reason);   
+        else message.channel.send('Operation rejected by permission verification.')
+        return false;
+    }
+    return true;
+}
+
+const pl = commandList.playlist.commands;
 
 module.exports = {
     play: function(message) {music.play(message)},
@@ -16,16 +32,29 @@ module.exports = {
     addToPlaylist: function(message) {playlist.add(message)},
     removeFromPlaylist: function(message) {playlist.remove(message)},
 
-    playlistCommand: function(message, commandList) {
-        switch(commandList[0]) {
-            case 'play': {this.playPlaylist(message); break;}
-            case 'list': {
-                if (commandList.length == 1) this.listAllPlaylists(message);
-                else this.listPlaylist(message); break;
-            }
-            case 'create': {this.createPlaylist(message); break;}
-            case 'add': {this.addToPlaylist(message); break;}
-            case 'remove': {this.removeFromPlaylist(message); break;}
-        }
+    playlistCommand: async function(message, commandList) {
+        return new Promise(async function(resolve, reject) {
+            if (commandList[0] == 'play')
+                verify(message, pl.play.permissionLevel)
+                .then(() => resolve(this.playPlaylist(message)))
+                .catch(r => reject(r));
+            else if (commandList[0] == 'list')
+                verify(message, pl.list.permissionLevel)
+                .then(() => resolve((commandList.length == 1) ? this.listAllPlaylists(message) : this.listPlaylist(message)))
+                .catch(r => reject(r));
+            else if (commandList[0] == 'create')
+                verify(message, pl.create.permissionLevel)
+                .then(() => resolve(this.createPlaylist(message)))
+                .catch(r => reject(r));
+            else if (commandList[0] == 'add')
+                verify(message, pl.add.permissionLevel)
+                .then(() => resolve(this.addToPlaylist(message)))
+                .catch(r => reject(r));
+            else if (commandList[0] == 'remove')
+                verify(message, pl.remove.permissionLevel)
+                .then(() => resolve(this.removeFromPlaylist(message)))
+                .catch(r => reject(r));
+            else reject(null);
+        });
     }
 }

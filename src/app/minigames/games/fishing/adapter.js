@@ -8,7 +8,12 @@ module.exports = {
     cast: function(message) {
         if (this.instances.has(message.author.id)) {
             message.channel.send('Please wait...').then(msg => setTimeout(() => msg.delete(), 3000));
-            message.delete();
+            try {
+                message.delete();
+            }
+            catch (e) {
+                message.channel.send('I require admin permissions to operate correctly.');
+            }
             return;
         }
 
@@ -43,7 +48,12 @@ module.exports = {
                     :`:fishing_pole_and_fish: ${user.definition.name}, you caught ${instance.returnItem.item.size} ${(instance.returnItem.item.name).replace('_', ' ')}${(instance.returnItem.item.size > 1) ? 's' : ''}!` 
                 : `Tough luck, ${user.definition.name}, your line was empty.`;
                 msg.edit(newMsg);
-                message.delete();
+                try {
+                    message.delete();
+                }
+                catch (e) {
+                    message.channel.send('I require admin permissions to operate correctly.');
+                }
             }, instance.delay * 1000);
         });
     }

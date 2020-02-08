@@ -19,16 +19,16 @@ module.exports = {
             },
             'memes': {
                 description: 'Meme commands. Just for fun.'
-            }
-        }
+            },
+            page: [
+                ['common', 'roleManager', 'music', 'playlist', 'minigames', 'memes'],
+            ],
+        },
+        
     },
     common: {
         header: '### Common Commands ###',
         commands: {
-            'ping': {
-                description: 'Gets the Discord latency (delay between send and edit) and bot-to-server latency.',
-                permissionLevel: 0,
-            },
             'clean': {
                 description: 'Cleans the chat of bot messages and commands.',
                 permissionLevel: 3,
@@ -42,6 +42,26 @@ module.exports = {
                 permissionLevel: 0,
                 alternatives: ['?'],
             },
+            'ping': {
+                description: 'Gets the Discord latency (delay between send and edit) and bot-to-server latency.',
+                permissionLevel: 0,
+            },
+            'roll': {
+                description: 'Rolls a number between 1 and a provided value (default 6).',
+                permissionLevel: 0,
+                arguments: [
+                    ['sides', 'count'],
+                    ['Maximum value / sides of dice. 2 = coin flip.', 'How many times the action should be repeated. Default 1; max 50.']
+                ]
+            },
+            'shuffle': {
+                description: 'Shuffles everything after the command.',
+                permissionLevel: 0,
+                arguments: [
+                    ['array'],
+                    ['Comma-separated list of items wanted split. Ex: 1,2,3,4,5 | Ex: cat,dog,fish,bird,cow']
+                ]
+            },
             'whoami': {
                 description: 'Lists your Discord name and discriminator (#numb), server join date and roles.',
                 permissionLevel: 0,
@@ -54,30 +74,49 @@ module.exports = {
                     ['The user you want information about.']
                 ]
             },
-            'roll': {
-                description: 'Rolls a number between 1 and a provided value (default 6).',
-                permissionLevel: 0,
-                arguments: [
-                    ['sides', 'count'],
-                    ['Maximum value / sides of dice. 2 = coin flip.', 'How many times the action should be repeated. Default 1; max 50.']
-                ]
-            }
+            page: [
+                ['clean', 'help', 'ping', 'roll', 'shuffle', 'whoami', 'whoareyou'],
+            ],
         }
     },
-    roleManager: {
+    rolemanager: {
         header: '### Role Manager Commands ###',
         commands: {
+            'motd': {
+                description: 'Gets the server Message of the Day.',
+                permissionLevel: 0,
+            },
             'setmotd': {
                 description: 'Sets the server Message of the Day. Remains until executed again.',
                 permissionLevel: 4,
                 arguments: [
                     ['message'],
-                    ['MOTD formatted as: ...']
+                    ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
                 ],
             },
-            'motd': {
-                description: 'Gets the server Message of the Day.',
-                permissionLevel: 0,
+            'promote': {
+                description: 'Promotes the user 1 level. Can only promote to level 1 fewer than sender.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'demote': {
+                description: 'Demotes the user 1 level. Can only demote to 0 (default) for users below sender.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'setbotadmin': {
+                description: 'Gives user bot admin abilities (overrides permission levels). Use only for trusted users.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
             },
             'warn': {
                 description: 'Warns the user with or without a specified reason.',
@@ -106,22 +145,77 @@ module.exports = {
             'unban': {
                 description: 'Pardons the user with or without a specified reason.',
                 permissionLevel: 4,
+                alternatives: ['revertban'],
                 arguments: [
                     ['userID', 'reason'],
                     ['ID of the target user', 'Optional; if supplied, will list reason for pardon when checking user history.']
                 ],
             },
-            'rm_reset': {
-
+            'rm-reset': {
+                description: 'Resets all user history (warnings, kicks, bans, reverts).',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
             },
-            'rm_info': {
+            'fetchbans': {
+                description: 'Returns a list of active server bans.',
+                permissionLevel: 2,
+            },
+            'rm-info': {
                 description: 'Provides user history of warnings, kicks, bans and ban reverts.',
                 permissionLevel: 2,
                 arguments: [
                     ['@user'],
                     ['Ping of the target user']
                 ],
-            }
+            },
+            'rm-roleinfo': {
+                description: 'Returns user role information.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'warnings': {
+                description: 'Returns list of user warnings and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'kicks': {
+                description: 'Returns list of user kicks and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'bans': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'banreverts': {
+                description: 'Returns list of user pardons and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            page: [
+                ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin'],
+                ['warn', 'kick', 'ban', 'unban', 'rm-reset'],
+                ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
+            ]
         }
     },
     music: {
@@ -155,7 +249,10 @@ module.exports = {
                 description: 'Lists the current music queue.',
                 permissionLevel: 1,
                 alternatives: ['q'],
-            }
+            },
+            page: [
+                ['join', 'leave', 'play', 'skip', 'stop', 'queue'],
+            ],
         }
     },
     playlist: {
@@ -169,7 +266,7 @@ module.exports = {
                     ['Playlist name (will become JSON file name).']
                 ],
             },
-            'add {name} {url}': {
+            'add': {
                 description: 'Adds URL to the playlist of the given name.',
                 permissionLevel: 2,
                 arguments: [
@@ -211,14 +308,17 @@ module.exports = {
                     ['s'],
                     ['Shuffles the playlist.']
                 ]
-            }
+            },
+            page: [
+                ['create', 'list', 'add', 'remove', 'play'],
+            ],
         }
     },
     minigames: {
         header: '### Minigame Commands ###',
         commands: {
             'stats': {
-                description: 'Displays your gaming statistics. If none found, generates a user profile.',
+                description: 'Displays your gaming statistics such as wins, losses, experience and money.',
                 permissionLevel: 1,
             },
             'inv': {
@@ -228,7 +328,10 @@ module.exports = {
             'sell': {
                 description: 'Sells all items in your inventory.',
                 permissionLevel: 1,
-            }
+            },
+            page: [
+                ['stats', 'inv', 'sell'],
+            ],
         },
         subcommands: {
             'fishing': {
@@ -237,16 +340,19 @@ module.exports = {
                     'cast': {
                         description: 'Casts your fishing rod. Will return a result within a couple seconds.',
                         permissionLevel: 1,
-                    }
+                    },
+                    page: [
+                        ['cast'],
+                    ],
                 }
             },
             'gathering': {
                 header: '### Gathering Minigame Commands ###',
-                commands: {}
+                commands: {page:[[],],},
             },
             'mining': {
                 header: '### Mining Minigame Commands ###',
-                commands: {}
+                commands: {page:[[],],},
             },
             'gambling': {
                 header: '### Gambling Minigame Commands ###',
@@ -263,7 +369,10 @@ module.exports = {
                                 'Adds a card to your hand. Will end game if total is over 21.'
                             ]
                         ]
-                    }
+                    },
+                    page: [
+                        ['blackjack'],
+                    ],
                 }
             }
         }
@@ -283,11 +392,18 @@ module.exports = {
                 description: 'Rage comic yey!',
                 permissionLevel: 1,
             },
+            'penguin': {
+                description: 'Penguin giffy. <3',
+                permission: 1,
+            },
             'crabrave': {
                 description: 'Starts playing Crabrave by Noisestorm in the voice chat.',
                 permissionLevel: 1,
                 alternatives: ['cr'],
             },
+            page: [
+                ['f', 'fuck', 'yey', 'penguin', 'crabrave'],
+            ] ,
         }
     }
 };

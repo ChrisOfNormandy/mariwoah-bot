@@ -1,5 +1,6 @@
 module.exports = {
     stats: './src/app/minigames/stats.json',
-    playlists: './src/app/common/playlists/',
-    roleManagerServers: './src/app/common/roleManager/servers/'
+    serverFiles: './src/app/common/roleManager/servers/',
+    getPlaylistPath: function(message) {return `${this.serverFiles}server_${message.channel.guild.id}/playlists/`;},
+    getRoleManagerServerPath: function(message) {return `${this.serverFiles}server_${message.channel.guild.id}/`;}
 }

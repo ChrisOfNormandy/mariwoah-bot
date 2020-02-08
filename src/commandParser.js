@@ -3,124 +3,219 @@ const roleManager = require('./app/common/roleManager/adapter');
 const commandList = require('./app/common/bot/helpers/commandList');
 
 async function verify(message, permissionLevel) {
-    if (message.member.hasPermission("ADMINISTRATOR")) return true;
+    return new Promise(async function(resolve, reject) {
+        roleManager.verifyPermission(message, message.author.id, permissionLevel)
+        .then(result => {
+            if (!result.status)
+                (result.reason) ? reject(result.reason) : reject('Operation rejected by permission verification.');
+            else resolve(true);
+        })
+        .catch(e => console.log(e));
+    });
+}
 
-    let verification = await roleManager.verifyPermission(message, message.author.id, permissionLevel);
-    if (!verification.status) {
-        if (verification.reason) message.channel.send(verification.reason);   
-        else message.channel.send('Operation rejected by permission verification.')
-        return false;
-    }
-    return true;
+const c = commandList.common.commands;
+const rM = commandList.rolemanager.commands;
+const m = commandList.music.commands;
+const mg = commandList.minigames.commands;
+const ms = commandList.memes.commands;
+
+function commonLevel(commandName) {
+    return c[commandName].permissionLevel || 10;
+}
+function roleManagerLevel(commandName) {
+    return rM[commandName].permissionLevel || 10;
+}
+function musicLevel(commandName) {
+    return m[commandName].permissionLevel || 10;
+}
+function minigameLevel(commandName, section = null) {
+    return (section == null) 
+    ? mg[commandName].permissionLevel || 10
+    : commandList.minigames.subcommands[section].commands || 10;
+}
+function memeLevel(commandName) {
+    return ms[commandName].permissionLevel || 10;
 }
 
 module.exports = async function(message) {
     const args = message.content.slice(1).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
+    const mentionedUser = message.mentions.members.first();
 
-    const cmn = commandList.common.commands;
-    const roleMan = commandList.roleManager.commands;
-    const music = commandList.music.commands;
-    const playlist = commandList.playlist.commands;
-    const minigames = commandList.minigames.commands;
-    const memes = commandList.memes.commands;
+    return new Promise(async function(resolve, reject) {
+        if (command == 'clean')
+            verify(message, commonLevel('clean'))
+                .then(() => resolve(common.bot.cleanChat(message)))
+                .catch(r => reject(r));
+        else if (command == '?' || command == 'help')
+            verify(message, commonLevel('help'))
+                .then(() => resolve(common.bot.listHelp(message)))
+                .catch(r => reject(r));
+        else if (command == 'ping')
+            verify(message, commonLevel('ping'))
+                .then(() => resolve(common.bot.ping(message, common.client)))
+                .catch(r => reject(r));
+        else if (command == 'roll')
+            verify(message, commonLevel('roll'))
+                .then(() => resolve(common.roll(message, args)))
+                .catch(r => reject(r));
+        else if (command == 'shuffle')
+            verify(message, commonLevel('shuffle'))
+                .then(() => resolve(common.bot.shuffle(message, args[0].split(','))))
+                .catch(r => reject(r));
+        else if (command == 'whoami')
+            verify(message, commonLevel('whoami'))
+                .then(() => resolve(common.bot.whoami(message)))
+                .catch(r => reject(r));
+        else if (command == 'whoareyou')
+            verify(message, commonLevel('whoareyou'))
+                .then(() => resolve(common.bot.whoareyou(message)))
+                .catch(r => reject(r));
 
-    switch (command) {
-        // Common
-        case 'ping': return (await verify(message, cmn.ping.permissionLevel)) ? common.bot.ping(message, common.client) : false;
-        case 'clean': return (await verify(message, cmn.clean.permissionLevel)) ? common.bot.cleanChat(message) : false;
-        case '?': {}
-        case 'help': return (await verify(message, cmn.help.permissionLevel)) ? common.bot.listHelp(message) : false;
-        case 'whoami': return (await verify(message, cmn.whoami.permissionLevel)) ? common.bot.whoami(message) : false;
-        case 'whoareyou': return (await verify(message, cmn.whoareyou.permissionLevel)) ? common.bot.whoareyou(message) : false;
-        case 'roll': return (await verify(message, cmn.roll.permissionLevel)) ? common.roll(message, args) : false;
-        
-        // RoleManager
-        case 'setmotd': return (await verify(message, roleMan.setmotd.permissionLevel)) ? common.roleManager.setmotd(message, args) : false;
-        case 'motd': return (await verify(message, roleMan.motd.permissionLevel)) ? common.roleManager.motd(message) : false;
+        else if (command == 'setmotd')
+            verify(message, roleManagerLevel('setmotd'))
+                .then(() => resolve(common.roleManager.setmotd(message, args)))
+                .catch(r => reject(r));
+        else if (command == 'motd')
+            verify(message, roleManagerLevel('motd'))
+                .then(() => resolve(common.roleManager.motd(message)))
+                .catch(r => reject(r));
+        else if (command == 'warn')
+            verify(message, roleManagerLevel('warn'))
+                .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
+                .catch(r => reject(r));
+        else if (command == 'kick')
+            verify(message, roleManagerLevel('kick'))
+                .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
+                .catch(r => reject(r));
+        else if (command == 'ban')
+            verify(message, roleManagerLevel('ban'))
+                .then(() => resolve(common.roleManager.banUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' ')))) 
+                .catch(r => reject(r));
+        else if (command == 'unban' || command == 'revertban')
+            verify(message, roleManagerLevel('unban'))
+                .then(() => resolve(common.roleManager.unbanUser(message, args[0], args.slice(1).join(' '))))
+                .catch(r => reject(r));
+        else if (command == 'rm-reset')
+            verify(message, roleManagerLevel('rm-reset'))
+                .then(() => resolve(common.roleManager.modUserByString(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset', {})))
+                .catch(r => reject(r));
+        else if (command == 'fetchbans')
+            verify(message, roleManagerLevel('fetchbans'))
+                .then(() => resolve(common.roleManager.fetchBans(message)))
+                .catch(r => reject(r));
+        else if (command == 'rm-info')
+            verify(message, roleManagerLevel('rm-info'))
+                .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                .catch(r => reject(r));
+        else if (command == 'rm-roleinfo')
+            verify(message, roleManagerLevel('rm-roleinfo'))
+                .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                .catch(r => reject(r));
+        else if (command == 'warnings')
+            verify(message, roleManagerLevel('warnings'))
+                .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'warnings')))
+                .catch(r => reject(r));
+        else if (command == 'kicks')
+            verify(message, roleManagerLevel('kicks'))
+                .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'kicks')))
+                .catch(r => reject(r));
+        else if (command == 'bans')
+            verify(message, roleManagerLevel('bans'))
+                .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'bans')))
+                .catch(r => reject(r));
+        else if (command == 'banreverts' || command == 'unbans')
+            verify(message, roleManagerLevel('banreverts'))
+                .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'banReverts')))
+                .catch(r => reject(r));
+        else if (command == 'promote')
+            verify(message, roleManagerLevel('promote'))
+                .then(() => resolve(common.roleManager.promoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                .catch(r => reject(r));
+        else if (command == 'demote')
+            verify(message, roleManagerLevel('demote'))
+                .then(() => resolve(common.roleManager.demoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                .catch(r => reject(r));
+        else if (command =='setbotadmin')
+            verify(message, roleManagerLevel('setbotadmin')) 
+                .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                .catch(r => reject(r));
 
-        case 'warn': return (await verify(message, 2)) 
-            ? common.roleManager.modUserByString(message, (message.mentions.users.first()) ? message.mentions.users.first().id : args[0], 'warn', {reason: args.slice(1).join(' ')})
-            : false;
-        case 'kick': return (await verify(message, 3))
-                ? common.roleManager.kickUser(message, (message.mentions.users.first()) ? message.mentions.users.first().id : args[0])
-                : false;
-        case 'ban': return (await verify(message, 4)) 
-            ? common.roleManager.banUser(message, (message.mentions.users.first()) ? message.mentions.users.first().id : args[0])
-            : false;
-        case 'unban': return (await verify(message, 4)) 
-            ? common.roleManager.unbanUser(message, args[0]) 
-            : false;
+        else if (command == 'blackjack')
+            verify(message, minigameLevel('blackjack', 'gambling'))
+                .then(() => resolve(common.minigames.run(message, 'gambling', 'blackjack')))
+                .catch(r => reject(r));
+        else if (command == 'cast')
+            verify(message, minigameLevel('cast', 'fishing'))
+                .then(() => resolve(common.minigames.run(message, 'fishing', 'cast')))
+                .catch(r => reject(r));
+        else if (command == 'stats')
+            verify(message, minigameLevel('stats'))
+                .then(() => resolve(common.minigames.listStats(message)))
+                .catch(r => reject(r));
+        else if (command == 'inv')
+            verify(message, minigameLevel('inv'))
+                .then(() => resolve(common.minigames.listInv(message)))
+                .catch(r => reject(r));
+        else if (command == 'sell')
+            verify(message, minigameLevel('sell'))
+                .then(() => resolve(common.minigames.sellInv(message)))
+                .catch(r => reject(r));
+    
+        else if (command == 'play')
+            verify(message, musicLevel('play'))
+                .then(() => resolve(common.music.play(message)))
+                .catch(r => reject(r));
+        else if (command == 'join')
+            verify(message, musicLevel('join'))
+                .then(() => resolve(common.music.join(message)))
+                .catch(r => reject(r));
+        else if (command == 'leave')
+            verify(message, musicLevel('leave'))
+                .then(() => resolve(common.music.leave(message)))
+                .catch(r => reject(r));
+        else if (command == 'skip')
+            verify(message, musicLevel('skip'))
+                .then(() => resolve(common.music.skip(message)))
+                .catch(r => reject(r));
+        else if (command == 'stop')
+            verify(message, musicLevel('stop'))
+                .then(() => resolve(common.music.stop(message)))
+                .catch(r => reject(r));
+        else if (command == 'queue' || command == 'q')
+            verify(message, musicLevel('queue'))
+                .then(() => resolve(common.music.listQueue(message)))
+                .catch(r => reject(r));
+        else if (command == 'playlist' || command == 'pl')
+            common.music.playlistCommand(message, args)
+                .then(s => resolve(s))
+                .catch(r => reject(r));
 
-        /*case 'dismiss': return (await verify(message, 2)) 
-            ? common.roleManager.modUserByString(message, message.mentions.users.first().id, 'dismiss', {reason: args.slice(1).join(' ')})
-            : false;*/
-        case 'rm_reset': return (await verify(message, 4)) 
-            ? common.roleManager.modUserByString(message, message.guild.members.get((message.mentions.members.first()) ? message.mentions.members.first().id : args[0]), 'reset', {})
-            : false;
-
-        case 'fetchbans': return (await verify(message, 3)) ? common.roleManager.fetchBans(message) : false;
-        
-        case 'rm-info': return (await verify(message, 2)) 
-            ? common.roleManager.userInfo(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0])
-            : false;
-        case 'rm-roleinfo': return (await verify(message, 2)) 
-            ? common.roleManager.userRoleInfo(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0])
-            : false;
-        case 'warnings': return (await verify(message, 2)) 
-            ? common.roleManager.userInfoList(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0], 'warnings')
-            : false;
-        case 'kicks': return (await verify(message, 2)) 
-            ? common.roleManager.userInfoList(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0], 'kicks')
-            : false;
-        case 'bans': return (await verify(message, 2)) 
-            ? common.roleManager.userInfoList(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0], 'bans')
-            : false;
-        case 'banreverts': return (await verify(message, 2)) 
-            ? common.roleManager.userInfoList(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0], 'banReverts')
-            : false;
-
-        case 'promote': return (await verify(message, 4)) 
-            ? common.roleManager.promoteUser(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0])
-            : false;
-        case 'demote': return (await verify(message, 4)) 
-            ? common.roleManager.demoteUser(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0])
-            : false;
-
-        case 'setbotadmin': return (await verify(message, 4)) 
-            ? common.roleManager.setBotAdmin(message, (message.mentions.members.first()) ? message.mentions.members.first().id : args[0])
-            : false;
-
-        // Minigames
-        case 'blackjack': return (await verify(message, 1)) ? common.minigames.run(message, 'gambling', 'blackjack') : false;
-        case 'cast': return (await verify(message, 1)) ? common.minigames.run(message, 'fishing', 'cast') : false;
-        case 'stats': return (await verify(message, 1)) ? common.minigames.listStats(message) : false;
-        case 'inv': return (await verify(message, 1)) ? common.minigames.listInv(message) : false;
-        case 'sell': return (await verify(message, 1)) ? common.minigames.sellInv(message) : false;
-
-        // Music
-        case 'play': return (await verify(message, 1)) ? common.music.play(message) : false;
-        case 'join': return (await verify(message, 1)) ? common.music.join(message) : false;
-        case 'leave': return (await verify(message, 1)) ? common.music.leave(message) : false;
-        case 'skip': return (await verify(message, 1)) ? common.music.skip(message) : false;
-        case 'stop': return (await verify(message, 1)) ? common.music.stop(message) : false;
-        case 'q': {}
-        case 'queue': return (await verify(message, 1)) ? common.music.listQueue(message) : false;
-        case 'pl': {}
-        case 'playlist': return (await verify(message, 1)) ? common.music.playlistCommand(message, args) : false;
-
-        // Memes
-        case 'f': return (await verify(message, 1)) ? common.memes.memeDispatch(message, 'f') : false;
-
-        case 'fuck': return (await verify(message, 1)) ? common.memes.memeDispatch(message, 'fuuu') : false;
-        case 'yey': return (await verify(message, 1)) ? common.memes.memeDispatch(message, 'yey') : false;
-        case 'penguin': return (await verify(message, 0)) ? common.memes.memeDispatch(message, 'penguin') : false;
-        case 'cr': {}
-        case 'crabrave': return (await verify(message, 1)) 
-            ? () => {
-                message.content = '.play https://www.youtube.com/watch?v=LDU_Txk06tM'
-                common.music.play(message);
-            }
-            : false;
-    }
+        else if (command == 'f')
+            verify(message, memeLevel('f'))
+                .then(() => resolve(common.memes.memeDispatch(message, 'f')))
+                .catch(r => reject(r));
+        else if (command == 'fuck')
+            verify(message, memeLevel('fuck'))
+                .then(() => resolve(common.memes.memeDispatch(message, 'fuuu')))
+                .catch(r => reject(r));
+        else if (command == 'yey')
+            verify(message, memeLevel('yey'))
+                .then(() => resolve(common.memes.memeDispatch(message, 'yey')))
+                .catch(r => reject(r));
+        else if (command == 'penguin')
+            verify(message, memeLevel('penguin'))
+                .then(() => resolve(common.memes.memeDispatch(message, 'penguin')))
+                .catch(r => reject(r));
+        else if (command == 'crabrave' || command == 'cr')
+            verify(message, memeLevel('crabrave'))
+                .then(s => {
+                    message.content = '.play https://www.youtube.com/watch?v=LDU_Txk06tM'
+                    common.music.play(message);
+                    resolve(s);
+                })
+                .catch(r => reject(r));
+        else reject(null);
+    });
 }

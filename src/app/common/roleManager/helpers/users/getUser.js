@@ -13,7 +13,7 @@ module.exports = async function(message, userID) {
                 createUser(message, userID)
                 .then(user => {
                     config.users[userID] = user;
-                    saveServerConfig(config)
+                    saveServerConfig(message, config)
                     .then(r => {
                         resolve(config.users[userID]);
                     })

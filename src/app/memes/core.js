@@ -7,6 +7,11 @@ module.exports = {
                 file: memeDispatcher(meme)
             }
         );
-        message.delete();
+        try {
+            message.delete();
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
     }
 }

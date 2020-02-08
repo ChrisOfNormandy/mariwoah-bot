@@ -15,13 +15,23 @@ client.on('ready', () => {
 
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
-        message.channel.send('FUCK OFF MEE6, YOU STUPID BITCH :dagger: :knife: :fire:');
+        try {
+            message.delete()
+                .then(async () => message.channel.send('Denied.').then(m => setTimeout(m.delete, 5000)));
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
 
         //common.bot.reactions(message);
 
     if (!common.config.settings.prefix.includes(message.content.charAt(0)) || message.author.bot) return;
 
-    commandParser(message);
+    commandParser(message)
+        .then(result => {
+            //if (result) console.log(result);
+        })
+        .catch(err => console.log(message.content, err));
 });
 
 client.on('voiceStateUpdate', (oldMember, newMember) => {

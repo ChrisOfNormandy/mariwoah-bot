@@ -22,7 +22,12 @@ module.exports = {
         let msgs = listInv(statsMap.map.get(message.author.id));
         if (!msgs.length) message.channel.send('Nothing found.');
         else for (i in msgs) message.channel.send(msgs[i]);
-        message.delete();
+        try {
+            message.delete();
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
     },
     sellInv: function(message) {
         let sold = sellInv(statsMap.map.get(message.author.id));
@@ -41,7 +46,12 @@ module.exports = {
             message.channel.send('```cs\n# Sold:\n' + msg + '```');
             this.pay(message.author.id, total);
         }
-        message.delete();
+        try {
+            message.delete();
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
     },
 
     pay: function(userID, amount) {modUser(userID, 'pay', {amount: amount});},

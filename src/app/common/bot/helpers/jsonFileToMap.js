@@ -10,7 +10,7 @@ async function toMap(path, map, list, index) {
             .then(obj => {
                 map.set(fileName, obj);
                 console.log(`Added ${fileName} to map.`)
-                let res = toMap(path, map, list, index + 1)
+                toMap(path, map, list, index + 1)
                 .then(r => resolve(r))
                 .catch(e => reject(e));
             })
@@ -22,14 +22,28 @@ async function toMap(path, map, list, index) {
     })
 }
 
-module.exports = async function(path) {
+module.exports = async function(path, filename = null, objectName = null) {
     return new Promise(async function(resolve, reject) {
-        listDir(path)
-        .then(async function(list) {
-            resolve(toMap(path, new Map(), list, 0))
-        })
-        .catch(e => {
-            reject(e)
-        });
+        if (filename == null) {
+            listDir(path)
+            .then(async function(list) {
+                resolve(toMap(path, new Map(), list, 0))
+            })
+            .catch(e => {
+                reject(e)
+            });
+        }
+        else {
+            getJsonFromFile(path + filename)
+            .then(obj => {
+                let map = new Map();
+                if (objectName)
+                    map.set(objectName, obj);
+                else
+                    map.set(filename, obj);
+                resolve(map);
+            })
+            .catch(e => reject(e));
+        }
     })
 }

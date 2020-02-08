@@ -31,7 +31,7 @@ module.exports = async function(message) {
     }
 
     return new Promise(function(resolve, reject) {
-        fs.writeFile(paths.roleManagerServers + 'server_' + config.id + '.json', JSON.stringify(config), function(err) {
+        fs.writeFile(paths.getRoleManagerServerPath(message) + 'serverData.json', JSON.stringify(config), function(err) {
             if (err) {
                 console.log(err);
                 reject(false);

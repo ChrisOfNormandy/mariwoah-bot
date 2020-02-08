@@ -14,8 +14,7 @@ module.exports = async function(message, userID = -1) {
         getServerConfig(message)
         .then(config => {
             config.users[User.id] = User;
-            console.log(config);
-            saveServerConfig(config)
+            saveServerConfig(message, config)
             .then(r => {
                 if (r) resolve(User);
             })

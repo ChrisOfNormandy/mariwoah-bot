@@ -36,7 +36,7 @@ module.exports = {
             .then(config => {
                 config.users[result.user.id] = result.user;
                 serverMap.map.set(message.channel.guild.id, config);
-                saveServerConfig(config);
+                saveServerConfig(message, config);
             })
             .catch(e => console.log(e));
         })
@@ -50,7 +50,7 @@ module.exports = {
             .then(config => {
                 config.users[result.user.id] = result.user;
                 serverMap.map.set(message.channel.guild.id, config);
-                saveServerConfig(config);
+                saveServerConfig(message, config);
             })
             .catch(e => console.log(e));
         })
@@ -68,7 +68,7 @@ module.exports = {
     setmotd: async function(message, args) {
         setmotd(message, args)
         .then(config => {
-            saveServerConfig(config);
+            saveServerConfig(message, config);
         })
         .catch(e => console.log(e));
     },
@@ -82,7 +82,7 @@ module.exports = {
                 .then(config => {
                     config.users[userID] = result.user;
                     serverMap.map.set(message.channel.guild.id, config);
-                    saveServerConfig(config);
+                    saveServerConfig(message, config);
                 })
                 .catch(e => console.log(e));
             })
@@ -99,7 +99,7 @@ module.exports = {
                 .then(config => {
                     config.users[userID] = result.user;
                     serverMap.map.set(message.channel.guild.id, config);
-                    saveServerConfig(config);
+                    saveServerConfig(message, config);
                 })
                 .catch(e => console.log(e));
             })
@@ -111,7 +111,7 @@ module.exports = {
     getServerConfig: async function(message) {
         return (serverMap.map.has(message.channel.guild.id)) ? serverMap.map.get(message.channel.guild.id) : await createServerConfig(message);
     },
-    verifyPermission: function(message, userID, permissionLevel) {
+    verifyPermission: async function(message, userID, permissionLevel) {
         return verifyPermission(message, userID, permissionLevel);
     },
 
@@ -127,7 +127,7 @@ module.exports = {
 
                     config.users[userID] = result.user;
 
-                    saveServerConfig(config)
+                    saveServerConfig(message, config)
                     .then(r => {
                         serverMap.map.set(message.channel.guild.id, config);
                         resolve(r)
@@ -138,6 +138,24 @@ module.exports = {
             })
             .catch(e => reject(e));
         })
+    },
+
+    warnUser: async function (message, userID, reason = "You have been warned by an administrator") {
+        let guild = message.channel.guild;
+        let _user = guild.members.get(userID);
+
+        modUser.byString(message, userID, 'warn', {reason: reason, user: _user})
+            .then(result => {
+                message.channel.send(modUserReturn(result, message));
+                this.getServerConfig(message)
+                .then(config => {
+                    config.users[result.user.id] = result.user;
+                    serverMap.map.set(message.channel.guild.id, config);
+                    saveServerConfig(message, config);
+                })
+                .catch(e => console.log(e));
+            })
+            .catch(e => console.log(e));
     },
 
     kickUser: async function (message, userID, reason = "You have been kicked by an administrator") {
@@ -158,7 +176,7 @@ module.exports = {
                 .then(config => {
                     config.users[result.user.id] = result.user;
                     serverMap.map.set(message.channel.guild.id, config);
-                    saveServerConfig(config);
+                    saveServerConfig(message, config);
                 })
                 .catch(e => console.log(e));
             })
@@ -185,7 +203,7 @@ module.exports = {
                 .then(config => {
                     config.users[result.user.id] = result.user;
                     serverMap.map.set(message.channel.guild.id, config);
-                    saveServerConfig(config);
+                    saveServerConfig(message, config);
                 })
                 .catch(e => console.log(e));
             })
@@ -205,7 +223,7 @@ module.exports = {
                 .then(config => {
                     config.users[result.user.id] = result.user;
                     serverMap.map.set(message.channel.guild.id, config);
-                    saveServerConfig(config);
+                    saveServerConfig(message, config);
                 })
                 .catch(e => console.log(e));
             })

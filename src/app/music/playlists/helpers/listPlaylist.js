@@ -10,7 +10,7 @@ module.exports = async function (message) {
     let includeLinks = msgArray[3] == '-l'
     let msg = '';
     let obj;
-    try { obj = await readFile(`${paths.playlists}${playlistName}.json`);}
+    try { obj = await readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`);}
     catch (e) {return console.log(e)}
 
     if (obj.playlist.length == 0) {

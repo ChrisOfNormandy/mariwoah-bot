@@ -3,6 +3,11 @@ const getServerConfig = require('./servers/getServerConfig');
 
 module.exports = async function(message, userID, permissionLevel) {
     return new Promise(async function(resolve, reject) {
+        if (message.member.hasPermission("ADMINISTRATOR")) {
+            resolve({status: true, reason: 'admin'});
+            return;
+        }
+
         getServerConfig(message)
         .then(config => {
             getUser(message, userID)

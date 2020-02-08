@@ -10,7 +10,7 @@ module.exports = {
     play: function(message) {play(message)},
     list: function(message) {list(message)},
     listAll: function(message) {
-        listDir(paths.playlists)
+        listDir(paths.getPlaylistPath(message))
         .then(list => {
             if (list.length == 0) {
                 message.channel.send('There are no created playlists.');
@@ -25,15 +25,25 @@ module.exports = {
     },
     create: function(message) {create(message)},
     add: async function(message) {
-        let result = await add(message, paths.playlists);
+        let result = await add(message, paths.getPlaylistPath(message));
         console.log((result) ? 'Added song successfully!' : 'Failed to add song!');
         message.channel.send((result) ? `Added song to the playlist!\n${message.content.split(' ')[3]}` : 'Failed to add song to playlist');
-        message.delete();
+        try {
+            message.delete();
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
     },
     remove: async function(message) {
-        let result = await remove(message, paths.playlists);
+        let result = await remove(message, paths.getPlaylistPath(message));
         console.log((result) ? 'Removed song successfully!' : 'Failed to remove song!');
         message.channel.send((result) ? 'Removed song from the playlist!' : 'Failed to remove song from playlist');
-        message.delete();
+        try {
+            message.delete();
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
     }
 }
