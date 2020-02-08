@@ -33,26 +33,28 @@ module.exports = {
     removeFromPlaylist: function(message) {playlist.remove(message)},
 
     playlistCommand: async function(message, commandList) {
+        const _this = this;
+
         return new Promise(async function(resolve, reject) {
             if (commandList[0] == 'play')
                 verify(message, pl.play.permissionLevel)
-                .then(() => resolve(this.playPlaylist(message)))
+                .then(() => resolve(_this.playPlaylist(message)))
                 .catch(r => reject(r));
             else if (commandList[0] == 'list')
                 verify(message, pl.list.permissionLevel)
-                .then(() => resolve((commandList.length == 1) ? this.listAllPlaylists(message) : this.listPlaylist(message)))
+                .then(() => resolve((commandList.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message)))
                 .catch(r => reject(r));
             else if (commandList[0] == 'create')
                 verify(message, pl.create.permissionLevel)
-                .then(() => resolve(this.createPlaylist(message)))
+                .then(() => resolve(_this.createPlaylist(message)))
                 .catch(r => reject(r));
             else if (commandList[0] == 'add')
                 verify(message, pl.add.permissionLevel)
-                .then(() => resolve(this.addToPlaylist(message)))
+                .then(() => resolve(_this.addToPlaylist(message)))
                 .catch(r => reject(r));
             else if (commandList[0] == 'remove')
                 verify(message, pl.remove.permissionLevel)
-                .then(() => resolve(this.removeFromPlaylist(message)))
+                .then(() => resolve(_this.removeFromPlaylist(message)))
                 .catch(r => reject(r));
             else reject(null);
         });

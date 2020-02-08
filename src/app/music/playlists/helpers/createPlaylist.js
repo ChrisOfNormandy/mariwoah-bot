@@ -7,8 +7,13 @@ module.exports = function (message) {
 
     try {
         const name = args[2];
-        const path = `${paths.getPlaylistPath(message)}${name}.json`;
 
+        if (!fs.existsSync(paths.getPlaylistPath(message))){
+            fs.mkdirSync(paths.getPlaylistPath(message));
+        }
+
+        const path = `${paths.getPlaylistPath(message)}${name}.json`;
+        console.log(path);
         fs.access(path, fs.F_OK, (err) => {
             if (err) {
                 fs.open(path, 'w', function (err, file) {if (err) return;});
