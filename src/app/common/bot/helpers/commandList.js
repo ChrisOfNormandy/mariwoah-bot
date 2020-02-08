@@ -392,17 +392,25 @@ module.exports = {
                 description: 'Rage comic yey!',
                 permissionLevel: 1,
             },
+
             'penguin': {
                 description: 'Penguin giffy. <3',
                 permission: 1,
             },
+            'clayhead': {
+                description: 'I am not sorry for anything or anyone.',
+                permission: 1,
+            },
+
             'crabrave': {
                 description: 'Starts playing Crabrave by Noisestorm in the voice chat.',
                 permissionLevel: 1,
                 alternatives: ['cr'],
             },
             page: [
-                ['f', 'fuck', 'yey', 'penguin', 'crabrave'],
+                ['f', 'fuck', 'yey'],
+                ['penguin', 'clayhead'],
+                ['crabrave'],
             ] ,
         }
     }

@@ -204,10 +204,16 @@ module.exports = async function(message) {
             verify(message, memeLevel('yey'))
                 .then(() => resolve(common.memes.memeDispatch(message, 'yey')))
                 .catch(r => reject(r));
+
         else if (command == 'penguin')
             verify(message, memeLevel('penguin'))
                 .then(() => resolve(common.memes.memeDispatch(message, 'penguin')))
                 .catch(r => reject(r));
+        else if (command == 'clayhead')
+            verify(message, memeLevel('clayhead'))
+                .then(() => resolve(common.memes.memeDispatch(message, 'clayhead')))
+                .catch(r => reject(r));
+
         else if (command == 'crabrave' || command == 'cr')
             verify(message, memeLevel('crabrave'))
                 .then(s => {

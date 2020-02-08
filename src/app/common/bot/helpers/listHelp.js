@@ -14,7 +14,9 @@ module.exports = async function(message) {
                     : perms.level;
 
         let args = message.content.slice(1).trim().split(/ +/g).slice(1);
+
         let sect;
+
         let pageNumber = (args.length == 3)
             ? ((args[2] && !isNaN(args[2])) ? args[2] - 1: 0)
             : ((args[1] && !isNaN(args[1])) ? args[1] - 1: 0);
@@ -22,12 +24,14 @@ module.exports = async function(message) {
             pageNumber = 0;
         console.log(args);
     
-        if (!help[args[0]])
+        if (!args[0] || !help[args[0]])
             sect = help.main;
+
+        console.log(sect);
 
         sect = (args.length == 3 && help[args[0]].subcommands[args[1]]) 
             ? help[args[0]].subcommands[args[1]]
-            : help[args[0]];
+            : sect;
     
         let embedMsg = new Discord.RichEmbed()
             .setTitle(sect.header)
