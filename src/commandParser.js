@@ -19,6 +19,7 @@ const rM = commandList.rolemanager.commands;
 const m = commandList.music.commands;
 const mg = commandList.minigames.commands;
 const ms = commandList.memes.commands;
+const d = commandList.dungeons.commands;
 
 function commonLevel(commandName) {
     return c[commandName].permissionLevel || 10;
@@ -36,6 +37,9 @@ function minigameLevel(commandName, section = null) {
 }
 function memeLevel(commandName) {
     return ms[commandName].permissionLevel || 10;
+}
+function dungeonLevel(commandName) {
+    return d[commandName].permissionLevel || 10;
 }
 
 module.exports = async function(message) {
@@ -224,11 +228,17 @@ module.exports = async function(message) {
                 .catch(r => reject(r));
 
         else if (command == 'dd_loaditems')
-            resolve(common.dungeons.csvToMap());
+            verify(message, dungeonLevel('dd_loaditems'))
+                .then(() => resolve(common.dungeons.csvToMap()))
+                .catch(r => reject(r));
         else if (command == 'dd_getitem')
-            resolve(common.dungeons.getItem(message, args.join(' ')));
+            verify(message, dungeonLevel('dd_getitem'))
+                .then(() => resolve(common.dungeons.getItem(message, args.join(' '))))
+                .catch(r => reject(r));
         else if (command == 'dd_list')
-            resolve(common.dungeons.listItems(message, args.join(' ')))
+            verify(message, dungeonLevel('dd_list'))
+                .then(() => resolve(common.dungeons.listItems(message, args.join(' '))))
+                .catch(r => reject(r));
 
         else reject(message.content);
     });
