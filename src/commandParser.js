@@ -222,6 +222,14 @@ module.exports = async function(message) {
                     resolve(s);
                 })
                 .catch(r => reject(r));
-        else reject(null);
+
+        else if (command == 'dd_loaditems')
+            resolve(common.dungeons.csvToMap());
+        else if (command == 'dd_getitem')
+            resolve(common.dungeons.getItem(message, args.join(' ')));
+        else if (command == 'dd_list')
+            resolve(common.dungeons.listItems(message, args.join(' ')))
+
+        else reject(message.content);
     });
 }

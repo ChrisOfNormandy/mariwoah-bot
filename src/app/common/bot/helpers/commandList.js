@@ -20,11 +20,13 @@ module.exports = {
             'memes': {
                 description: 'Meme commands. Just for fun.'
             },
+            'dungeons': {
+                description: 'Dungeons and dragons tools.'
+            },
             page: [
-                ['common', 'roleManager', 'music', 'playlist', 'minigames', 'memes'],
+                ['common', 'roleManager', 'music', 'playlist', 'minigames', 'memes', 'dungeons'],
             ],
         },
-        
     },
     common: {
         header: '### Common Commands ###',
@@ -412,6 +414,30 @@ module.exports = {
                 ['penguin', 'clayhead'],
                 ['crabrave'],
             ] ,
+        }
+    },
+    dungeons: {
+        header: '### D&D ###',
+        commands: {
+            'dd_getitem': {
+                description: 'Get an item details, worth per pound.',
+                permissionLevel: 1,
+                arguments: [
+                    ['ItemName'],
+                    ['Name of the item. Capitalization matters (for now).']
+                ]
+            },
+            'dd_list': {
+                description: 'Get a list of items per category.',
+                permissionLevel: 1,
+                arguments: [
+                    ['Category name or abreviation.'],
+                    ['AF, AG, AMMO, DF, EP, FRW, G, HA, HS, LA, M, MA, MMW, MRW, P, PO, S, SMW, SRW, T, VL, VW']
+                ]
+            },
+            page: [
+                ['dd_getitem', 'dd_list'],
+            ]
         }
     }
 };

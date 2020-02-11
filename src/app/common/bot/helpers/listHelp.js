@@ -27,12 +27,13 @@ module.exports = async function(message) {
         if (!args[0] || !help[args[0]])
             sect = help.main;
 
-        console.log(sect);
 
         sect = (args.length == 3 && help[args[0]].subcommands[args[1]]) 
             ? help[args[0]].subcommands[args[1]]
-            : sect;
+            : help[args[0]];
     
+        console.log(sect);
+
         let embedMsg = new Discord.RichEmbed()
             .setTitle(sect.header)
             .setColor('#224466');

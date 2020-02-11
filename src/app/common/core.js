@@ -9,6 +9,7 @@ module.exports = {
     music: require('../music/core'),
     memes: require('../memes/core'),
     roleManager: require('./roleManager/adapter'),
+    dungeons: require('../dungeons/core'),
 
     log: async function(string, flag) {bot.printLog(this.client, string, flag);},
     
