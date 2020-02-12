@@ -5,9 +5,14 @@ module.exports = function(path) {
         fs.readFile(path, (err, data) => {
             if (err) {
                 console.log(err);
-                reject(false);
+                reject(err);
             }
-            resolve(JSON.parse(data));
+            try {
+                resolve(JSON.parse(data));
+            }
+            catch (e) {
+                reject(e);
+            }
         });
     })
 }

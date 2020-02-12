@@ -1,6 +1,7 @@
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
 const commandList = require('./app/common/bot/helpers/commandList');
+const ytSearch = require('yt-search');
 
 async function verify(message, permissionLevel) {
     return new Promise(async function(resolve, reject) {
@@ -46,6 +47,8 @@ module.exports = async function(message) {
     const args = message.content.slice(1).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const mentionedUser = message.mentions.members.first();
+
+    console.log(args, command);
 
     return new Promise(async function(resolve, reject) {
         if (command == 'clean')
@@ -169,7 +172,21 @@ module.exports = async function(message) {
     
         else if (command == 'play')
             verify(message, musicLevel('play'))
-                .then(() => resolve(common.music.play(message)))
+                .then(() => {
+                    if (args[0] == '?') {
+                        console.log(args.join(' ').slice(2));
+                        ytSearch(args.join(' ').slice(2), function (err, r) {
+                            const videos = r.videos;
+                            const playlists = r.playlists || r.lists;
+                            const channels = r.channels || r.accounts;
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(common.music.play(message, videos[0].url, null))
+                        })                        
+                    }
+                    else resolve(common.music.play(message, args[0], null))
+                })
                 .catch(r => reject(r));
         else if (command == 'join')
             verify(message, musicLevel('join'))
@@ -220,11 +237,7 @@ module.exports = async function(message) {
 
         else if (command == 'crabrave' || command == 'cr')
             verify(message, memeLevel('crabrave'))
-                .then(s => {
-                    message.content = '.play https://www.youtube.com/watch?v=LDU_Txk06tM'
-                    common.music.play(message);
-                    resolve(s);
-                })
+                .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM', null)))
                 .catch(r => reject(r));
 
         else if (command == 'dd_loaditems')
@@ -240,6 +253,6 @@ module.exports = async function(message) {
                 .then(() => resolve(common.dungeons.listItems(message, args.join(' '))))
                 .catch(r => reject(r));
 
-        else reject(message.content);
+        //else reject(message.content);
     });
 }

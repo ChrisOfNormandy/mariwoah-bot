@@ -18,43 +18,44 @@ async function verify(message, permissionLevel) {
 const pl = commandList.playlist.commands;
 
 module.exports = {
-    play: function(message) {music.play(message)},
+    play: function(message, songURL, vc) {music.play(message, songURL, vc)},
     join: function(message) {music.join(message)},
     leave: function(message) {music.leave(message)},
     skip: function(message) {music.skip(message)},
     stop: function(message) {music.stop(message)},
     listQueue: function(message) {music.listQueue(message)},
 
-    playPlaylist: function(message) {playlist.play(message)},
-    listPlaylist: function(message) {playlist.list(message)},
+    playPlaylist: function(message, playlistName, doShuffle) {playlist.play(message, playlistName, doShuffle)},
+    listPlaylist: function(message, playlistName, includeLinks) {playlist.list(message, playlistName, includeLinks)},
     listAllPlaylists: function(message) {playlist.listAll(message)},
-    createPlaylist: function(message) {playlist.create(message)},
-    addToPlaylist: function(message) {playlist.add(message)},
-    removeFromPlaylist: function(message) {playlist.remove(message)},
+    createPlaylist: function(message, playlistName) {playlist.create(message, playlistName)},
+    addToPlaylist: function(message, playlistName, songURL) {playlist.add(message, playlistName, songURL)},
+    removeFromPlaylist: function(message, playlistName, index) {playlist.remove(message, playlistName, index)},
 
-    playlistCommand: async function(message, commandList) {
+    playlistCommand: async function(message, args) {
         const _this = this;
+        const command = args[0];
 
         return new Promise(async function(resolve, reject) {
-            if (commandList[0] == 'play')
+            if (command == 'play')
                 verify(message, pl.play.permissionLevel)
-                .then(() => resolve(_this.playPlaylist(message)))
+                .then(() => resolve(_this.playPlaylist(message, args[1], args[2] === '-s')))
                 .catch(r => reject(r));
-            else if (commandList[0] == 'list')
+            else if (command == 'list')
                 verify(message, pl.list.permissionLevel)
-                .then(() => resolve((commandList.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message)))
+                .then(() => resolve((args.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message, args[1], args[2] === '-l')))
                 .catch(r => reject(r));
-            else if (commandList[0] == 'create')
+            else if (command == 'create')
                 verify(message, pl.create.permissionLevel)
-                .then(() => resolve(_this.createPlaylist(message)))
+                .then(() => resolve(_this.createPlaylist(message, args[1])))
                 .catch(r => reject(r));
-            else if (commandList[0] == 'add')
+            else if (command == 'add')
                 verify(message, pl.add.permissionLevel)
-                .then(() => resolve(_this.addToPlaylist(message)))
+                .then(() => resolve(_this.addToPlaylist(message, args[1], args[2])))
                 .catch(r => reject(r));
-            else if (commandList[0] == 'remove')
+            else if (command == 'remove')
                 verify(message, pl.remove.permissionLevel)
-                .then(() => resolve(_this.removeFromPlaylist(message)))
+                .then(() => resolve(_this.removeFromPlaylist(message, args[1], args[2])))
                 .catch(r => reject(r));
             else reject(null);
         });

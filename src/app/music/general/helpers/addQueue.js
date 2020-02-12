@@ -9,78 +9,73 @@ module.exports = async function (object, message, doShuffle) {
 
     let playlistArray = object.playlist;
 
-    if (!queue.serverQueue) {
-        queue.queueContruct = {
+    if (!queue.serverMap)
+        queue.serverMap = new Map();
+
+    if (!queue.serverMap.has(message.guild.id)) {
+        let activeQueue = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
             connection: null,
             songs: [],
             volume: 5,
             playing: true,
+            previousSong: null
         };
 
-        if (!queue.queue) queue.queue = new Map();
-
-        queue.queue.set(message.guild.id, queue.queueContruct);
+        queue.serverMap.set(message.guild.id, activeQueue);
+        console.log(`Created queue serverMap for ${message.guild.id}`)
     }
 
     if (doShuffle) {
-        playlistArray = await shuffle(object.playlist)
-        .then(state => {
-            console.log(state)
-            if (!state) return;
+        shuffle(object.playlist)
+        .then(array => {
+            if (!array) return;
 
-            console.log('Shuffled playlist successfully.');
-
-            for (let i = 0; i < playlistArray.length; i++) {
+            for (let i in array) {
                 const song = {
-                    title: playlistArray[i].title,
-                    url: playlistArray[i].url
+                    title: array[i].title,
+                    url: array[i].url
                 };
-        
+
                 try {
-                    queue.queueContruct.songs.push(song);
-                    console.log(`Added ${song.title} to queue.`);
+                    queue.serverMap.get(message.guild.id).songs.push(song);
                 }
                 catch (e) {
-                    console.log(e);
-                    return;
+                    console.log('Skipping song addition to queue.\n', e);
                 }
             }
         })
         .catch(e => {
             console.log(e);
-        })
+        });
     }
     else {
         console.log('Adding playlist to queue without shuffle.')
-        for (let i = 0; i < playlistArray.length; i++) {
-
-            const song = {
-                title: playlistArray[i].title,
-                url: playlistArray[i].url
-            };
-
+        for (let i in playlistArray) {
             try {
-                queue.queueContruct.songs.push(song);
-                console.log(`Added ${song.title} to queue.`);
+                queue.serverMap.get(message.guild.id).songs.push({
+                    title: playlistArray[i].title,
+                    url: playlistArray[i].url
+                });
             }
             catch (e) {
-                console.log(e);
-                return;
+                console.log('Skipping song addition to queue\n', e);
             }
         }
     }
 
-
     try {
-        var connection = await voiceChannel.join();
-        queue.queueContruct.connection = connection;
-        play(message.guild, queue.queueContruct.songs[0]);
+        if (queue.serverMap.has(message.guild.id)) {
+            let server = queue.serverMap.get(message.guild.id);
+
+            var connection = await voiceChannel.join();
+            queue.serverMap.get(message.guild.id).connection = connection;
+            play(message.guild, server.songs[0]);
+        }
     }
     catch (err) {
         console.log(err);
-        queue.queue.delete(message.guild.id);
-        return message.channel.send(err);
+        return message.channel.send(err.message);
     }
 }

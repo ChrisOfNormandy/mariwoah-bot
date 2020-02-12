@@ -2,34 +2,35 @@ const queue = require('../../queue');
 const chatFormats = require('../../../common/bot/helpers/chatFormats');
 
 module.exports = function (message) {
-    let serverQueue = queue.serverQueue;
-
-    if (!serverQueue) {
+    if (!queue.serverMap.has(message.guild.id) || queue.serverMap.get(message.guild.id).songs.length == 0) {
         message.channel.send(`The queue contains... _n o t h i n g . . ._`);
         return;
     }
 
+    let activeQueue = queue.serverMap.get(message.guild.id);
+
     let msg = '';
     
-    if (queue.previousSong != null) msg += `**Previous** - ${queue.previousSong.title}.\n${chatFormats.chatBreak}\n`;
+    if (activeQueue.previousSong != null) msg += `**Previous** - ${activeQueue.previousSong.title}.\n${chatFormats.chatBreak}\n`;
 
-    let upTo = serverQueue.songs.length <= 10 ? serverQueue.songs.length : 10;
+    let upTo = (activeQueue.songs.length <= 10) ? activeQueue.songs.length : 10;
 
-    msg += `**Now Playing...** ${serverQueue.songs[0].title}\n${chatFormats.chatBreak}\n**Up next**:\n`;
+    msg += `**Now Playing...** ${activeQueue.songs[0].title}\n${chatFormats.chatBreak}\n**Up next**:\n`;
     
-    if (serverQueue.songs.length > 1) {
+    if (activeQueue.songs.length > 1) {
+        console.log(activeQueue.songs, upTo, activeQueue.songs.length);
+        if (upTo == activeQueue.songs.length)
+            upTo = (activeQueue.songs.length <= 10) ? activeQueue.songs.length - 1 : 10;
+
         for (let i = 1; i <= upTo; i++) {
-            msg += `${i}. ${serverQueue.songs[i].title}\n`;
+            msg += `${i}. ${activeQueue.songs[i].title}\n`;
         }
-        if (serverQueue.songs.length > 10) {
-            msg += `... and ${serverQueue.songs.length - 10} more!`;
+        if (activeQueue.songs.length > 11) {
+            msg += `... and ${activeQueue.songs.length - 11} more!`;
         }
         message.channel.send(msg);
     }
-    else if (serverQueue.songs.length == 1) {
-        message.channel.send(`**Now Playing...** ${serverQueue.songs[0].title}`);
-    }
-    else {
-        message.channel.send(`The queue contains... _n o t h i n g . . ._`);
+    else if (activeQueue.songs.length == 1) {
+        message.channel.send(`**Now Playing...** ${activeQueue.songs[0].title}`);
     }
 }

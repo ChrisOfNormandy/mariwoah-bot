@@ -6,7 +6,7 @@ const leaveVC = require('./helpers/leave');
 const listQueue = require('./helpers/getQueue');
 
 module.exports = {
-    play: function(message) {playSong(message)},
+    play: function(message, songURL, vc) {playSong(message, songURL, vc)},
     join: function(message) {joinVC(message)},
     leave: function(message) {leaveVC(message)},
     skip: function(message) {skipSong(message)},

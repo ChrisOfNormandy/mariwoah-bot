@@ -2,16 +2,10 @@ const divideArray = require('../../../common/bot/helpers/divideArray');
 const readFile = require('../../../common/bot/helpers/readFile');
 const paths = require('../../../common/bot/helpers/paths');
 
-module.exports = async function (message) {
-    let msgArray = message.content.split(' ');
-    if (msgArray.length < 3) return;
-
-    let playlistName = msgArray[2];
-    let includeLinks = msgArray[3] == '-l'
-    let msg = '';
+module.exports = async function (message, playlistName, includeLinks = false) {
     let obj;
-    try { obj = await readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`);}
-    catch (e) {return console.log(e)}
+    try { obj = await readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`); }
+    catch (e) { return console.log(e); }
 
     if (obj.playlist.length == 0) {
         message.channel.send('There is nothing in the playlist.');
@@ -20,10 +14,10 @@ module.exports = async function (message) {
 
     divideArray(obj.playlist, 25)
     .then(arrays => {
-        console.log(arrays);
-        for (let k = 0; k < arrays.length; k++) {
+        let msg = '';
+        for (let k in arrays) {
             msg = '';
-            for (let i = 0; i < obj.playlist.length; i++) {
+            for (let i in obj.playlist) {
                 if (!arrays[k][i]) continue;
                 msg += `${k * 25 + i + 1}. ${arrays[k][i].title}${includeLinks ? `| ${arrays[k][i].url}` : ''}\n`;
             }

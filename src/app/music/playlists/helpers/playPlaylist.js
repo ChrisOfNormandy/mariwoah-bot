@@ -2,23 +2,16 @@ const fs = require('fs');
 const addToQueue = require('../../general/helpers/addQueue');
 const paths = require('../../../common/bot/helpers/paths');
 
-module.exports = async function (message) {
-    const msgArray = message.content.split(' ');
-    console.log(paths.getPlaylistPath(message));
-
+module.exports = async function (message, playlistName, doShuffle = false) {
     try {
-        const m = await message.channel.send(`Starting playlist ${msgArray[2]}.`);
+        const m = await message.channel.send(`Starting playlist ${playlistName}.`);
 
-        fs.readFile(`${paths.getPlaylistPath(message)}${msgArray[2]}.json`, function (err, data) {
-            if (err) {
-                console.log(err);
-                return;
-            }
+        fs.readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, function (err, data) {
+            if (err) { return console.log(err); }
 
             let obj = JSON.parse(data);
-            m.edit(`Starting playlist ${msgArray[2]}.\nSong count - ${obj.playlist.length}`);
-            let bool = msgArray[3] == '-s';
-            addToQueue(obj, message, bool);
+            m.edit(`Starting playlist ${playlistName}.\nSong count - ${obj.playlist.length}`);
+            addToQueue(obj, message, doShuffle);
         });
     }
     catch (e) {

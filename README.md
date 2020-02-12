@@ -19,7 +19,7 @@ Functions in the bot:
 
 # List of planned features needing implementation
 
-* Music features are broken because ytdl(-core) is blocked by YouTube | Video Unavailable error
 * queue -l should include current playing song url.
+* playlist list for specific playlist incorrect numbering (0 + number + 1)
 * should have ability to purge / pardon specific warnings, kicks or bans. Does not include pardons.
 * Onedrive is a bitch.
