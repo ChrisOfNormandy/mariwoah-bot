@@ -10,15 +10,15 @@ module.exports = function (message) {
     let activeQueue = queue.serverMap.get(message.guild.id);
 
     let msg = '';
-    
-    if (activeQueue.previousSong != null) msg += `**Previous** - ${activeQueue.previousSong.title}.\n${chatFormats.chatBreak}\n`;
+
+    if (activeQueue.previousSong != null)
+        msg += `**Previous** - ${activeQueue.previousSong.title}.\n${chatFormats.chatBreak}\n`;
 
     let upTo = (activeQueue.songs.length <= 10) ? activeQueue.songs.length : 10;
 
     msg += `**Now Playing...** ${activeQueue.songs[0].title}\n${chatFormats.chatBreak}\n**Up next**:\n`;
-    
+
     if (activeQueue.songs.length > 1) {
-        console.log(activeQueue.songs, upTo, activeQueue.songs.length);
         if (upTo == activeQueue.songs.length)
             upTo = (activeQueue.songs.length <= 10) ? activeQueue.songs.length - 1 : 10;
 

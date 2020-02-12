@@ -9,22 +9,23 @@ function check(itemName) {
     return null;
 }
 
-module.exports = async function(itemName) {
-    return new Promise(function(resolve, reject) {
+module.exports = async function (itemName) {
+    return new Promise(function (resolve, reject) {
+        let val;
         if (equipmentMap.map.size <= 1) {
-            csvToMap().then(map => {
-                equipmentMap.map = map;
-                
-                let val = check(itemName);
-                console.log(val);
-                if (val == null)
-                    reject(val);
-                else
-                    resolve(val);
-            });
+            csvToMap()
+                .then(map => {
+                    equipmentMap.map = map;
+
+                    val = check(itemName);
+                    if (val == null)
+                        reject(val);
+                    else
+                        resolve(val);
+                });
         }
         else {
-            let val = check(itemName);
+            val = check(itemName);
             if (val == null)
                 reject(val);
             else

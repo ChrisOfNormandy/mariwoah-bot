@@ -1,4 +1,4 @@
-module.exports = async function(message, args) {
+module.exports = async function (message, args) {
     let count = 1;
     let sides = 6;
 
@@ -14,10 +14,10 @@ module.exports = async function(message, args) {
 
     let rolls = [];
     let roll;
-    while (count > 0) {
 
+    while (count > 0) {
         roll = Math.floor(1 + Math.random() * sides);
-        if (sides == 2) 
+        if (sides == 2)
             roll--;
         rolls.push(roll);
         count--;
@@ -26,17 +26,22 @@ module.exports = async function(message, args) {
     let sum = 0;
     let highest = 0;
     let lowest = -1;
+
     if (rolls.length > 1) {
-        for (r in rolls) {
-            if (rolls[r] > highest) highest = rolls[r];
-            if (rolls[r] < lowest || lowest == -1) lowest = rolls[r];
+        for (let r in rolls) {
+            if (rolls[r] > highest)
+                highest = rolls[r];
+            if (rolls[r] < lowest || lowest == -1)
+                lowest = rolls[r];
             sum += rolls[r];
         }
     }
 
     let m = await message.channel.send(`Rolled: ${rolls.join(", ")}`);
     if (rolls.length > 1) {
-        if (sides > 2) m.edit(`Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`);
-        else m.edit(`Flipped: ${rolls.join(", ")}\nHeads: ${sum}\n\nTails: ${rolls.length - sum}`);
+        if (sides > 2)
+            m.edit(`Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`);
+        else
+            m.edit(`Flipped: ${rolls.join(", ")}\nHeads: ${sum}\n\nTails: ${rolls.length - sum}`);
     }
 }

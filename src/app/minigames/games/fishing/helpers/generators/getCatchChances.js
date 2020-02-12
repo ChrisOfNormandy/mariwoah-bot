@@ -39,7 +39,7 @@
         ...until nothing = 0%
     */
 
-module.exports = function(level) {
+module.exports = function (level) {
     if (level > 0 && level <= 10) {
         return {
             fish: 20 + Math.floor(level / 2),
@@ -73,5 +73,5 @@ module.exports = function(level) {
         } // 61 + 10 + 24 + 5 = 100
     }
 
-    return {fish: 20, lowItem: 15, medItem: 9, highItem: 1};
+    return { fish: 20, lowItem: 15, medItem: 9, highItem: 1 };
 }

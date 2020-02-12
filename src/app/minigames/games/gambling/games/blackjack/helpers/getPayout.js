@@ -1,4 +1,4 @@
-module.exports = function(value) {
+module.exports = function (value) {
     let msg = '';
     let payout = 0;
 

@@ -1,17 +1,18 @@
+const commandList = require('./app/common/bot/helpers/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
-const commandList = require('./app/common/bot/helpers/commandList');
 const ytSearch = require('yt-search');
 
 async function verify(message, permissionLevel) {
-    return new Promise(async function(resolve, reject) {
+    return new Promise(async function (resolve, reject) {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
-        .then(result => {
-            if (!result.status)
-                (result.reason) ? reject(result.reason) : reject('Operation rejected by permission verification.');
-            else resolve(true);
-        })
-        .catch(e => console.log(e));
+            .then(result => {
+                if (!result.status)
+                    (result.reason) ? reject(result.reason) : reject('Operation rejected by permission verification.');
+                else
+                    resolve(true);
+            })
+            .catch(e => console.log(e));
     });
 }
 
@@ -32,9 +33,9 @@ function musicLevel(commandName) {
     return m[commandName].permissionLevel || 10;
 }
 function minigameLevel(commandName, section = null) {
-    return (section == null) 
-    ? mg[commandName].permissionLevel || 10
-    : commandList.minigames.subcommands[section].commands || 10;
+    return (section == null)
+        ? mg[commandName].permissionLevel || 10
+        : commandList.minigames.subcommands[section].commands || 10;
 }
 function memeLevel(commandName) {
     return ms[commandName].permissionLevel || 10;
@@ -43,14 +44,12 @@ function dungeonLevel(commandName) {
     return d[commandName].permissionLevel || 10;
 }
 
-module.exports = async function(message) {
+module.exports = async function (message) {
     const args = message.content.slice(1).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
     const mentionedUser = message.mentions.members.first();
 
-    console.log(args, command);
-
-    return new Promise(async function(resolve, reject) {
+    return new Promise(async function (resolve, reject) {
         if (command == 'clean')
             verify(message, commonLevel('clean'))
                 .then(() => resolve(common.bot.cleanChat(message)))
@@ -98,7 +97,7 @@ module.exports = async function(message) {
                 .catch(r => reject(r));
         else if (command == 'ban')
             verify(message, roleManagerLevel('ban'))
-                .then(() => resolve(common.roleManager.banUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' ')))) 
+                .then(() => resolve(common.roleManager.banUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
                 .catch(r => reject(r));
         else if (command == 'unban' || command == 'revertban')
             verify(message, roleManagerLevel('unban'))
@@ -144,8 +143,8 @@ module.exports = async function(message) {
             verify(message, roleManagerLevel('demote'))
                 .then(() => resolve(common.roleManager.demoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
                 .catch(r => reject(r));
-        else if (command =='setbotadmin')
-            verify(message, roleManagerLevel('setbotadmin')) 
+        else if (command == 'setbotadmin')
+            verify(message, roleManagerLevel('setbotadmin'))
                 .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
                 .catch(r => reject(r));
 
@@ -169,12 +168,11 @@ module.exports = async function(message) {
             verify(message, minigameLevel('sell'))
                 .then(() => resolve(common.minigames.sellInv(message)))
                 .catch(r => reject(r));
-    
+
         else if (command == 'play')
             verify(message, musicLevel('play'))
                 .then(() => {
                     if (args[0] == '?') {
-                        console.log(args.join(' ').slice(2));
                         ytSearch(args.join(' ').slice(2), function (err, r) {
                             const videos = r.videos;
                             const playlists = r.playlists || r.lists;
@@ -183,7 +181,7 @@ module.exports = async function(message) {
                                 reject(err);
                             else
                                 resolve(common.music.play(message, videos[0].url, null))
-                        })                        
+                        })
                     }
                     else resolve(common.music.play(message, args[0], null))
                 })
@@ -252,7 +250,5 @@ module.exports = async function(message) {
             verify(message, dungeonLevel('dd_list'))
                 .then(() => resolve(common.dungeons.listItems(message, args.join(' '))))
                 .catch(r => reject(r));
-
-        //else reject(message.content);
     });
 }

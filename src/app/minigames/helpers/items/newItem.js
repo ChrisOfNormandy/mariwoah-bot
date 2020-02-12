@@ -2,16 +2,17 @@ const itemlist = require('./itemlist');
 
 function fish(tier, name, argsObject) {
     let args = argsObject;
-    if (args.size == undefined) return console.error('Generating a new fish item needs argument object size!');
+    if (args.size == undefined)
+        return console.error('Generating a new fish item needs argument object size!');
 
     let size = (args.size > 0) ? args.size : itemlist.fish[tier][name].minSize;
     let weight = itemlist.fish[tier][name].weightFunc(size);
     let worth = itemlist.fish[tier][name].costPerLb * weight;
-    
+
     size = Number(size.toFixed(2));
     weight = Number(weight.toFixed(2));
     worth = Number(worth.toFixed(2));
-    
+
     return {
         name: name,
         rarity: tier,
@@ -30,7 +31,8 @@ function fish(tier, name, argsObject) {
 
 function item(tier, name, argsObject, itemType = 'fishloot') {
     let args = argsObject;
-    if (args.size == undefined) return console.error('Generating a new fish item needs argument object size!');
+    if (args.size == undefined)
+        return console.error('Generating a new fish item needs argument object size!');
 
     let size = (args.size > 0) ? args.size : itemlist.fishloot[tier][name].minSize;
     size = Number(size.toFixed(2));
@@ -49,7 +51,7 @@ function item(tier, name, argsObject, itemType = 'fishloot') {
     }
 }
 
-function newObject (category, amount, object) {
+function newObject(category, amount, object) {
     return {
         category: category,
         amount: amount,
@@ -58,10 +60,10 @@ function newObject (category, amount, object) {
 }
 
 module.exports = {
-    fish: function(amount, tier, name, argsObject) {
+    fish: function (amount, tier, name, argsObject) {
         return newObject('fish', amount, fish(tier, name, argsObject));
     },
-    item: function(amount, tier, name, argsObject) {
+    item: function (amount, tier, name, argsObject) {
         return newObject('items', amount, item(tier, name, argsObject));
     }
 }

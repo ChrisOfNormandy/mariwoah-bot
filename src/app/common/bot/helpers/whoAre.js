@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 
 function formatResponse(name, joinDate, roleList, user) {
-    if (user.bot) name += ' -=[BOT]=-'
+    if (user.bot)
+        name += ' -=[BOT]=-'
     let embedMsg = new Discord.RichEmbed()
         .setTitle(name)
         .setColor("#e6ffff")
@@ -19,7 +20,7 @@ function getDate(date) {
 
 function getRoles(member, message) {
     let roles = '';
-    for (role in member._roles) {
+    for (let role in member._roles) {
         roles += `${message.guild.roles.get(member._roles[role]).name}`
         roles += (member._roles.length > 1 && role < member._roles.length - 1) ? ', ' : '';
     }
@@ -27,18 +28,18 @@ function getRoles(member, message) {
 }
 
 module.exports = {
-    self: function(message) {
+    self: function (message) {
         let m = message.member;
         let u = m.user;
 
-        let joinDate = getDate(new Date(m.joinedTimestamp));        
+        let joinDate = getDate(new Date(m.joinedTimestamp));
         let roles = getRoles(m, message);
         let msg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
 
         message.channel.send(msg);
     },
 
-    member: function(message) {
+    member: function (message) {
         let id = message.mentions.users.first().id;
         let user = message.guild.members.get(id);
         let u = user.user;

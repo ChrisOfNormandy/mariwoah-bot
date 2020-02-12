@@ -1,4 +1,5 @@
 const itemlist = require('../../../../helpers/items/itemlist');
+
 const fishlist = itemlist.fish;
 const lootlist = itemlist.fishloot;
 
@@ -8,7 +9,7 @@ module.exports = {
         items: {}
     },
 
-    generate: function() {
+    generate: function () {
         for (tier in fishlist) {
             this.pool.fish[tier] = [];
             for (item in fishlist[tier])

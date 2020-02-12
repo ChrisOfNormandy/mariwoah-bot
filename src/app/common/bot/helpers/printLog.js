@@ -4,21 +4,21 @@ function getDateString() {
     let date = new Date();
     let dmy = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     let time =
-    `${(date.getHours() <= 12)
-    ? (date.getHours == 0) ? 12 : date.getHours()
-    : date.getHours() - 12
-    }:${(date.getMinutes() < 10)
-    ? `0${date.getMinutes()}`
-    : date.getMinutes()
-    }:${(date.getSeconds() < 10)
-    ? `0${date.getSeconds()}`
-    : date.getSeconds()
-    }:${date.getMilliseconds()}`
+        `${(date.getHours() <= 12)
+            ? (date.getHours == 0) ? 12 : date.getHours()
+            : date.getHours() - 12
+        }:${(date.getMinutes() < 10)
+            ? `0${date.getMinutes()}`
+            : date.getMinutes()
+        }:${(date.getSeconds() < 10)
+            ? `0${date.getSeconds()}`
+            : date.getSeconds()
+        }:${date.getMilliseconds()}`
 
     return `> ${dmy} | ${time} `;
 }
 
-module.exports = async function (client, string, flag) {
+module.exports = async function (client, string, flag = null) {
     return new Promise(function (resolve, reject) {
 
         let str = getDateString();
@@ -47,7 +47,7 @@ module.exports = async function (client, string, flag) {
         try {
             if (client) client.channels.get(config.settings.logChannel).send(str);
             console.log(str);
-            resolve(true);
+            resolve(str);
         }
         catch (e) {
             console.log(e);
@@ -56,9 +56,9 @@ module.exports = async function (client, string, flag) {
                     client.users.get(i).send(`Could not global log string:\n${str}`);
             }
             catch (err) {
-                console.log(err);
+                reject(err);
             }
-            reject(false);
+            reject(e);
         }
     });
 }

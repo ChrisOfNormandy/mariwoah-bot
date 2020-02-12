@@ -1,5 +1,4 @@
-module.exports = function(message, obj) {
-    console.log(obj);
+module.exports = function (message, obj) {
     message.channel.send(
         '```cs\n# ' + obj.definition.name + '\n' +
         `"Money"       | $${(obj.stats.money).toFixed(2)}\n` +

@@ -2,21 +2,18 @@ const fs = require('fs');
 const paths = require('../../common/bot/helpers/paths');
 const equipmentMap = require('./equipmentMap');
 
-module.exports = async function() {
-    return new Promise (function (resolve, reject) {
-        fs.readFile(paths.dungeonList, function(err, data) {
-            if (err) {
-                console.log(err);
+module.exports = async function () {
+    return new Promise(function (resolve, reject) {
+        fs.readFile(paths.dungeonList, function (err, data) {
+            if (err)
                 reject(err);
-            }
 
-            var array = data.toString().split("\n");
+            let array = data.toString().split("\n");
             let map = new Map();
 
-            let arr;
-            let a;
+            let arr, a, o;
 
-            for(let i = 1; i < array.length; i++) {
+            for (let i in array) {
                 arr = array[i].split(',');
 
                 a = {
@@ -25,21 +22,20 @@ module.exports = async function() {
                     weight: arr[2],
                     class: arr[3],
                     note: arr[4]
-                }
+                };
 
-                if (map.has(a.class)) {
+                if (map.has(a.class))
                     map[a.class][a.name] = a;
-                }
                 else {
-                    if (!a.class) continue;
+                    if (!a.class)
+                        continue;
 
                     map.set(a.class, {});
-                    let o = {};
+                    o = {};
                     o[a.name] = a;
                     map[a.class] = o;
                 }
             }
-            
             resolve(map);
         });
     });

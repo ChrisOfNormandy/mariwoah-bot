@@ -1,12 +1,10 @@
 const fs = require('fs');
 const paths = require('../../../bot/helpers/paths');
 
-module.exports = async function(message) {
-    console.log('Creating new server config file for guild: ' + message.channel.guild.id);
-
+module.exports = async function (message) {
     let config = {
         id: message.channel.guild.id,
-        motd: "Message of the day!&tWhat an amazing message!", // Should be richEmbed at some point
+        motd: "Message of the day!&tWhat an amazing message!",
         permissions: {
             levels: {
                 owner: 5,
@@ -25,17 +23,13 @@ module.exports = async function(message) {
                 rejectMessage_owner: "Only the server owner can use that command.",
             }
         },
-        users: {
-
-        }
+        users: {}
     }
 
-    return new Promise(function(resolve, reject) {
-        fs.writeFile(paths.getRoleManagerServerPath(message) + 'serverData.json', JSON.stringify(config), function(err) {
-            if (err) {
-                console.log(err);
-                reject(false);
-            }
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(paths.getRoleManagerServerPath(message) + 'serverData.json', JSON.stringify(config), function (err) {
+            if (err)
+                reject(err);
             resolve(config);
         })
     })

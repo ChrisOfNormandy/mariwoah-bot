@@ -1,4 +1,4 @@
-module.exports = function(message, user) {
+module.exports = function (message, user) {
     let msgArray = message.content.split(' ');
 
     if (!msgArray[1]) {
@@ -19,7 +19,8 @@ module.exports = function(message, user) {
         return -1;
     }
     let rollCount;
-    if (!msgArray[2]) rollCount = 1;
+    if (!msgArray[2])
+        rollCount = 1;
     else {
         if (isNaN(msgArray[2])) rollCount = 1;
         else rollCount = Math.floor(msgArray[2]);

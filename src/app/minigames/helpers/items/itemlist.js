@@ -8,7 +8,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 8,
                 maxSize: 48,
-                weightFunc: function(size) { return Math.pow(10, -3.449 + 3.098 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.449 + 3.098 * Math.log10(size)); },
                 costPerLb: 6
             },
             'brook_trout': {
@@ -18,7 +18,7 @@ module.exports = {
                 time: 'morning',
                 minSize: 6,
                 maxSize: 34,
-                weightFunc: function(size) { return Math.pow(10, -3.467 + 3.043 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.467 + 3.043 * Math.log10(size)); },
                 costPerLb: 6
             },
             'chinook_salmon': {
@@ -28,7 +28,7 @@ module.exports = {
                 time: 'morning',
                 minSize: 8,
                 maxSize: 60,
-                weightFunc: function(size) { return Math.pow(10, -3.243 + 3.901 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.243 + 3.901 * Math.log10(size)); },
                 costPerLb: 21
             },
             'northern_pike': {
@@ -38,7 +38,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 4,
                 maxSize: 55,
-                weightFunc: function(size) { return Math.pow(10, -3.727 + 3.059 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.727 + 3.059 * Math.log10(size)); },
                 costPerLb: 4.7
             },
             'striped_bass': {
@@ -48,7 +48,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 6,
                 maxSize: 60,
-                weightFunc: function(size) { return Math.pow(10, -3.358 + 3.007 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.358 + 3.007 * Math.log10(size)); },
                 costPerLb: 17
             },
             'white_bass': {
@@ -58,7 +58,7 @@ module.exports = {
                 time: 'day',
                 minSize: 5,
                 maxSize: 17,
-                weightFunc: function(size) { return Math.pow(10, -3.394 + 3.081 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.394 + 3.081 * Math.log10(size)); },
                 costPerLb: 20
             },
             'largemouth_bass': {
@@ -68,7 +68,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 6,
                 maxSize: 29,
-                weightFunc: function(size) { return Math.pow(10, -3.49 + 3.191 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.49 + 3.191 * Math.log10(size)); },
                 costPerLb: 6
             },
             'smallmouth_bass': {
@@ -78,7 +78,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 8,
                 maxSize: 27,
-                weightFunc: function(size) { return Math.pow(10, -3.347 + 3.055 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.347 + 3.055 * Math.log10(size)); },
                 costPerLb: 4.7
             },
             'bluegill': {
@@ -88,7 +88,7 @@ module.exports = {
                 time: 'evening',
                 minSize: 4,
                 maxSize: 16,
-                weightFunc: function(size) { return Math.pow(10, -3.371 + 3.316 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.371 + 3.316 * Math.log10(size)); },
                 costPerLb: 33
             },
             'black_crappie': {
@@ -98,7 +98,7 @@ module.exports = {
                 time: 'night',
                 minSize: 4,
                 maxSize: 19,
-                weightFunc: function(size) { return Math.pow(10, -3.576 + 3.345 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.576 + 3.345 * Math.log10(size)); },
                 costPerLb: 8
             },
             'white_crappie': {
@@ -108,7 +108,7 @@ module.exports = {
                 time: 'morning',
                 minSize: 4,
                 maxSize: 21,
-                weightFunc: function(size) { return Math.pow(10, -3.618 + 3.332 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.618 + 3.332 * Math.log10(size)); },
                 costPerLb: 5.5
             },
             'walleye': {
@@ -118,7 +118,7 @@ module.exports = {
                 time: 'night',
                 minSize: 6,
                 maxSize: 42,
-                weightFunc: function(size) { return Math.pow(10, -3.642 + 3.18 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.642 + 3.18 * Math.log10(size)); },
                 costPerLb: 10.5
             },
             'sauger': {
@@ -128,7 +128,7 @@ module.exports = {
                 time: 'day',
                 minSize: 3,
                 maxSize: 29,
-                weightFunc: function(size) { return Math.pow(10, -3.669 + 3.157 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.669 + 3.157 * Math.log10(size)); },
                 costPerLb: 10.5
             },
             'yellow_perch': {
@@ -138,7 +138,7 @@ module.exports = {
                 time: 'dawn/dusk',
                 minSize: 4,
                 maxSize: 16,
-                weightFunc: function(size) { return Math.pow(10, -3.506 + 3.23 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -3.506 + 3.23 * Math.log10(size)); },
                 costPerLb: 3
             }
         },
@@ -150,7 +150,7 @@ module.exports = {
                 time: 'night',
                 minSize: 7,
                 maxSize: 72,
-                weightFunc: function(size) { return Math.pow(10, -4.126 + 3.337 * Math.log10(size)); },
+                weightFunc: function (size) { return Math.pow(10, -4.126 + 3.337 * Math.log10(size)); },
                 costPerLb: 4.7
             }
         }
@@ -193,6 +193,6 @@ module.exports = {
 
     },
     materials: {
-        
+
     }
 }

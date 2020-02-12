@@ -1,4 +1,4 @@
-module.exports = function(category, amount, itemObject) {
+module.exports = function (category, amount, itemObject) {
     return {
         category: category,
         amount: amount,

@@ -8,14 +8,14 @@ function check(className) {
     return null;
 }
 
-module.exports = async function(className) {
-    return new Promise(function(resolve, reject) {
+module.exports = async function (className) {
+    return new Promise(function (resolve, reject) {
+        let val;
         if (equipmentMap.map.size <= 1) {
             csvToMap().then(map => {
                 equipmentMap.map = map;
-                
-                let val = check(className);
-                console.log(val);
+
+                val = check(className);
                 if (val == null)
                     reject(val);
                 else
@@ -23,7 +23,7 @@ module.exports = async function(className) {
             });
         }
         else {
-            let val = check(className);
+            val = check(className);
             if (val == null)
                 reject(val);
             else

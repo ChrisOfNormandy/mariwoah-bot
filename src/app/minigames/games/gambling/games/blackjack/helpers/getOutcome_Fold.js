@@ -1,14 +1,16 @@
 const drawCard = require('../../../helpers/drawCard');
 const getHandSum = require('../../../helpers/getHandSum')
 
-module.exports = function(game) {
+module.exports = function (game) {
     const pSum = getHandSum(game.playerHand);
     let dSum = getHandSum(game.dealerHand);
     let outcome = '';
 
     if (pSum == 21) {
-        if (dSum == 21) outcome = 'eq';
-        else outcome = 'pbj';
+        if (dSum == 21)
+            outcome = 'eq';
+        else
+            outcome = 'pbj';
     }
     else if (dSum == 21) {
         outcome = 'dbj';
@@ -22,11 +24,16 @@ module.exports = function(game) {
             dSum += card.face + 1;
         }
 
-        if (dSum == 21) outcome = 'dbj';
-        else if (dSum > 21) outcome = 'db';
-        else if (dSum > pSum) outcome = 'dg';
-        else if (dSum == pSum) outcome = 'eq';
-        else outcome = 'pg';
+        if (dSum == 21)
+            outcome = 'dbj';
+        else if (dSum > 21)
+            outcome = 'db';
+        else if (dSum > pSum)
+            outcome = 'dg';
+        else if (dSum == pSum)
+            outcome = 'eq';
+        else
+            outcome = 'pg';
     }
     return {
         game: game,

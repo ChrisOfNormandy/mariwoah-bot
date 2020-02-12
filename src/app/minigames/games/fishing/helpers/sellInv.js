@@ -1,13 +1,13 @@
-const global = require('../../../main/global');
-const getPrice = require('./getPrice');
 const fishlist = require('../../itemList').fish;
+const getPrice = require('./getPrice');
+const global = require('../../../main/global');
 
 module.exports = function (invArray) {
     let payout = 0;
     let fish;
     let msg = '';
-    global.log('Starting sellFish function.');
-    for (i in invArray) {
+
+    for (let i in invArray) {
         try {
             fish = getPrice(fishlist.common[invArray[i].type].costPerLb, invArray[i].weight);
             msg += `Sold ${invArray[i].type} at $${fish.price}/lb. Recieved: $${fish.salePrice}\n`
@@ -15,7 +15,6 @@ module.exports = function (invArray) {
         }
         catch (e) {
             console.log(e);
-            global.log(`Exception: Error selling fish for player ${message.author.id}.`, 'error');
         }
     }
     return {

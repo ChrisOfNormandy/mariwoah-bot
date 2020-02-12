@@ -231,8 +231,8 @@ module.exports = {
                 description: 'Plays the YouTube URL audio in the active voice chat.',
                 permissionLevel: 1,
                 arguments: [
-                    ['url'],
-                    ['YouTube URL for a given video/song.']
+                    ['url | ? {query}'],
+                    ['YouTube URL for a given video/song | Search for a video based on title (query). ~play ? {name}']
                 ]
             },
             'leave': {
@@ -350,11 +350,11 @@ module.exports = {
             },
             'gathering': {
                 header: '### Gathering Minigame Commands ###',
-                commands: {page:[[],],},
+                commands: { page: [[],], },
             },
             'mining': {
                 header: '### Mining Minigame Commands ###',
-                commands: {page:[[],],},
+                commands: { page: [[],], },
             },
             'gambling': {
                 header: '### Gambling Minigame Commands ###',
@@ -413,7 +413,7 @@ module.exports = {
                 ['f', 'fuck', 'yey'],
                 ['penguin', 'clayhead'],
                 ['crabrave'],
-            ] ,
+            ],
         }
     },
     dungeons: {

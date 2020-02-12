@@ -1,5 +1,5 @@
-module.exports = function (message) {
-    let serverData = {
+module.exports = function () {
+    return {
         "latestWarning": {
             "time": "",
             "reason": ""
@@ -30,6 +30,4 @@ module.exports = function (message) {
             "override": {}
         }
     }
-
-    return serverData
 }

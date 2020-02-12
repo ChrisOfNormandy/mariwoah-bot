@@ -1,8 +1,8 @@
+const fishingLoot = require('../../../minigames/games/fishing/helpers/generators/lootPool');
 const minigames = require('../../../minigames/core');
 const statsMap = require('../../../minigames/helpers/user/statsMap');
-const fishingLoot = require('../../../minigames/games/fishing/helpers/generators/lootPool');
 
-module.exports = async function() {
+module.exports = async function () {
     statsMap.map = minigames.mapStats();
     minigames.stats = statsMap.map;
 

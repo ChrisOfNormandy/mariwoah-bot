@@ -1,12 +1,8 @@
 const memeDispatcher = require('./helpers/memeDispatcher');
 
 module.exports = {
-    memeDispatch: function(message, meme) {
-        message.channel.send(
-            '', {
-                file: memeDispatcher(meme)
-            }
-        );
+    memeDispatch: function (message, meme) {
+        message.channel.send('', { file: memeDispatcher(meme) });
         try {
             message.delete();
         }

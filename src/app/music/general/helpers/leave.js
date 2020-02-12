@@ -9,8 +9,7 @@ module.exports = function (message) {
     }
     else {
         vc.leave();
-        if (queue.serverMap.has(message.guild.id)) {
+        if (queue.serverMap.has(message.guild.id))
             queue.serverMap.delete(message.guild.id);
-        }
     }
 }
