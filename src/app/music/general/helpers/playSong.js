@@ -12,7 +12,7 @@ module.exports = async function (message, songURL, songName = null, vc = null) {
         return;
 
     getSongObject.byUrl(message, songURL)
-        .then(song => {
+        .then(async (song) => {
             if (!queue.serverMap)
                 queue.serverMap = new Map();                
 
