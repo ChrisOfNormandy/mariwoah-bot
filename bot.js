@@ -1,6 +1,5 @@
-const common = require('./src/app/common/core');
 const commandParser = require('./src/commandParser');
-const joinAlertSound = require('./src/app/common/bot/helpers/joinAlerts/joinAlertSound');
+const common = require('./src/app/common/core');
 
 const client = common.client;
 
@@ -15,18 +14,20 @@ client.on('ready', () => {
 
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
-        message.channel.send('FUCK OFF MEE6, YOU STUPID BITCH :dagger: :knife: :fire:');
+        try {
+            message.delete()
+                .then(async () => message.channel.send('Denied.')
+                    .then(m => setTimeout(m.delete, 5000)));
+        }
+        catch (e) {
+            message.channel.send('I require admin permissions to operate correctly.');
+        }
+    if (!common.config.settings.prefix.includes(message.content.charAt(0)) || message.author.bot)
+        return;
 
-        //common.bot.reactions(message);
-
-    if (!common.config.settings.prefix.includes(message.content.charAt(0)) || message.author.bot) return;
-
-    commandParser(message);
+    commandParser(message)
+        .catch(err => message.channel.send(err));
 });
-
-client.on('voiceStateUpdate', (oldMember, newMember) => {
-    //joinAlertSound(client, oldMember, newMember);
-})
 
 client.login(client.token);
 

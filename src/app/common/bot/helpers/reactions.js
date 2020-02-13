@@ -1,6 +1,6 @@
 const nice = ['🇳', '🇮', '🇨', '🇪'];
 
-function reactNice(message, index) {    
+function reactNice(message, index) {
     if (index < nice.length) {
         message.react(nice[index]);
         setTimeout(() => reactNice(message, index + 1), 1000);
@@ -8,7 +8,7 @@ function reactNice(message, index) {
     else return;
 }
 
-module.exports = function(message) {
+module.exports = function (message) {
     if (message.content.includes('69'))
         reactNice(message, 0);
 }

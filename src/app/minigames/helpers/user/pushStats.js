@@ -5,13 +5,11 @@ const statsMap = require('./statsMap');
 
 module.exports = async function () {
     let stats = mapToJson(statsMap.map);
-    return new Promise( function (resolve, reject) {
-        fs.writeFile(paths.stats, JSON.stringify(stats), (err, data) => {
+    return new Promise(function (resolve, reject) {
+        fs.writeFile(paths.stats, JSON.stringify(stats), (err) => {
             if (err) {
-                console.log('Error writing to file' + err);
-                reject(false);
+                reject(err);
             }
-            console.log('Saved stats to file successfully.');
             resolve(true);
         });
     });

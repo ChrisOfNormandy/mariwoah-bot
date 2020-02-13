@@ -20,54 +20,43 @@ module.exports = async function (message) {
     if (channel.type == 'text') {
         channel.fetchMessages().then(messages => {
             if (message.mentions.users.first()) {
-                const userMessages = messages.filter(msg => (
-                    (
-                        msg.author.id == message.mentions.users.first().id
-                    ) &&
+                const userMessages = messages.filter(msg => (msg.author.id == message.mentions.users.first().id &&
                     getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                 ));
 
                 let userMessagesDeleted = userMessages.array().length;
-                let regex = '\[-]\d+\g';
 
                 channel.bulkDelete(userMessages);
 
-                console.log(`Deletion of messages successful. Total messages deleted:\nTotal: ${userMessagesDeleted}`);
                 channel.send(`Deletion of messages successful. Total messages deleted:\nTotal: ${userMessagesDeleted}`)
-                .then(msg => {
-                    msg.delete(5000);
-                })
-                .catch(e => {
-                    console.log(e);
-                });
+                    .then(msg => {
+                        msg.delete(5000);
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
             }
             else {
-                const botMessages = messages.filter(msg => (
-                    msg.author.bot &&
+                const botMessages = messages.filter(msg => (msg.author.bot &&
                     getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                 ));
-                const cmdMessages = messages.filter(msg => (
-                    (
-                        config.settings.prefix.includes(msg.content.charAt(0)) ||
-                        config.settings.otherPrefixes.includes(msg.content.charAt(0))
-                    ) &&
+                const cmdMessages = messages.filter(msg => ((config.settings.prefix.includes(msg.content.charAt(0) || config.settings.otherPrefixes.includes(msg.content.charAt(0)))) &&
                     getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                 ));
 
                 let botMessagesDeleted = botMessages.array().length;
                 let cmdMessagesDeleted = cmdMessages.array().length;
-        
+
                 channel.bulkDelete(botMessages);
                 channel.bulkDelete(cmdMessages);
-                
-                console.log(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`);
+
                 channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
-                .then(msg => {
-                    msg.delete(5000);
-                })
-                .catch(e => {
-                    console.log(e);
-                });
+                    .then(msg => {
+                        msg.delete(5000);
+                    })
+                    .catch(e => {
+                        console.log(e);
+                    });
             }
         }).catch(err => {
             console.log('Error while doing Bulk Delete');

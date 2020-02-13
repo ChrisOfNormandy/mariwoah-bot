@@ -2,8 +2,7 @@ function fishString(obj) {
     let rarity = obj.rarity.charAt(0).toUpperCase() + obj.rarity.slice(1);
     let name = obj.name.replace('_', ' ');
 
-    let msg = ` ${rarity} ${name} - ${obj.size} inch - ${obj.weight} lbs. - $${(obj.info.costPerLb * obj.weight).toFixed(2)}\n`;
-    return msg;
+    return ` ${rarity} ${name} - ${obj.size} inch - ${obj.weight} lbs. - $${(obj.info.costPerLb * obj.weight).toFixed(2)}\n`;
 }
 
 function itemString(obj) {
@@ -14,18 +13,19 @@ function itemString(obj) {
     return msg;
 }
 
-module.exports = function(user) {
+module.exports = function (user) {
     let msgs = [];
-    for (inv in user.inventories) {
-        if (!user.inventories[inv].length) continue;
+    for (let inv in user.inventories) {
+        if (!user.inventories[inv].length)
+            continue;
 
         title = inv.charAt(0).toUpperCase() + inv.slice(1);
         let msg = '```cs\n' + `# ${title}\n`;
-        
-        for (let i = 0; i < user.inventories[inv].length; i++) {
+
+        for (let i in user.inventories[inv]) {
             switch (user.inventories[inv][i].category) {
-                case 'fish': {msg += fishString(user.inventories[inv][i].item); break;}
-                case 'items': {msg += itemString(user.inventories[inv][i]); break;}
+                case 'fish': { msg += fishString(user.inventories[inv][i].item); break; }
+                case 'items': { msg += itemString(user.inventories[inv][i]); break; }
             }
         }
 

@@ -24,7 +24,7 @@ const slotItems = {
         worth: [-1, -1, -1]
     }
 };
-const slotItemsList = ['gem', 'cherries', 'grapes', 'watermelon', 'bell', 'seven' ,'fleur_de_lis', 'x'];
+const slotItemsList = ['gem', 'cherries', 'grapes', 'watermelon', 'bell', 'seven', 'fleur_de_lis', 'x'];
 
 module.exports = {
     items: slotItems,

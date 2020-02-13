@@ -1,6 +1,6 @@
 const drawCard = require('../../../helpers/drawCard');
 
-module.exports = function(message, user) {
+module.exports = function (message, user) {
     let msgArray = message.content.split(' ');
 
     if (!msgArray[1]) {
@@ -22,7 +22,6 @@ module.exports = function(message, user) {
     }
 
     message.channel.send('Starting blackjack...');
-    
 
     let game = {
         dealerHand: [],
@@ -36,15 +35,15 @@ module.exports = function(message, user) {
         let card = drawCard(game.cardMap);
         game.dealerHand.push(card);
         game.cardMap.set(card.index, card);
-    }
-    for (let i = 0; i < 2; i++) {
-        let card = drawCard(game.cardMap);
+
+        card = drawCard(game.cardMap);
         game.playerHand.push(card);
         game.cardMap.set(card.index, card);
     }
 
     let msg = 'Player:\n';
-    for (i in game.playerHand) msg += game.playerHand[i].text + '\n';
+    for (let i in game.playerHand)
+        msg += game.playerHand[i].text + '\n';
 
     message.channel.send(msg);
 

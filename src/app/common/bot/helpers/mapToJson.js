@@ -1,6 +1,6 @@
-module.exports = function(map) {
-    let stats = {};
+module.exports = function (map) {
+    let obj = {};
     for (let [key, val] of map)
-        stats[key] = val;
-    return stats;
+        obj[key] = val;
+    return obj;
 }

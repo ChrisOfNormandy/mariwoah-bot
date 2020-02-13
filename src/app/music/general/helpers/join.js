@@ -7,7 +7,8 @@ module.exports = function (message) {
         return;
     }
     else {
-        vc.join().then(connection => console.log('Success! - ' + connection))
-        .catch(e => console.log(e));
+        vc.join()
+            .then(connection => console.log('Success! - ' + connection))
+            .catch(e => console.log(e));
     }
 }

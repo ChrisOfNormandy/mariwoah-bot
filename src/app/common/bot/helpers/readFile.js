@@ -1,13 +1,16 @@
 const fs = require('fs');
 
-module.exports = function(path) {
-    return new Promise(function(resolve, reject) {
+module.exports = function (path) {
+    return new Promise(function (resolve, reject) {
         fs.readFile(path, (err, data) => {
-            if (err) {
-                console.log(err);
-                reject(false);
+            if (err)
+                reject(err);
+            try {
+                resolve(JSON.parse(data));
             }
-            resolve(JSON.parse(data));
+            catch (e) {
+                reject(e);
+            }
         });
     })
 }

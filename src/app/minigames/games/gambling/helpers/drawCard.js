@@ -1,4 +1,4 @@
-function getNewCard (cardMap) {
+function getNewCard(cardMap) {
     let cv = Math.floor(Math.random() * 52);
     if (cardMap.has(cv)) return getNewCard(cardMap);
     return cv;
@@ -16,7 +16,8 @@ module.exports = function (cardMap) {
         case 2: cardText += ':clubs: - '; break;
         case 3: cardText += ':diamonds: - '; break;
     }
-    if (cardFace == 0) cardText += 'Ace';
+    if (cardFace == 0)
+        cardText += 'Ace';
     else if (cardFace >= 10) {
         if (cardFace == 10) cardText += 'Jack';
         if (cardFace == 11) cardText += 'Queen';
