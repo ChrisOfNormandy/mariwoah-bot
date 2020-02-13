@@ -21,5 +21,6 @@ Functions in the bot:
 
 * queue -l should include current playing song url.
 * playlist list for specific playlist incorrect numbering (0 + number + 1)
+* bot should delete queue after all songs played. 
 * should have ability to purge / pardon specific warnings, kicks or bans. Does not include pardons.
 * Onedrive is a bitch.

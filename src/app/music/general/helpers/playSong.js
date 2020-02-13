@@ -1,25 +1,22 @@
+const getEmbededSongInfo = require('./getEmbedSongInfo');
+const getSongObject = require('./getSongObject');
 const getVC = require('../../../common/bot/helpers/getVC');
 const play = require('./play');
 const queue = require('../../queue');
+const stop = require('./stop');
 const ytdl = require('ytdl-core');
 
-module.exports = async function (message, songURL, vc = null) {
-
+module.exports = async function (message, songURL, songName = null, vc = null) {
     const voiceChannel = (vc !== null) ? vc : getVC(message);
     if (!voiceChannel)
         return;
 
-    ytdl.getInfo(songURL)
-        .then(async (songInfo) => {
-            const song = {
-                title: songInfo.title,
-                url: songInfo.video_url,
-            };
-
+    getSongObject.byUrl(message, songURL)
+        .then(song => {
             if (!queue.serverMap)
-                queue.serverMap = new Map();
+                queue.serverMap = new Map();                
 
-            if (!queue.serverMap.has(message.guild.id)) {
+            if (!queue.serverMap.has(message.guild.id) || !queue.serverMap.get(message.guild.id).playing) {
                 let activeQueue = {
                     textChannel: message.channel,
                     voiceChannel: voiceChannel,
@@ -36,17 +33,30 @@ module.exports = async function (message, songURL, vc = null) {
                     let connection = await voiceChannel.join();
                     activeQueue.connection = connection;
                     queue.serverMap.set(message.guild.id, activeQueue);
+
                     play(message.guild, activeQueue.songs[0]);
+
+                    getEmbededSongInfo.single('Now playing...', activeQueue, 0)
+                    .then(embedMsg => {
+                        message.channel.send(embedMsg);
+                    })
+                    .catch(e => console.log(e));
                 }
                 catch (err) {
                     console.log(err);
-                    queue.serverMap.delete(message.guild.id);
-                    return message.channel.send(err);
+                    if (activeQueue.songs.length == 1)
+                        stop(message, err.message);
                 }
             }
             else {
+                let activeQueue = queue.serverMap.get(message.guild.id);
                 queue.serverMap.get(message.guild.id).songs.push(song);
-                return message.channel.send(`${song.title} has been added to the queue.`);
+
+                getEmbededSongInfo.single(message.guild, 'Added to queue', activeQueue, activeQueue.songs.length - 1)
+                .then(embedMsg => {
+                    message.channel.send(embedMsg);
+                })
+                .catch(e => console.log(e));
             }
         })
         .catch(e => {

@@ -8,8 +8,7 @@ module.exports = async function (message, playlistName, songURL) {
             .then(async (songInfo) => {
                 const song = {
                     title: songInfo.title,
-                    url: songInfo.video_url,
-                };
+                    url: songInfo.video_url                };
 
                 fs.readFile(paths.getPlaylistPath(message) + playlistName + '.json', 'utf8', (err, data) => {
                     if (err)

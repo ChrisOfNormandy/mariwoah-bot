@@ -9,8 +9,8 @@ const remove = require('./helpers/removeFromPlaylist');
 const ytdl = require('ytdl-core');
 
 module.exports = {
-    play: function (message, playlistName, doShuffle) { play(message, playlistName, doShuffle) },
-    list: function (message, playlistName, includeLinks) { list(message, playlistName, includeLinks) },
+    play: function (message, playlistName, doShuffle) { play(message, playlistName, doShuffle); },
+    list: function (message, playlistName, includeLinks) { list(message, playlistName, includeLinks); },
     listAll: function (message) {
         listDir(paths.getPlaylistPath(message))
             .then(list => {
@@ -19,25 +19,25 @@ module.exports = {
                     return;
                 }
                 let msg = '';
-                for (let i  = 0; i < list.length; i++)
+                for (let i = 0; i < list.length; i++)
                     msg += `${i + 1}. ${list[i].split('.')[0]}\n`;
                 message.channel.send(msg);
             })
             .catch(e => console.log(e));
     },
-    create: function (message, playlistName) { create(message, playlistName) },
+    create: function (message, playlistName) { create(message, playlistName); },
     add: async function (message, playlistName, songURL) {
         add(message, playlistName, songURL)
             .then(result => {
                 let embedMsg = new Discord.RichEmbed()
                     .setColor('#990011');
                 if (result !== undefined) {
-                    
-                    if(result) {
+                    if (result) {
                         ytdl.getInfo(songURL, (err, info) => {
+                            if (err)
+                                return;
                             let arr = info.player_response.videoDetails.thumbnail.thumbnails;
-                            console.log(arr[arr.length - 1]);
-                            embedMsg.setTitle(`${info.title}`)
+                            embedMsg.setTitle(`${info.title}`);
                             embedMsg.setThumbnail(arr[arr.length - 1].url);
                             embedMsg.setURL(songURL);
                             embedMsg.addField(':writing_hand: Success!', `Added song to the playlist.`);
@@ -45,7 +45,7 @@ module.exports = {
                         });
                     }
                     else {
-                        embedMsg.addField(':interrobang:', 'Failed to add song to playlist.');
+                        embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
                         message.channel.send(embedMsg);
                     }
                     try {
@@ -57,6 +57,10 @@ module.exports = {
                 }
             })
             .catch(e => {
+                if (e.message)
+                    message.channel.send(e.message);
+                else
+                    message.channel.send(e);
                 try {
                     message.delete();
                 }

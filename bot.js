@@ -26,7 +26,7 @@ client.on('message', async message => {
         return;
 
     commandParser(message)
-        .catch(err => console.log(message.content, err));
+        .catch(err => message.channel.send(err));
 });
 
 client.login(client.token);

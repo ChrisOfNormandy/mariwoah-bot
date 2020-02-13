@@ -1,4 +1,5 @@
 const getVC = require('../../../common/bot/helpers/getVC');
+const stop = require('./stop');
 const queue = require('../../queue');
 
 module.exports = function (message) {
@@ -9,7 +10,8 @@ module.exports = function (message) {
     }
     else {
         vc.leave();
-        if (queue.serverMap.has(message.guild.id))
-            queue.serverMap.delete(message.guild.id);
+        if (queue.serverMap.has(message.guild.id)) {
+            stop(message, 'Bot has left the voice channel.');
+        }
     }
 }

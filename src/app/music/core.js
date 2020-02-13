@@ -24,7 +24,8 @@ module.exports = {
     join: function (message) { music.join(message) },
     leave: function (message) { music.leave(message) },
     listQueue: function (message) { music.listQueue(message) },
-    play: function (message, songURL, vc) { music.play(message, songURL, vc) },
+    play: function (message, songURL, songName, vc) { music.play(message, songURL, songName, vc) },
+    removeFromQueue: function (message, index) { music.removeFromQueue(message, index) },
     skip: function (message) { music.skip(message) },
     stop: function (message) { music.stop(message) },
 

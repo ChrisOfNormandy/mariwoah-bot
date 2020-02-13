@@ -172,16 +172,16 @@ module.exports = async function (message) {
         else if (command == 'play')
             verify(message, musicLevel('play'))
                 .then(() => {
-                    if (args[0] == '?') {
-                        ytSearch(args.join(' ').slice(2), function (err, r) {
+                    if (!args.join(' ').includes('youtube.com/watch?')) {
+                        ytSearch(args.join(' ').slice(1), function (err, r) {
                             const videos = r.videos;
                             const playlists = r.playlists || r.lists;
                             const channels = r.channels || r.accounts;
                             if (err)
                                 reject(err);
                             else
-                                resolve(common.music.play(message, videos[0].url, null))
-                        })
+                                resolve(common.music.play(message, videos[0].url, null));
+                        });
                     }
                     else resolve(common.music.play(message, args[0], null))
                 })
@@ -205,6 +205,10 @@ module.exports = async function (message) {
         else if (command == 'queue' || command == 'q')
             verify(message, musicLevel('queue'))
                 .then(() => resolve(common.music.listQueue(message)))
+                .catch(r => reject(r));
+        else if (command == 'removefromqueue' || command == 'rmqueue')
+            verify(message, musicLevel('removefromqueue'))
+                .then(() => resolve(common.music.removeFromQueue(message, args[0])))
                 .catch(r => reject(r));
         else if (command == 'playlist' || command == 'pl')
             common.music.playlistCommand(message, args)
@@ -235,7 +239,7 @@ module.exports = async function (message) {
 
         else if (command == 'crabrave' || command == 'cr')
             verify(message, memeLevel('crabrave'))
-                .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM', null)))
+                .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM', null, null)))
                 .catch(r => reject(r));
 
         else if (command == 'dd_loaditems')

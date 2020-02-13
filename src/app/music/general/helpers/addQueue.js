@@ -13,7 +13,7 @@ module.exports = async function (object, message, doShuffle) {
     if (!queue.serverMap)
         queue.serverMap = new Map();
 
-    if (!queue.serverMap.has(message.guild.id)) {
+    if (!queue.serverMap.has(message.guild.id) || !queue.serverMap.get(message.guild.id).playing) {
         let activeQueue = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
@@ -30,16 +30,16 @@ module.exports = async function (object, message, doShuffle) {
     if (doShuffle) {
         shuffle(object.playlist)
             .then(array => {
-                if (!array) return;
+                if (!array)
+                    return;
 
                 for (let i in array) {
-                    const song = {
-                        title: array[i].title,
-                        url: array[i].url
-                    };
-
                     try {
-                        queue.serverMap.get(message.guild.id).songs.push(song);
+                        queue.serverMap.get(message.guild.id).songs.push({
+                            title: array[i].title,
+                            url: array[i].video_url,
+                            requested: message.author.id
+                        });
                     }
                     catch (e) {
                         console.log('Skipping song addition to queue.\n', e);
@@ -53,7 +53,8 @@ module.exports = async function (object, message, doShuffle) {
             try {
                 queue.serverMap.get(message.guild.id).songs.push({
                     title: playlistArray[i].title,
-                    url: playlistArray[i].url
+                    url: playlistArray[i].url,
+                    requested: message.author.id
                 });
             }
             catch (e) {
@@ -65,10 +66,11 @@ module.exports = async function (object, message, doShuffle) {
     try {
         if (queue.serverMap.has(message.guild.id)) {
             let server = queue.serverMap.get(message.guild.id);
-
-            var connection = await voiceChannel.join();
-            queue.serverMap.get(message.guild.id).connection = connection;
-            play(message.guild, server.songs[0]);
+            if (!server.connection) {
+                var connection = await voiceChannel.join();
+                queue.serverMap.get(message.guild.id).connection = connection;
+                play(message.guild, server.songs[0]);
+            }
         }
     }
     catch (err) {

@@ -231,8 +231,8 @@ module.exports = {
                 description: 'Plays the YouTube URL audio in the active voice chat.',
                 permissionLevel: 1,
                 arguments: [
-                    ['url | ? {query}'],
-                    ['YouTube URL for a given video/song | Search for a video based on title (query). ~play ? {name}']
+                    ['url | query string'],
+                    ['YouTube URL for a given video/song | Search for a video based on title (query). ~play Some song title']
                 ]
             },
             'leave': {
@@ -252,8 +252,13 @@ module.exports = {
                 permissionLevel: 1,
                 alternatives: ['q'],
             },
+            'removefromqueue': {
+                description: 'Removes element from the active queue (sets removed flag). Can undo with same command.',
+                permissionLevel: 1,
+                alternatives: ['rmqueue'],
+            },
             page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue'],
+                ['join', 'leave', 'play', 'skip', 'stop', 'queue', 'removefromqueue'],
             ],
         }
     },
@@ -265,7 +270,7 @@ module.exports = {
                 permissionLevel: 2,
                 arguments: [
                     ['name'],
-                    ['Playlist name (will become JSON file name).']
+                    ['Playlist name.']
                 ],
             },
             'add': {
@@ -296,7 +301,7 @@ module.exports = {
                 permissionLevel: 2,
                 arguments: [
                     ['name index'],
-                    ['Playlist name; Song index (found using list command)']
+                    ['Playlist name; Song index (found using list command).']
                 ]
             },
             'play': {
