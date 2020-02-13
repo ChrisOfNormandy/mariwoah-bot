@@ -1,6 +1,4 @@
 const Discord = require('discord.js');
-const intToTimeString = require('../../../common/bot/helpers/intToTimeString');
-const ytdl = require('ytdl-core');
 
 module.exports = {
     single: function (title, activeQueue, index) {
