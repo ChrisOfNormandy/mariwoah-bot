@@ -257,8 +257,13 @@ module.exports = {
                 permissionLevel: 1,
                 alternatives: ['rmqueue'],
             },
+            'songinfo': {
+                description: 'Gets information about a song without adding to the active queue.',
+                permissionLevel: 1,
+            },
             page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue', 'removefromqueue'],
+                ['join', 'leave', 'play', 'skip', 'stop', 'queue'],
+                ['removefromqueue', 'songinfo']
             ],
         }
     },
