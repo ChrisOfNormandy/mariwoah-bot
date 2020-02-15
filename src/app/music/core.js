@@ -5,17 +5,24 @@ const roleManager = require('../common/roleManager/adapter');
 const ytSearch = require('yt-search');
 
 async function verify(message, permissionLevel) {
-    if (message.member.hasPermission("ADMINISTRATOR")) return true;
+    return new Promise(async function(resolve, reject) {
+        if (message.member.hasPermission("ADMINISTRATOR"))
+            resolve(true);
 
-    let verification = await roleManager.verifyPermission(message, message.author.id, permissionLevel);
-    if (!verification.status) {
-        if (verification.reason)
-            message.channel.send(verification.reason);
-        else
-            message.channel.send('Operation rejected by permission verification.')
-        return false;
-    }
-    return true;
+        roleManager.verifyPermission(message, message.author.id, permissionLevel)
+        .then(verification => {
+            if (!verification.status) {
+                if (verification.reason)
+                    message.channel.send(verification.reason);
+                else
+                    message.channel.send('Operation rejected by permission verification.')
+                reject(false);
+            }
+            resolve(true);
+        })
+        .catch(e => reject(e));
+    })
+    
 }
 
 const pl = commandList.playlist.commands;
@@ -25,6 +32,7 @@ module.exports = {
     leave: function (message) { music.leave(message) },
     listQueue: function (message) { music.listQueue(message) },
     play: function (message, songURL, songName, vc) { music.play(message, songURL, songName, vc) },
+    songInfo: async function (message, songURL, songName) { music.songInfo(message, songURL, songName) },
     removeFromQueue: function (message, index) { music.removeFromQueue(message, index) },
     skip: function (message) { music.skip(message) },
     stop: function (message) { music.stop(message) },

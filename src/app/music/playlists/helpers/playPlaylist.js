@@ -1,4 +1,4 @@
-const addToQueue = require('../../general/helpers/addQueue');
+const addToQueue = require('./addQueue');
 const fs = require('fs');
 const paths = require('../../../common/bot/helpers/paths');
 
