@@ -5,7 +5,7 @@ module.exports = {
         logChannel: "643564636326592523"
     },
     auth: {
-        token: "NjM3NzU3NDQwNjYxOTEzNjIw.XkWP4w.DbbH_gAG8eIY3CImHM2wr-9gewg"
+        token: "NjM0OTM2MjA3MzcyOTc2MTM2.XkXaRA.3TaqVpAJwvgbywDGI3uw_U1fN4w"
     },
     admins: {
         "188020615989428224": true
