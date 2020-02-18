@@ -350,6 +350,11 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+            case 'dd_getshop': {
+                verify(message, dungeonLevel('dd_getshop'))
+                    .then(() => resolve(common.dungeons.getShop(message, (!isNaN(args[0]) ? args[0] : 10))))
+                    .catch(r => reject(r));
+            }
             case 'dd_list': {
                 verify(message, dungeonLevel('dd_list'))
                     .then(() => resolve(common.dungeons.listItems(message, args.join(' '))))
