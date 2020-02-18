@@ -9,15 +9,18 @@ client.on('ready', () => {
     common.bot.startup();
     common.log('Ready!');
 
-    client.user.setActivity('you. ;)', { type: 'watching' })
+    client.user.setActivity('you. ;)', { type: 'watching' });
 });
 
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
         try {
-            message.delete()
-                .then(async () => message.channel.send('Denied.')
-                    .then(m => setTimeout(m.delete, 5000)));
+            message.delete(1000)
+                .then(async () => {
+                    const m = await message.channel.send('Denied.');
+                    m.delete(5000);
+                })
+                .catch(e => console.log(e));
         }
         catch (e) {
             message.channel.send('I require admin permissions to operate correctly.');
@@ -26,6 +29,7 @@ client.on('message', async message => {
         return;
 
     commandParser(message)
+        .then(() => { })
         .catch(err => message.channel.send(err || 'Error'));
 });
 
