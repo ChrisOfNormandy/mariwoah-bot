@@ -30,7 +30,7 @@ client.on('message', async message => {
 
     commandParser(message)
         .then(() => { })
-        .catch(err => message.channel.send(err || 'Error'));
+        .catch(err => common.log(err || 'Error'));
 });
 
 client.login(client.token);

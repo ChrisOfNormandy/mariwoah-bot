@@ -21,7 +21,6 @@ module.exports = function (message, reason = '> Stopping all music.') {
     .then(() => {
         queue.serverMap.get(message.guild.id).voiceChannel.leave();
         queue.serverMap.set(message.guild.id, activeQueue);
-        console.log(reason);
         message.channel.send(reason);
     })
     .catch(e => console.log(e));

@@ -1,3 +1,4 @@
+const chatFormats = require('../../../bot/helpers/chatFormats');
 const Discord = require('discord.js');
 const getUser = require('./getUser');
 
@@ -8,6 +9,7 @@ module.exports = async function (message, userID) {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(discord_user.username + '#' + discord_user.discriminator)
+                .setColor(chatFormats.colors.information)
                 .addField(
                     `Permissions:`,
                     `Level: ${user.data.permissions.level}\nBot Admin: ${user.data.permissions.botAdmin}\nBot Mod: ${user.data.permissions.botMod}\nBot Helper: ${user.data.permissions.botHelper}\n`

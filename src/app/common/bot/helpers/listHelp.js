@@ -1,3 +1,4 @@
+const chatFormats = require('./chatFormats');
 const Discord = require('discord.js');
 const getPerm = require('../../roleManager/helpers/getUserPermissionLevel');
 const help = require('./commandList');
@@ -35,7 +36,7 @@ module.exports = async function (message, args) {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(sect.header)
-                .setColor('#224466');
+                .setColor(chatFormats.colors.information);
             let msg = '';
             let s; // String name for command part from page array.
 

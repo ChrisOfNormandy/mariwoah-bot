@@ -55,7 +55,7 @@ module.exports = {
                     .catch(r => reject(r));
             else if (command == 'list')
                 verify(message, pl.list.permissionLevel)
-                    .then(() => resolve((args.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message, args[1], args[2] === '-l')))
+                    .then(() => resolve((args.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message, args[1], (!isNaN(args[2]) ? args[2] : 0), args[3] === '-l')))
                     .catch(r => reject(r));
             else if (command == 'create')
                 verify(message, pl.create.permissionLevel)

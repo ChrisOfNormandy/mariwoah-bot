@@ -1,4 +1,5 @@
 const add = require('./helpers/addToPlaylist');
+const chatFormats = require('../../common/bot/helpers/chatFormats');
 const create = require('./helpers/createPlaylist');
 const Discord = require('discord.js');
 const list = require('./helpers/listPlaylist');
@@ -10,7 +11,7 @@ const ytdl = require('ytdl-core');
 
 module.exports = {
     play: function (message, playlistName, doShuffle) { play(message, playlistName, doShuffle); },
-    list: function (message, playlistName, includeLinks) { list(message, playlistName, includeLinks); },
+    list: function (message, playlistName, pageNumber, includeLinks) { list(message, playlistName, pageNumber, includeLinks); },
     listAll: function (message) {
         listDir(paths.getPlaylistPath(message))
             .then(list => {
@@ -29,8 +30,7 @@ module.exports = {
     add: async function (message, playlistName, songURL) {
         add(message, playlistName, songURL)
             .then(result => {
-                let embedMsg = new Discord.RichEmbed()
-                    .setColor('#990011');
+                let embedMsg = new Discord.RichEmbed();
                 if (result !== undefined) {
                     if (result) {
                         ytdl.getInfo(songURL, (err, info) => {
@@ -38,6 +38,7 @@ module.exports = {
                                 return;
                             let arr = info.player_response.videoDetails.thumbnail.thumbnails;
                             embedMsg.setTitle(`${info.title}`);
+                            embedMsg.setColor(chatFormats.colors.byName.green);
                             embedMsg.setThumbnail(arr[arr.length - 1].url);
                             embedMsg.setURL(songURL);
                             embedMsg.addField(':writing_hand: Success!', `Added song to the playlist.`);
@@ -45,6 +46,8 @@ module.exports = {
                         });
                     }
                     else {
+                        embedMsg.setTitle(`Error`);
+                        embedMsg.setColor(chatFormats.colors.byName.red);
                         embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
                         message.channel.send(embedMsg);
                     }

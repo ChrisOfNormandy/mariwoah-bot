@@ -14,7 +14,8 @@ module.exports = {
             seconds: sec,
             minutes: min,
             hour: hour,
-            string: `${(hour > 0) ? hour + ':' : ''}${min}:${sec}`
+            string: `${(hour > 0) ? hour + ':' : ''}${min}:${sec}`,
+            timestamp: seconds
         }
     }
 }
