@@ -192,10 +192,10 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
             }
 
             // Minigames
-
+            case 'slots': {}
             case 'blackjack': {
-                verify(message, minigameLevel('blackjack', 'gambling'))
-                    .then(() => resolve(common.minigames.run(message, 'gambling', 'blackjack')))
+                verify(message, minigameLevel(command, 'gambling'))
+                    .then(() => resolve(common.minigames.run(message, 'gambling', command)))
                     .catch(r => reject(r));
                 break;
             }

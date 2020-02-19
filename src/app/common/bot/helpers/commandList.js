@@ -382,8 +382,19 @@ module.exports = {
                             ]
                         ]
                     },
+                    'slots': {
+                        description: 'Roll some slots, bet away your hard earned savings.',
+                        permissionLevel: 1,
+                        arguments: [
+                            ['bet', 'roll amount'],
+                            [
+                                'Starts a game with given pay-in; must be a positive whole number.',
+                                'Count of times the slots should be run. Will divide pay-in evenly throughout ($20 for 2 spins = $10 each spin).'
+                            ]
+                        ]
+                    },
                     page: [
-                        ['blackjack'],
+                        ['blackjack', 'slots'],
                     ],
                 }
             }
