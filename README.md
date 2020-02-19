@@ -20,7 +20,11 @@ Functions in the bot:
 # List of planned features needing implementation
 
 * queue -l should include current playing song url.
-* playlist list for specific playlist incorrect numbering (0 + number + 1)
-* bot should delete queue after all songs played. 
-* should have ability to purge / pardon specific warnings, kicks or bans. Does not include pardons.
-* Onedrive is a bitch.
+* should have ability to purge / pardon specific warnings. Does not include kicks, bans or ban reverts.
+* Saving to important files should happen through a queue system. Use a map: serverID: {[value: {args...}]}...
+* modUser.js should be redone. It's trash.
+* userInfoList.js should be redone. A lot of the code can be rewritten as a parent function with passed in objects.
+* For the love of god, rewrite the roleManager adapter! So much junk that should have unique helper files or parent functions! WTF?
+* Slots are broken.
+* Fishing returns bad message when fish caught.
+* Fishing can probably be rewritten and cleaned.

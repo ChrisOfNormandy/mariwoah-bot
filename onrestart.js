@@ -1,5 +1,0 @@
-function onrestart() {
-    
-}
-
-onrestart();

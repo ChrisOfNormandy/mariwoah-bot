@@ -43,13 +43,11 @@ All helper files:
 > Pulled by listHelp, contains permission levels (used by verification in commandParser).
 * config
 * divideArray
-* getJsonFromFile
-> (path) => returns JSON parsed data from file.
 * getVC
 * intToTimeString
 > (seconds) => Returns object with seconds, minutes, hours, time as string, total seconds (original value).
 * jsonFileToMap
-> (path, fileName, objectName) => Calls getJsonFromFile, returns map instead of JSON object.
+> (path, fileName, objectName) => Calls readFile(path), returns map instead of JSON object.
 * listDir
 > (path) => Returns array of file names as strings (including file type - file.txt).
 * mapToJson
@@ -61,7 +59,7 @@ All helper files:
 * printLog
 * reactions
 * readFile
-> Should be removed and instead use getJsonFromFile
+> (path) => Returns JSON parsed data from file.
 * roll
 * shuffle
 * startup

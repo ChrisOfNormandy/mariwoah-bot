@@ -7,14 +7,12 @@ module.exports = async function (message, userID) {
             .then(config => {
                 getUser(message, userID)
                     .then(user => {
-                        resolve(
-                            {
-                                level: user.data.permissions.level,
-                                botAdmin: user.data.permissions.botAdmin,
-                                botMod: user.data.permissions.botMod,
-                                botHelper: user.data.permissions.botHelper
-                            }
-                        );
+                        resolve({
+                            level: user.data.permissions.level,
+                            botAdmin: user.data.permissions.botAdmin,
+                            botMod: user.data.permissions.botMod,
+                            botHelper: user.data.permissions.botHelper
+                        });
                     })
                     .catch(e => reject(e));
             })
