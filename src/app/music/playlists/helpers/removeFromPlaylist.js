@@ -13,6 +13,8 @@ module.exports = async function (message, playlistName, index) {
 
     let list = obj.playlist;
     let newList = [];
+    index--;
+    
     if (index > list.length)
         return;
     for (i in list)

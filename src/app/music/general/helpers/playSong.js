@@ -65,8 +65,8 @@ function playByURL(message, songURL, voiceChannel) {
         });
 }
 
-function playByName(message, songName, voiceChannel) {
-    getSongObject.byName(message, songName)
+function playByName(message, songName, voiceChannel, list, videoIndex) {
+    getSongObject.byName(message, songName, list, videoIndex)
         .then(async (song) => {
             func(message, song, voiceChannel);
         })
@@ -76,7 +76,7 @@ function playByName(message, songName, voiceChannel) {
         });
 }
 
-module.exports = async function (message, songURL = null, songName = null, vc = null) {
+module.exports = async function (message, songURL = null, songName = null, vc = null, showList = false, videoIndex = 0) {
     const voiceChannel = (vc !== null) ? vc : getVC(message);
     if (!voiceChannel)
         return;
@@ -87,5 +87,5 @@ module.exports = async function (message, songURL = null, songName = null, vc = 
     if (songURL != null)
         playByURL(message, songURL, voiceChannel);
     else if (songName != null)
-        playByName(message, songName, voiceChannel);
+        playByName(message, songName, voiceChannel, showList, videoIndex);
 }

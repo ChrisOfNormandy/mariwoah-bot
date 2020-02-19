@@ -60,7 +60,7 @@ module.exports = async function (object, message, doShuffle) {
                     console.log('Skipping song addition to queue.\n', e);
                 }
 
-                start(message, voiceChannel);
+                // start(message, voiceChannel); Not sure what this does, doesn't link anywhere.
             })
             .catch(e => console.log(e));
     }

@@ -38,32 +38,39 @@ module.exports = {
     byUrl: async function (message, songURL) {
         return func(message, songURL);
     },
-    byName: async function (message, songName, list = false) {
+    byName: async function (message, songName, list = false, videoIndex = 0, returnPlaylist = false) {
         return new Promise(function (resolve, reject) {
             ytSearch(songName, async function (err, r) {
                 if (err)
                     reject(err);
+                else {
+                    const videos = r.videos;
+                    const playlists = r.playlists || r.lists;
+                    //const channels = r.channels || r.accounts;
 
-                const videos = r.videos;
-                //const playlists = r.playlists || r.lists;
-                //const channels = r.channels || r.accounts;
+                    if (returnPlaylist) {
+                        if (list) {}
+                    }
+                    else {
+                        if (list)
+                            getEmbedSongInfo.possibleSongs(videos)
+                                .then(embedMsg => message.channel.send(embedMsg))
+                                .catch(e => reject(e));
 
-                if (list) {
-                    getEmbedSongInfo.possibleSongs(videos)
-                        .then(embedMsg => {
-                            message.channel.send(embedMsg);
-                        })
-                        .catch(e => {
-                            reject(e);
-                        });
+                        if (!videos[videoIndex].url)
+                            reject(null);
+                        else
+                            resolve(func(message, videos[videoIndex].url));
+                    }
                 }
-
-                if (!videos[0].url)
-                    reject(null);
-
-                resolve(func(message, videos[0].url));
             });
+        });
+    },
+    repair: function (song) {
+        return new Promise(function (resolve, reject) {
+            func(song.url)
+                .then(newSong => resolve(newSong))
+                .catch(e => reject(e));
         })
-
     }
 }
