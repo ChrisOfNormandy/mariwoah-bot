@@ -1,8 +1,8 @@
 const getSongObject = require('../../general/helpers/getSongObject');
-const getVC = require('../../../common/bot/helpers/getVC');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const play = require('../../general/helpers/play');
 const queue = require('../../queue');
-const shuffle = require('../../../common/bot/helpers/shuffle');
+const shuffle = require('../../../common/bot/helpers/global/shuffle');
 
 module.exports = async function (object, message, doShuffle) {
     const voiceChannel = getVC(message);
@@ -36,9 +36,7 @@ module.exports = async function (object, message, doShuffle) {
 
                 try {
                     getSongObject.byUrl(message, array[0].url)
-                        .then(song => {
-                            queue.serverMap.get(message.guild.id).songs.push(song);
-                        })
+                        .then(song => queue.serverMap.get(message.guild.id).songs.push(song))
                         .then(async () => {
                             if (!queue.serverMap.get(message.guild.id).connection) {
                                 var connection = await voiceChannel.join();

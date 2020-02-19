@@ -1,5 +1,5 @@
 const fs = require('fs');
-const paths = require('../../common/bot/helpers/paths');
+const paths = require('../../common/bot/helpers/global/paths');
 
 module.exports = async function () {
     return new Promise(function (resolve, reject) {

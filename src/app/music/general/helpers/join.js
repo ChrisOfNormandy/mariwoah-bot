@@ -1,4 +1,4 @@
-const getVC = require('../../../common/bot/helpers/getVC');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 
 module.exports = function (message) {
     const vc = getVC(message);

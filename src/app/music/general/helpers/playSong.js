@@ -1,6 +1,6 @@
 const getEmbededSongInfo = require('./getEmbedSongInfo');
 const getSongObject = require('./getSongObject');
-const getVC = require('../../../common/bot/helpers/getVC');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const play = require('./play');
 const queue = require('../../queue');
 const stop = require('./stop');

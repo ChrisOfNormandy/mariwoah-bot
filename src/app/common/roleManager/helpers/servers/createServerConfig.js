@@ -1,5 +1,5 @@
-const fs = require('fs');
-const paths = require('../../../bot/helpers/paths');
+const writeFile = require('../../../bot/helpers/files/writeFile');
+const paths = require('../../../bot/helpers/global/paths');
 
 module.exports = async function (message) {
     let config = {
@@ -27,10 +27,8 @@ module.exports = async function (message) {
     }
 
     return new Promise(function (resolve, reject) {
-        fs.writeFile(paths.getRoleManagerServerPath(message) + 'serverData.json', JSON.stringify(config), function (err) {
-            if (err)
-                reject(err);
-            resolve(config);
-        })
+        writeFile(`${paths.getRoleManagerServerPath(message)}serverData.json`, config)
+            .then(r => resolve(r))
+            .catch(e => reject(e));
     })
 }

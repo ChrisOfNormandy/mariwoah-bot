@@ -1,4 +1,4 @@
-const chatFormats = require('../../common/bot/helpers/chatFormats');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const csvToMap = require('./csvToMap');
 const Discord = require('discord.js');
 const equipmentMap = require('./equipmentMap');
@@ -77,7 +77,7 @@ module.exports = {
             .then(map => {
                 let embedMsg = new Discord.RichEmbed()
                     .setTitle('Random shop listings')
-                    .setColor(chatFormats.colors.byName.cyan);
+                    .setColor(chatFormat.colors.byName.cyan);
                 let str = '';
                 let index = 1;
                 map.forEach((v, k, m) => {

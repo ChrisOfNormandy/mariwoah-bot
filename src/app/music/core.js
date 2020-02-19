@@ -1,4 +1,4 @@
-const commandList = require('../common/bot/helpers/commandList');
+const commandList = require('../common/bot/helpers/global/commandList');
 const music = require('./general/adapter');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../common/roleManager/adapter');

@@ -1,7 +1,7 @@
 const bot = require('./bot/adapter');
 
 module.exports = {
-    client: bot.preStartup(),
+    client: bot.preInit(),
     bot: bot,
     config: bot.config,
 

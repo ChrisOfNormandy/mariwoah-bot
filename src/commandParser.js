@@ -1,4 +1,4 @@
-const commandList = require('./app/common/bot/helpers/commandList');
+const commandList = require('./app/common/bot/helpers/global/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
 

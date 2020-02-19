@@ -1,35 +1,34 @@
-const fs = require('fs');
 const getSongObject = require('../../general/helpers/getSongObject');
-const paths = require('../../../common/bot/helpers/paths');
+const paths = require('../../../common/bot/helpers/global/paths');
+const readFile = require('../../../common/bot/helpers/files/readFile');
+const writeFile = require('../../../common/bot/helpers/files/writeFile');
 
 function writeToFile(message, playlistName, song) {
     return new Promise(function (resolve, reject) {
-        console.log(song);
-        fs.readFile(paths.getPlaylistPath(message) + playlistName + '.json', 'utf8', (err, data) => {
-            if (err)
-                reject(err);
-            else {
-                let obj = (!data) ? { "playlist": [] } : JSON.parse(data);
+        readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`)
+            .then(r => {
+                let obj = (r === null) ? { "playlist": [] } : r;
 
                 for (let i in obj.playlist) {
                     if (obj.playlist[i].url == song.url) {
-                        reject('Playlist already contains that song.');
+                        reject('Playlist already contains song.');
                         return;
                     }
                 }
 
-                obj.playlist.push(song);
+                let songToWrite = {
+                    title: song.title,
+                    url: song.url,
+                    duration: song.duration.totalSeconds,
+                    thumbnail: song.thumbnail.url
+                }
+                obj.playlist.push(songToWrite);
 
-                json = JSON.stringify(obj);
-
-                fs.writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, json, 'utf8', (err) => {
-                    if (err)
-                        reject(err);
-                    else
-                        resolve(song);
-                });
-            }
-        });
+                writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, obj)
+                    .then(r => resolve(r))
+                    .catch(e => reject(e));
+            })
+            .catch(e => reject(e));
     });
 }
 

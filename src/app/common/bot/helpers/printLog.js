@@ -1,4 +1,4 @@
-const config = require('./config');
+const config = require('../helpers/global/config');
 
 function getDateString() {
     let date = new Date();
@@ -50,13 +50,12 @@ module.exports = async function (client, string, flag = null) {
             resolve(str);
         }
         catch (e) {
-            console.log(e);
             try {
                 for (i in config.admins)
                     client.users.get(i).send(`Could not global log string:\n${str}`);
             }
             catch (err) {
-                reject(err);
+                reject([e, err]);
             }
             reject(e);
         }

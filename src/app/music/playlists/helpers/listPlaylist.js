@@ -1,8 +1,8 @@
-const chatFormats = require('../../../common/bot/helpers/chatFormats');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const divideArray = require('../../../common/bot/helpers/divideArray');
-const paths = require('../../../common/bot/helpers/paths');
-const readFile = require('../../../common/bot/helpers/readFile');
+const divideArray = require('../../../common/bot/helpers/global/divideArray');
+const paths = require('../../../common/bot/helpers/global/paths');
+const readFile = require('../../../common/bot/helpers/files/readFile');
 
 module.exports = async function (message, playlistName, pageNumber = 0, includeLinks = false) {
     let obj;
@@ -11,7 +11,7 @@ module.exports = async function (message, playlistName, pageNumber = 0, includeL
     }
     catch (e) {
         message.channel.send('There is nothing in the playlist.');
-        return console.log(e);
+        return console.log('Ignore error, empty playlist called.\n', e);
     }
 
     if (!obj.playlist.length) {
@@ -25,7 +25,7 @@ module.exports = async function (message, playlistName, pageNumber = 0, includeL
             let num = 0;
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(`Songs in ${playlistName}`)
-                .setColor(chatFormats.colors.information);
+                .setColor(chatFormat.colors.information);
 
             if (pageNumber > arrays.length)
                 pageNumber = arrays.length - 1

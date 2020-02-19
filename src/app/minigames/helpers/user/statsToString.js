@@ -1,10 +1,10 @@
-const chatFormats = require('../../../common/bot/helpers/chatFormats');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 
 module.exports = function (message, obj) {
     let embedMsg = new Discord.RichEmbed()
         .setTitle(`Stats for ${obj.definition.name}`)
-        .setColor(chatFormats.colors.byName.darkgreen)
+        .setColor(chatFormat.colors.byName.darkgreen)
         .addField('General',
             `Money      | $ ${obj.stats.money}\n` +
             `Experience | ${obj.stats.experience}`)

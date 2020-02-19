@@ -1,6 +1,6 @@
-const fs = require('fs');
-const readFile = require('../../../common/bot/helpers/readFile');
-const paths = require('../../../common/bot/helpers/paths');
+const readFile = require('../../../common/bot/helpers/files/readFile');
+const paths = require('../../../common/bot/helpers/global/paths');
+const writeFile = require('../../../common/bot/helpers/files/writeFile');
 
 module.exports = async function (message, playlistName, index) {
     let obj;
@@ -24,10 +24,8 @@ module.exports = async function (message, playlistName, index) {
     obj.playlist = newList;
 
     return new Promise(function (resolve, reject) {
-        fs.writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, JSON.stringify(obj), (err) => {
-            if (err)
-                reject(err);
-            resolve(newList);
-        });
+        writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, obj)
+            .then(r => resolve(r))
+            .catch(e => reject(e));
     });
 }
