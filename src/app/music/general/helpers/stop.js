@@ -1,3 +1,4 @@
+const leave = require('./leave');
 const queue = require('../../queue');
 
 module.exports = function (message, reason = '> Stopping all music.') {
@@ -7,22 +8,8 @@ module.exports = function (message, reason = '> Stopping all music.') {
     if (!queue.serverMap.has(message.guild.id))
         return;
 
-    let activeQueue = {
-        textChannel: null,
-        voiceChannel: null,
-        connection: null,
-        songs: [],
-        volume: 5,
-        playing: false,
-        previousSong: null
-    };
-
-    queue.serverMap.get(message.guild.id).connection.dispatcher.end()
-    .then(() => {
-        queue.serverMap.get(message.guild.id).voiceChannel.leave();
-        queue.serverMap.set(message.guild.id, activeQueue);
-        console.log(reason);
-        message.channel.send(reason);
-    })
-    .catch(e => console.log(e));
+    console.log(reason);
+    message.channel.send(reason);
+    queue.serverMap.delete(message.guild.id);
+    leave(message);
 }

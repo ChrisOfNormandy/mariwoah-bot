@@ -15,7 +15,7 @@ client.on('ready', () => {
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
         try {
-            message.delete()
+            message.delete(5000)
                 .then(async () => message.channel.send('Denied.')
                     .then(m => setTimeout(m.delete, 5000)));
         }

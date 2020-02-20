@@ -76,13 +76,16 @@ function playByName(message, songName, voiceChannel) {
         });
 }
 
-module.exports = async function (message, songURL = null, songName = null, vc = null) {
+module.exports = function (message, songURL = null, songName = null, vc = null) {
+    console.log(songURL, songName);
     const voiceChannel = (vc !== null) ? vc : getVC(message);
     if (!voiceChannel)
         return;
 
-    if (songURL == null && songURL == null)
+    if (songURL === null && songName === null) {
+        console.log('Bad playSong data.')
         return;
+    }
 
     if (songURL != null)
         playByURL(message, songURL, voiceChannel);

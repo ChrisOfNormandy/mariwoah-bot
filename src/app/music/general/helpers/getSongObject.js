@@ -40,7 +40,7 @@ module.exports = {
     },
     byName: async function (message, songName, list = false) {
         return new Promise(function (resolve, reject) {
-            ytSearch(songName, async function (err, r) {
+            ytSearch(songName, function (err, r) {
                 if (err)
                     reject(err);
 
@@ -61,7 +61,7 @@ module.exports = {
                 if (!videos[0].url)
                     reject(null);
 
-                resolve(func(message, videos[0].url));
+                resolve(func(message, r.videos[0].url));
             });
         })
 

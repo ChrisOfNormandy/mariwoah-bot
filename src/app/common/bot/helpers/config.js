@@ -1,11 +1,11 @@
 module.exports = {
     settings: {
-        prefix: "=",
+        prefix: ".-~",
         otherPrefixes: "!;",
         logChannel: "643564636326592523"
     },
     auth: {
-        token: "NjM0OTM2MjA3MzcyOTc2MTM2.XkXaRA.3TaqVpAJwvgbywDGI3uw_U1fN4w"
+        token: "NjM0OTM2MjA3MzcyOTc2MTM2.XkXa4Q.AxU-HnAO5l67ThkU6OpF4y99Uyk"
     },
     admins: {
         "188020615989428224": true

@@ -6,9 +6,5 @@ module.exports = function (message) {
     if (!queue.serverMap.has(message.guild.id) || !queue.serverMap.get(message.guild.id).playing)
         return message.channel.send(`> There's nothing to skip.`);
 
-    queue.serverMap.get(message.guild.id).connection.dispatcher.end()
-    .then(() => {
-        console.log('Skipped.');
-    })
-    .catch(e => console.log(e));
+    queue.serverMap.get(message.guild.id).connection.dispatcher.end();
 }

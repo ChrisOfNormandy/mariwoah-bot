@@ -232,7 +232,7 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                 verify(message, musicLevel('play'))
                     .then(() => {
                         if (!args.join(' ').includes('youtube.com/watch?'))
-                            resolve(common.music.play(message, null, args.join(' ').slice(1), null));
+                            resolve(common.music.play(message, null, args.join(' '), null));
                         else resolve(common.music.play(message, args[0], null, null));
                     })
                     .catch(r => reject(r));
