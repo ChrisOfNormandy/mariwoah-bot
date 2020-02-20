@@ -19,7 +19,6 @@ Functions in the bot:
 
 # List of planned features needing implementation
 
-* queue -l should include current playing song url.
 * should have ability to purge / pardon specific warnings. Does not include kicks, bans or ban reverts.
 * Saving to important files should happen through a queue system. Use a map: serverID: {[value: {args...}]}...
 * modUser.js should be redone. It's trash.
