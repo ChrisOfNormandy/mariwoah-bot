@@ -1,4 +1,4 @@
-const commandList = require('./app/common/bot/helpers/commandList');
+const commandList = require('./app/common/bot/helpers/global/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
 
@@ -192,10 +192,10 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
             }
 
             // Minigames
-
+            case 'slots': {}
             case 'blackjack': {
-                verify(message, minigameLevel('blackjack', 'gambling'))
-                    .then(() => resolve(common.minigames.run(message, 'gambling', 'blackjack')))
+                verify(message, minigameLevel(command, 'gambling'))
+                    .then(() => resolve(common.minigames.run(message, 'gambling', command)))
                     .catch(r => reject(r));
                 break;
             }
@@ -349,6 +349,11 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .then(() => resolve(common.dungeons.getItem(message, args.join(' '))))
                     .catch(r => reject(r));
                 break;
+            }
+            case 'dd_getshop': {
+                verify(message, dungeonLevel('dd_getshop'))
+                    .then(() => resolve(common.dungeons.getShop(message, (!isNaN(args[0]) ? args[0] : 10))))
+                    .catch(r => reject(r));
             }
             case 'dd_list': {
                 verify(message, dungeonLevel('dd_list'))

@@ -1,3 +1,4 @@
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const getSongObject = require('./getSongObject');
 
@@ -10,6 +11,7 @@ module.exports = {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(title)
+                .setColor(chatFormat.colors.youtube)
                 .setThumbnail(song.thumbnail.url)
                 .setURL(song.url)
                 .addField(song.title, `${song.author} | Requested: ${song.requested.username}`)
@@ -24,7 +26,7 @@ module.exports = {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle('Current song queue')
-                .setColor('#990011')
+                .setColor(chatFormat.colors.youtube)
 
                 .setThumbnail(song.thumbnail.url)
                 .addField(`Now playing: ${song.title}`, `${song.author} | Duration: ${song.durationString}\n
@@ -54,7 +56,7 @@ module.exports = {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(`Here's what I found...`)
-                .setColor('#990011');
+                .setColor(chatFormat.colors.youtube);
 
             for (let i = 0; i < 5; i++)
                 embedMsg.addField(`${videos[i].title}`, videos[i].author);
@@ -72,6 +74,7 @@ module.exports = {
                     .then(async (song) => {
                         let embedMsg = new Discord.RichEmbed()
                             .setTitle('Song information')
+                            .setColor(chatFormat.colors.youtube)
                             .setThumbnail(song.thumbnail.url)
                             .setURL(song.url)
                             .addField(song.title, `${song.author} | Duration: ${song.durationString}`)
@@ -85,6 +88,7 @@ module.exports = {
                     .then(async (song) => {
                         let embedMsg = new Discord.RichEmbed()
                             .setTitle('Song information')
+                            .setColor(chatFormat.colors.youtube)
                             .setThumbnail(song.thumbnail.url)
                             .setURL(song.url)
                             .addField(song.title, `${song.author} | Duration: ${song.durationString}`);

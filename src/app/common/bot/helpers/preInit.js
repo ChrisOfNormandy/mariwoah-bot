@@ -1,4 +1,4 @@
-const config = require('./config');
+const config = require('../helpers/global/config');
 const Discord = require('discord.js');
 
 module.exports = function () {

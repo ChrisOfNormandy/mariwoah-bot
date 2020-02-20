@@ -6,10 +6,10 @@ const client = common.client;
 client.on('ready', () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
 
-    common.bot.startup();
+    common.bot.init();
     common.log('Ready!');
 
-    client.user.setActivity('you. ;)', { type: 'watching' })
+    client.user.setActivity(`you | ${client.users.size} so far.`, { type: 'watching' });
 });
 
 client.on('message', async message => {
@@ -26,7 +26,8 @@ client.on('message', async message => {
         return;
 
     commandParser(message)
-        .catch(err => message.channel.send(err || 'Error'));
+        .then(() => { })
+        .catch(err => common.log(err || 'Error'));
 });
 
 client.login(client.token);

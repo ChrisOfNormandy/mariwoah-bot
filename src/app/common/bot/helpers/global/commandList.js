@@ -382,8 +382,19 @@ module.exports = {
                             ]
                         ]
                     },
+                    'slots': {
+                        description: 'Roll some slots, bet away your hard earned savings.',
+                        permissionLevel: 1,
+                        arguments: [
+                            ['bet', 'roll amount'],
+                            [
+                                'Starts a game with given pay-in; must be a positive whole number.',
+                                'Count of times the slots should be run. Will divide pay-in evenly throughout ($20 for 2 spins = $10 each spin).'
+                            ]
+                        ]
+                    },
                     page: [
-                        ['blackjack'],
+                        ['blackjack', 'slots'],
                     ],
                 }
             }
@@ -437,6 +448,10 @@ module.exports = {
                     ['Name of the item. Capitalization matters (for now).']
                 ]
             },
+            'dd_getshop': {
+                description: 'Get a shop listing.',
+                permissionLevel: 1,
+            },
             'dd_list': {
                 description: 'Get a list of items per category.',
                 permissionLevel: 1,
@@ -445,8 +460,13 @@ module.exports = {
                     ['AF, AG, AMMO, DF, EP, FRW, G, HA, HS, LA, M, MA, MMW, MRW, P, PO, S, SMW, SRW, T, VL, VW']
                 ]
             },
+            'dd_loaditems': {
+                description: 'Manually loads item list from file.',
+                permissionLevel: 2,
+            },
             page: [
-                ['dd_getitem', 'dd_list'],
+                ['dd_getitem', 'dd_getshop', 'dd_list'],
+                ['dd_loaditems']
             ]
         }
     }

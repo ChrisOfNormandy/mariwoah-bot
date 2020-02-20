@@ -22,10 +22,8 @@ module.exports = async function (message, userID, listName) {
                             );
                         }
                     }
-                    else {
-                        message.channel.send(`User doesn't have any warnings on record.`);
-                        return;
-                    }
+                    else
+                        return message.channel.send(`User doesn't have any warnings on record.`);
                     break;
                 }
                 case 'kicks': {
@@ -41,10 +39,8 @@ module.exports = async function (message, userID, listName) {
                             );
                         }
                     }
-                    else {
-                        message.channel.send(`User doesn't have any kicks on record.`);
-                        return;
-                    }
+                    else
+                        return message.channel.send(`User doesn't have any kicks on record.`);
                     break;
                 }
                 case 'bans': {
@@ -60,10 +56,8 @@ module.exports = async function (message, userID, listName) {
                             );
                         }
                     }
-                    else {
-                        message.channel.send(`User doesn't have any bans on record.`);
-                        return;
-                    }
+                    else
+                        return message.channel.send(`User doesn't have any bans on record.`);
                     break;
                 }
                 case 'banReverts': {
@@ -79,10 +73,8 @@ module.exports = async function (message, userID, listName) {
                             );
                         }
                     }
-                    else {
-                        message.channel.send(`User doesn't have any ban reverts on record.`);
-                        return;
-                    }
+                    else
+                        return message.channel.send(`User doesn't have any ban reverts on record.`);
                     break;
                 }
             }

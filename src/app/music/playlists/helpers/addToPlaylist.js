@@ -1,40 +1,56 @@
-const fs = require('fs');
-const paths = require('../../../common/bot/helpers/paths');
-const ytdl = require('ytdl-core');
+const getSongObject = require('../../general/helpers/getSongObject');
+const paths = require('../../../common/bot/helpers/global/paths');
+const readFile = require('../../../common/bot/helpers/files/readFile');
+const writeFile = require('../../../common/bot/helpers/files/writeFile');
 
-module.exports = async function (message, playlistName, songURL) {
-    return new Promise(async function (resolve, reject) {
-        ytdl.getInfo(songURL)
-            .then(async (songInfo) => {
-                const song = {
-                    title: songInfo.title,
-                    url: songInfo.video_url                };
+function writeToFile(message, playlistName, song) {
+    return new Promise(function (resolve, reject) {
+        readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`)
+            .then(r => {
+                let obj = (r === null) ? { "playlist": [] } : r;
 
-                fs.readFile(paths.getPlaylistPath(message) + playlistName + '.json', 'utf8', (err, data) => {
-                    if (err)
-                        reject(err);
-                    else {
-                        let obj = (!data) ? { "playlist": [] } : JSON.parse(data);
-
-                        for (let i in obj.playlist) {
-                            if (obj.playlist[i].url == songURL)
-                                reject('Playlist already contains that song.');
-                        }
-
-                        obj.playlist.push(song);
-
-                        json = JSON.stringify(obj);
-                        
-                        fs.writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, json, 'utf8', (err) => {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(true);
-                        });
+                for (let i in obj.playlist) {
+                    if (obj.playlist[i].url == song.url) {
+                        reject('Playlist already contains song.');
+                        return;
                     }
-                });
-            })
-            .catch(e => reject(e))
-    })
+                }
 
+                let songToWrite = {
+                    title: song.title,
+                    url: song.url,
+                    duration: song.duration.totalSeconds,
+                    thumbnail: song.thumbnail.url
+                }
+                obj.playlist.push(songToWrite);
+
+                writeFile(`${paths.getPlaylistPath(message)}${playlistName}.json`, obj)
+                    .then(r => resolve(r))
+                    .catch(e => reject(e));
+            })
+            .catch(e => reject(e));
+    });
+}
+
+module.exports = async function (message, playlistName, songURL = null, songName = null) {
+    return new Promise(async function (resolve, reject) {
+        if (songURL == null && songName == null)
+            reject(null);
+        else if (songURL !== null) {
+            getSongObject.byUrl(message, songURL)
+                .then(song => {
+                    writeToFile(message, playlistName, song)
+                        .then(r => resolve(r))
+                        .catch(e => reject(e));
+                });
+        }
+        else {
+            getSongObject.byName(message, songName)
+                .then(song => {
+                    writeToFile(message, playlistName, song)
+                        .then(r => resolve(r))
+                        .catch(e => reject(e));
+                });
+        }
+    });
 }

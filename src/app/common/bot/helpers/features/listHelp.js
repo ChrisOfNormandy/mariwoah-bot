@@ -1,6 +1,7 @@
+const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
-const getPerm = require('../../roleManager/helpers/getUserPermissionLevel');
-const help = require('./commandList');
+const getPerm = require('../../../roleManager/helpers/getUserPermissionLevel');
+const help = require('../global/commandList');
 
 module.exports = async function (message, args) {
     getPerm(message, message.author.id)
@@ -35,7 +36,7 @@ module.exports = async function (message, args) {
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(sect.header)
-                .setColor('#224466');
+                .setColor(chatFormat.colors.information);
             let msg = '';
             let s; // String name for command part from page array.
 
@@ -85,10 +86,8 @@ module.exports = async function (message, args) {
 
             message.channel.send(embedMsg)
                 .then(msg => {
-                    setTimeout(() => {
-                        message.delete();
-                        msg.delete();
-                    }, 30000);
+                    message.delete();
+                    msg.delete(30000);
                 })
                 .catch(e => {
                     console.log(e);

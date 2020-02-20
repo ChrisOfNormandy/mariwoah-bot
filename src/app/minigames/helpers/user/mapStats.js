@@ -1,8 +1,9 @@
-const pullStats = require('./pullStats');
+const readFile = require('../../../common/bot/helpers/files/readFile');
+const statsPath = require('../../../common/bot/helpers/global/paths').stats;
 
 module.exports = function () {
     let map = new Map();
-    pullStats()
+    readFile(statsPath)
         .then(stats => {
             for (let id in stats) {
                 if (map.has(id))

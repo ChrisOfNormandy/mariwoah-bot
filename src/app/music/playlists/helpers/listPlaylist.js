@@ -1,18 +1,20 @@
-const divideArray = require('../../../common/bot/helpers/divideArray');
-const paths = require('../../../common/bot/helpers/paths');
-const readFile = require('../../../common/bot/helpers/readFile');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const Discord = require('discord.js');
+const divideArray = require('../../../common/bot/helpers/global/divideArray');
+const paths = require('../../../common/bot/helpers/global/paths');
+const readFile = require('../../../common/bot/helpers/files/readFile');
 
-module.exports = async function (message, playlistName, includeLinks = false) {
+module.exports = async function (message, playlistName, pageNumber = 0, includeLinks = false) {
     let obj;
     try {
         obj = await readFile(`${paths.getPlaylistPath(message)}${playlistName}.json`);
     }
     catch (e) {
         message.channel.send('There is nothing in the playlist.');
-        return console.log(e);
+        return console.log('Ignore error, empty playlist called.\n', e);
     }
 
-    if (obj.playlist.length == 0) {
+    if (!obj.playlist.length) {
         message.channel.send('There is nothing in the playlist.');
         return;
     }
@@ -21,19 +23,28 @@ module.exports = async function (message, playlistName, includeLinks = false) {
         .then(arrays => {
             let msg = '';
             let num = 0;
-            for (let k = 0; k < arrays.length; k++) { // Array of subarrays.
-                msg = '';
-                for (let i = 0; i < arrays[k].length; i++) {
-                    num = i + 1 + 25 * k;
-                    if (!arrays[k][i])
-                        continue;
-                    msg += `${num}. ${arrays[k][i].title}${includeLinks ? `| ${arrays[k][i].url}` : ''}\n`;
-                }
-                if (msg != '')
-                    message.channel.send(msg);
-                else
-                    message.channel.send('There are 0 songs in the provided playlist.')
+            let embedMsg = new Discord.RichEmbed()
+                .setTitle(`Songs in ${playlistName}`)
+                .setColor(chatFormat.colors.information);
+
+            if (pageNumber > arrays.length)
+                pageNumber = arrays.length - 1
+            else if (pageNumber < 1)
+                pageNumber = 1;
+            pageNumber--;
+
+            for (let i = 0; i < arrays[pageNumber].length; i++) {
+                num = i + 1 + 25 * pageNumber;
+                if (!arrays[pageNumber][i])
+                    continue;
+                msg += `${num}. ${arrays[pageNumber][i].title}${includeLinks ? `| ${arrays[pageNumber][i].url}` : ''}\n`;
             }
+            if (msg != '') {
+                embedMsg.addField(`Page ${pageNumber + 1} of ${arrays.length}`, msg);
+                message.channel.send(embedMsg);
+            }
+            else
+                message.channel.send('There are 0 songs in the provided playlist.')
         })
         .catch(e => console.log(e));
 }

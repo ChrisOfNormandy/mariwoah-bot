@@ -67,9 +67,7 @@ module.exports = {
     motd: (message) => motd(message),
     setmotd: async function (message, args) {
         setmotd(message, args)
-            .then(config => {
-                saveServerConfig(message, config);
-            })
+            .then(config => saveServerConfig(message, config))
             .catch(e => console.log(e));
     },
 

@@ -1,8 +1,7 @@
-const commandList = require('../common/bot/helpers/commandList');
+const commandList = require('../common/bot/helpers/global/commandList');
 const music = require('./general/adapter');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../common/roleManager/adapter');
-const ytSearch = require('yt-search');
 
 async function verify(message, permissionLevel) {
     return new Promise(async function(resolve, reject) {
@@ -37,7 +36,7 @@ module.exports = {
     skip: function (message) { music.skip(message) },
     stop: function (message) { music.stop(message) },
 
-    addToPlaylist: function (message, playlistName, songURL) { playlist.add(message, playlistName, songURL) },
+    addToPlaylist: function (message, playlistName, songURL = null, songName = null) { playlist.add(message, playlistName, songURL, songName) },
     createPlaylist: function (message, playlistName) { playlist.create(message, playlistName) },
     listAllPlaylists: function (message) { playlist.listAll(message) },
     listPlaylist: function (message, playlistName, includeLinks) { playlist.list(message, playlistName, includeLinks) },
@@ -55,7 +54,7 @@ module.exports = {
                     .catch(r => reject(r));
             else if (command == 'list')
                 verify(message, pl.list.permissionLevel)
-                    .then(() => resolve((args.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message, args[1], args[2] === '-l')))
+                    .then(() => resolve((args.length == 1) ? _this.listAllPlaylists(message) : _this.listPlaylist(message, args[1], (!isNaN(args[2]) ? args[2] : 0), args[3] === '-l')))
                     .catch(r => reject(r));
             else if (command == 'create')
                 verify(message, pl.create.permissionLevel)
@@ -64,19 +63,9 @@ module.exports = {
             else if (command == 'add')
                 verify(message, pl.add.permissionLevel)
                     .then(() => {
-                        if (args[2] == '?') {
-                            let str = args.slice(3).join(' ');
-                            ytSearch(str, function (err, r) {
-                                const videos = r.videos;
-                                const playlists = r.playlists || r.lists;
-                                const channels = r.channels || r.accounts;
-                                if (err)
-                                    reject(err);
-                                else
-                                    resolve(_this.addToPlaylist(message, args[1], videos[0].url))
-                            })
-                        }
-                        else resolve(common.music.play(message, args[1], null));
+                        if (!args.join(' ').includes('youtube.com/watch?'))
+                            resolve(_this.addToPlaylist(message, args[1], null, args.slice(2).join(' ')));
+                        else resolve(_this.addToPlaylist(message, args[1], args[2], null));
                     })
                     .catch(r => reject(r));
             else if (command == 'remove')

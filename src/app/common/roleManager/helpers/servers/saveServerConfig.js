@@ -1,5 +1,5 @@
-const fs = require('fs');
-const paths = require('../../../bot/helpers/paths');
+const writeFile = require('../../../bot/helpers/files/writeFile');
+const paths = require('../../../bot/helpers/global/paths');
 
 let intervalValue = 0;
 let saveTimer = false;
@@ -12,12 +12,9 @@ module.exports = async function (message, server) {
             saveTimer = false;
             intervalValue = 0;
             setTimeout(() => saveTimer = true, 300000);
-
-            fs.writeFile(paths.getRoleManagerServerPath(message) + 'serverData.json', JSON.stringify(server), (err) => {
-                if (err)
-                    reject(err);
-                resolve(true);
-            })
+            writeFile(`${paths.getRoleManagerServerPath(message)}serverData.json`, server)
+                .then(r => resolve(r))
+                .catch(e => reject(e));
         }
         else {
             intervalValue++;

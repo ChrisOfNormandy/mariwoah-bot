@@ -1,3 +1,4 @@
+const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
 
 function formatResponse(name, joinDate, roleList, user) {
@@ -5,7 +6,7 @@ function formatResponse(name, joinDate, roleList, user) {
         name += ' -=[BOT]=-'
     let embedMsg = new Discord.RichEmbed()
         .setTitle(name)
-        .setColor("#e6ffff")
+        .setColor(chatFormat.colors.information)
         .addField("Join date", joinDate)
         .addField("Roles", roleList);
 
@@ -15,7 +16,7 @@ function formatResponse(name, joinDate, roleList, user) {
 function getDate(date) {
     let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`
+    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`;
 }
 
 function getRoles(member, message) {
@@ -34,9 +35,9 @@ module.exports = {
 
         let joinDate = getDate(new Date(m.joinedTimestamp));
         let roles = getRoles(m, message);
-        let msg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
+        let embedMsg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
 
-        message.channel.send(msg);
+        message.channel.send(embedMsg);
     },
 
     member: function (message) {
@@ -46,8 +47,8 @@ module.exports = {
 
         let joinDate = getDate(new Date(user.joinedTimestamp));
         let roles = getRoles(user, message);
-        let msg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
+        let embedMsg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
 
-        message.channel.send(msg);
+        message.channel.send(embedMsg);
     }
 }
