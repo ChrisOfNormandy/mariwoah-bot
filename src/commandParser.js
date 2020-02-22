@@ -50,7 +50,7 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
             case '?': { }
             case 'help': {
                 verify(message, commonLevel('help'))
-                    .then(() => resolve(common.bot.listHelp(message)))
+                    .then(() => resolve(common.bot.listHelp(message, args)))
                     .catch(r => reject(r));
                 break;
             }

@@ -4,6 +4,7 @@ const getPerm = require('../../../roleManager/helpers/getUserPermissionLevel');
 const help = require('../global/commandList');
 
 module.exports = async function (message, args) {
+    console.log(args);
     getPerm(message, message.author.id)
         .then(perms => {
             const lvl = (message.member.hasPermission("ADMINISTRATOR") || perms.botAdmin)
@@ -24,15 +25,16 @@ module.exports = async function (message, args) {
                 pageNumber = 0;
 
             // If invalid help section or no section provided, set to main help page.
-            if (!args[0] || !help[args[0]]) {
+            if (!args.length || !args[0] || !help[args[0]]) {
                 sect = help.main;
                 pageNumber = 0;
             }
-
-            // Check for subcommand (0 = category, 1 = subcommand, 2 = page number)
-            sect = (args.length == 3 && help[args[0]].subcommands[args[1]])
-                ? help[args[0]].subcommands[args[1]]
-                : help[args[0]];
+            else {
+                // Check for subcommand (0 = category, 1 = subcommand, 2 = page number)
+                sect = (args.length == 3 && help[args[0]].subcommands[args[1]])
+                    ? help[args[0]].subcommands[args[1]]
+                    : help[args[0]];
+            }
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(sect.header)
