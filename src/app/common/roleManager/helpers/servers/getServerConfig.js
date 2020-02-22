@@ -9,7 +9,7 @@ module.exports = async function (message) {
         if (serverMap.map.has(message.channel.guild.id))
             resolve(serverMap.map.get(message.channel.guild.id));
         else {
-            fileExists(message)
+            fileExists(paths.getRoleManagerServerPath(message))
                 .then(exists => {
                     if (!exists) {
                         createServerConfig(message)

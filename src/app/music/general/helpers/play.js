@@ -12,6 +12,8 @@ function play(message, song) {
             queue.serverMap.get(guild.id).previousSong = song;
             queue.serverMap.get(guild.id).songs.shift();
 
+            console.log(queue.serverMap.get(guild.id));
+
             if (queue.serverMap.get(guild.id).songs[0]) {
                 while (queue.serverMap.get(guild.id).songs[0].removed)
                     queue.serverMap.get(guild.id).songs.shift();

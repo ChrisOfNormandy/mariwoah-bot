@@ -81,8 +81,10 @@ module.exports = async function (message, songURL = null, songName = null, vc = 
     if (!voiceChannel)
         return;
 
-    if (songURL == null && songURL == null)
+    if (songURL === null && songName === null) {
+        console.log('Bad playSong data.')
         return;
+    }
 
     if (songURL != null)
         playByURL(message, songURL, voiceChannel);
