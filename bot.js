@@ -15,9 +15,7 @@ client.on('ready', () => {
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
         try {
-            message.delete(5000)
-                .then(async () => message.channel.send('Denied.')
-                    .then(m => setTimeout(m.delete, 5000)));
+            message.delete(5000);
         }
         catch (e) {
             message.channel.send('I require admin permissions to operate correctly.');
