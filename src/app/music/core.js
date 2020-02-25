@@ -38,6 +38,7 @@ module.exports = {
 
     addToPlaylist: function (message, playlistName, songURL = null, songName = null) { playlist.add(message, playlistName, songURL, songName) },
     createPlaylist: function (message, playlistName) { playlist.create(message, playlistName) },
+    deletePlaylist: function (message, playlistName) { playlist.delete(message, playlistName) },
     listAllPlaylists: function (message) { playlist.listAll(message) },
     listPlaylist: function (message, playlistName, includeLinks) { playlist.list(message, playlistName, includeLinks) },
     playPlaylist: function (message, playlistName, doShuffle) { playlist.play(message, playlistName, doShuffle) },
@@ -59,6 +60,10 @@ module.exports = {
             else if (command == 'create')
                 verify(message, pl.create.permissionLevel)
                     .then(() => resolve(_this.createPlaylist(message, args[1])))
+                    .catch(r => reject(r));
+            else if (command == 'delete')
+                verify(message, pl.delete.permissionLevel)
+                    .then(() => resolve(_this.deletePlaylist(message, args[1])))
                     .catch(r => reject(r));
             else if (command == 'add')
                 verify(message, pl.add.permissionLevel)

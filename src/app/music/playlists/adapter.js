@@ -1,6 +1,7 @@
 const add = require('./helpers/addToPlaylist');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const create = require('./helpers/createPlaylist');
+const deletePL = require('./helpers/deletePlaylist');
 const Discord = require('discord.js');
 const list = require('./helpers/listPlaylist');
 const listDir = require('../../common/bot/helpers/files/listDir');
@@ -46,11 +47,13 @@ module.exports = {
             .catch(e => console.log(e));
     },
     create: function (message, playlistName) { create(message, playlistName); },
+    delete: function (message, playlistName) { deletePL(message, playlistName); },
     add: async function (message, playlistName, songURL = null, songName = null) {
         add(message, playlistName, songURL, songName)
             .then(song => {
                 let embedMsg = new Discord.RichEmbed();
                 if (song !== undefined) {
+                    console.log(song);
                     embedMsg.setTitle(`${song.title}`);
                     embedMsg.setColor(chatFormat.colors.byName.green);
                     embedMsg.setThumbnail(song.thumbnail.url);
@@ -72,10 +75,8 @@ module.exports = {
                 }
             })
             .catch(e => {
-                if (e.message)
-                    message.channel.send(e.message);
-                else
-                    message.channel.send(e);
+                console.log(e);
+                message.channel.send((e.message) ? e.message : e);
                 try {
                     message.delete();
                 }

@@ -4,8 +4,8 @@ const paths = require('../../../bot/helpers/global/paths');
 const serverMap = require('./serverMap');
 const fileExists = require('../../../bot/helpers/files/fileExists');
 
-module.exports = async function (message) {
-    return new Promise(async function (resolve, reject) {
+module.exports = function (message) {
+    return new Promise(function (resolve, reject) {
         if (serverMap.map.has(message.channel.guild.id))
             resolve(serverMap.map.get(message.channel.guild.id));
         else {
@@ -17,9 +17,7 @@ module.exports = async function (message) {
                                 serverMap.map.set(config.id, config);
                                 resolve(config);
                             })
-                            .catch(e => {
-                                reject(e);
-                            });
+                            .catch(e => reject(e));
                     }
                     else {
                         jsonFileToMap(`${paths.getRoleManagerServerPath(message)}`, `serverData.json`, message.channel.guild.id)
@@ -28,11 +26,9 @@ module.exports = async function (message) {
                                 resolve(map.get(message.channel.guild.id));
                             })
                             .catch(e => reject(e));
-
                     }
                 })
-                .catch(e => console.log(e));
-
+                .catch(e => reject(e));
         }
     });
 }

@@ -120,6 +120,22 @@ module.exports = {
                     ['Ping of the target user | ID of the target user']
                 ],
             },
+            'setbotmod': {
+                description: 'Gives user bot moderator abilities (overrides permission levels). Use only for trusted users.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'setbothelper': {
+                description: 'Gives user bot helper abilities (overrides permission levels). Use only for trusted users.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
             'warn': {
                 description: 'Warns the user with or without a specified reason.',
                 permissionLevel: 2,
@@ -214,7 +230,7 @@ module.exports = {
                 ],
             },
             page: [
-                ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin'],
+                ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper'],
                 ['warn', 'kick', 'ban', 'unban', 'rm-reset'],
                 ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
             ]
@@ -272,6 +288,14 @@ module.exports = {
         commands: {
             'create': {
                 description: 'Creates a playlist of the given name.',
+                permissionLevel: 2,
+                arguments: [
+                    ['name'],
+                    ['Playlist name.']
+                ],
+            },
+            'delete': {
+                description: 'Deletes the playlist of the given name',
                 permissionLevel: 2,
                 arguments: [
                     ['name'],

@@ -2,8 +2,11 @@ const commandList = require('./app/common/bot/helpers/global/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
 
+const prefixMap = new Map();
+const firstRun = new Map();
+
 async function verify(message, permissionLevel) {
-    return new Promise(async function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(result => {
                 if (!result.status)
@@ -11,10 +14,9 @@ async function verify(message, permissionLevel) {
                 else
                     resolve(true);
             })
-            .catch(e => console.log(e));
+            .catch(e => reject(e));
     });
 }
-
 
 function commonLevel(commandName) {
     return commandList.common.commands[commandName].permissionLevel || 10;
@@ -37,7 +39,7 @@ function dungeonLevel(commandName) {
     return commandList.dungeons.commands[commandName].permissionLevel || 10;
 }
 
-async function parseCommand(message, command, args = null, mentionedUser = null) {
+function parseCommand(message, command, args = null, mentionedUser = null) {
     console.log(command, args, mentionedUser)
     return new Promise(function (resolve, reject) {
         switch (command) {
@@ -99,6 +101,7 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+
             case 'warn': {
                 verify(message, roleManagerLevel('warn'))
                     .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
@@ -124,9 +127,10 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+
             case 'rm-reset': {
                 verify(message, roleManagerLevel('rm-reset'))
-                    .then(() => resolve(common.roleManager.modUserByString(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset', {})))
+                    .then(() => resolve(common.roleManager.resetUser(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset')))
                     .catch(r => reject(r));
                 break;
             }
@@ -172,6 +176,7 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'banReverts')))
                     .catch(r => reject(r));
             }
+
             case 'promote': {
                 verify(message, roleManagerLevel('promote'))
                     .then(() => resolve(common.roleManager.promoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
@@ -184,15 +189,28 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+
             case 'setbotadmin': {
                 verify(message, roleManagerLevel('setbotadmin'))
                     .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
                     .catch(r => reject(r));
                 break;
             }
+            case 'setbotmod': {
+                verify(message, roleManagerLevel('setbotmod'))
+                    .then(() => resolve(common.roleManager.setBotMod(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'setbothelper': {
+                verify(message, roleManagerLevel('setbothelper'))
+                    .then(() => resolve(common.roleManager.setBotHelper(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
 
             // Minigames
-            case 'slots': {}
+            case 'slots': { }
             case 'blackjack': {
                 verify(message, minigameLevel(command, 'gambling'))
                     .then(() => resolve(common.minigames.run(message, 'gambling', command)))
@@ -335,6 +353,11 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+            case 'holeintheground': {
+                verify(message, memeLevel('holeintheground'))
+                    .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=RYdWk7Cn', null, null)))
+                    .catch(r => reject(r));
+            }
 
             // Dungeons
 
@@ -361,18 +384,86 @@ async function parseCommand(message, command, args = null, mentionedUser = null)
                     .catch(r => reject(r));
                 break;
             }
+
+            // Secret commands
+
+            case 'update_configs': {
+                firstRun.forEach((v, k, m) => {
+                    firstRun[k] = false;
+                });
+                break;
+            }
+
+            default: {
+                resolve(false);
+            }
         }
     });
 }
 
-module.exports = async function (message) {
-    const args = message.content.slice(1).trim().split(/ +/g);
-    const command = args.shift().toLowerCase();
-    const mentionedUser = message.mentions.members.first() || null;
+function parse(message) {
+    return new Promise(function (resolve, reject) {
+        if (!prefixMap.get(message.guild.id)) {
+            common.roleManager.getServerConfig(message)
+                .then(config => {
+                    prefixMap.set(message.guild.id, config.prefixes);
+                    
+                    let prefix = config.prefixes;
 
-    return new Promise(async function (resolve, reject) {
-        parseCommand(message, command, args, mentionedUser)
-            .then(r => resolve(r))
-            .catch(e => reject(e));
+                    if (!prefix.includes(message.content.charAt(0))) {
+                        reject(null);
+                    }
+                    else {
+                        const args = message.content.slice(1).trim().split(/ +/g);
+                        const command = args.shift().toLowerCase();
+                        const mentionedUser = message.mentions.members.first() || null;
+
+                        parseCommand(message, command, args, mentionedUser)
+                            .then(r => resolve(r))
+                            .catch(e => reject(e));
+                    }
+                })
+                .catch(e => reject(e));
+        }
+        else {
+            if (!prefixMap.get(message.guild.id).includes(message.content.charAt(0))) {
+                reject();
+            }
+            else {
+                const args = message.content.slice(1).trim().split(/ +/g);
+                const command = args.shift().toLowerCase();
+                const mentionedUser = message.mentions.members.first() || null;
+                parseCommand(message, command, args, mentionedUser)
+                    .then(r => resolve(r))
+                    .catch(e => reject(e));
+            }
+        }
+        
+    });
+}
+
+module.exports = function (message) {
+    return new Promise(function (resolve, reject) {
+        console.log('1');
+        if (!firstRun.has(message.guild.id) || !firstRun.get(message.guild.id)) {
+            console.log('2')
+            common.roleManager.repairConfig(message)
+                .then(() => {
+                    parse(message)
+                        .then(r => {
+                            console.log('run')
+                            firstRun.set(message.guild.id, true);
+                            resolve(r)
+                        })
+                        .catch(e => reject(e));
+                })
+                .catch(e => reject(e));
+        }
+        else {
+            console.log('3')
+            parse(message)
+                .then(r => resolve(r))
+                .catch(e => reject(e));
+        }
     });
 }

@@ -10,28 +10,25 @@ module.exports = function (message, playlistName) {
     if (!fs.existsSync(path))
         fs.mkdirSync(path); // Check if playlist directory exists. If not, create it.
 
-    fileExists(path)
+    fileExists(`${path}${playlistName}.json`)
         .then(() => {
-            if (err == null) {
-                let blankObject = { playlist: [] };
-
-                writeFile(`${path}${playlistName}.json`, blankObject)
-                    .then(() => {
-                        let embedMsg = new Discord.RichEmbed()
-                            .setTitle('Created new playlist')
-                            .setColor(chatFormat.colors.byName.green)
-                            .addField('Successfully created playlist:', playlistName);
-                        message.channel.send(embedMsg);
-                    })
-                    .catch(e => console.log(e));
-            }
-            else {
-                let embedMsg = new Discord.RichEmbed()
-                    .setTitle('Error')
-                    .setColor(chatFormat.colors.byName.red)
-                    .addField('There already exists a playlist named:', playlistName);
-                message.channel.send(embedMsg);
-            }
+            let embedMsg = new Discord.RichEmbed()
+                .setTitle('Error')
+                .setColor(chatFormat.colors.byName.red)
+                .addField('There already exists a playlist named:', playlistName);
+            message.channel.send(embedMsg);
         })
-        .catch(e => console.log(e));
+        .catch(err => {
+            let blankObject = { playlist: [] };
+
+            writeFile(`${path}${playlistName}.json`, blankObject)
+                .then(() => {
+                    let embedMsg = new Discord.RichEmbed()
+                        .setTitle('Created new playlist')
+                        .setColor(chatFormat.colors.byName.green)
+                        .addField('Successfully created playlist:', playlistName);
+                    message.channel.send(embedMsg);
+                })
+                .catch(e => console.log(e));
+        });
 }

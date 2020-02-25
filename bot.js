@@ -20,12 +20,12 @@ client.on('message', async message => {
         catch (e) {
             message.channel.send('I require admin permissions to operate correctly.');
         }
-    if (!common.config.settings.prefix.includes(message.content.charAt(0)) || message.author.bot)
+    if (message.author.bot)
         return;
 
     commandParser(message)
         .then(() => { })
-        .catch(err => common.log(err || 'Error'));
+        .catch(err => common.log(err));
 });
 
 client.login(client.token);

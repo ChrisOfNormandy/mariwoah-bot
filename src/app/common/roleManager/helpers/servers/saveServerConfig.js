@@ -1,25 +1,20 @@
 const writeFile = require('../../../bot/helpers/files/writeFile');
 const paths = require('../../../bot/helpers/global/paths');
+const serverMap = require('./serverMap');
 
-let intervalValue = 0;
-let saveTimer = false;
+function saveFile(message, file) {
+    writeFile(`${paths.getRoleManagerServerPath(message)}serverData.json`, file)
+        .then(() => {
+            console.log(`Saved file for ${message.guild.id}.`);
+            serverMap.map.set(message.guild.id, file);
+        })
+        .catch(e => {
+            console.log(e);
+        });
+}
 
-module.exports = async function (message, server) {
-    intervalValue++;
-
+module.exports = function (message, server) {
     return new Promise(function (resolve, reject) {
-        if (saveTimer || intervalValue >= 10) {
-            saveTimer = false;
-            intervalValue = 0;
-            setTimeout(() => saveTimer = true, 300000);
-            writeFile(`${paths.getRoleManagerServerPath(message)}serverData.json`, server)
-                .then(r => resolve(r))
-                .catch(e => reject(e));
-        }
-        else {
-            intervalValue++;
-            console.log('Not saving server config to file.', intervalValue);
-            resolve(true);
-        }
+        resolve(saveFile(message, server));
     });
 }

@@ -1,49 +1,10 @@
 const createUser = require('./createUser');
 const getUser = require('./getUser');
 
+
 module.exports = {
-    byMessage: async function (message) {
-        let userID = message.mentions.users.first().id;
-        let msgArray = message.content.split(' ');
-        let operation = msgArray[3];
-
-        getUser(message, userID)
-            .then(user => {
-                let permissionName;
-                switch (operation) {
-                    case 'permission_set': {
-                        if (msgArray.length < 6)
-                            return { status: false, args: { operation: 'permission_set', result: null, user: user } };
-                        permissionName = msgArray[4];
-                        user.servers[message.channel.guild.id].permissions[permissionName] = msgArray[5];
-                        return { status: true, args: { operation: 'permission_set', result: true, user: user } };
-                    }
-                    case 'permission_get': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_get', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        return { status: true, args: { operation: 'permission_get', result: user.servers[message.channel.guild.id].permissions[permissionName] }, user: user };
-                    }
-                    case 'permission_override_set': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_override_set', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        user.servers[message.channel.guild.id].permissions.override[permissionName] = msgArray[5];
-                        return { status: true, args: { operation: 'permission_override_set', result: true }, user: user };
-                    }
-                    case 'permission_override_get': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_override_get', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        return { status: true, args: { operation: 'permission_override_get', result: user.servers[message.channel.guild.id].permissions.override[permissionName] }, user: user };
-                    }
-                }
-            })
-            .catch(e => console.log(e));
-    },
-
-    byString: async function (message, userID, operation, args = null) {
-        return new Promise(async function (resolve, reject) {
+    byString: function (message, userID, operation, args = null) {
+        return new Promise(function (resolve, reject) {
             getUser(message, userID)
                 .then(user => {
                     switch (operation) {
@@ -201,6 +162,22 @@ module.exports = {
 
                             user.data.permissions.botAdmin = true;
                             resolve({ status: true, args: { operation: 'setBotAdmin', result: user }, user: user });
+                            break;
+                        }
+                        case 'setBotMod': {
+                            if (user.data.permissions.botMod)
+                                resolve({ status: false, args: { operation: 'setBotMod', result: user }, user: user });
+
+                            user.data.permissions.botMod = true;
+                            resolve({ status: true, args: { operation: 'setBotMod', result: user }, user: user });
+                            break;
+                        }
+                        case 'setBotHelper': {
+                            if (user.data.permissions.botHelper)
+                                resolve({ status: false, args: { operation: 'setBotHelper', result: user }, user: user });
+
+                            user.data.permissions.botHelper = true;
+                            resolve({ status: true, args: { operation: 'setBotHelper', result: user }, user: user });
                             break;
                         }
                     }

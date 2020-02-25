@@ -1,13 +1,15 @@
-const createServerConfig = require('./helpers/servers/createServerConfig');
 const createUser = require('./helpers/users/createUser');
 const getUser = require('./helpers/users/getUser');
-const modUser = require('./helpers/users/modUser');
+const getServerConfig = require('./helpers/servers/getServerConfig');
 const motd = require('./helpers/servers/motd');
+const punish = require('./helpers/users/punish');
+const repairConfig = require('./helpers/servers/repairConfig');
 const saveServerConfig = require('./helpers/servers/saveServerConfig');
-const serverMap = require('./helpers/servers/serverMap');
+const setBotPerm = require('./helpers/users/setBotPerm');
 const setmotd = require('./helpers/servers/setmotd');
 const userInfo = require('./helpers/users/userInfo');
 const userInfoList = require('./helpers/users/userInfoList');
+const userLevel = require('./helpers/users/userLevel');
 const userRoleInfo = require('./helpers/users/userRoleInfo');
 const verifyPermission = require('./helpers/verifyPermission');
 
@@ -25,39 +27,17 @@ function modUserReturn(result, message = null) {
 }
 
 module.exports = {
-    createUser: async function (message) {
-        await createUser(message);
+    createUser: function (message) {
+        return createUser(message);
     },
-    modUser: async function (message) {
-        modUser.byMessage(message)
-            .then(result => {
-                message.channel.send(modUserReturn(result, message));
-                this.getServerConfig(message)
-                    .then(config => {
-                        config.users[result.user.id] = result.user;
-                        serverMap.map.set(message.channel.guild.id, config);
-                        saveServerConfig(message, config);
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(e => console.log(e));
-    },
-    modUserByString: async function (message, userID, operation, args) {
-        modUser.byString(message, userID, operation, args)
-            .then(result => {
-                message.channel.send(modUserReturn(result, message));
-                this.getServerConfig(message)
-                    .then(config => {
-                        config.users[result.user.id] = result.user;
-                        serverMap.map.set(message.channel.guild.id, config);
-                        saveServerConfig(message, config);
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(e => console.log(e));
-    },
-    getUser: async function (message, userID) {
+    getUser: function (message, userID) {
         return getUser(message, userID);
+    },
+    getServerConfig: function(message) {
+        return getServerConfig(message);
+    },
+    repairConfig: function(message) {
+        return repairConfig(message);
     },
 
     userInfo: (message, userID) => userInfo(message, userID).catch(() => message.channel.send('Could not fetch user info.')),
@@ -65,183 +45,73 @@ module.exports = {
     userInfoList: (message, userID, listName) => userInfoList(message, userID, listName).catch(() => message.channel.send('Could not fetch user info.')),
 
     motd: (message) => motd(message),
-    setmotd: async function (message, args) {
+    setmotd: function (message, args) {
         setmotd(message, args)
             .then(config => saveServerConfig(message, config))
             .catch(e => console.log(e));
     },
 
-    promoteUser: async function (message, userID) {
-        getUser(message, userID)
-            .then(user => {
-                modUser.byString(message, user, 'promote')
-                    .then(result => {
-                        this.getServerConfig(message)
-                            .then(config => {
-                                config.users[userID] = result.user;
-                                serverMap.map.set(message.channel.guild.id, config);
-                                saveServerConfig(message, config);
-                            })
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(e => console.log(e));
+    promoteUser: function (message, userID) {
+        userLevel(message, userID, 'promote');
     },
-    demoteUser: async function (message, userID) {
-        getUser(message, userID)
-            .then(user => {
-                modUser.byString(message, user, 'demote')
-                    .then(result => {
-                        this.getServerConfig(message)
-                            .then(config => {
-                                config.users[userID] = result.user;
-                                serverMap.map.set(message.channel.guild.id, config);
-                                saveServerConfig(message, config);
-                            })
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(e => console.log(e));
+    demoteUser: function (message, userID) {
+        userLevel(message, userID, 'demote');
     },
 
-    getServerConfig: async function (message) {
-        return (serverMap.map.has(message.channel.guild.id)) ? serverMap.map.get(message.channel.guild.id) : await createServerConfig(message);
-    },
-    verifyPermission: async function (message, userID, permissionLevel) {
+    verifyPermission: function (message, userID, permissionLevel) {
         return verifyPermission(message, userID, permissionLevel);
     },
 
-    setBotAdmin: async function (message, userID) {
-        let _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.getServerConfig(message)
-                .then(config => {
-                    modUser.byString(message, userID, 'setBotAdmin')
-                        .then(result => {
-                            if (result.status)
-                                message.channel.send('Set user to botAdmin.');
-                            else
-                                message.channel.send('User is already a bot admin.');
-
-                            config.users[userID] = result.user;
-
-                            saveServerConfig(message, config)
-                                .then(r => {
-                                    serverMap.map.set(message.channel.guild.id, config);
-                                    resolve(r)
-                                })
-                                .catch(e => reject(e));
-                        })
-                        .catch(e => reject(e));
-                })
-                .catch(e => reject(e));
-        })
+    setBotAdmin: function (message, userID) {
+        return setBotPerm(message, userID, 'Admin');
+    },
+    setBotMod: function (message, userID) {
+        return setBotPerm(message, userID, 'Mod');
+    },
+    setBotHelper: function (message, userID) {
+        return setBotPerm(message, userID, 'Helper');
     },
 
-    warnUser: async function (message, userID, reason = "You have been warned by an administrator") {
-        let guild = message.channel.guild;
-        let _user = guild.members.get(userID);
-
-        modUser.byString(message, userID, 'warn', { reason: reason, user: _user })
-            .then(result => {
-                message.channel.send(modUserReturn(result, message));
-                this.getServerConfig(message)
-                    .then(config => {
-                        config.users[result.user.id] = result.user;
-                        serverMap.map.set(message.channel.guild.id, config);
-                        saveServerConfig(message, config);
-                    })
-                    .catch(e => console.log(e));
-            })
+    warnUser: function (message, userID, reason = "You have been warned by an administrator") {
+        punish(message, userID, 'warn', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    kickUser: function (message, userID, reason = "You have been kicked by an administrator") {
+        punish(message, userID, 'kick', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    banUser: function (message, userID, days = 1, reason = "You have been banned by an administrator") {
+        punish(message, userID, 'ban', reason, {days: days})
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    unbanUser: function (message, userID, reason = "Pardoned") {
+        punish(message, userID, 'unban', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    resetUser: function (message, userID) {
+        punish(message, userID, 'reset')
+            .then(result => message.channel.send(modUserReturn(result, message)))
             .catch(e => console.log(e));
     },
 
-    kickUser: async function (message, userID, reason = "You have been kicked by an administrator") {
-        let guild = message.channel.guild;
-        let user = guild.members.get(userID);
-
-        if (user.hasPermission("ADMINISTRATOR")) {
-            message.channel.send('Cannot kick admins using a command. You must do so manually.');
-            return;
-        }
-
-        user.kick(reason)
-            .then(_user => {
-                modUser.byString(message, userID, 'kick', { reason: reason, user: _user })
-                    .then(result => {
-                        message.channel.send(modUserReturn(result, message));
-                        this.getServerConfig(message)
-                            .then(config => {
-                                config.users[result.user.id] = result.user;
-                                serverMap.map.set(message.channel.guild.id, config);
-                                saveServerConfig(message, config);
-                            })
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(err => console.log(err));
-    },
-
-    banUser: async function (message, userID, days = 1, reason = "You have been banned by an administrator") {
-        let guild = message.channel.guild;
-        let user = guild.members.get(userID);
-
-        if (user.hasPermission("ADMINISTRATOR")) {
-            message.channel.send('Cannot ban admins using a command. You must do so manually.');
-            return;
-        }
-
-        guild.ban(user, { days: days, reason: reason })
-            .then(_user => {
-                modUser.byString(message, userID, 'ban', { reason: reason, days: days, user: _user })
-                    .then(result => {
-                        message.channel.send(modUserReturn(result, message));
-                        this.getServerConfig(message)
-                            .then(config => {
-                                config.users[result.user.id] = result.user;
-                                serverMap.map.set(message.channel.guild.id, config);
-                                saveServerConfig(message, config);
-                            })
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(err => console.log(err));
-    },
-    unbanUser: async function (message, userID, reason = "Pardoned") {
-        let guild = message.channel.guild;
-        guild.unban(userID)
-            .then(_user => {
-                modUser.byString(message, userID, 'banRevert', { reason: reason, user: _user })
-                    .then(result => {
-                        message.channel.send(modUserReturn(result, message));
-                        this.getServerConfig(message)
-                            .then(config => {
-                                config.users[result.user.id] = result.user;
-                                serverMap.map.set(message.channel.guild.id, config);
-                                saveServerConfig(message, config);
-                            })
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            })
-            .catch(() => message.channel.send('User does not have active ban.'));
-    },
-    fetchBans: async function (message) {
+    fetchBans: function (message) {
         let guild = message.channel.guild;
 
         guild.fetchBans(true)
             .then(bans => {
                 message.channel.send(`Server has ${bans.size} active bans.`);
-                let str = "";
+                if (bans.size > 0) {
+                    let str = "";
 
-                bans.forEach((value, key, map) => { str += `${value.user.username}#${user.user.discriminator}${(user.user.bot) ? ' -BOT-' : ''}: ${value.reason}\n`; });
+                    bans.forEach((value, key, map) => { str += `${value.user.username}#${user.user.discriminator}${(user.user.bot) ? ' -BOT-' : ''}: ${value.reason}\n`; });
 
-                if (str != '')
-                    message.channel.send(str);
+                    if (str != '')
+                        message.channel.send(str);
+                }
             })
             .catch(e => console.log(e));
     }
