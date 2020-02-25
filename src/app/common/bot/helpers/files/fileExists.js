@@ -4,9 +4,9 @@ module.exports =  function (path) {
     return new Promise(function (resolve, reject) {
         fs.access(path, fs.F_OK, (err) => {
             if (err)
-                reject(err);
+                reject(false); // Does not exist
             else
-                resolve(true);
+                resolve(true); // Does exist
         });
     });
 }

@@ -40,7 +40,7 @@ module.exports = async function (message, playlistName, songURL = null, songName
             getSongObject.byUrl(message, songURL)
                 .then(song => {
                     writeToFile(message, playlistName, song)
-                        .then(r => resolve(r))
+                        .then(r => resolve(song))
                         .catch(e => reject(e));
                 });
         }
@@ -48,7 +48,7 @@ module.exports = async function (message, playlistName, songURL = null, songName
             getSongObject.byName(message, songName)
                 .then(song => {
                     writeToFile(message, playlistName, song)
-                        .then(r => resolve(r))
+                        .then(r => resolve(song))
                         .catch(e => reject(e));
                 });
         }

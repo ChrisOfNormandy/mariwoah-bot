@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const getUser = require('./getUser');
 
-module.exports = async function (message, userID, listName) {
+module.exports = function (message, userID, listName) {
     getUser(message, userID)
         .then(user => {
             let discord_user = (message.channel.guild.members.get(userID)) ? message.channel.guild.members.get(userID).user : null;

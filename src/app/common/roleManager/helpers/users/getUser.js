@@ -2,8 +2,8 @@ const createUser = require('./createUser');
 const getSeverConfig = require('../servers/getServerConfig');
 const saveServerConfig = require('../servers/saveServerConfig');
 
-module.exports = async function (message, userID) {
-    return new Promise(async function (resolve, reject) {
+module.exports = function (message, userID) {
+    return new Promise(function (resolve, reject) {
         getSeverConfig(message)
             .then(config => {
                 if (config.users[userID])

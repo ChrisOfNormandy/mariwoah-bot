@@ -2,8 +2,8 @@ const generateServerData = require('./generateServerData');
 const getServerConfig = require('../servers/getServerConfig');
 const saveServerConfig = require('../servers/saveServerConfig');
 
-module.exports = async function (message, userID = -1) {
-    return new Promise(async function (resolve, reject) {
+module.exports = function (message, userID = -1) {
+    return new Promise(function (resolve, reject) {
         let User = {
             id: (userID == -1) ? message.author.id : userID,
             data: generateServerData()

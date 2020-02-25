@@ -2,7 +2,7 @@ const chatFormat = require('../../../bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const getUser = require('./getUser');
 
-module.exports = async function (message, userID) {
+module.exports = function (message, userID) {
     getUser(message, userID)
         .then(user => {
             let discord_user = message.channel.guild.members.get(user.id).user;
