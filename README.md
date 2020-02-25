@@ -27,3 +27,4 @@ Functions in the bot:
 * Slots are broken.
 * Fishing returns bad message when fish caught.
 * Fishing can probably be rewritten and cleaned.
+* Servers should have unique prefixes
