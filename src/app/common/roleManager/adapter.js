@@ -107,7 +107,7 @@ module.exports = {
                 if (bans.size > 0) {
                     let str = "";
 
-                    bans.forEach((value, key, map) => { str += `${value.user.username}#${user.user.discriminator}${(user.user.bot) ? ' -BOT-' : ''}: ${value.reason}\n`; });
+                    bans.forEach((value, key, map) => { str += `${value.user.username}#${value.user.discriminator}${(value.user.bot) ? ' -BOT-' : ''}: ${value.reason}\n`; });
 
                     if (str != '')
                         message.channel.send(str);

@@ -24,7 +24,7 @@ module.exports = function (message, userID, operation, reason, args = {}) {
     let user = guild.members.get(userID);
 
     return new Promise(function (resolve, reject) {
-        if (user.hasPermission("ADMINISTRATOR") && (operation == 'kick' || operation == 'ban')) {
+        if (user && user.hasPermission("ADMINISTRATOR") && (operation == 'kick' || operation == 'ban')) {
             message.channel.send(`Cannot ${operation} admins using a command. You must do so manually.`);
             resolve({ status: false, args: { operation: operation, result: false }, user: user });
             return;
@@ -38,33 +38,34 @@ module.exports = function (message, userID, operation, reason, args = {}) {
                 return;
             }
             case 'kick': {
-                user.kick(reason)
-                    .then(_user => {
-                        moderate(message, userID, 'kick', { reason: reason, user: _user })
-                            .then(r => resolve(r))
+                moderate(message, userID, 'kick', { reason: reason, user: user })
+                    .then((result) => {
+                        user.kick(reason)
+                            .then(r => resolve(result))
                             .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
                 return;
             }
             case 'ban': {
-                guild.ban(user, { days: args.days, reason: reason })
-                    .then(_user => {
-                        moderate(message, userID, 'ban', { reason: reason, days: args.days, user: _user })
-                            .then(r => resolve(r))
+                moderate(message, userID, 'ban', { reason: reason, days: args.days, user: user })
+                    .then((result) => {
+                        guild.ban(user, { days: args.days, reason: reason })
+                            .then(r => resolve(result))
                             .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
                 return;
             }
             case 'unban': {
-                guild.unban(userID)
-                    .then(_user => {
-                        moderate(message, userID, 'banRevert', { reason: reason, user: _user })
-                            .then(r => resolve(r))
+                moderate(message, userID, 'banRevert', { reason: reason, user: user })
+                    .then((result) => {
+                        guild.unban(userID)
+                            .then(r => resolve(result))
                             .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
+
                 return;
             }
             case 'reset': {

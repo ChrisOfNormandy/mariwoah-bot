@@ -40,7 +40,6 @@ function dungeonLevel(commandName) {
 }
 
 function parseCommand(message, command, args = null, mentionedUser = null) {
-    console.log(command, args, mentionedUser)
     return new Promise(function (resolve, reject) {
         switch (command) {
             case 'clean': {
@@ -104,19 +103,19 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
             case 'warn': {
                 verify(message, roleManagerLevel('warn'))
-                    .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
+                    .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
                     .catch(r => reject(r));
                 break;
             }
             case 'kick': {
                 verify(message, roleManagerLevel('kick'))
-                    .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
+                    .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
                     .catch(r => reject(r));
                 break;
             }
             case 'ban': {
                 verify(message, roleManagerLevel('ban'))
-                    .then(() => resolve(common.roleManager.banUser(message, (mentionedUser) ? mentionedUser.id : args.slice(1).join(' '))))
+                    .then(() => resolve(common.roleManager.banUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
                     .catch(r => reject(r));
                 break;
             }
@@ -142,31 +141,31 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
             }
             case 'rm-info': {
                 verify(message, roleManagerLevel('rm-info'))
-                    .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
                     .catch(r => reject(r));
                 break;
             }
             case 'rm-roleinfo': {
                 verify(message, roleManagerLevel('rm-roleinfo'))
-                    .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
                     .catch(r => reject(r));
                 break;
             }
             case 'warnings': {
                 verify(message, roleManagerLevel('warnings'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'warnings')))
+                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'warnings')))
                     .catch(r => reject(r));
                 break;
             }
             case 'kicks': {
                 verify(message, roleManagerLevel('kicks'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'kicks')))
+                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'kicks')))
                     .catch(r => reject(r));
                 break;
             }
             case 'bans': {
                 verify(message, roleManagerLevel('bans'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'bans')))
+                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'bans')))
                     .catch(r => reject(r));
                 break;
             }
