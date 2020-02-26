@@ -44,11 +44,11 @@ module.exports = {
     playPlaylist: function (message, playlistName, doShuffle) { playlist.play(message, playlistName, doShuffle) },
     removeFromPlaylist: function (message, playlistName, index) { playlist.remove(message, playlistName, index) },
 
-    playlistCommand: async function (message, args) {
+    playlistCommand: function (message, args) {
         const _this = this;
         const command = args[0];
 
-        return new Promise(async function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             if (command == 'play')
                 verify(message, pl.play.permissionLevel)
                     .then(() => resolve(_this.playPlaylist(message, args[1], args[2] === '-s')))
