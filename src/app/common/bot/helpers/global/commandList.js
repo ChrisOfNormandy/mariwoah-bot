@@ -24,7 +24,7 @@ module.exports = {
                 description: 'Dungeons and dragons tools.'
             },
             page: [
-                ['common', 'roleManager', 'music', 'playlist', 'minigames', 'memes', 'dungeons'],
+                ['common', 'rolemanager', 'music', 'playlist', 'minigames', 'memes', 'dungeons'],
             ],
         },
     },
