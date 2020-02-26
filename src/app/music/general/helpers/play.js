@@ -9,14 +9,16 @@ function play(message, song) {
 
     const dispatcher = queue.serverMap.get(guild.id).connection.playStream(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('end', () => {
-            queue.serverMap.get(guild.id).previousSong = song;
-            queue.serverMap.get(guild.id).songs.shift();
+            if (queue.serverMap.has(guild.id)) {
+                queue.serverMap.get(guild.id).previousSong = song;
+                queue.serverMap.get(guild.id).songs.shift();
 
-            if (queue.serverMap.get(guild.id).songs[0]) {
-                while (queue.serverMap.get(guild.id).songs[0].removed)
-                    queue.serverMap.get(guild.id).songs.shift();
+                if (queue.serverMap.get(guild.id).songs[0]) {
+                    while (queue.serverMap.get(guild.id).songs[0].removed)
+                        queue.serverMap.get(guild.id).songs.shift();
 
-                play(message, queue.serverMap.get(guild.id).songs[0]);
+                    play(message, queue.serverMap.get(guild.id).songs[0]);
+                }
             }
             else
                 stop(message, 'End of active queue.');

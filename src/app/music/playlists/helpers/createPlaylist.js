@@ -6,7 +6,7 @@ const paths = require('../../../common/bot/helpers/global/paths');
 const writeFile = require('../../../common/bot/helpers/files/writeFile');
 
 module.exports = function (message, playlistName) {
-    let path = paths.getPlaylistPath(message);
+    let path = `${paths.getPlaylistPath(message)}`;
     if (!fs.existsSync(path))
         fs.mkdirSync(path); // Check if playlist directory exists. If not, create it.
 

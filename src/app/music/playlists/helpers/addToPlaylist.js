@@ -32,8 +32,8 @@ function writeToFile(message, playlistName, song) {
     });
 }
 
-module.exports = async function (message, playlistName, songURL = null, songName = null) {
-    return new Promise(async function (resolve, reject) {
+module.exports = function (message, playlistName, songURL = null, songName = null) {
+    return new Promise(function (resolve, reject) {
         if (songURL == null && songName == null)
             reject(null);
         else if (songURL !== null) {

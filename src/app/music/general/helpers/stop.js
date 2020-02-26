@@ -1,4 +1,4 @@
-const leave = require('./leave');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const queue = require('../../queue');
 
 module.exports = function (message, reason = '> Stopping all music.') {
@@ -11,5 +11,6 @@ module.exports = function (message, reason = '> Stopping all music.') {
     console.log(reason);
     message.channel.send(reason);
     queue.serverMap.delete(message.guild.id);
-    leave(message);
+    let vc = getVC(message);
+    vc.leave();
 }
