@@ -5,7 +5,7 @@ module.exports = {
             'common': {
                 description: 'General use commands.',
             },
-            'roleManager': {
+            'rolemanager': {
                 description: 'Role management commands.'
             },
             'music': {
