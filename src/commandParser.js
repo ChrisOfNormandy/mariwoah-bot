@@ -126,6 +126,12 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                     .catch(r => reject(r));
                 break;
             }
+            case 'pardon': {
+                verify(message, roleManagerLevel('pardon'))
+                    .then(() => resolve(common.roleManager.pardonUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(3).join(' '), args[1], args[2] )))
+                    .catch(r => reject(r));
+                break;
+            }
 
             case 'rm-reset': {
                 verify(message, roleManagerLevel('rm-reset'))
@@ -406,7 +412,7 @@ function parse(message) {
             common.roleManager.getServerConfig(message)
                 .then(config => {
                     prefixMap.set(message.guild.id, config.prefixes);
-                    
+
                     let prefix = config.prefixes;
 
                     if (!prefix.includes(message.content.charAt(0))) {
@@ -437,7 +443,7 @@ function parse(message) {
                     .catch(e => reject(e));
             }
         }
-        
+
     });
 }
 

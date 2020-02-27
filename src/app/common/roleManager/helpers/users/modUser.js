@@ -13,9 +13,17 @@ function generateData(message, args) {
                 "day": date.toLocaleDateString(),
                 "time": date.toTimeString()
             },
-            "reason": args.reason,
+            "reason": args.reason || "",
             "staffID": message.author.id,
-            "pardoned": false
+            "pardoned": {
+                "value": false,
+                "staffID": null,
+                "date": {
+                    "day": null,
+                    "time": null
+                },
+                "reason": null
+            }
         }
     }
 }
@@ -109,6 +117,36 @@ module.exports = {
                                         resolve({ status: true, args: { operation: 'reset', result: newUser }, user: newUser });
                                     })
                                     .catch(e => reject(e));
+                                break;
+                            }
+                            case 'pardon': {
+                                let date = new Date();
+                                console.log(args);
+                                if (args.index - 1 < 0 || !user.data[args.punishment] || !user.data[args.punishment][args.index - 1])
+                                    resolve({ status: false, args: { operation: 'pardon', result: null }, user: user });
+                                else {
+                                    if (user.data[args.punishment][args.index - 1].pardoned.value)
+                                        user.data[args.punishment][args.index - 1].pardoned = {
+                                            "value": false,
+                                            "staffID": null,
+                                            "date": {
+                                                "day": null,
+                                                "time": null
+                                            },
+                                            "reason": null
+                                        }
+                                    else
+                                        user.data[args.punishment][args.index - 1].pardoned = {
+                                            "value": true,
+                                            "staffID": message.author.id,
+                                            "date": {
+                                                "day": date.toLocaleDateString(),
+                                                "time": date.toTimeString()
+                                            },
+                                            "reason": args.reason || ""
+                                        }
+                                    resolve({ status: true, args: { operation: 'pardon', result: user }, user: user });
+                                }
                                 break;
                             }
                             case 'promote': {

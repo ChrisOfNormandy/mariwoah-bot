@@ -74,6 +74,12 @@ module.exports = function (message, userID, operation, reason, args = {}) {
                     .catch(e => reject(e));
                 return;
             }
+            case 'pardon': {
+                moderate(message, userID, 'pardon', { reason: reason, punishment: args.punishment, index: args.index })
+                    .then(r => resolve(r))
+                    .catch(e => reject(e));
+                return;
+            }
         }
     });
 }

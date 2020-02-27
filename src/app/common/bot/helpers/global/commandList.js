@@ -169,6 +169,14 @@ module.exports = {
                     ['ID of the target user', 'Optional; if supplied, will list reason for pardon when checking user history.']
                 ],
             },
+            'pardon': {
+                description: '"Pardons" the user under given punishment at given index. Does not affect total, does not remove from list.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID', 'punishment', 'index', 'reason'],
+                    ['Ping of the target user | ID of the target user', 'warnings | kicks | bans', 'index from list. Use a listing command to find index.', 'Optional reason for pardon.']
+                ],
+            },
             'rm-reset': {
                 description: 'Resets all user history (warnings, kicks, bans, reverts).',
                 permissionLevel: 4,
@@ -231,7 +239,7 @@ module.exports = {
             },
             page: [
                 ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper'],
-                ['warn', 'kick', 'ban', 'unban', 'rm-reset'],
+                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon'],
                 ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
             ]
         }
