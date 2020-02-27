@@ -5,6 +5,8 @@ module.exports = {
     bot: bot,
     config: bot.config,
 
+    prefixMap: new Map(),
+
     minigames: require('../minigames/core'),
     music: require('../music/core'),
     memes: require('../memes/core'),

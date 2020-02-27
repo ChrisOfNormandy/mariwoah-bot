@@ -1,6 +1,6 @@
 module.exports = {
     main: {
-        header: '### Help Commands ###\nUsage: ~help {subcommand} OR ~? {subcommand}\n_Allowed prefixes:_ . - ~',
+        header: '### Help Commands ###\nUsage: help {subcommand} OR ? {subcommand}',
         commands: {
             'common': {
                 description: 'General use commands.',
@@ -15,7 +15,7 @@ module.exports = {
                 description: 'Playlist related commands.',
             },
             'minigames': {
-                description: 'Minigames related commands. Try ~help minigames {game} for a specific minigame.'
+                description: 'Minigames related commands. Try "help minigames {game}" for a specific minigame.'
             },
             'memes': {
                 description: 'Meme commands. Just for fun.'
@@ -94,6 +94,18 @@ module.exports = {
                 arguments: [
                     ['message'],
                     ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
+                ],
+            },
+            'prefixes': {
+                description: 'Gets the server prefixes for commands.',
+                permissionLevel: 0,
+            },
+            'setprefixes': {
+                description: 'Sets the server prefixes for commands.',
+                permissionLevel: 4,
+                arguments: [
+                    ['prefixes'],
+                    ['String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'],
                 ],
             },
             'promote': {
@@ -238,8 +250,8 @@ module.exports = {
                 ],
             },
             page: [
-                ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper'],
-                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon'],
+                ['motd', 'setmotd', 'prefixes', 'setprefixes', 'promote', 'demote'],
+                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon', 'setbotadmin', 'setbotmod', 'setbothelper'],
                 ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
             ]
         }

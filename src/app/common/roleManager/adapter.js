@@ -7,6 +7,7 @@ const repairConfig = require('./helpers/servers/repairConfig');
 const saveServerConfig = require('./helpers/servers/saveServerConfig');
 const setBotPerm = require('./helpers/users/setBotPerm');
 const setmotd = require('./helpers/servers/setmotd');
+const setPrefixes = require('./helpers/servers/setPrefixes');
 const userInfo = require('./helpers/users/userInfo');
 const userInfoList = require('./helpers/users/userInfoList');
 const userLevel = require('./helpers/users/userLevel');
@@ -50,6 +51,15 @@ module.exports = {
         setmotd(message, args)
             .then(config => saveServerConfig(message, config))
             .catch(e => console.log(e));
+    },
+
+    setPrefixes: function (message, prefixes) {
+        setPrefixes(message, prefixes)
+            .then(result => {
+                message.channel.send((result.change) ? `> Changed server prefixes to: ${result.map}` : `Server prefixes are: ${result.map.split('').join(' ')}`);
+                return result.map;
+            })
+            .catch(e => { return e });
     },
 
     promoteUser: function (message, userID) {

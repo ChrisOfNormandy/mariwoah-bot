@@ -7,9 +7,11 @@ function saveFile(message, file) {
         .then(() => {
             console.log(`Saved file for ${message.guild.id}.`);
             serverMap.map.set(message.guild.id, file);
+            return file;
         })
         .catch(e => {
             console.log(e);
+            return null;
         });
 }
 

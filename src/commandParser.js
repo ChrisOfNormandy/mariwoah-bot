@@ -2,7 +2,6 @@ const commandList = require('./app/common/bot/helpers/global/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
 
-const prefixMap = new Map();
 const firstRun = new Map();
 
 async function verify(message, permissionLevel) {
@@ -97,6 +96,21 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
             case 'motd': {
                 verify(message, roleManagerLevel('motd'))
                     .then(() => resolve(common.roleManager.motd(message)))
+                    .catch(r => reject(r));
+                break;
+            }
+
+            case 'setprefixes': {
+                verify(message, roleManagerLevel('setprefixes'))
+                    .then(() => {
+                        common.prefixMap.set(message.guild.id, common.roleManager.setPrefixes(message, args[0]));
+                    })
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'prefixes': {
+                verify(message, roleManagerLevel('prefixes'))
+                    .then(() => common.roleManager.setPrefixes(message, ''))
                     .catch(r => reject(r));
                 break;
             }
@@ -408,10 +422,10 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
 function parse(message) {
     return new Promise(function (resolve, reject) {
-        if (!prefixMap.get(message.guild.id)) {
+        if (!common.prefixMap.get(message.guild.id)) {
             common.roleManager.getServerConfig(message)
                 .then(config => {
-                    prefixMap.set(message.guild.id, config.prefixes);
+                    common.prefixMap.set(message.guild.id, config.prefixes);
 
                     let prefix = config.prefixes;
 
@@ -431,7 +445,7 @@ function parse(message) {
                 .catch(e => reject(e));
         }
         else {
-            if (!prefixMap.get(message.guild.id).includes(message.content.charAt(0))) {
+            if (!common.prefixMap.get(message.guild.id).includes(message.content.charAt(0))) {
                 reject();
             }
             else {
