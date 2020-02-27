@@ -15,7 +15,7 @@ Functions in the bot:
 * Drops a different F in chat
 * Misc. things as I want to add them.
 
-> .? / -? / ~? // .help / -help / ~help
+> Prefixes are custom per server. Defaults are . - ~
 
 # List of planned features needing implementation
 
