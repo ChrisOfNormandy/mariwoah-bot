@@ -9,8 +9,6 @@ core.js
 > bot.preStartup(); Runs initialization.
 * bot
 > Adapter file for general functions.
-* config
-> bot.config (from adapter). Should be reworked in the future.
 * minigames
 > minigames/core.js
 * music

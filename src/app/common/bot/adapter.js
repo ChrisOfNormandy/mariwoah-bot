@@ -13,7 +13,7 @@ const whoAre = require('./helpers/features/whoAre');
 
 module.exports = {
 
-    config: require('./helpers/global/config'),
+    config: require('../../../../private/config'),
     help: require('./helpers/global/commandList'),
 
     cleanChat: (message) => cleanChat(message),

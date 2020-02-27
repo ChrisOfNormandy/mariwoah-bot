@@ -1,4 +1,4 @@
-const config = require('../helpers/global/config');
+const config = require('../../../../../private/config');
 
 function getDateString() {
     let date = new Date();

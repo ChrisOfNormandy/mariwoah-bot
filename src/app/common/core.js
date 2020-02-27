@@ -3,7 +3,6 @@ const bot = require('./bot/adapter');
 module.exports = {
     client: bot.preInit(),
     bot: bot,
-    config: bot.config,
 
     prefixMap: new Map(),
 
