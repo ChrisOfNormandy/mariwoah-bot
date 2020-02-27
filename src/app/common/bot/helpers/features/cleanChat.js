@@ -1,4 +1,4 @@
-const config = require('../global/config');
+const getServerConfig = require('../../../roleManager/helpers/servers/getServerConfig');
 
 function timestampToDate(timestamp) {
     return new Date(timestamp);
@@ -34,22 +34,26 @@ module.exports = async function (message) {
                         .catch(e => console.log(e));
                 }
                 else {
-                    const botMessages = messages.filter(msg => (msg.author.bot &&
-                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                    ));
-                    const cmdMessages = messages.filter(msg => ((config.settings.prefix.includes(msg.content.charAt(0) || config.settings.otherPrefixes.includes(msg.content.charAt(0)))) &&
-                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                    ));
-
-                    let botMessagesDeleted = botMessages.array().length;
-                    let cmdMessagesDeleted = cmdMessages.array().length;
-
-                    channel.bulkDelete(botMessages);
-                    channel.bulkDelete(cmdMessages);
-
-                    channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
-                        .then(msg => msg.delete(5000))
-                        .catch(e => console.log(e));
+                    getServerConfig(message)
+                        .then(config => {
+                            const botMessages = messages.filter(msg => (msg.author.bot &&
+                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                            ));
+                            const cmdMessages = messages.filter(msg => (config.prefixes.includes(msg.content.charAt(0)) &&
+                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                            ));
+        
+                            let botMessagesDeleted = botMessages.array().length;
+                            let cmdMessagesDeleted = cmdMessages.array().length;
+        
+                            channel.bulkDelete(botMessages);
+                            channel.bulkDelete(cmdMessages);
+        
+                            channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
+                                .then(msg => msg.delete(5000))
+                                .catch(e => console.log(e));
+                        })
+                    
                 }
             })
             .catch(err => console.log('Error while doing bulk delete.', err));
