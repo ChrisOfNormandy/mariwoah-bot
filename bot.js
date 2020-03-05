@@ -25,7 +25,11 @@ client.on('message', async message => {
 
     commandParser(message)
         .then(() => { })
-        .catch(err => common.log(err));
+        .catch(err => {
+            if (err !== null) {
+                common.log(err);
+            }
+        });
 });
 
 client.login(client.token);

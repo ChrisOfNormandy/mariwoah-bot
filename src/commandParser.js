@@ -446,7 +446,7 @@ function parse(message) {
         }
         else {
             if (!common.prefixMap.get(message.guild.id).includes(message.content.charAt(0))) {
-                reject();
+                reject(null);
             }
             else {
                 const args = message.content.slice(1).trim().split(/ +/g);
@@ -463,15 +463,12 @@ function parse(message) {
 
 module.exports = function (message) {
     return new Promise(function (resolve, reject) {
-        console.log('1');
         if (!firstRun.has(message.guild.id) || !firstRun.get(message.guild.id)) {
-            console.log('2')
             common.roleManager.repairConfig(message)
                 .then(() => {
+                    firstRun.set(message.guild.id, true);
                     parse(message)
                         .then(r => {
-                            console.log('run')
-                            firstRun.set(message.guild.id, true);
                             resolve(r)
                         })
                         .catch(e => reject(e));
@@ -479,7 +476,6 @@ module.exports = function (message) {
                 .catch(e => reject(e));
         }
         else {
-            console.log('3')
             parse(message)
                 .then(r => resolve(r))
                 .catch(e => reject(e));
