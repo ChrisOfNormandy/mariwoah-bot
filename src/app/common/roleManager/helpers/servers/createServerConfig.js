@@ -3,11 +3,10 @@ const paths = require('../../../bot/helpers/global/paths');
 const newConfig = require('../servers/newConfig');
 
 module.exports = async function (message) {
-    let config = newConfig(message);
-
     return new Promise(function (resolve, reject) {
+        let config = newConfig(message);
         writeFile(`${paths.getRoleManagerServerPath(message)}serverData.json`, config)
-            .then(r => resolve(r))
+            .then(r => resolve(config))
             .catch(e => reject(e));
     })
 }
