@@ -47,6 +47,10 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                     .catch(r => reject(r));
                 break;
             }
+            case 'covid19': {
+                common.bot.covid(message);
+                break;
+            }
             case '?': { }
             case 'help': {
                 verify(message, commonLevel('help'))

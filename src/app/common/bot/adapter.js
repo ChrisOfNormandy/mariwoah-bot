@@ -1,4 +1,5 @@
 const cleanChat = require('./helpers/features/cleanChat');
+const covid = require('./helpers/features/covid19');
 const divideArray = require('./helpers/global/divideArray');
 const getVoiceChannel = require('./helpers/global/getVoiceChannel');
 const listHelp = require('./helpers/features/listHelp');
@@ -17,6 +18,7 @@ module.exports = {
     help: require('./helpers/global/commandList'),
 
     cleanChat: (message) => cleanChat(message),
+    covid: (message) => covid(message),
     divideArray: async (array, size) => divideArray(array, size),
     getVoiceChannel: (message) => getVoiceChannel(message),
     listHelp: (message, args) => listHelp(message, args),
