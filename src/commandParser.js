@@ -1,10 +1,7 @@
 const commandList = require('./app/common/bot/helpers/global/commandList');
 const common = require('./app/common/core');
 const roleManager = require('./app/common/roleManager/adapter');
-<<<<<<< HEAD
-=======
 const db = require('./app/sql/adapter');
->>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
 
 const firstRun = new Map();
 
