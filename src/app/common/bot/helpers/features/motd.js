@@ -1,13 +1,14 @@
-const Discord = require('discord.js');
-const getServerConfig = require('./getServerConfig');
+const db = require('../../../../sql/adapter');
+const Discord = require('discord.js')
 
-module.exports = function (message) {
-    getServerConfig(message)
-        .then(config => {
+function get(message) {
+    db.server.getMotd(message.channel.guild.id)
+        .then(motd => {
+            console.log(motd);
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(message.channel.guild.name);
 
-            let arr = config.motd.split('|');
+            let arr = motd.split('|');
 
             let str = '';
             let title, line, link, linkText, adjustLine, splitLine;
@@ -35,4 +36,13 @@ module.exports = function (message) {
             message.channel.send(embedMsg);
         })
         .catch(e => console.log(e));
+}
+
+function set(message, string) {
+    db.server.setMotd(message.guild.id, string);
+}
+
+module.exports = {
+    get,
+    set
 }

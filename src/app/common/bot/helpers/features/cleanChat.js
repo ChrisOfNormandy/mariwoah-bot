@@ -1,4 +1,4 @@
-const getServerConfig = require('../../../roleManager/helpers/servers/getServerConfig');
+const db = require('../../../../sql/adapter');
 
 function timestampToDate(timestamp) {
     return new Date(timestamp);
@@ -34,12 +34,12 @@ module.exports = async function (message) {
                         .catch(e => console.log(e));
                 }
                 else {
-                    getServerConfig(message)
-                        .then(config => {
+                    db.server.getPrefix(message.channel.guild.id)
+                        .then(prefix => {
                             const botMessages = messages.filter(msg => (msg.author.bot &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                             ));
-                            const cmdMessages = messages.filter(msg => (config.prefixes.includes(msg.content.charAt(0)) &&
+                            const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                             ));
         

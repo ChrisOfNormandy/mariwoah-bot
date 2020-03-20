@@ -11,6 +11,7 @@ const roll = require('./helpers/features/roll');
 const shuffle = require('./helpers/global/shuffle');
 const init = require('./helpers/init');
 const whoAre = require('./helpers/features/whoAre');
+const motd = require('./helpers/features/motd');
 
 module.exports = {
 
@@ -30,5 +31,7 @@ module.exports = {
     shuffle: async (message, array) => { shuffle(array).then(r => message.channel.send(r.join(', '))) },
     init: () => init(),
     whoami: (message) => whoAre.self(message),
-    whoareyou: (message) => whoAre.member(message)
+    whoareyou: (message) => whoAre.member(message),
+    motd: (message) => motd.get(message),
+    setMotd: (message, string) => motd.set(message, string)
 }

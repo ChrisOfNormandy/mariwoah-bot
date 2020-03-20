@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const createUser = require('./helpers/users/createUser');
 const getUser = require('./helpers/users/getUser');
 const getServerConfig = require('./helpers/servers/getServerConfig');
@@ -12,7 +13,11 @@ const userInfo = require('./helpers/users/userInfo');
 const userInfoList = require('./helpers/users/userInfoList');
 const userLevel = require('./helpers/users/userLevel');
 const userRoleInfo = require('./helpers/users/userRoleInfo');
+=======
+const punish = require('./helpers/users/punish');
+>>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
 const verifyPermission = require('./helpers/verifyPermission');
+const db = require('../../sql/adapter');
 
 function modUserReturn(result, message = null) {
     if (!result.status || message === null) return 'Operation failed.';
@@ -29,6 +34,7 @@ function modUserReturn(result, message = null) {
 }
 
 module.exports = {
+<<<<<<< HEAD
     createUser: function (message) {
         return createUser(message);
     },
@@ -40,12 +46,20 @@ module.exports = {
     },
     repairConfig: function (message) {
         return repairConfig(message);
+=======
+    promoteUser: function (message, userID) {
+        userLevel(message, userID, 'promote');
+    },
+    demoteUser: function (message, userID) {
+        userLevel(message, userID, 'demote');
+>>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
     },
 
-    userInfo: (message, userID) => userInfo(message, userID).catch(() => message.channel.send('Could not fetch user info.')),
-    userRoleInfo: (message, userID) => userRoleInfo(message, userID).catch(() => message.channel.send('Could not fetch user info.')),
-    userInfoList: (message, userID, listName) => userInfoList(message, userID, listName).catch(() => message.channel.send('Could not fetch user info.')),
+    verifyPermission: function (message, userID, permissionLevel) {
+        return verifyPermission(message, userID, permissionLevel);
+    },
 
+<<<<<<< HEAD
     motd: (message) => motd(message),
     setmotd: function (message, args) {
         setmotd(message, args)
@@ -113,6 +127,48 @@ module.exports = {
             .then(result => message.channel.send(modUserReturn(result, message)))
             .catch(e => console.log(e));
     },
+=======
+    setBotAdmin: function (message, userID) {
+        return setBotPerm(message, userID, 'Admin');
+    },
+    setBotMod: function (message, userID) {
+        return setBotPerm(message, userID, 'Mod');
+    },
+    setBotHelper: function (message, userID) {
+        return setBotPerm(message, userID, 'Helper');
+    },
+
+    warnUser: function (message, userID, reason = "You have been warned by an administrator") {
+        punish(message, userID, 'warn', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    kickUser: function (message, userID, reason = "You have been kicked by an administrator") {
+        punish(message, userID, 'kick', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    banUser: function (message, userID, days = 1, reason = "You have been banned by an administrator") {
+        punish(message, userID, 'ban', reason, { days: days })
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    unbanUser: function (message, userID, reason = "Pardoned") {
+        punish(message, userID, 'unban', reason)
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    resetUser: function (message, userID) {
+        punish(message, userID, 'reset')
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+    pardonUser: function (message, userID, reason, punishment, index) {
+        punish(message, userID, 'pardon', reason, { punishment: punishment, index: index })
+            .then(result => message.channel.send(modUserReturn(result, message)))
+            .catch(e => console.log(e));
+    },
+>>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
 
     fetchBans: function (message) {
         let guild = message.channel.guild;

@@ -1,19 +1,17 @@
 const modUser = require('./modUser');
-const getServerConfig = require('../servers/getServerConfig');
-const saveServerConfig = require('../servers/saveServerConfig');
 
 function moderate(message, userID, operation, args = {}) {
     return new Promise(function (resolve, reject) {
         modUser.byString(message, userID, operation, args)
             .then(result => {
-                getServerConfig(message)
-                    .then(config => {
-                        config.users[result.user.id] = result.user;
-                        saveServerConfig(message, config);
+                // getServerConfig(message)
+                //     .then(config => {
+                //         config.users[result.user.id] = result.user;
+                //         saveServerConfig(message, config);
 
-                        resolve(result);
-                    })
-                    .catch(e => reject(e));
+                //         resolve(result);
+                //     })
+                //     .catch(e => reject(e));
             })
             .catch(e => reject(e));
     });

@@ -1,6 +1,3 @@
-const createUser = require('./createUser');
-const getUser = require('./getUser');
-
 function generateData(message, args) {
     let date = new Date();
     return {
