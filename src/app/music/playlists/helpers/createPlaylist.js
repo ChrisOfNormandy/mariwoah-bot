@@ -1,21 +1,34 @@
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const Discord = require('discord.js');
 const fs = require('fs');
-const paths = require('../../../common/bot/helpers/paths');
+const fileExists = require('../../../common/bot/helpers/files/fileExists');
+const paths = require('../../../common/bot/helpers/global/paths');
+const writeFile = require('../../../common/bot/helpers/files/writeFile');
 
 module.exports = function (message, playlistName) {
-    try {
-        if (!fs.existsSync(paths.getPlaylistPath(message)))
-            fs.mkdirSync(paths.getPlaylistPath(message));
+    let path = `${paths.getPlaylistPath(message)}`;
+    if (!fs.existsSync(path))
+        fs.mkdirSync(path); // Check if playlist directory exists. If not, create it.
 
-        fs.access(path, fs.F_OK, (err) => {
-            if (err) {
-                fs.open(`${paths.getPlaylistPath(message)}${playlistName}.json`, 'w', function (err) { if (err) return console.log(err); });
-                message.channel.send('Created playlist with name ' + playlistName + '.');
-                return;
-            }
-            message.channel.send('Playlist with name ' + playlistName + ' already exists!');
+    fileExists(`${path}${playlistName}.json`)
+        .then(() => {
+            let embedMsg = new Discord.RichEmbed()
+                .setTitle('Error')
+                .setColor(chatFormat.colors.byName.red)
+                .addField('There already exists a playlist named:', playlistName);
+            message.channel.send(embedMsg);
+        })
+        .catch(err => {
+            let blankObject = { playlist: [] };
+
+            writeFile(`${path}${playlistName}.json`, blankObject)
+                .then(() => {
+                    let embedMsg = new Discord.RichEmbed()
+                        .setTitle('Created new playlist')
+                        .setColor(chatFormat.colors.byName.green)
+                        .addField('Successfully created playlist:', playlistName);
+                    message.channel.send(embedMsg);
+                })
+                .catch(e => console.log(e));
         });
-    }
-    catch (e) {
-        console.log(e);
-    }
 }

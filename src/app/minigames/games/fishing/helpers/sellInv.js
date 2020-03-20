@@ -1,6 +1,5 @@
 const fishlist = require('../../itemList').fish;
 const getPrice = require('./getPrice');
-const global = require('../../../main/global');
 
 module.exports = function (invArray) {
     let payout = 0;

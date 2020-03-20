@@ -3,15 +3,20 @@ const pushStats = require('./pushStats');
 const statsMap = require('./statsMap');
 
 module.exports = function (message) {
-    if (statsMap.map.has(message.author.id)) {
-        return statsMap.map.get(message.author.id);
-    }
-    else {
-        let user = createUser(message);
-        statsMap.map.set(user.definition.id, user);
-        pushStats()
-            .then(r => console.log(`Pushed stats resolved ${r}`))
-            .catch(e => console.log(e));
-        return statsMap.map.get(user.definition.id);
-    }
+    return new Promise(function (resolve, reject) {
+        if (statsMap.map.has(message.author.id))
+            resolve(statsMap.map.get(message.author.id));
+        else {
+            createUser(message)
+                .then(user => {
+                    statsMap.map.set(user.definition.id, user);
+                    pushStats()
+                        .then(r => resolve(statsMap.map.get(user.definition.id)))
+                        .catch(e => reject(e));
+
+                })
+                .catch(e => reject(e));
+        }
+    });
+
 }

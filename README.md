@@ -15,12 +15,10 @@ Functions in the bot:
 * Drops a different F in chat
 * Misc. things as I want to add them.
 
-> .? / -? / ~? // .help / -help / ~help
+> Prefixes are custom per server. Defaults are . - ~
 
 # List of planned features needing implementation
 
-* queue -l should include current playing song url.
-* playlist list for specific playlist incorrect numbering (0 + number + 1)
-* bot should delete queue after all songs played. 
-* should have ability to purge / pardon specific warnings, kicks or bans. Does not include pardons.
-* Onedrive is a bitch.
+* Slots are broken.
+* Fishing returns bad message when fish caught.
+* Fishing can probably be rewritten and cleaned.

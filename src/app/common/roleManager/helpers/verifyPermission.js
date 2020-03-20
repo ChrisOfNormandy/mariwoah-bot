@@ -1,41 +1,34 @@
-const getUser = require('./users/getUser');
-const getServerConfig = require('./servers/getServerConfig');
+const db = require('../../../sql/adapter');
 
-module.exports = async function (message, userID, permissionLevel) {
-    return new Promise(async function (resolve, reject) {
-        if (message.member.hasPermission("ADMINISTRATOR")) {
-            resolve({ status: true, reason: 'admin' });
-        }
+module.exports = function (message, userID, permLevel) {
+    return new Promise(function (resolve, reject) {
+        if (message.member.hasPermission("ADMINISTRATOR"))
+            resolve('admin');
+        else
+            db.user.getBotRole(message.channel.guild.id, userID)
+                .then(role => {
+                    db.user.getPermissionLevel(message.channel.guild.id, userID)
+                        .then(level => {
+                            if (role == 'admin' && permLevel <= 4)
+                                resolve('botAdmin');
+                            else if (role == 'mod' && permLevel <= 3)
+                                resolve('botMod');
+                            else if (role == 'helper' && permLevel <= 2)
+                                resolve('botHelper');
+                            else if (level < permLevel) {
+                                switch (permLevel) {
+                                    case 1: reject('Denied: You must have permission level 1 (VIP).');
+                                    case 2: reject('Denied: You must have permission level 2 (Helper).');
+                                    case 3: reject('Denied: You must have permission level 3 (Mod).');
+                                    case 4: reject('Denied: You must have permission level 4 (Admin).');
+                                    case 5: reject('Denied: You must have permission level 5 (Owner).');
+                                }
 
-        getServerConfig(message)
-            .then(config => {
-                getUser(message, userID)
-                    .then(user => {
-                        let userLevel = user.data.permissions.level;
-                        let userPermissions = config.permissions;
-
-                        if (user.data.permissions.botAdmin)
-                            resolve({ status: true, reason: 'botAdmin' });
-                        if (user.data.permissions.botMod && permissionLevel < 4)
-                            resolve({ status: true, reason: 'botMod' });
-                        if (user.data.permissions.botHelper && permissionLevel < 3)
-                            resolve({ status: true, reason: 'botHelper' });
-
-                        if (userLevel < permissionLevel) {
-                            switch (permissionLevel) {
-                                case 0: resolve({ status: false, reason: userPermissions.commands.rejectMessage_default });
-                                case 1: resolve({ status: false, reason: userPermissions.commands.rejectMessage_vip });
-                                case 2: resolve({ status: false, reason: userPermissions.commands.rejectMessage_helper });
-                                case 3: resolve({ status: false, reason: userPermissions.commands.rejectMessage_moderator });
-                                case 4: resolve({ status: false, reason: userPermissions.commands.rejectMessage_administrator });
-                                case 5: resolve({ status: false, reason: userPermissions.commands.rejectMessage_owner });
+                                resolve({ status: true, reason: 'success' });
                             }
-                        }
-
-                        resolve({ status: true, reason: 'success' });
-                    })
-                    .catch(e => reject(e));
-            })
-            .catch(e => reject(e));
-    })
+                        })
+                        .catch(e => reject(e));
+                })
+                .catch(e => reject(e));
+    });
 }

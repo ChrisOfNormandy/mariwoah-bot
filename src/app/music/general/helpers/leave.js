@@ -1,4 +1,4 @@
-const getVC = require('../../../common/bot/helpers/getVC');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const stop = require('./stop');
 const queue = require('../../queue');
 

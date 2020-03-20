@@ -1,5 +1,5 @@
 module.exports = {
-    stats: './src/app/minigames/stats.json',
+    //stats: './src/app/minigames/stats.json',
     dungeonList: './src/app/common/assets/dungeons_equipment_list.csv',
 
     serverFiles: './src/app/common/roleManager/servers/',

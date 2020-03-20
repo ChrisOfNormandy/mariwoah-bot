@@ -1,11 +1,11 @@
 module.exports = {
     main: {
-        header: '### Help Commands ###\nUsage: ~help {subcommand} OR ~? {subcommand}\n_Allowed prefixes:_ . - ~',
+        header: '### Help Commands ###\nUsage: help {subcommand} OR ? {subcommand}',
         commands: {
             'common': {
                 description: 'General use commands.',
             },
-            'roleManager': {
+            'rolemanager': {
                 description: 'Role management commands.'
             },
             'music': {
@@ -15,7 +15,7 @@ module.exports = {
                 description: 'Playlist related commands.',
             },
             'minigames': {
-                description: 'Minigames related commands. Try ~help minigames {game} for a specific minigame.'
+                description: 'Minigames related commands. Try "help minigames {game}" for a specific minigame.'
             },
             'memes': {
                 description: 'Meme commands. Just for fun.'
@@ -24,7 +24,7 @@ module.exports = {
                 description: 'Dungeons and dragons tools.'
             },
             page: [
-                ['common', 'roleManager', 'music', 'playlist', 'minigames', 'memes', 'dungeons'],
+                ['common', 'rolemanager', 'music', 'playlist', 'minigames', 'memes', 'dungeons'],
             ],
         },
     },
@@ -96,6 +96,18 @@ module.exports = {
                     ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
                 ],
             },
+            'prefixes': {
+                description: 'Gets the server prefixes for commands.',
+                permissionLevel: 0,
+            },
+            'setprefixes': {
+                description: 'Sets the server prefixes for commands.',
+                permissionLevel: 4,
+                arguments: [
+                    ['prefixes'],
+                    ['String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'],
+                ],
+            },
             'promote': {
                 description: 'Promotes the user 1 level. Can only promote to level 1 fewer than sender.',
                 permissionLevel: 2,
@@ -114,6 +126,22 @@ module.exports = {
             },
             'setbotadmin': {
                 description: 'Gives user bot admin abilities (overrides permission levels). Use only for trusted users.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'setbotmod': {
+                description: 'Gives user bot moderator abilities (overrides permission levels). Use only for trusted users.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user']
+                ],
+            },
+            'setbothelper': {
+                description: 'Gives user bot helper abilities (overrides permission levels). Use only for trusted users.',
                 permissionLevel: 4,
                 arguments: [
                     ['@user | userID'],
@@ -151,6 +179,14 @@ module.exports = {
                 arguments: [
                     ['userID', 'reason'],
                     ['ID of the target user', 'Optional; if supplied, will list reason for pardon when checking user history.']
+                ],
+            },
+            'pardon': {
+                description: '"Pardons" the user under given punishment at given index. Does not affect total, does not remove from list.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID', 'punishment', 'index', 'reason'],
+                    ['Ping of the target user | ID of the target user', 'warnings | kicks | bans', 'index from list. Use a listing command to find index.', 'Optional reason for pardon.']
                 ],
             },
             'rm-reset': {
@@ -214,8 +250,8 @@ module.exports = {
                 ],
             },
             page: [
-                ['motd', 'setmotd', 'promote', 'demote', 'setbotadmin'],
-                ['warn', 'kick', 'ban', 'unban', 'rm-reset'],
+                ['motd', 'setmotd', 'prefixes', 'setprefixes', 'promote', 'demote'],
+                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon', 'setbotadmin', 'setbotmod', 'setbothelper'],
                 ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
             ]
         }
@@ -257,8 +293,13 @@ module.exports = {
                 permissionLevel: 1,
                 alternatives: ['rmqueue'],
             },
+            'songinfo': {
+                description: 'Gets information about a song without adding to the active queue.',
+                permissionLevel: 1,
+            },
             page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue', 'removefromqueue'],
+                ['join', 'leave', 'play', 'skip', 'stop', 'queue'],
+                ['removefromqueue', 'songinfo']
             ],
         }
     },
@@ -267,6 +308,14 @@ module.exports = {
         commands: {
             'create': {
                 description: 'Creates a playlist of the given name.',
+                permissionLevel: 2,
+                arguments: [
+                    ['name'],
+                    ['Playlist name.']
+                ],
+            },
+            'delete': {
+                description: 'Deletes the playlist of the given name',
                 permissionLevel: 2,
                 arguments: [
                     ['name'],
@@ -377,8 +426,19 @@ module.exports = {
                             ]
                         ]
                     },
+                    'slots': {
+                        description: 'Roll some slots, bet away your hard earned savings.',
+                        permissionLevel: 1,
+                        arguments: [
+                            ['bet', 'roll amount'],
+                            [
+                                'Starts a game with given pay-in; must be a positive whole number.',
+                                'Count of times the slots should be run. Will divide pay-in evenly throughout ($20 for 2 spins = $10 each spin).'
+                            ]
+                        ]
+                    },
                     page: [
-                        ['blackjack'],
+                        ['blackjack', 'slots'],
                     ],
                 }
             }
@@ -432,6 +492,10 @@ module.exports = {
                     ['Name of the item. Capitalization matters (for now).']
                 ]
             },
+            'dd_getshop': {
+                description: 'Get a shop listing.',
+                permissionLevel: 1,
+            },
             'dd_list': {
                 description: 'Get a list of items per category.',
                 permissionLevel: 1,
@@ -440,8 +504,13 @@ module.exports = {
                     ['AF, AG, AMMO, DF, EP, FRW, G, HA, HS, LA, M, MA, MMW, MRW, P, PO, S, SMW, SRW, T, VL, VW']
                 ]
             },
+            'dd_loaditems': {
+                description: 'Manually loads item list from file.',
+                permissionLevel: 2,
+            },
             page: [
-                ['dd_getitem', 'dd_list'],
+                ['dd_getitem', 'dd_getshop', 'dd_list'],
+                ['dd_loaditems']
             ]
         }
     }

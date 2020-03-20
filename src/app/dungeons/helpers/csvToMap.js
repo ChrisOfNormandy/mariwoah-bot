@@ -1,6 +1,5 @@
 const fs = require('fs');
-const paths = require('../../common/bot/helpers/paths');
-const equipmentMap = require('./equipmentMap');
+const paths = require('../../common/bot/helpers/global/paths');
 
 module.exports = async function () {
     return new Promise(function (resolve, reject) {
@@ -14,6 +13,9 @@ module.exports = async function () {
             let arr, a, o;
 
             for (let i in array) {
+                if (i == 0) 
+                    continue;
+                    
                 arr = array[i].split(',');
 
                 a = {

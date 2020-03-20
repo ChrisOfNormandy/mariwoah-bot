@@ -1,207 +1,203 @@
-const createUser = require('./createUser');
-const getUser = require('./getUser');
+function generateData(message, args) {
+    let date = new Date();
+    return {
+        latest: {
+            "time": `${date.toLocaleDateString()} at ${date.toTimeString()}`,
+            "reason": args.reason || ""
+        },
+        data: {
+            "date": {
+                "day": date.toLocaleDateString(),
+                "time": date.toTimeString()
+            },
+            "reason": args.reason || "",
+            "staffID": message.author.id,
+            "pardoned": {
+                "value": false,
+                "staffID": null,
+                "date": {
+                    "day": null,
+                    "time": null
+                },
+                "reason": null
+            }
+        }
+    }
+}
+
+function dmMessage(message, user, userID, args, operation) {
+    return new Promise(function (resolve, reject) {
+        let op = {
+            ed: '',
+            data: '',
+            ing: ''
+        }
+        switch (operation) {
+            case 'warn': {
+                op = { ed: 'warned', data: 'warnings', ing: 'warning' };
+                break;
+            }
+            case 'kick': {
+                op = { ed: 'kicked', data: 'kicks', ing: 'kick' };
+                break;
+            }
+            case 'ban': {
+                op = { ed: 'banned', data: 'bans', ing: 'ban' };
+                break;
+            }
+            case 'banRevert': {
+                op = { ed: 'unbanned', data: 'banReverts', ing: 'pardon' };
+                break;
+            }
+        }
+
+        if (operation != 'banRevert')
+            resolve(message.channel.guild.members.get(userID).send(
+                `You have been ${op.ed} by ${message.author.username} in ${message.channel.guild.name}.\n` +
+                `You currently have ${user.data[op.data].length} ${op.ing}${(user.data[op.data].length > 1) ? 's' : ''} on record.\n` +
+                `\n` +
+                `Reason given: ${args.reason || 'No reason was given'}.` +
+                `\n` +
+                `**__This is an automated message. Responding to this does nothing.__**`
+            ));
+        else
+            resolve();
+    })
+
+}
 
 module.exports = {
-    byMessage: async function (message) {
-        let userID = message.mentions.users.first().id;
-        let msgArray = message.content.split(' ');
-        let operation = msgArray[3];
-
-        getUser(message, userID)
-            .then(user => {
-                let permissionName;
-                switch (operation) {
-                    case 'permission_set': {
-                        if (msgArray.length < 6)
-                            return { status: false, args: { operation: 'permission_set', result: null, user: user } };
-                        permissionName = msgArray[4];
-                        user.servers[message.channel.guild.id].permissions[permissionName] = msgArray[5];
-                        return { status: true, args: { operation: 'permission_set', result: true, user: user } };
-                    }
-                    case 'permission_get': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_get', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        return { status: true, args: { operation: 'permission_get', result: user.servers[message.channel.guild.id].permissions[permissionName] }, user: user };
-                    }
-                    case 'permission_override_set': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_override_set', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        user.servers[message.channel.guild.id].permissions.override[permissionName] = msgArray[5];
-                        return { status: true, args: { operation: 'permission_override_set', result: true }, user: user };
-                    }
-                    case 'permission_override_get': {
-                        if (msgArray.length < 5)
-                            return { status: false, args: { operation: 'permission_override_get', result: null }, user: user };
-                        permissionName = msgArray[4];
-                        return { status: true, args: { operation: 'permission_override_get', result: user.servers[message.channel.guild.id].permissions.override[permissionName] }, user: user };
-                    }
-                }
-            })
-            .catch(e => console.log(e));
-    },
-
-    byString: async function (message, userID, operation, args = null) {
-        return new Promise(async function (resolve, reject) {
+    byString: function (message, userID, operation, args = null) {
+        return new Promise(function (resolve, reject) {
             getUser(message, userID)
                 .then(user => {
-                    switch (operation) {
-                        case 'warn': {
-                            let date = new Date();
-                            user.data.latestWarning = {
-                                "time": `${date.toLocaleDateString()} at ${date.toTimeString()}`,
-                                "reason": args.reason || ""
-                            };
-                            user.data.warnings.push(
-                                {
-                                    date: {
-                                        day: date.toLocaleDateString(),
-                                        time: date.toTimeString()
-                                    },
-                                    reason: args.reason,
-                                    staffID: message.author.id,
-                                    pardoned: false
-                                }
-                            );
-                            message.channel.guild.members.get(userID).send(
-                                `You have been warned by ${message.author.username} in ${message.channel.guild.name}.\n` +
-                                `You currently have ${user.data.warnings.length} warning${(user.data.warnings.length > 1) ? 's' : ''} on record.\n` +
-                                `\n` +
-                                `Reason given: ${args.reason || 'No reason was given'}.` +
-                                `\n` +
-                                `**__This is an automated message. Responding to this does nothing.__**`
-                            );
-                            resolve({ status: true, args: { operation: 'warn', result: user.data.warnings }, user: user });
-                            break;
-                        }
-                        case 'kick': {
-                            let date = new Date();
-                            user.data.latestKick = {
-                                "time": `${date.toLocaleDateString()} at ${date.toTimeString()}`,
-                                "reason": args.reason || ""
-                            };
-                            user.data.kicks.push(
-                                {
-                                    date: {
-                                        day: date.toLocaleDateString(),
-                                        time: date.toTimeString()
-                                    },
-                                    reason: args.reason,
-                                    staffID: message.author.id,
-                                    pardoned: false
-                                }
-                            );
-                            args.user.send(
-                                `You have been kicked by ${message.author.username} in ${message.channel.guild.name}.\n` +
-                                `You currently have ${user.data.kicks.length} kick${(user.data.kicks.length > 1) ? 's' : ''} on record.\n` +
-                                `\n` +
-                                `Reason given: ${args.reason || 'No reason was given'}.` +
-                                `\n` +
-                                `**__This is an automated message. Responding to this does nothing.__**`
-                            );
-                            resolve({ status: true, args: { operation: 'kick', result: user.data.kicks }, user: user });
-                            break;
-                        }
-                        case 'ban': {
-                            let date = new Date();
-                            user.data.latestBan = {
-                                "time": `${date.toLocaleDateString()} at ${date.toTimeString()}`,
-                                "reason": args.reason || ""
-                            };
-                            user.data.bans.push(
-                                {
-                                    date: {
-                                        day: date.toLocaleDateString(),
-                                        time: date.toTimeString()
-                                    },
-                                    reason: args.reason,
-                                    staffID: message.author.id,
-                                    pardoned: false
-                                }
-                            );
-                            args.user.send(
-                                `You have been banned by ${message.author.username} in ${message.channel.guild.name}.\n` +
-                                `You currently have ${user.data.bans.length} ban${(user.data.bans.length > 1) ? 's' : ''} on record.\n` +
-                                `\n` +
-                                `Reason given: ${args.reason || 'No reason was given'}.` +
-                                `\n` +
-                                `**__This is an automated message. Responding to this does nothing.__**`
-                            );
-                            resolve({ status: true, args: { operation: 'kick', result: user.data.bans }, user: user });
-                            break;
-                        }
-                        case 'banRevert': {
-                            let date = new Date();
-                            user.data.latestBanRevert = {
-                                "time": `${date.toLocaleDateString()} at ${date.toTimeString()}`,
-                                "reason": args.reason || ""
-                            };
-                            user.data.banReverts.push(
-                                {
-                                    date: {
-                                        day: date.toLocaleDateString(),
-                                        time: date.toTimeString()
-                                    },
-                                    reason: args.reason,
-                                    staffID: message.author.id,
-                                    pardoned: false
-                                }
-                            );
-                            args.user.send(
-                                `You have been pardoned by ${message.author.username} in ${message.channel.guild.name}.\n` +
-                                `You currently have ${user.data.banReverts.length} ban revert${(user.data.banReverts.length > 1) ? 's' : ''} on record.\n` +
-                                `\n` +
-                                `Reason given: ${args.reason || 'No reason was given'}.` +
-                                `\n` +
-                                `**__This is an automated message. Responding to this does nothing.__**`
-                            );
-                            resolve({ status: true, args: { operation: 'banRevert', result: user.data.banReverts }, user: user });
-                            break;
-                        }
-                        case 'reset': {
-                            createUser(message, message.mentions.members.first().id)
-                                .then(newUser => {
-                                    resolve({ status: true, args: { operation: 'reset', result: newUser }, user: newUser });
-                                })
-                                .catch(e => reject(e));
-                            break;
-                        }
-                        case 'promote': {
-                            if (user.data.permissions.level < 4) {
-                                user.data.permissions.level++;
-                                switch (user.data.permissions.level) {
-                                    case 1: { message.channel.send('Promoted user to VIP.'); break; }
-                                    case 2: { message.channel.send('Promoted user to Helper.'); break; }
-                                    case 3: { message.channel.send('Promoted user to Moderator.'); break; }
-                                    case 4: { message.channel.send('Promoted user to Administrator.'); break; }
-                                }
-                            }
-                            else message.channel.send('You cannot promote a user higher than admin!');
-                            resolve({ status: true, args: { operation: 'promote', result: user }, user: user });
-                            break;
-                        }
-                        case 'demote': {
-                            if (user.data.permissions.level > 0) {
-                                user.data.permissions.level--;
-                                switch (user.data.permissions.level) {
-                                    case 0: { message.channel.send('Demoted user to default.'); break; }
-                                    case 1: { message.channel.send('Promoted user to VIP.'); break; }
-                                    case 2: { message.channel.send('Promoted user to Helper.'); break; }
-                                    case 3: { message.channel.send('Promoted user to Moderator.'); break; }
-                                }
-                            }
-                            else message.channel.send('You cannot demote a user lower than default!');
-                            resolve({ status: true, args: { operation: 'demote', result: user }, user: user });
-                            break;
-                        }
-                        case 'setBotAdmin': {
-                            if (user.data.permissions.botAdmin)
-                                resolve({ status: false, args: { operation: 'setBotAdmin', result: user }, user: user });
+                    if (operation == 'warn' || operation == 'kick' || operation == 'ban' || operation == 'banRevert') {
+                        let val = { latest: '', data: '' };
+                        let data = generateData(message, args);
 
-                            user.data.permissions.botAdmin = true;
-                            resolve({ status: true, args: { operation: 'setBotAdmin', result: user }, user: user });
-                            break;
+                        switch (operation) {
+                            case 'warn': {
+                                val.latest = "latestWarnings";
+                                val.data = "warnings"
+                                break;
+                            }
+                            case 'kick': {
+                                val.latest = "latestKicks";
+                                val.data = "kicks"
+                                break;
+                            }
+                            case 'ban': {
+                                val.latest = "latestBans";
+                                val.data = "bans"
+                                break;
+                            }
+                            case 'banRevert': {
+                                val.latest = "latestBanReverts";
+                                val.data = "banReverts"
+                                break;
+                            }
+                        }
+
+                        user.data[val.latest] = data.latest
+                        user.data[val.data].push(data.data);
+
+                        dmMessage(message, user, userID, args, operation)
+                            .then(() => {
+                                resolve({ status: true, args: { operation: operation, result: user.data[val.data] }, user: user });
+                            });
+                    }
+                    else {
+                        switch (operation) {
+                            case 'reset': {
+                                createUser(message, message.mentions.members.first().id)
+                                    .then(newUser => {
+                                        resolve({ status: true, args: { operation: 'reset', result: newUser }, user: newUser });
+                                    })
+                                    .catch(e => reject(e));
+                                break;
+                            }
+                            case 'pardon': {
+                                let date = new Date();
+                                console.log(args);
+                                if (args.index - 1 < 0 || !user.data[args.punishment] || !user.data[args.punishment][args.index - 1])
+                                    resolve({ status: false, args: { operation: 'pardon', result: null }, user: user });
+                                else {
+                                    if (user.data[args.punishment][args.index - 1].pardoned.value)
+                                        user.data[args.punishment][args.index - 1].pardoned = {
+                                            "value": false,
+                                            "staffID": null,
+                                            "date": {
+                                                "day": null,
+                                                "time": null
+                                            },
+                                            "reason": null
+                                        }
+                                    else
+                                        user.data[args.punishment][args.index - 1].pardoned = {
+                                            "value": true,
+                                            "staffID": message.author.id,
+                                            "date": {
+                                                "day": date.toLocaleDateString(),
+                                                "time": date.toTimeString()
+                                            },
+                                            "reason": args.reason || ""
+                                        }
+                                    resolve({ status: true, args: { operation: 'pardon', result: user }, user: user });
+                                }
+                                break;
+                            }
+                            case 'promote': {
+                                if (user.data.permissions.level < 4) {
+                                    user.data.permissions.level++;
+                                    switch (user.data.permissions.level) {
+                                        case 1: { message.channel.send('Promoted user to VIP.'); break; }
+                                        case 2: { message.channel.send('Promoted user to Helper.'); break; }
+                                        case 3: { message.channel.send('Promoted user to Moderator.'); break; }
+                                        case 4: { message.channel.send('Promoted user to Administrator.'); break; }
+                                    }
+                                }
+                                else message.channel.send('You cannot promote a user higher than admin!');
+                                resolve({ status: true, args: { operation: 'promote', result: user }, user: user });
+                                break;
+                            }
+                            case 'demote': {
+                                if (user.data.permissions.level > 0) {
+                                    user.data.permissions.level--;
+                                    switch (user.data.permissions.level) {
+                                        case 0: { message.channel.send('Demoted user to default.'); break; }
+                                        case 1: { message.channel.send('Promoted user to VIP.'); break; }
+                                        case 2: { message.channel.send('Promoted user to Helper.'); break; }
+                                        case 3: { message.channel.send('Promoted user to Moderator.'); break; }
+                                    }
+                                }
+                                else message.channel.send('You cannot demote a user lower than default!');
+                                resolve({ status: true, args: { operation: 'demote', result: user }, user: user });
+                                break;
+                            }
+                            case 'setBotAdmin': {
+                                if (user.data.permissions.botAdmin)
+                                    resolve({ status: false, args: { operation: 'setBotAdmin', result: user }, user: user });
+
+                                user.data.permissions.botAdmin = true;
+                                resolve({ status: true, args: { operation: 'setBotAdmin', result: user }, user: user });
+                                break;
+                            }
+                            case 'setBotMod': {
+                                if (user.data.permissions.botMod)
+                                    resolve({ status: false, args: { operation: 'setBotMod', result: user }, user: user });
+
+                                user.data.permissions.botMod = true;
+                                resolve({ status: true, args: { operation: 'setBotMod', result: user }, user: user });
+                                break;
+                            }
+                            case 'setBotHelper': {
+                                if (user.data.permissions.botHelper)
+                                    resolve({ status: false, args: { operation: 'setBotHelper', result: user }, user: user });
+
+                                user.data.permissions.botHelper = true;
+                                resolve({ status: true, args: { operation: 'setBotHelper', result: user }, user: user });
+                                break;
+                            }
                         }
                     }
                 })

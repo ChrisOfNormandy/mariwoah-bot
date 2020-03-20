@@ -6,27 +6,30 @@ const client = common.client;
 client.on('ready', () => {
     console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
 
-    common.bot.startup();
+    common.bot.init();
     common.log('Ready!');
 
-    client.user.setActivity('you. ;)', { type: 'watching' })
+    client.user.setActivity(`you | ${client.users.size} so far.`, { type: 'watching' });
 });
 
 client.on('message', async message => {
     if (message.author.id == '159985870458322944')
         try {
-            message.delete()
-                .then(async () => message.channel.send('Denied.')
-                    .then(m => setTimeout(m.delete, 5000)));
+            message.delete(5000);
         }
         catch (e) {
             message.channel.send('I require admin permissions to operate correctly.');
         }
-    if (!common.config.settings.prefix.includes(message.content.charAt(0)) || message.author.bot)
+    if (message.author.bot)
         return;
 
     commandParser(message)
-        .catch(err => message.channel.send(err));
+        .then(() => { })
+        .catch(err => {
+            if (err !== null) {
+                common.log(err);
+            }
+        });
 });
 
 client.login(client.token);

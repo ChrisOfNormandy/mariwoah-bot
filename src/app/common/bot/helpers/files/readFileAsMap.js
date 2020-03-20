@@ -1,4 +1,4 @@
-const getJsonFromFile = require('./getJsonFromFile');
+const readFile = require('./readFile');
 const listDir = require('./listDir');
 
 async function toMap(path, map, list, index) {
@@ -6,7 +6,7 @@ async function toMap(path, map, list, index) {
         if (index < list.length) {
             fileName = list[index].split('_')[1].split('.')[0];
 
-            getJsonFromFile(path + list[index])
+            readFile(path + list[index])
                 .then(obj => {
                     map.set(fileName, obj);
                     toMap(path, map, list, index + 1)
@@ -31,7 +31,7 @@ module.exports = async function (path, filename = null, objectName = null) {
                 .catch(e => reject(e));
         }
         else {
-            getJsonFromFile(path + filename)
+            readFile(path + filename)
                 .then(obj => {
                     let map = new Map();
                     if (objectName)
