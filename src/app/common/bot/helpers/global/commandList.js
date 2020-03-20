@@ -76,14 +76,6 @@ module.exports = {
                     ['The user you want information about.']
                 ]
             },
-            page: [
-                ['clean', 'help', 'ping', 'roll', 'shuffle', 'whoami', 'whoareyou'],
-            ],
-        }
-    },
-    rolemanager: {
-        header: '### Role Manager Commands ###',
-        commands: {
             'motd': {
                 description: 'Gets the server Message of the Day.',
                 permissionLevel: 0,
@@ -96,11 +88,11 @@ module.exports = {
                     ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
                 ],
             },
-            'prefixes': {
+            'prefix': {
                 description: 'Gets the server prefixes for commands.',
                 permissionLevel: 0,
             },
-            'setprefixes': {
+            'setprefix': {
                 description: 'Sets the server prefixes for commands.',
                 permissionLevel: 4,
                 arguments: [
@@ -108,6 +100,15 @@ module.exports = {
                     ['String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'],
                 ],
             },
+            page: [
+                ['clean', 'help', 'ping', 'roll', 'shuffle', 'whoami', 'whoareyou'],
+                ['motd', 'setmotd', 'prefix', 'setprefix']
+            ],
+        }
+    },
+    rolemanager: {
+        header: '### Role Manager Commands ###',
+        commands: {
             'promote': {
                 description: 'Promotes the user 1 level. Can only promote to level 1 fewer than sender.',
                 permissionLevel: 2,
@@ -250,8 +251,8 @@ module.exports = {
                 ],
             },
             page: [
-                ['motd', 'setmotd', 'prefixes', 'setprefixes', 'promote', 'demote'],
-                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon', 'setbotadmin', 'setbotmod', 'setbothelper'],
+                ['promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper'],
+                ['warn', 'kick', 'ban', 'unban', 'rm-reset', 'pardon'],
                 ['fetchbans', 'rm-info', 'rm-roleinfo', 'warnings', 'kicks', 'bans', 'banreverts'],
             ]
         }

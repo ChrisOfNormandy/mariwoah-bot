@@ -4,9 +4,9 @@ const help = require('../global/commandList');
 const db = require('../../../../sql/adapter');
 
 module.exports = async function (message, args) {
-    db.user.getBotRole(message.channel.guild.id, message.author.id)
+    db.user.getBotRole(message.guild.id, message.author.id)
         .then(role => {
-            db.user.getPermissionLevel(message.channel.guild.id, message.author.id)
+            db.user.getPermissionLevel(message.guild.id, message.author.id)
                 .then(level => {
                     let userLevel = (role == 'admin' || message.member.hasPermission("ADMINISTRATOR"))
                         ? 4

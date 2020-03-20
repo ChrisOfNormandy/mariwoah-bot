@@ -12,6 +12,7 @@ const shuffle = require('./helpers/global/shuffle');
 const init = require('./helpers/init');
 const whoAre = require('./helpers/features/whoAre');
 const motd = require('./helpers/features/motd');
+const prefix = require('./helpers/features/prefix');
 
 module.exports = {
 
@@ -32,6 +33,8 @@ module.exports = {
     init: () => init(),
     whoami: (message) => whoAre.self(message),
     whoareyou: (message) => whoAre.member(message),
-    motd: (message) => motd.get(message),
-    setMotd: (message, string) => motd.set(message, string)
+    getMotd: (message) => motd.get(message),
+    setMotd: (message, string) => motd.set(message, string),
+    getPrefix: (message) => prefix.get(message),
+    setPrefix: (message, char) => prefix.set(message, char)
 }

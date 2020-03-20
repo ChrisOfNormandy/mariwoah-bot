@@ -34,7 +34,7 @@ module.exports = async function (message) {
                         .catch(e => console.log(e));
                 }
                 else {
-                    db.server.getPrefix(message.channel.guild.id)
+                    db.server.getPrefix(message.guild.id)
                         .then(prefix => {
                             const botMessages = messages.filter(msg => (msg.author.bot &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14

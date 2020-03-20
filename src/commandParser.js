@@ -85,183 +85,193 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                 break;
             }
 
-            // RoleManager
-
             case 'setmotd': {
-                verify(message, roleManagerLevel('setmotd'))
-                    .then(() => resolve(common.bot.setMotd(message, args.join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'motd': {
-                verify(message, roleManagerLevel('motd'))
-                    .then(() => resolve(common.bot.motd(message)))
-                    .catch(r => reject(r));
-                break;
-            }
-
-            case 'setprefixes': {
-                verify(message, roleManagerLevel('setprefixes'))
+                verify(message, commonLevel('setmotd'))
                     .then(() => {
-                        common.prefixMap.set(message.guild.id, common.roleManager.setPrefixes(message, args[0]));
+                        if (args[0] == '-r')
+                            resolve(common.bot.setMotd(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/"))
+                        else
+                            resolve(common.bot.setMotd(message, args.join(' ')))
                     })
                     .catch(r => reject(r));
                 break;
             }
-            case 'prefixes': {
-                verify(message, roleManagerLevel('prefixes'))
-                    .then(() => common.roleManager.setPrefixes(message, ''))
+            case 'motd': {
+                verify(message, commonLevel('motd'))
+                .then(() => {
+                    if (args[0] == 'raw')
+                        db.server.getMotd(message.guild.id)
+                            .then(raw => resolve(message.channel.send(`> ${raw.replace('\n', '\\n')}`)))
+                            .catch(e => reject(e));
+                    else
+                        resolve(common.bot.getMotd(message))
+                })
+                .catch(r => reject(r));
+                break;
+            }
+
+            case 'setprefix': {
+                verify(message, commonLevel('setprefix'))
+                    .then(() => common.bot.setPrefix(message, args[0]))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'prefix': {
+                verify(message, commonLevel('prefix'))
+                    .then(() => common.bot.getPrefix(message))
                     .catch(r => reject(r));
                 break;
             }
 
-            case 'warn': {
-                verify(message, roleManagerLevel('warn'))
-                    .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'kick': {
-                verify(message, roleManagerLevel('kick'))
-                    .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'ban': {
-                verify(message, roleManagerLevel('ban'))
-                    .then(() => resolve(common.roleManager.banUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'unban': { }
-            case 'revertban': {
-                verify(message, roleManagerLevel('unban'))
-                    .then(() => resolve(common.roleManager.unbanUser(message, args[0], args.slice(1).join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'pardon': {
-                verify(message, roleManagerLevel('pardon'))
-                    .then(() => resolve(common.roleManager.pardonUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(3).join(' '), args[1], args[2])))
-                    .catch(r => reject(r));
-                break;
-            }
+            // RoleManager
 
-            case 'rm-reset': {
-                verify(message, roleManagerLevel('rm-reset'))
-                    .then(() => resolve(common.roleManager.resetUser(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset')))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'fetchbans': {
-                verify(message, roleManagerLevel('fetchbans'))
-                    .then(() => resolve(common.roleManager.fetchBans(message)))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'rm-info': {
-                verify(message, roleManagerLevel('rm-info'))
-                    .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'rm-roleinfo': {
-                verify(message, roleManagerLevel('rm-roleinfo'))
-                    .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'warnings': {
-                verify(message, roleManagerLevel('warnings'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'warnings')))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'kicks': {
-                verify(message, roleManagerLevel('kicks'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'kicks')))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'bans': {
-                verify(message, roleManagerLevel('bans'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'bans')))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'unbans': { }
-            case 'banreverts': {
-                verify(message, roleManagerLevel('banreverts'))
-                    .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'banReverts')))
-                    .catch(r => reject(r));
-            }
+            // case 'warn': {
+            //     verify(message, roleManagerLevel('warn'))
+            //         .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'kick': {
+            //     verify(message, roleManagerLevel('kick'))
+            //         .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'ban': {
+            //     verify(message, roleManagerLevel('ban'))
+            //         .then(() => resolve(common.roleManager.banUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'unban': { }
+            // case 'revertban': {
+            //     verify(message, roleManagerLevel('unban'))
+            //         .then(() => resolve(common.roleManager.unbanUser(message, args[0], args.slice(1).join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'pardon': {
+            //     verify(message, roleManagerLevel('pardon'))
+            //         .then(() => resolve(common.roleManager.pardonUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(3).join(' '), args[1], args[2])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
 
-            case 'promote': {
-                verify(message, roleManagerLevel('promote'))
-                    .then(() => resolve(common.roleManager.promoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'demote': {
-                verify(message, roleManagerLevel('demote'))
-                    .then(() => resolve(common.roleManager.demoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'rm-reset': {
+            //     verify(message, roleManagerLevel('rm-reset'))
+            //         .then(() => resolve(common.roleManager.resetUser(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset')))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'fetchbans': {
+            //     verify(message, roleManagerLevel('fetchbans'))
+            //         .then(() => resolve(common.roleManager.fetchBans(message)))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'rm-info': {
+            //     verify(message, roleManagerLevel('rm-info'))
+            //         .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'rm-roleinfo': {
+            //     verify(message, roleManagerLevel('rm-roleinfo'))
+            //         .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'warnings': {
+            //     verify(message, roleManagerLevel('warnings'))
+            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'warnings')))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'kicks': {
+            //     verify(message, roleManagerLevel('kicks'))
+            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'kicks')))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'bans': {
+            //     verify(message, roleManagerLevel('bans'))
+            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'bans')))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'unbans': { }
+            // case 'banreverts': {
+            //     verify(message, roleManagerLevel('banreverts'))
+            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'banReverts')))
+            //         .catch(r => reject(r));
+            // }
 
-            case 'setbotadmin': {
-                verify(message, roleManagerLevel('setbotadmin'))
-                    .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'setbotmod': {
-                verify(message, roleManagerLevel('setbotmod'))
-                    .then(() => resolve(common.roleManager.setBotMod(message, (mentionedUser) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'setbothelper': {
-                verify(message, roleManagerLevel('setbothelper'))
-                    .then(() => resolve(common.roleManager.setBotHelper(message, (mentionedUser) ? mentionedUser.id : args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'promote': {
+            //     verify(message, roleManagerLevel('promote'))
+            //         .then(() => resolve(common.roleManager.promoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'demote': {
+            //     verify(message, roleManagerLevel('demote'))
+            //         .then(() => resolve(common.roleManager.demoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+
+            // case 'setbotadmin': {
+            //     verify(message, roleManagerLevel('setbotadmin'))
+            //         .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'setbotmod': {
+            //     verify(message, roleManagerLevel('setbotmod'))
+            //         .then(() => resolve(common.roleManager.setBotMod(message, (mentionedUser) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'setbothelper': {
+            //     verify(message, roleManagerLevel('setbothelper'))
+            //         .then(() => resolve(common.roleManager.setBotHelper(message, (mentionedUser) ? mentionedUser.id : args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
 
             // Minigames
-            case 'slots': { }
-            case 'blackjack': {
-                verify(message, minigameLevel(command, 'gambling'))
-                    .then(() => resolve(common.minigames.run(message, 'gambling', command)))
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'slots': { }
+            // case 'blackjack': {
+            //     verify(message, minigameLevel(command, 'gambling'))
+            //         .then(() => resolve(common.minigames.run(message, 'gambling', command)))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
 
-            case 'cast': {
-                verify(message, minigameLevel('cast', 'fishing'))
-                    .then(() => resolve(common.minigames.run(message, 'fishing', 'cast')))
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'cast': {
+            //     verify(message, minigameLevel('cast', 'fishing'))
+            //         .then(() => resolve(common.minigames.run(message, 'fishing', 'cast')))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
 
-            case 'stats': {
-                verify(message, minigameLevel('stats'))
-                    .then(() => resolve(common.minigames.listStats(message)))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'inv': {
-                verify(message, minigameLevel('inv'))
-                    .then(() => resolve(common.minigames.listInv(message)))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'sell': {
-                verify(message, minigameLevel('sell'))
-                    .then(() => resolve(common.minigames.sellInv(message)))
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'stats': {
+            //     verify(message, minigameLevel('stats'))
+            //         .then(() => resolve(common.minigames.listStats(message)))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'inv': {
+            //     verify(message, minigameLevel('inv'))
+            //         .then(() => resolve(common.minigames.listInv(message)))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'sell': {
+            //     verify(message, minigameLevel('sell'))
+            //         .then(() => resolve(common.minigames.sellInv(message)))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
 
             // Music
 
@@ -422,7 +432,7 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
 module.exports = function (message) {
     return new Promise(function (resolve, reject) {
-        db.server.getPrefix(message.channel.guild.id)
+        db.server.getPrefix(message.guild.id)
             .then(prefix => {
                 if (message.content[0] != prefix)
                     reject(null);
