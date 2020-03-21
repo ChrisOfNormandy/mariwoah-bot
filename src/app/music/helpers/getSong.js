@@ -1,4 +1,4 @@
-const intToTimeString = require('../../../common/bot/helpers/global/intToTimeString');
+const intToTimeString = require('../../common/bot/helpers/global/intToTimeString');
 const getEmbedSongInfo = require('./getEmbedSongInfo');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
@@ -35,7 +35,7 @@ async function func(message, songURL) {
 }
 
 module.exports = {
-    byUrl: async function (message, songURL) {
+    byURL: async function (message, songURL) {
         return func(message, songURL);
     },
     byName: async function (message, songName, list = false, videoIndex = 0, returnPlaylist = false) {
@@ -57,7 +57,11 @@ module.exports = {
                                 .then(embedMsg => message.channel.send(embedMsg))
                                 .catch(e => reject(e));
 
-                        if (!videos[videoIndex].url)
+                        if (!videos[videoIndex]) {
+                            message.channel.send('Encountered an error searching for video. Please retry.');
+                            reject(null);
+                        }
+                        else if (!videos[videoIndex].url)
                             reject(null);
                         else
                             resolve(func(message, videos[videoIndex].url));
@@ -65,12 +69,5 @@ module.exports = {
                 }
             });
         });
-    },
-    repair: function (song) {
-        return new Promise(function (resolve, reject) {
-            func(song.url)
-                .then(newSong => resolve(newSong))
-                .catch(e => reject(e));
-        })
     }
 }

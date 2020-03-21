@@ -1,16 +1,14 @@
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
-const queue = require('../../queue');
+const queue = require('../queue/map');
 
 module.exports = function (message, reason = '> Stopping all music.') {
     if (!message.member.voiceChannel)
         return message.channel.send('> You have to be in a voice channel to stop the music!');
 
-    if (!queue.serverMap.has(message.guild.id))
-        return;
+    if (!queue.has(message.guild.id))
+        return message.channel.send('> There is nothing to stop.');
 
-    console.log(reason);
     message.channel.send(reason);
-    queue.serverMap.delete(message.guild.id);
-    let vc = getVC(message);
-    vc.leave();
+    queue.delete(message.guild.id);
+    getVC(message).leave();
 }

@@ -5,7 +5,7 @@ const db = require('./app/sql/adapter');
 
 const firstRun = new Map();
 
-async function verify(message, permissionLevel) {
+function verify(message, permissionLevel) {
     return new Promise(function (resolve, reject) {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
@@ -125,12 +125,19 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
             // RoleManager
 
-            // case 'warn': {
-            //     verify(message, roleManagerLevel('warn'))
-            //         .then(() => resolve(common.roleManager.warnUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+            case 'warn': {
+                verify(message, roleManagerLevel('warn'))
+                    .then(() => resolve(common.punishments.warn.set(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'warnings': {
+                verify(message, roleManagerLevel('warnings'))
+                    .then(() => resolve(common.punishments.warn.printAll(message, mentionedUser.id)))
+                    .catch(r => reject(r));
+                break;
+            }
+
             // case 'kick': {
             //     verify(message, roleManagerLevel('kick'))
             //         .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
@@ -181,12 +188,7 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
             //         .catch(r => reject(r));
             //     break;
             // }
-            // case 'warnings': {
-            //     verify(message, roleManagerLevel('warnings'))
-            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'warnings')))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+            
             // case 'kicks': {
             //     verify(message, roleManagerLevel('kicks'))
             //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'kicks')))
@@ -279,8 +281,8 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                 verify(message, musicLevel('play'))
                     .then(() => {
                         if (!args.join(' ').includes('youtube.com/watch?'))
-                            resolve(common.music.play(message, null, args.join(' '), null));
-                        else resolve(common.music.play(message, args[0], null, null));
+                            resolve(common.music.append.byName(message, args.join(' ')));
+                        else resolve(common.music.append.byURL(message, args[0]));
                     })
                     .catch(r => reject(r));
                 break;
@@ -312,7 +314,7 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
             case 'q': { }
             case 'queue': {
                 verify(message, musicLevel('queue'))
-                    .then(() => resolve(common.music.listQueue(message)))
+                    .then(() => resolve(common.music.list(message)))
                     .catch(r => reject(r));
                 break;
             }

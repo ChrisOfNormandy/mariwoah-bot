@@ -1,20 +1,22 @@
-const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const getSongObject = require('./getSongObject');
+const getSongObject = require('./getSong');
 
 module.exports = {
     single: function (title, activeQueue, index) {
         return new Promise(function (resolve, reject) {
-            const song = activeQueue.songs[index] || null;
-            if (song == null)
+            if (!activeQueue.songs[index])
                 reject(null);
+
+            const song = activeQueue.songs[index].song || null;
+            const requested = activeQueue.songs[index].request || 'Unknown';
 
             let embedMsg = new Discord.RichEmbed()
                 .setTitle(title)
                 .setColor(chatFormat.colors.youtube)
                 .setThumbnail(song.thumbnail.url)
                 .setURL(song.url)
-                .addField(song.title, `${song.author} | Requested: ${song.requested.username}`)
+                .addField(song.title, `${song.author} | Requested: ${requested}`)
                 .addField(`Duration: ${song.durationString}`, `Queue position: ${index}`);
 
             resolve(embedMsg);
@@ -64,7 +66,7 @@ module.exports = {
             resolve(embedMsg);
         })
     },
-    songInfo: function (message, songURL, songName = null) {
+    songInfo: function (message, songURL = null, songName = null) {
         return new Promise(function (resolve, reject) {
             if (songURL === null && songName === null)
                 reject(null);

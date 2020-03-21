@@ -1,10 +1,11 @@
-const queue = require('../../queue');
+const queue = require('../queue/map');
 
 module.exports = function (message) {
     if (!message.member.voiceChannel)
         return message.channel.send('> You have to be in a voice channel to stop the music!');
-    if (!queue.serverMap.has(message.guild.id) || !queue.serverMap.get(message.guild.id).playing)
+    if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active)
         return message.channel.send(`> There's nothing to skip.`);
 
-    queue.serverMap.get(message.guild.id).connection.dispatcher.end();
+    message.channel.send('> Skipping song...');
+    queue.get(message.guild.id).connection.dispatcher.end();
 }
