@@ -1,10 +1,9 @@
 const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
-const messageTarget = require('./messageTarget');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
-        db.punishments.getUser(message, userID, 'warn')
+        db.punishments.getUser(message, userID, 'kick')
             .then(data => {
                 let list = [];
                 for (let i in data)
@@ -27,11 +26,12 @@ function set(message, userID, reason) {
         reason = null;
     else
         reason = reason.trim();
-    db.punishments.setUser(message, userID, 'warn', reason);
+    db.punishments.setUser(message, userID, 'kick', reason);
     get(message, userID)
         .then(data => {
             messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data);
-            message.channel.send(`> Warned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} warnings.`);
+            message.channel.send(`> Kicked ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} kicks.`);
+            message.guild.members.get(userID).kick();
         })
         .catch(e => console.log(e));
 }
@@ -43,7 +43,7 @@ function getLatest(message, userID) {
 function printLatest(message, userID) {
     getLatest(message, userID)
         .then(data => {
-            message.channel.send(embedListing.single(message, 'warn', data));
+            message.channel.send(embedListing.single(message, 'kick', data));
         })
         .catch(e => console.log(e));
 }
@@ -51,7 +51,7 @@ function printLatest(message, userID) {
 function printAll(message, userID) {
     get(message, userID, true)
         .then(data => {
-            message.channel.send(embedListing.array(message, 'warn', data));
+            message.channel.send(embedListing.array(message, 'kick', data));
         })
         .catch(e => console.log(e));
 }

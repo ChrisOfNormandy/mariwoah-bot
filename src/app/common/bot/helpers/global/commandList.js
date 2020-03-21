@@ -115,7 +115,7 @@ module.exports = {
                 permissionLevel: 2,
                 arguments: [
                     ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
                 ]
             },
             'warnings': {
@@ -123,12 +123,52 @@ module.exports = {
                 permissionLevel: 2,
                 arguments: [
                     ['@user | userID'],
-                    ['Ping of the target user | ID of the target user']
+                    ['Ping of the target user | ID of the target user.']
+                ]
+            },
+            'kick': {
+                description: 'Kicks the user with or without a specified reason.',
+                permissionLevel: 3,
+                arguments: [
+                    ['@user | userID', 'reason'],
+                    ['Ping of the target user | ID of the target user', 'Optional; if supplied, will list reason for warning when checking user history.']
+                ]
+            },
+            'kicks': {
+                description: 'Returns list of user kicks and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user.']
+                ]
+            },
+            'ban': {
+                description: 'Bans the user with or without a specified reason.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user | userID', 'reason'],
+                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
+                ]
+            },
+            'bans': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 2,
+                arguments: [
+                    ['@user | userID'],
+                    ['Ping of the target user | ID of the target user.']
+                ]
+            },
+            'unban': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['userID'],
+                    ['ID of the target user.']
                 ]
             },
             page: [
-                ['warn'],
-                ['warnings'],
+                ['warn', 'kick', 'ban', 'unban'],
+                ['warnings', 'kicks', 'bans'],
             ]
         }
     },

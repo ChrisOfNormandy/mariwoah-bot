@@ -40,7 +40,7 @@ module.exports = {
     },
     punishments: {
         getUser: (message, userID, type) => {return punishments.getUser(con, message, userID, type)},
-        setUser: (message, userID, type, reason = null) => {punishments.setUser(con, message, userID, type, reason)}
+        setUser: (message, userID, type, reason = null, duration = -1, severity = 'normal') => {punishments.setUser(con, message, userID, type, reason, duration, severity)}
     },
     playlists: {
         create: (message, name) => {return playlists.create(con, message, name)},

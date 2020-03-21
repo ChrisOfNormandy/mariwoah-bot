@@ -4,7 +4,7 @@ const messageTarget = require('./messageTarget');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
-        db.punishments.getUser(message, userID, 'warn')
+        db.punishments.getUser(message, userID, 'ban')
             .then(data => {
                 let list = [];
                 for (let i in data)
@@ -19,19 +19,20 @@ function get(message, userID, listAll = true) {
     })
 }
 
-function set(message, userID, reason) {
+function set(message, userID, reason, duration, severity = 'normal') {
     if (!message.guild.members.get(userID))
         return message.channel.send('> Could not find target user.');
-        
+
     if (reason.trim() == '')
         reason = null;
     else
         reason = reason.trim();
-    db.punishments.setUser(message, userID, 'warn', reason);
+    db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
     get(message, userID)
         .then(data => {
-            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data);
-            message.channel.send(`> Warned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} warnings.`);
+            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data, {duration});
+            message.channel.send(`> Banned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} bans.`);
+            message.guild.members.get(userID).ban({reason: reason, days: duration});
         })
         .catch(e => console.log(e));
 }
@@ -43,7 +44,7 @@ function getLatest(message, userID) {
 function printLatest(message, userID) {
     getLatest(message, userID)
         .then(data => {
-            message.channel.send(embedListing.single(message, 'warn', data));
+            message.channel.send(embedListing.single(message, 'ban', data));
         })
         .catch(e => console.log(e));
 }
@@ -51,7 +52,7 @@ function printLatest(message, userID) {
 function printAll(message, userID) {
     get(message, userID, true)
         .then(data => {
-            message.channel.send(embedListing.array(message, 'warn', data));
+            message.channel.send(embedListing.array(message, 'ban', data));
         })
         .catch(e => console.log(e));
 }

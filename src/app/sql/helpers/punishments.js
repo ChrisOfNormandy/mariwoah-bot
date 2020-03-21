@@ -18,43 +18,47 @@ function getUser(con, message, userID, type) {
     });
 }
 
-function setUser(con, message, userID, type, reason = null) {
+function setUser(con, message, userID, type, reason = null, duration = -1, severity = 'normal') {
     query.getUser(con, message.guild.id, userID)
         .then(user => {
             const date = new Date(message.createdTimestamp);
             const datetime = `${date.toISOString().slice(0, 19).replace('T', ' ')}`;
             console.log(datetime);
             if (reason == null)
-                con.query(`insert into punishments (datetime, server_id, staff_id, ticket_id, type, user_id, username) values (` +
-                    `"${datetime}", 
-                    "${message.guild.id}", 
-                    "${message.author.id}", 
-                    ${message.createdTimestamp}, 
-                    "${type}", 
+                con.query(`insert into punishments (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime) values (` +
+                    `"${message.guild.id}", 
                     "${userID}", 
-                    "${message.guild.members.get(userID).user.username}");`,
+                    "${type}", 
+                    ${duration}, 
+                    "${severity}", 
+                    "${message.createdTimestamp}", 
+                    "${message.author.id}", 
+                    "${message.guild.members.get(userID).user.username}", 
+                    "${datetime}");`,
                     (err, result) => {
                         if (err)
                             console.log(err);
                         else
                             console.log(result);
-                    });
+                });
             else
-                con.query(`insert into punishments (datetime, server_id, staff_id, ticket_id, type, user_id, username, reason) values (` +
-                    `"${datetime}", 
-                    "${message.guild.id}", 
-                    "${message.author.id}", 
-                    ${message.createdTimestamp}, 
-                    "${type}", 
+                con.query(`insert into punishments (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime, reason) values (` +
+                    `"${message.guild.id}", 
                     "${userID}", 
+                    "${type}", 
+                    ${duration}, 
+                    "${severity}", 
+                    "${message.createdTimestamp}", 
+                    "${message.author.id}", 
                     "${message.guild.members.get(userID).user.username}", 
+                    "${datetime}", 
                     "${reason}");`,
                     (err, result) => {
                         if (err)
                             console.log(err);
                         else
                             console.log(result);
-                    });
+                });
         });
 }
 

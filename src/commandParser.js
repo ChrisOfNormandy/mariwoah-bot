@@ -137,26 +137,53 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
                     .catch(r => reject(r));
                 break;
             }
+            case 'kick': {
+                verify(message, roleManagerLevel('kick'))
+                    .then(() => resolve(adapter.punishments.kick.set(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'kicks': {
+                verify(message, roleManagerLevel('kicks'))
+                    .then(() => resolve(adapter.punishments.kick.printAll(message, mentionedUser.id)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'ban': {
+                verify(message, roleManagerLevel('ban'))
+                    .then(() => resolve(adapter.punishments.ban.set(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'bans': {
+                verify(message, roleManagerLevel('bans'))
+                    .then(() => resolve(adapter.punishments.ban.printAll(message, mentionedUser.id)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'unban': {
+                verify(message, roleManagerLevel('unban'))
+                    .then(() => resolve(message.guild.unban(args[0])
+                        .then(user => {
+                            message.channel.send(`Unbanned ${user.username}.`);
 
-            // case 'kick': {
-            //     verify(message, roleManagerLevel('kick'))
-            //         .then(() => resolve(common.roleManager.kickUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'ban': {
-            //     verify(message, roleManagerLevel('ban'))
-            //         .then(() => resolve(common.roleManager.banUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'unban': { }
-            // case 'revertban': {
-            //     verify(message, roleManagerLevel('unban'))
-            //         .then(() => resolve(common.roleManager.unbanUser(message, args[0], args.slice(1).join(' '))))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+                            message.channel.createInvite({
+                                maxUses: 1,
+                                unique: true,
+                                maxAge: 86400
+                            })
+                            .then(invite => {
+                                user.send(`You have been unbanned from ${message.guild.name}.`);
+                                user.send(invite);
+                            })
+                            .catch(console.log(e));
+                        })
+                        .catch(e => message.channel.send(`Cannot unban user.\n${e.message}`))
+                    ))
+                    .catch(r => reject(r));
+                break;
+            }
+
             // case 'pardon': {
             //     verify(message, roleManagerLevel('pardon'))
             //         .then(() => resolve(common.roleManager.pardonUser(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(3).join(' '), args[1], args[2])))
@@ -164,12 +191,6 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //     break;
             // }
 
-            // case 'rm-reset': {
-            //     verify(message, roleManagerLevel('rm-reset'))
-            //         .then(() => resolve(common.roleManager.resetUser(message, message.guild.members.get((mentionedUser) ? mentionedUser.id : args[0]), 'reset')))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
             // case 'fetchbans': {
             //     verify(message, roleManagerLevel('fetchbans'))
             //         .then(() => resolve(common.roleManager.fetchBans(message)))
@@ -187,25 +208,6 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //         .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
             //         .catch(r => reject(r));
             //     break;
-            // }
-            
-            // case 'kicks': {
-            //     verify(message, roleManagerLevel('kicks'))
-            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'kicks')))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'bans': {
-            //     verify(message, roleManagerLevel('bans'))
-            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser !== null) ? mentionedUser.id : args[0], 'bans')))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'unbans': { }
-            // case 'banreverts': {
-            //     verify(message, roleManagerLevel('banreverts'))
-            //         .then(() => resolve(common.roleManager.userInfoList(message, (mentionedUser) ? mentionedUser.id : args[0], 'banReverts')))
-            //         .catch(r => reject(r));
             // }
 
             // case 'promote': {
