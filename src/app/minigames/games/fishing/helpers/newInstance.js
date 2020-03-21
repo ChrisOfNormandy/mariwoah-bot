@@ -3,7 +3,7 @@ const generateItemObject = require('./generators/generateItemObject');
 const getCatchChances = require('./generators/getCatchChances');
 
 module.exports = function (user) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         let rngValue = Math.floor(100 * Math.random());
 
         let chance = getCatchChances(user.stats.games.fishing.level);

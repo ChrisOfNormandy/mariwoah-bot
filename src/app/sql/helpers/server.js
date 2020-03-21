@@ -32,7 +32,7 @@ function setPrefix(con, serverID, prefix) {
 }
 
 function getMotd(con, serverID) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         query.getServer(con, serverID)
             .then(server => {
                 resolve(server.motd);
@@ -42,7 +42,7 @@ function getMotd(con, serverID) {
 }
 
 function getPrefix(con, serverID) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         query.getServer(con, serverID)
             .then(server => {
                 resolve(server.prefix);

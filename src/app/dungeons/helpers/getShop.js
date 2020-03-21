@@ -58,7 +58,7 @@ function getShop(map, maxItems) {
 
 module.exports = {
     random: async function (message, amount) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             if (equipmentMap.map.size <= 1) {
                 csvToMap()
                     .then(map => {

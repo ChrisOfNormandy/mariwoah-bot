@@ -1,7 +1,7 @@
 const query = require('./query');
 
 function getUser(con, message, userID, type) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
     query.getUser(con, message.guild.id, userID)
         .then(user => {
             con.query(`select * from punishments where server_id = "${message.guild.id}" and user_id = "${userID}" and type = "${type}";`, (err, result) => {

@@ -1,8 +1,8 @@
-const readFile = require('./readFile');
+const readFile = require('./read');
 const listDir = require('./listDir');
 
 async function toMap(path, map, list, index) {
-    return new Promise(async function (resolve, reject) {
+    return new Promise(async (resolve, reject) =>  {
         if (index < list.length) {
             fileName = list[index].split('_')[1].split('.')[0];
 
@@ -22,7 +22,7 @@ async function toMap(path, map, list, index) {
 }
 
 module.exports = async function (path, filename = null, objectName = null) {
-    return new Promise(async function (resolve, reject) {
+    return new Promise(async (resolve, reject) =>  {
         if (filename == null) {
             listDir(path)
                 .then(async function (list) {

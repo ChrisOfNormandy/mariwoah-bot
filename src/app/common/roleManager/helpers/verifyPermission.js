@@ -1,7 +1,7 @@
 const db = require('../../../sql/adapter');
 
 module.exports = function (message, userID, permLevel) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         if (message.member.hasPermission("ADMINISTRATOR"))
             resolve('admin');
         else

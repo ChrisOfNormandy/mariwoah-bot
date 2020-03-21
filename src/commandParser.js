@@ -1,13 +1,9 @@
-const commandList = require('./app/common/bot/helpers/global/commandList');
-const common = require('./app/common/core');
-const roleManager = require('./app/common/roleManager/adapter');
-const db = require('./app/sql/adapter');
-
-const firstRun = new Map();
+const adapter = require('./app/adapter');
+const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, permissionLevel) {
-    return new Promise(function (resolve, reject) {
-        roleManager.verifyPermission(message, message.author.id, permissionLevel)
+    return new Promise((resolve, reject) =>  {
+        adapter.common.roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
             .catch(e => reject(e));
     });
@@ -34,53 +30,57 @@ function dungeonLevel(commandName) {
     return commandList.dungeons.commands[commandName].permissionLevel || 10;
 }
 
-function parseCommand(message, command, args = null, mentionedUser = null) {
-    return new Promise(function (resolve, reject) {
+function parseCommand(client, message, command, args = null, mentionedUser = null) {
+    return new Promise((resolve, reject) =>  {
         switch (command) {
             case 'clean': {
                 verify(message, commonLevel('clean'))
-                    .then(() => resolve(common.bot.cleanChat(message)))
+                    .then(() => resolve(adapter.common.bot.features.cleanChat(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'covid19': {
-                common.bot.covid(message);
+                adapter.common.bot.features.covid(message);
                 break;
             }
             case '?': { }
             case 'help': {
                 verify(message, commonLevel('help'))
-                    .then(() => resolve(common.bot.listHelp(message, args)))
+                    .then(() => resolve(adapter.common.bot.features.listHelp(message, args)))
                     .catch(r => reject(r));
                 break;
             }
             case 'ping': {
                 verify(message, commonLevel('ping'))
-                    .then(() => resolve(common.bot.ping(message, common.client)))
+                    .then(() => resolve(adapter.common.bot.features.ping(message, client)))
                     .catch(r => reject(r));
                 break;
             }
             case 'roll': {
                 verify(message, commonLevel('roll'))
-                    .then(() => resolve(common.roll(message, args)))
+                    .then(() => resolve(adapter.common.bot.features.roll(message, args)))
                     .catch(r => reject(r));
                 break;
             }
             case 'shuffle': {
                 verify(message, commonLevel('shuffle'))
-                    .then(() => resolve(common.bot.shuffle(message, args[0].split(','))))
+                    .then(() => {
+                        adapter.common.bot.global.shuffle(args[0].split(','))
+                            .then(array => resolve(message.channel.send(array.join(', '))))
+                            .catch(r => reject(r));
+                    })
                     .catch(r => reject(r));
                 break;
             }
             case 'whoami': {
                 verify(message, commonLevel('whoami'))
-                    .then(() => resolve(common.bot.whoami(message)))
+                    .then(() => resolve(adapter.common.bot.features.whoAre.self(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'whoareyou': {
                 verify(message, commonLevel('whoareyou'))
-                    .then(() => resolve(common.bot.whoareyou(message)))
+                    .then(() => resolve(adapter.common.bot.features.whoAre.member(message)))
                     .catch(r => reject(r));
                 break;
             }
@@ -89,9 +89,9 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                 verify(message, commonLevel('setmotd'))
                     .then(() => {
                         if (args[0] == '-r')
-                            resolve(common.bot.setMotd(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/"))
+                            resolve(adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/"))
                         else
-                            resolve(common.bot.setMotd(message, args.join(' ')))
+                            resolve(adapter.common.bot.features.motd.set(message, args.join(' ')))
                     })
                     .catch(r => reject(r));
                 break;
@@ -100,11 +100,11 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                 verify(message, commonLevel('motd'))
                 .then(() => {
                     if (args[0] == 'raw')
-                        db.server.getMotd(message.guild.id)
+                        adapter.sql.server.getMotd(message.guild.id)
                             .then(raw => resolve(message.channel.send(`> ${raw.replace('\n', '\\n')}`)))
                             .catch(e => reject(e));
                     else
-                        resolve(common.bot.getMotd(message))
+                        resolve(adapter.common.bot.features.motd.get(message))
                 })
                 .catch(r => reject(r));
                 break;
@@ -112,13 +112,13 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
             case 'setprefix': {
                 verify(message, commonLevel('setprefix'))
-                    .then(() => common.bot.setPrefix(message, args[0]))
+                    .then(() => adapter.common.bot.features.prefix.set(message, args[0]))
                     .catch(r => reject(r));
                 break;
             }
             case 'prefix': {
                 verify(message, commonLevel('prefix'))
-                    .then(() => common.bot.getPrefix(message))
+                    .then(() => adapter.common.bot.features.prefix.get(message))
                     .catch(r => reject(r));
                 break;
             }
@@ -127,13 +127,13 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
             case 'warn': {
                 verify(message, roleManagerLevel('warn'))
-                    .then(() => resolve(common.punishments.warn.set(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
+                    .then(() => resolve(adapter.punishments.warn.set(message, (mentionedUser !== null) ? mentionedUser.id : args[0], args.slice(1).join(' '))))
                     .catch(r => reject(r));
                 break;
             }
             case 'warnings': {
                 verify(message, roleManagerLevel('warnings'))
-                    .then(() => resolve(common.punishments.warn.printAll(message, mentionedUser.id)))
+                    .then(() => resolve(adapter.punishments.warn.printAll(message, mentionedUser.id)))
                     .catch(r => reject(r));
                 break;
             }
@@ -281,63 +281,63 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
                 verify(message, musicLevel('play'))
                     .then(() => {
                         if (!args.join(' ').includes('youtube.com/watch?'))
-                            resolve(common.music.append.byName(message, args.join(' ')));
-                        else resolve(common.music.append.byURL(message, args[0]));
+                            resolve(adapter.music.append.byName(message, args.join(' ')));
+                        else resolve(adapter.music.append.byURL(message, args[0]));
                     })
                     .catch(r => reject(r));
                 break;
             }
             case 'join': {
                 verify(message, musicLevel('join'))
-                    .then(() => resolve(common.music.join(message)))
+                    .then(() => resolve(adapter.music.join(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'leave': {
                 verify(message, musicLevel('leave'))
-                    .then(() => resolve(common.music.leave(message)))
+                    .then(() => resolve(adapter.music.leave(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'skip': {
                 verify(message, musicLevel('skip'))
-                    .then(() => resolve(common.music.skip(message)))
+                    .then(() => resolve(adapter.music.skip(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'stop': {
                 verify(message, musicLevel('stop'))
-                    .then(() => resolve(common.music.stop(message)))
+                    .then(() => resolve(adapter.music.stop(message)))
                     .catch(r => reject(r));
                 break;
             }
             case 'q': { }
             case 'queue': {
                 verify(message, musicLevel('queue'))
-                    .then(() => resolve(common.music.list(message)))
+                    .then(() => resolve(adapter.music.list(message)))
                     .catch(r => reject(r));
                 break;
             }
-            case 'rmqueue': { }
-            case 'removefromqueue': {
-                verify(message, musicLevel('removefromqueue'))
-                    .then(() => resolve(common.music.removeFromQueue(message, args[0])))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'songinfo': {
-                verify(message, musicLevel('songinfo'))
-                    .then(() => {
-                        if (!args.join(' ').includes('youtube.com/watch?'))
-                            resolve(common.music.songInfo(message, null, args.join(' ')));
-                        else resolve(common.music.songInfo(message, args[0], null));
-                    })
-                    .catch(r => reject(r));
-                break;
-            }
+            // case 'rmqueue': { }
+            // case 'removefromqueue': {
+            //     verify(message, musicLevel('removefromqueue'))
+            //         .then(() => resolve(adapter.music.removeFromQueue(message, args[0])))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'songinfo': {
+            //     verify(message, musicLevel('songinfo'))
+            //         .then(() => {
+            //             if (!args.join(' ').includes('youtube.com/watch?'))
+            //                 resolve(adapter.music.songInfo(message, null, args.join(' ')));
+            //             else resolve(adapter.music.songInfo(message, args[0], null));
+            //         })
+            //         .catch(r => reject(r));
+            //     break;
+            // }
             case 'pl': { }
             case 'playlist': {
-                common.music.playlistCommand(message, args)
+                adapter.music.playlistCommand(message, args)
                     .then(s => resolve(s))
                     .catch(r => reject(r));
                 break;
@@ -347,32 +347,32 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
 
             case 'f': {
                 verify(message, memeLevel('f'))
-                    .then(() => resolve(common.memes.memeDispatch(message, 'f')))
+                    .then(() => resolve(adapter.memes.memeDispatch(message, 'f')))
                     .catch(r => reject(r));
                 break;
             }
             case 'fuck': {
                 verify(message, memeLevel('fuck'))
-                    .then(() => resolve(common.memes.memeDispatch(message, 'fuuu')))
+                    .then(() => resolve(adapter.memes.memeDispatch(message, 'fuuu')))
                     .catch(r => reject(r));
                 break;
             }
             case 'yey': {
                 verify(message, memeLevel('yey'))
-                    .then(() => resolve(common.memes.memeDispatch(message, 'yey')))
+                    .then(() => resolve(adapter.memes.memeDispatch(message, 'yey')))
                     .catch(r => reject(r));
                 break;
             }
 
             case 'penguin': {
                 verify(message, memeLevel('penguin'))
-                    .then(() => resolve(common.memes.memeDispatch(message, 'penguin')))
+                    .then(() => resolve(adapter.memes.memeDispatch(message, 'penguin')))
                     .catch(r => reject(r));
                 break;
             }
             case 'clayhead': {
                 verify(message, memeLevel('clayhead'))
-                    .then(() => resolve(common.memes.memeDispatch(message, 'clayhead')))
+                    .then(() => resolve(adapter.memes.memeDispatch(message, 'clayhead')))
                     .catch(r => reject(r));
                 break;
             }
@@ -380,61 +380,51 @@ function parseCommand(message, command, args = null, mentionedUser = null) {
             case 'cr': { }
             case 'crabrave': {
                 verify(message, memeLevel('crabrave'))
-                    .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM', null, null)))
+                    .then(() => resolve(adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM')))
                     .catch(r => reject(r));
                 break;
             }
-            case 'holeintheground': {
-                verify(message, memeLevel('holeintheground'))
-                    .then(() => resolve(common.music.play(message, 'https://www.youtube.com/watch?v=RYdWk7Cn', null, null)))
+            case 'theriddle': {
+                verify(message, memeLevel('theriddle'))
+                    .then(() => resolve(adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=RYdWk7Cn')))
                     .catch(r => reject(r));
             }
 
             // Dungeons
 
-            case 'dd_loaditems': {
-                verify(message, dungeonLevel('dd_loaditems'))
-                    .then(() => resolve(common.dungeons.csvToMap()))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'dd_getitem': {
-                verify(message, dungeonLevel('dd_getitem'))
-                    .then(() => resolve(common.dungeons.getItem(message, args.join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-            case 'dd_getshop': {
-                verify(message, dungeonLevel('dd_getshop'))
-                    .then(() => resolve(common.dungeons.getShop(message, (!isNaN(args[0]) ? args[0] : 10))))
-                    .catch(r => reject(r));
-            }
-            case 'dd_list': {
-                verify(message, dungeonLevel('dd_list'))
-                    .then(() => resolve(common.dungeons.listItems(message, args.join(' '))))
-                    .catch(r => reject(r));
-                break;
-            }
-
-            // Secret commands
-
-            case 'update_configs': {
-                firstRun.forEach((v, k, m) => {
-                    firstRun[k] = false;
-                });
-                break;
-            }
-
+            // case 'dd_loaditems': {
+            //     verify(message, dungeonLevel('dd_loaditems'))
+            //         .then(() => resolve(adapter.dungeons.csvToMap()))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'dd_getitem': {
+            //     verify(message, dungeonLevel('dd_getitem'))
+            //         .then(() => resolve(adapter.dungeons.getItem(message, args.join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
+            // case 'dd_getshop': {
+            //     verify(message, dungeonLevel('dd_getshop'))
+            //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(args[0]) ? args[0] : 10))))
+            //         .catch(r => reject(r));
+            // }
+            // case 'dd_list': {
+            //     verify(message, dungeonLevel('dd_list'))
+            //         .then(() => resolve(adapter.dungeons.listItems(message, args.join(' '))))
+            //         .catch(r => reject(r));
+            //     break;
+            // }
             default: {
-                resolve(false);
+                reject(null);
             }
         }
     });
 }
 
-module.exports = function (message) {
-    return new Promise(function (resolve, reject) {
-        db.server.getPrefix(message.guild.id)
+module.exports = function (client, message) {
+    return new Promise((resolve, reject) =>  {
+        adapter.sql.server.getPrefix(message.guild.id)
             .then(prefix => {
                 if (message.content[0] != prefix)
                     reject(null);
@@ -444,7 +434,7 @@ module.exports = function (message) {
                     let args = msgArray.slice(1);
                     let mentionedUser = message.mentions.members.first() || null;
 
-                    parseCommand(message, command, args, mentionedUser)
+                    parseCommand(client, message, command, args, mentionedUser)
                         .then(r => resolve(r))
                         .catch(e => reject(e));
                 }

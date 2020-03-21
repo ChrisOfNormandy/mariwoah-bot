@@ -12,7 +12,7 @@ const getVC = require('../common/bot/helpers/global/getVoiceChannel');
 const pl = commandList.playlist.commands;
 
 function verify(message, permissionLevel) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
             .catch(e => reject(e));
@@ -54,7 +54,7 @@ module.exports = {
         const _this = this;
         const command = args[0];
 
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             if (command == 'play')
                 verify(message, pl.play.permissionLevel)
                     .then(() => resolve(_this.pl_play(message, args[1], args[2] === '-s')))

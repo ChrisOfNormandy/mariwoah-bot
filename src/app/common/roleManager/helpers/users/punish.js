@@ -1,7 +1,7 @@
 const modUser = require('./modUser');
 
 function moderate(message, userID, operation, args = {}) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         modUser.byString(message, userID, operation, args)
             .then(result => {
                 // getServerConfig(message)
@@ -21,7 +21,7 @@ module.exports = function (message, userID, operation, reason, args = {}) {
     let guild = message.channel.guild;
     let user = guild.members.get(userID);
 
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         if (user && user.hasPermission("ADMINISTRATOR") && (operation == 'kick' || operation == 'ban')) {
             message.channel.send(`Cannot ${operation} admins using a command. You must do so manually.`);
             resolve({ status: false, args: { operation: operation, result: false }, user: user });

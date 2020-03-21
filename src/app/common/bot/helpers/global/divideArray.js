@@ -1,5 +1,5 @@
 module.exports = async function (array, size) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         if (!array.length)
             reject(array);
         if (array.length <= size)

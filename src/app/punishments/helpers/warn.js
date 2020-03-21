@@ -2,7 +2,7 @@ const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 
 function get(message, userID, listAll = true) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         db.punishments.getUser(message, userID, 'warn')
             .then(data => {
                 let list = [];

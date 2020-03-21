@@ -1,4 +1,4 @@
-const readFile = require('../../../common/bot/helpers/files/readFile');
+const readFile = require('../../../common/bot/helpers/file/read');
 const statsPath = require('../../../common/bot/helpers/global/paths').stats;
 
 module.exports = function () {

@@ -3,7 +3,7 @@ const pushStats = require('./pushStats');
 const statsMap = require('./statsMap');
 
 module.exports = function (message) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         if (statsMap.map.has(message.author.id))
             resolve(statsMap.map.get(message.author.id));
         else {

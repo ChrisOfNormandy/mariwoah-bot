@@ -14,7 +14,7 @@ function getDuration(data) {
 }
 
 function get(con, message, name) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         con.query(`select * from playlists where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
                 reject(err);
@@ -29,7 +29,7 @@ function get(con, message, name) {
 }
 
 function create(con, message, name) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         con.query(`insert into playlists (creator_id, list, name, server_id) values ("${message.author.id}", '${['null']}', "${name}", "${message.guild.id}");`, (err, result) => {
             if (err)
                 reject(err);
@@ -40,7 +40,7 @@ function create(con, message, name) {
 }
 
 function remove(con, message, name) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         con.query(`delete from playlists where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
                 reject(err);
@@ -51,7 +51,7 @@ function remove(con, message, name) {
 }
 
 function removeSong(con, message, name, songURL) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         get(con, message, name)
             .then(data => {
                 let list;
@@ -134,7 +134,7 @@ function append(con, message, name, song) {
 }
 
 function getList(con, message, name) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         get(con, message, name)
             .then(data => {
                 let list = JSON.parse(data.list);
@@ -149,7 +149,7 @@ function getList(con, message, name) {
 }
 
 function getAll(con, message) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         con.query(`select * from playlists where server_id = ${message.guild.id}`, (err, result) => {
             if (err)
                 reject(err);

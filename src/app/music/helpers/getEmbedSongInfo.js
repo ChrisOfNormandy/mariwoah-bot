@@ -4,7 +4,7 @@ const getSongObject = require('./getSong');
 
 module.exports = {
     single: function (title, activeQueue, index) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             if (!activeQueue.songs[index])
                 reject(null);
 
@@ -23,7 +23,7 @@ module.exports = {
         });
     },
     queueList: function (activeQueue) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             const song = activeQueue.songs[0];
 
             let embedMsg = new Discord.RichEmbed()
@@ -51,7 +51,7 @@ module.exports = {
         });
     },
     possibleSongs: async function (videos) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             if (!videos) {
                 reject(null);
             }
@@ -67,7 +67,7 @@ module.exports = {
         })
     },
     songInfo: function (message, songURL = null, songName = null) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             if (songURL === null && songName === null)
                 reject(null);
 

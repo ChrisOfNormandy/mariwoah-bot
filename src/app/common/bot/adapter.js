@@ -1,40 +1,34 @@
-const cleanChat = require('./helpers/features/cleanChat');
-const covid = require('./helpers/features/covid19');
-const divideArray = require('./helpers/global/divideArray');
-const getVoiceChannel = require('./helpers/global/getVoiceChannel');
-const listHelp = require('./helpers/features/listHelp');
-const ping = require('./helpers/features/ping');
-const preInit = require('./helpers/preInit');
-const printLog = require('./helpers/printLog');
-const reactions = require('./helpers/features/reactions');
-const roll = require('./helpers/features/roll');
-const shuffle = require('./helpers/global/shuffle');
-const init = require('./helpers/init');
-const whoAre = require('./helpers/features/whoAre');
-const motd = require('./helpers/features/motd');
-const prefix = require('./helpers/features/prefix');
-
 module.exports = {
-
-    config: require('../../../../private/config'),
-    help: require('./helpers/global/commandList'),
-
-    cleanChat: (message) => cleanChat(message),
-    covid: (message) => covid(message),
-    divideArray: async (array, size) => divideArray(array, size),
-    getVoiceChannel: (message) => getVoiceChannel(message),
-    listHelp: (message, args) => listHelp(message, args),
-    ping: (message, client) => ping(message, client),
-    preInit: () => preInit(),
-    printLog: async (client, string, flag) => printLog(client, string, flag),
-    reactions: (message) => reactions(message),
-    roll: async (message, args) => roll(message, args),
-    shuffle: async (message, array) => { shuffle(array).then(r => message.channel.send(r.join(', '))) },
-    init: () => init(),
-    whoami: (message) => whoAre.self(message),
-    whoareyou: (message) => whoAre.member(message),
-    getMotd: (message) => motd.get(message),
-    setMotd: (message, string) => motd.set(message, string),
-    getPrefix: (message) => prefix.get(message),
-    setPrefix: (message, char) => prefix.set(message, char)
+    features: {
+        cleanChat: require('./helpers/features/cleanChat'),
+        covid: require('./helpers/features/covid19'),
+        listHelp: require('./helpers/features/listHelp'),
+        motd: require('./helpers/features/motd'),
+        ping: require('./helpers/features/ping'),
+        prefix: require('./helpers/features/prefix'),
+        printLog: require('./helpers/features/printLog'),
+        reactions: require('./helpers/features/reactions'),
+        roll: require('./helpers/features/roll'),
+        whoAre: require('./helpers/features/whoAre')
+    },
+    file: {
+        delete: require('./helpers/file/delete'),
+        exists: require('./helpers/file/exists'),
+        listDir: require('./helpers/file/listDir'),
+        makeDir: require('./helpers/file/makeDir'),
+        read: require('./helpers/file/read'),
+        readAsMap: require('./helpers/file/readAsMap'),
+        write: require('./helpers/file/write')
+    },
+    global: {
+        chatFormat: require('./helpers/global/chatFormat'),
+        commandList: require('./helpers/global/commandList'),
+        divideArray: require('./helpers/global/divideArray'),
+        getVoiceChannel: require('./helpers/global/getVoiceChannel'),
+        intToTimeString: require('./helpers/global/intToTimeString'),
+        mapToJson: require('./helpers/global/mapToJson'),
+        paths: require('./helpers/global/paths'),
+        shuffle: require('./helpers/global/shuffle'),
+        startup: require('./helpers/global/startup')
+    }
 }

@@ -4,7 +4,7 @@ const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 
 async function func(message, songURL) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         ytdl.getInfo(songURL)
             .then(async (songInfo) => {
                 let obj = intToTimeString.seconds(songInfo.player_response.videoDetails.lengthSeconds);
@@ -39,7 +39,7 @@ module.exports = {
         return func(message, songURL);
     },
     byName: async function (message, songName, list = false, videoIndex = 0, returnPlaylist = false) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             ytSearch(songName, function (err, r) {
                 if (err)
                     reject(err);
