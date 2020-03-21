@@ -9,7 +9,7 @@ const list = require('./helpers/queue/list');
 const stop = require('./helpers/functions/stop');
 const getVC = require('../common/bot/helpers/global/getVoiceChannel');
 
-const pl = commandList.playlist.commands;
+const pl = commandList.playlists.commands;
 
 function verify(message, permissionLevel) {
     return new Promise((resolve, reject) =>  {
