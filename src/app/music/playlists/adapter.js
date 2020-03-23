@@ -1,55 +1,21 @@
-const add = require('./helpers/addToPlaylist');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
-const create = require('./helpers/createPlaylist');
-const deletePL = require('./helpers/deletePlaylist');
 const Discord = require('discord.js');
-const list = require('./helpers/listPlaylist');
-const listDir = require('../../common/bot/helpers/files/listDir');
-const paths = require('../../common/bot/helpers/global/paths');
-const play = require('./helpers/playPlaylist');
-const readFile = require('../../common/bot/helpers/files/readFile');
-const remove = require('./helpers/removeFromPlaylist');
 
-function _list(embedMsg, path, list, index) {
-    return new Promise(function (resolve, reject) {
-        if (index >= list.length)
-            resolve(embedMsg);
-
-        readFile(path + list[index])
-            .then(obj => {
-                embedMsg.addField(`${list[index].split('.')[0]}`, `${obj.playlist.length} songs.`);
-            })
-            .then(() => {
-                resolve(_list(embedMsg, path, list, index + 1));
-            })
-            .catch(e => reject(e));
-    });
-}
+const append = require('./helpers/append');
+const create = require('./helpers/create');
+const remove = require('./helpers/remove');
+const list = require('./helpers/list');
+const play = require('./helpers/play');
 
 module.exports = {
-    play: function (message, playlistName, doShuffle) { play(message, playlistName, doShuffle); },
-    list: function (message, playlistName, pageNumber, includeLinks) { list(message, playlistName, pageNumber, includeLinks); },
-    listAll: function (message) {
-        let path = paths.getPlaylistPath(message);
-        listDir(path)
-            .then(list => {
-                let embedMsg = new Discord.RichEmbed()
-                    .setTitle('Available playlists')
-                    .setColor(chatFormat.colors.information);
-                if (!list.length) {
-                    embedMsg.addField('No playlists.', 'Add a playlist using ~playlist create {name}.');
-                    return;
-                }
-                _list(embedMsg, path, list, 0)
-                    .then(msg => message.channel.send(msg))
-                    .catch(e => console.log(e));
-            })
-            .catch(e => console.log(e));
-    },
-    create: function (message, playlistName) { create(message, playlistName); },
-    delete: function (message, playlistName) { deletePL(message, playlistName); },
-    add: async function (message, playlistName, songURL = null, songName = null) {
-        add(message, playlistName, songURL, songName)
+    play: (message, playlistName, doShuffle = false) => {play(message, playlistName, doShuffle)},
+    list: (message, playlistName) => {list.byName(message, playlistName)},
+    listAll: (message) => {list.all(message)},
+    create: (message, playlistName) => {create(message, playlistName)},
+    delete: (message, playlistName) => {remove.playlist(message, playlistName)},
+    remove: (message, playlistName, songURL) => {remove.song(message, playlistName, songURL)},
+    append: (message, playlistName, songURL = null, songName = null) => {
+        append(message, playlistName, songURL, songName)
             .then(song => {
                 let embedMsg = new Discord.RichEmbed();
                 if (song !== undefined) {
@@ -67,32 +33,7 @@ module.exports = {
                     embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
                     message.channel.send(embedMsg);
                 }
-                try {
-                    message.delete();
-                }
-                catch (e) {
-                    message.channel.send('I require admin permissions to operate correctly.');
-                }
             })
-            .catch(e => {
-                console.log(e);
-                message.channel.send((e.message) ? e.message : e);
-                try {
-                    message.delete();
-                }
-                catch (e) {
-                    message.channel.send('I require admin permissions to operate correctly.');
-                }
-            });
-    },
-    remove: async function (message, playlistName, index) {
-        let result = await remove(message, playlistName, index);
-        message.channel.send((result) ? 'Removed song from the playlist!' : 'Failed to remove song from playlist');
-        try {
-            message.delete();
-        }
-        catch (e) {
-            message.channel.send('I require admin permissions to operate correctly.');
-        }
+            .catch(e => console.log(e));
     }
 }

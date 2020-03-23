@@ -1,21 +1,4 @@
-<<<<<<< HEAD
-const createUser = require('./helpers/users/createUser');
-const getUser = require('./helpers/users/getUser');
-const getServerConfig = require('./helpers/servers/getServerConfig');
-const motd = require('./helpers/servers/motd');
 const punish = require('./helpers/users/punish');
-const repairConfig = require('./helpers/servers/repairConfig');
-const saveServerConfig = require('./helpers/servers/saveServerConfig');
-const setBotPerm = require('./helpers/users/setBotPerm');
-const setmotd = require('./helpers/servers/setmotd');
-const setPrefixes = require('./helpers/servers/setPrefixes');
-const userInfo = require('./helpers/users/userInfo');
-const userInfoList = require('./helpers/users/userInfoList');
-const userLevel = require('./helpers/users/userLevel');
-const userRoleInfo = require('./helpers/users/userRoleInfo');
-=======
-const punish = require('./helpers/users/punish');
->>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
 const verifyPermission = require('./helpers/verifyPermission');
 const db = require('../../sql/adapter');
 
@@ -34,48 +17,6 @@ function modUserReturn(result, message = null) {
 }
 
 module.exports = {
-<<<<<<< HEAD
-    createUser: function (message) {
-        return createUser(message);
-    },
-    getUser: function (message, userID) {
-        return getUser(message, userID);
-    },
-    getServerConfig: function (message) {
-        return getServerConfig(message);
-    },
-    repairConfig: function (message) {
-        return repairConfig(message);
-=======
-    promoteUser: function (message, userID) {
-        userLevel(message, userID, 'promote');
-    },
-    demoteUser: function (message, userID) {
-        userLevel(message, userID, 'demote');
->>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
-    },
-
-    verifyPermission: function (message, userID, permissionLevel) {
-        return verifyPermission(message, userID, permissionLevel);
-    },
-
-<<<<<<< HEAD
-    motd: (message) => motd(message),
-    setmotd: function (message, args) {
-        setmotd(message, args)
-            .then(config => saveServerConfig(message, config))
-            .catch(e => console.log(e));
-    },
-
-    setPrefixes: function (message, prefixes) {
-        setPrefixes(message, prefixes)
-            .then(result => {
-                message.channel.send((result.change) ? `> Changed server prefixes to: ${result.map}` : `Server prefixes are: ${result.map.split('').join(' ')}`);
-                return result.map;
-            })
-            .catch(e => { return e });
-    },
-
     promoteUser: function (message, userID) {
         userLevel(message, userID, 'promote');
     },
@@ -127,48 +68,6 @@ module.exports = {
             .then(result => message.channel.send(modUserReturn(result, message)))
             .catch(e => console.log(e));
     },
-=======
-    setBotAdmin: function (message, userID) {
-        return setBotPerm(message, userID, 'Admin');
-    },
-    setBotMod: function (message, userID) {
-        return setBotPerm(message, userID, 'Mod');
-    },
-    setBotHelper: function (message, userID) {
-        return setBotPerm(message, userID, 'Helper');
-    },
-
-    warnUser: function (message, userID, reason = "You have been warned by an administrator") {
-        punish(message, userID, 'warn', reason)
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
-    kickUser: function (message, userID, reason = "You have been kicked by an administrator") {
-        punish(message, userID, 'kick', reason)
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
-    banUser: function (message, userID, days = 1, reason = "You have been banned by an administrator") {
-        punish(message, userID, 'ban', reason, { days: days })
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
-    unbanUser: function (message, userID, reason = "Pardoned") {
-        punish(message, userID, 'unban', reason)
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
-    resetUser: function (message, userID) {
-        punish(message, userID, 'reset')
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
-    pardonUser: function (message, userID, reason, punishment, index) {
-        punish(message, userID, 'pardon', reason, { punishment: punishment, index: index })
-            .then(result => message.channel.send(modUserReturn(result, message)))
-            .catch(e => console.log(e));
-    },
->>>>>>> 3a6ee41117d12dae04f9b8f9e4e979519d4f3d2a
 
     fetchBans: function (message) {
         let guild = message.channel.guild;

@@ -10,7 +10,7 @@ function check(itemName) {
 }
 
 module.exports = async function (itemName) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         let val;
         if (equipmentMap.map.size <= 1) {
             csvToMap()

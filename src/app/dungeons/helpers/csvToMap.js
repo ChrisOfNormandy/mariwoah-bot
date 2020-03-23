@@ -2,7 +2,7 @@ const fs = require('fs');
 const paths = require('../../common/bot/helpers/global/paths');
 
 module.exports = async function () {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         fs.readFile(paths.dungeonList, function (err, data) {
             if (err)
                 reject(err);

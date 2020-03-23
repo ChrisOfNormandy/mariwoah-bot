@@ -26,7 +26,7 @@ function generateData(message, args) {
 }
 
 function dmMessage(message, user, userID, args, operation) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) =>  {
         let op = {
             ed: '',
             data: '',
@@ -68,7 +68,7 @@ function dmMessage(message, user, userID, args, operation) {
 
 module.exports = {
     byString: function (message, userID, operation, args = null) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) =>  {
             getUser(message, userID)
                 .then(user => {
                     if (operation == 'warn' || operation == 'kick' || operation == 'ban' || operation == 'banRevert') {
