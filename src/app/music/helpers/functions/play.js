@@ -10,6 +10,10 @@ function play(message, obj) {
 
     const dispatcher = queue.get(id).connection.playStream(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('end', () => {
+            if (!queue.has(id)) {
+                stop(message, '> End of queue.');
+                return;
+            }
             queue.get(id).previousSong = song;
             queue.get(id).songs.shift();
 

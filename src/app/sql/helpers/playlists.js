@@ -60,7 +60,7 @@ function removeSong(con, message, name, songURL) {
                     reject(null);
                 else
                     list = JSON.parse(data.list);
-
+                console.log(songURL)
                 let newList = [];
                 let duration = 0;
                 for (let i in list) {
@@ -70,19 +70,22 @@ function removeSong(con, message, name, songURL) {
                     }
                 }
 
-                con.query(`update playlists set list = '${JSON.stringify(newList)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+                con.query(`update playlists set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
                     if (err)
-                        reject(err);
-                });
-                con.query(`select duration from playlists where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
-                    if (err)
-                        reject(err);
+                        return console.log(err);
                     else {
-                        let time = result.duration + song.duration.totalSeconds;
-                        con.query(`update playlists set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
-                            if (err)
-                                console.log(err);
-                        });
+                        get(con, message, name)
+                            .then(data => {
+                                let time = getDuration(data);
+    
+                                con.query(`update playlists set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+                                    if (err)
+                                        console.log(err);
+                                    else
+                                        console.log(result);
+                                });
+                            })
+                            .catch(e => console.log(e));
                     }
                 });
 
