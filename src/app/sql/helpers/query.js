@@ -1,6 +1,6 @@
 function getUser(con, serverID, userID) {
     return new Promise(function(resolve, reject) {
-        con.query(`select * from USERS where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
+        con.query(`select * from users where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
             if (err)
                 reject(err);
             else {
@@ -9,9 +9,12 @@ function getUser(con, serverID, userID) {
                 else {
                     getServer(con, serverID)
                         .then(server => {
-                            console.log(server);
-                            con.query(`insert into USERS(server_id, user_id) values ("${serverID}", "${userID}");`);
-                            resolve(getUser(con, serverID, userID));
+                            con.query(`insert into users (server_id, user_id) values ("${serverID}", "${userID}");`, (err, result) => {
+                                if (err)
+                                    reject(null)
+                                else
+                                    resolve(getUser(con, serverID, userID));
+                            });
                         })
                         .catch(e => console.log(e));
                 }
@@ -29,8 +32,12 @@ function getServer(con, serverID) {
                 if (result.length)
                     resolve(result[0]);
                 else {
-                    con.query(`insert into SERVER(id, motd, prefix) values ("${serverID}", "Message of the Day!", "~");`);
-                    resolve(getServer(con, serverID));
+                    con.query(`insert into SERVER(id, motd, prefix) values ("${serverID}", "Message of the Day!", "~");`, (err, result) => {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(getServer(con, serverID));
+                    });
                 }
             }
         });

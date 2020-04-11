@@ -4,6 +4,7 @@ const users = require('./helpers/users');
 const server = require('./helpers/server');
 const punishments = require('./helpers/punishments');
 const playlists = require('./helpers/playlists');
+const minigames = require('./helpers/minigames');
 
 const con = mysql.createConnection({
     server: "localhost",
@@ -50,5 +51,16 @@ module.exports = {
         getAll: (message) => {return playlists.getAll(con, message)},
         delete: (message, name) => {return playlists.remove(con, message, name)},
         remove: (message, name, songURL) => {return playlists.removeSong(con, message, name, songURL)}
+    },
+    minigames: {
+        getStats: (message, userID) => {return minigames.getStats(con, message, userID)},
+        pay: (message, userID, amount) => {minigames.pay(con, message, userID, amount)},
+        getItemList: () => {return minigames.getItemList(con)},
+        getFishList: (rarity = null) => {return minigames.getFishList(con, rarity)},
+        fishing: {
+            get: (message, userID) => {return minigames.fishing.get(con, message, userID)}
+        },
+
+        updateCondition: (name, meta, value) => {minigames.updateCondition(con, name, meta, value)}
     }
 }

@@ -5,7 +5,10 @@ function verify(message, permissionLevel) {
     return new Promise((resolve, reject) =>  {
         adapter.common.roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
-            .catch(e => reject(e));
+            .catch(reason => {
+                message.channel.send(reason);
+                reject(reason);
+            });
     });
 }
 
@@ -243,6 +246,28 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             // }
 
             // Minigames
+            case 'stats': {
+                verify(message, minigameLevel('stats'))
+                    .then(() => {
+                        switch(args[0]) {
+                            case 'fishing': {
+                                resolve(adapter.minigames.fishing.print(message))
+                                break;
+                            }
+                            default: {
+                                resolve(adapter.minigames.printStats(message))
+                                break;
+                            }
+                        }
+                    })
+            }
+            case 'cast': {
+                verify(message, minigameLevel('cast', 'fishing'))
+                    .then(() => resolve(adapter.minigames.fishing.cast(message)))
+                    .catch(r => reject(r));
+                break;
+            }
+
             // case 'slots': { }
             // case 'blackjack': {
             //     verify(message, minigameLevel(command, 'gambling'))
@@ -258,12 +283,7 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //     break;
             // }
 
-            // case 'stats': {
-            //     verify(message, minigameLevel('stats'))
-            //         .then(() => resolve(common.minigames.listStats(message)))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+            
             // case 'inv': {
             //     verify(message, minigameLevel('inv'))
             //         .then(() => resolve(common.minigames.listInv(message)))

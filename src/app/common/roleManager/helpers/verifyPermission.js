@@ -1,12 +1,12 @@
 const db = require('../../../sql/adapter');
 
 module.exports = function (message, userID, permLevel) {
-    return new Promise((resolve, reject) =>  {
-        if (message.member.hasPermission("ADMINISTRATOR"))
-            resolve('admin');
-        else
-            db.user.getBotRole(message.channel.guild.id, userID)
-                .then(role => {
+    return new Promise((resolve, reject) => {
+        db.user.getBotRole(message.channel.guild.id, userID)
+            .then(role => {
+                if (message.member.hasPermission("ADMINISTRATOR"))
+                    resolve('admin');
+                else
                     db.user.getPermissionLevel(message.channel.guild.id, userID)
                         .then(level => {
                             if (role == 'admin' && permLevel <= 4)
@@ -28,7 +28,7 @@ module.exports = function (message, userID, permLevel) {
                             }
                         })
                         .catch(e => reject(e));
-                })
-                .catch(e => reject(e));
+            })
+            .catch(e => reject(e));
     });
 }
