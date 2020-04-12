@@ -5,21 +5,42 @@ const server = require('./helpers/server');
 const punishments = require('./helpers/punishments');
 const playlists = require('./helpers/playlists');
 const minigames = require('./helpers/minigames');
+const config = require('../../../private/config');
 
-const con = mysql.createConnection({
+const db_config = {
     server: "localhost",
-    user: "chris",
-    password: "Pswrd123#!",
+    user: config.sql.username,
+    password: config.sql.password,
     database: "discordbot"
-});
+};
+
+var con;
+
+function onDisconnect() {
+    con = mysql.createConnection(db_config);
+
+    con.connect((err) => {
+        if (err) {
+            console.log('Error connecting to database. Retrying in 10 seconds.');
+            setTimeout(onDisconnect(), 10000);
+        }
+        else
+            console.log('Connected to the SQL server.');
+    });
+
+    con.on('error', (err) => {
+        console.log('Database error;', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST')
+            onDisconnect();
+        else {
+            console.log('Disconnect was not connection lost error; retrying in 30 seconds.');
+            onDisconnect();
+        }
+    });
+}
 
 function startup() {
-    con.connect(function (err) {
-        if (err)
-            console.log(err);
-        else
-            console.log("Connected!");
-    });
+    onDisconnect();
 }
 
 module.exports = {
