@@ -19,7 +19,7 @@ function moderate(message, userID, operation, args = {}) {
 
 module.exports = function (message, userID, operation, reason, args = {}) {
     let guild = message.channel.guild;
-    let user = guild.members.get(userID);
+    let user = guild.members.cache.get(userID);
 
     return new Promise((resolve, reject) =>  {
         if (user && user.hasPermission("ADMINISTRATOR") && (operation == 'kick' || operation == 'ban')) {

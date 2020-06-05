@@ -37,7 +37,7 @@ function all(message, index = 0) {
                     for (let i in arr[index]) {
                         pl = arr[index][i];
                         count = (JSON.parse(pl.list) === null) ? 0 : JSON.parse(pl.list).length;
-                        embedMsg.addField(`${pl.name} | ${message.guild.members.get(pl.creator_id).user.username || ''}`, `${count} songs - Duration: ${intToTimeString.seconds(pl.duration).string}`);
+                        embedMsg.addField(`${pl.name} | ${message.guild.members.cache.get(pl.creator_id).user.username || ''}`, `${count} songs - Duration: ${intToTimeString.seconds(pl.duration).string}`);
                     }
                     message.channel.send(embedMsg);
                 })

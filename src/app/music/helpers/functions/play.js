@@ -2,13 +2,13 @@ const queue = require('../queue/map');
 const stop = require('./stop');
 const ytdl = require('ytdl-core');
 
-function play(message, obj) {
-    const song = obj.song;
+function play(message, songObject) {
+    const song = songObject.song;
     const id = message.guild.id;
     if (!queue.has(id))
         return;
 
-    const dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
+    queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('end', () => {
             if (!queue.has(id)) {
                 stop(message, '> End of queue.');
@@ -27,7 +27,7 @@ function play(message, obj) {
                 stop(message, '> End of queue.');
         })
         .on('error', error => console.log('Had an error playing the song:\n', song, error));
-    dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
+        queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
 }
 
 module.exports = (message, song) => play(message, song);

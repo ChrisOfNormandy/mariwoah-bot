@@ -52,7 +52,7 @@ function dmMessage(message, user, userID, args, operation) {
         }
 
         if (operation != 'banRevert')
-            resolve(message.channel.guild.members.get(userID).send(
+            resolve(message.channel.guild.members.cache.get(userID).send(
                 `You have been ${op.ed} by ${message.author.username} in ${message.channel.guild.name}.\n` +
                 `You currently have ${user.data[op.data].length} ${op.ing}${(user.data[op.data].length > 1) ? 's' : ''} on record.\n` +
                 `\n` +

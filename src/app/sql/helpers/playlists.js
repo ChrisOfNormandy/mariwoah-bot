@@ -95,6 +95,8 @@ function removeSong(con, message, name, songURL) {
 }
 
 function append(con, message, name, song) {
+    song.title = song.title.replace("'", "''");
+    
     get(con, message, name)
         .then(data => {
             let list = JSON.parse(data.list);
@@ -112,6 +114,7 @@ function append(con, message, name, song) {
                 if (!flag)
                     return message.channel.send('> Playlist already includes that song!');
 
+                
                 list.push(song);
             }
             con.query(`update PLAYLISTS set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {

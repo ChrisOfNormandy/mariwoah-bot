@@ -210,8 +210,18 @@ module.exports = {
                 alternatives: ['q'],
                 selfClear: true
             },
+            'pause': {
+                description: 'Pauses the active playing music.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'resume': {
+                description: 'Resumes the paused music.',
+                permissionLevel: 1,
+                selfClear: true
+            },
             page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue']
+                ['join', 'leave', 'play', 'skip', 'stop', 'queue', 'pause', 'resume']
             ]
         }
     },

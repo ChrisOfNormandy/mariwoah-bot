@@ -5,7 +5,7 @@ const getUser = require('./getUser');
 module.exports = function (message, userID) {
     getUser(message, userID)
         .then(user => {
-            let discord_user = message.channel.guild.members.get(user.id).user;
+            let discord_user = message.channel.guild.members.cache.get(user.id).user;
 
             let embedMsg = new Discord.MessageEmbed()
                 .setTitle(discord_user.username + '#' + discord_user.discriminator)

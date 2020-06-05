@@ -17,7 +17,8 @@ module.exports = async function (message, song) {
             songs: [],
             volume: 5,
             active: true,
-            previousSong: null
+            previousSong: null,
+            dispatcher: null
         };
 
         queue.set(message.guild.id, activeQueue);
@@ -25,9 +26,12 @@ module.exports = async function (message, song) {
 
     queue.get(message.guild.id).songs.push({song: song, request: message.author});
 
-    if (!queue.get(message.guild.id).connection) {
+    if (queue.get(message.guild.id).connection === null) {
         var connection = await voiceChannel.join();
         queue.get(message.guild.id).connection = connection;
+    }
+
+    if (queue.get(message.guild.id).songs.length == 1) {
         getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
             .then(msg => message.channel.send(msg))
             .catch(e => console.log(e));

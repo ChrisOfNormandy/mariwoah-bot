@@ -4,7 +4,7 @@ const getUser = require('./getUser');
 module.exports = function (message, userID) {
     getUser(message, userID)
         .then(user => {
-            let discord_user = message.channel.guild.members.get(userID).user;
+            let discord_user = message.channel.guild.members.cache.get(userID).user;
 
             let embedMsg = new Discord.MessageEmbed()
                 .setTitle(discord_user.username + '#' + discord_user.discriminator)
@@ -17,7 +17,7 @@ module.exports = function (message, userID) {
                 embedMsg.addBlankField();
 
             if (user.data.warnings.length)
-                embedMsg.addField(`Latest warning - ${message.channel.guild.members.get(user.data.warnings[user.data.warnings.length - 1].staffID).user.username}`, `Reason: "${user.data.latestWarning.reason || 'No reason given'}" on ${user.data.latestWarning.date.day} at ${user.data.latestWarning.date.time}.`);
+                embedMsg.addField(`Latest warning - ${message.channel.guild.members.cache.get(user.data.warnings[user.data.warnings.length - 1].staffID).user.username}`, `Reason: "${user.data.latestWarning.reason || 'No reason given'}" on ${user.data.latestWarning.date.day} at ${user.data.latestWarning.date.time}.`);
             if (user.data.kicks.length)
                 embedMsg.addField('Latest warning', `Reason: "${user.data.latestKick.reason || 'No reason given'}" on ${user.data.latestKick.time}.`);
             if (user.data.bans.length)

@@ -19,7 +19,6 @@ module.exports = {
             .then(song => {
                 let embedMsg = new Discord.MessageEmbed();
                 if (song !== undefined) {
-                    console.log(song);
                     embedMsg.setTitle(`${song.title}`);
                     embedMsg.setColor(chatFormat.colors.byName.green);
                     embedMsg.setThumbnail(song.thumbnail.url);

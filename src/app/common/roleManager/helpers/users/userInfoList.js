@@ -12,9 +12,9 @@ function getList(message, userID, discord_user, user, operation) {
         for (let i = 0; i < user.data[operation].length; i++) {
             obj = user.data[operation][i];
             embedMsg.addField(
-                `${i + 1} - ${message.channel.guild.members.get(obj.staffID).user.username}`,
+                `${i + 1} - ${message.channel.guild.members.cache.get(obj.staffID).user.username}`,
                 `Reason: "${obj.reason || 'No reason given'}" on ${obj.date.day} at ${obj.date.time}.
-                ${(obj.pardoned.value) ? `Pardoned by ${message.channel.guild.members.get(obj.pardoned.staffID).user.username}.\nReason: "${obj.pardoned.reason || 'No reason given'}" on ${obj.pardoned.date.day} at ${obj.pardoned.date.time}.` : ''}`
+                ${(obj.pardoned.value) ? `Pardoned by ${message.channel.guild.members.cache.get(obj.pardoned.staffID).user.username}.\nReason: "${obj.pardoned.reason || 'No reason given'}" on ${obj.pardoned.date.day} at ${obj.pardoned.date.time}.` : ''}`
             );
         }
     }
@@ -26,7 +26,7 @@ function getList(message, userID, discord_user, user, operation) {
 module.exports = function (message, userID, listName) {
     getUser(message, userID)
         .then(user => {
-            let discord_user = (message.channel.guild.members.get(userID)) ? message.channel.guild.members.get(userID).user : null;
+            let discord_user = (message.channel.guild.members.cache.get(userID)) ? message.channel.guild.members.cache.get(userID).user : null;
             message.channel.send(getList(message, userID, discord_user, user, listName));
         })
         .catch(e => console.log(e));

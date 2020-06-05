@@ -336,6 +336,18 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
                     .catch(r => reject(r));
                 break;
             }
+            case 'pause': {
+                verify(message, musicLevel('pause'))
+                    .then(() => resolve(adapter.music.pause(message)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'resume': {
+                verify(message, musicLevel('resume'))
+                    .then(() => resolve(adapter.music.resume(message)))
+                    .catch(r => reject(r));
+                break;
+            }
             // case 'rmqueue': { }
             // case 'removefromqueue': {
             //     verify(message, musicLevel('removefromqueue'))

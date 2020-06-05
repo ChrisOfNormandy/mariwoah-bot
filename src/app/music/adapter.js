@@ -7,6 +7,8 @@ const append = require('./helpers/queue/append');
 const skip = require('./helpers/functions/skip');
 const list = require('./helpers/queue/list');
 const stop = require('./helpers/functions/stop');
+const pause = require('./helpers/functions/pause');
+
 const getVC = require('../common/bot/helpers/global/getVoiceChannel');
 
 const pl = commandList.playlists.commands;
@@ -41,6 +43,8 @@ module.exports = {
         else
             message.channel.send('> You must be in a voice channel to remove bot.')
     },
+    pause: (message) => pause.pause(message),
+    resume: (message) => pause.resume(message),
 
     pl_append: (message, playlistName, songURL = null, songName = null) => {playlist.append(message, playlistName, songURL, songName)},
     pl_create: (message, playlistName) => {playlist.create(message, playlistName)},
