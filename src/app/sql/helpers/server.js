@@ -6,11 +6,11 @@ function setMotd(con, serverID, string) {
         return;
     query.getServer(con, serverID)
         .then(server => {
-            con.query(`update servers set motd = "${string}" where id = "${serverID}";`, (err, result) => {
+            con.query(`update SERVERS set motd = "${string}" where id = "${serverID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {
+                    con.query(`select * from SERVERS where id = "${serverID}";`, (err, result) => {
                         console.log(result);
                     });
             });
@@ -20,11 +20,11 @@ function setMotd(con, serverID, string) {
 function setPrefix(con, serverID, prefix) {
     query.getServer(con, serverID)
         .then(server => {
-            con.query(`update servers set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
+            con.query(`update SERVERS set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {
+                    con.query(`select * from SERVERS where id = "${serverID}";`, (err, result) => {
                         console.log(result);
                     });
             });
