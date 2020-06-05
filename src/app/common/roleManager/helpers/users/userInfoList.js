@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const getUser = require('./getUser');
 
 function getList(message, userID, discord_user, user, operation) {
-    let embedMsg = new Discord.RichEmbed();
+    let embedMsg = new Discord.MessageEmbed();
     if (user.data[operation].length) {
         embedMsg.setTitle((discord_user) ? `${discord_user.username}#${discord_user.discriminator} - ${operation}` : `${userID} - ${operation}`);
         embedMsg.setColor(chatFormat.colors.information);

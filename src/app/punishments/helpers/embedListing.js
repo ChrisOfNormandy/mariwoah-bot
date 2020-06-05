@@ -5,7 +5,7 @@ function single(message, type, data) {
     let datetime = new Date(data.datetime);
     let date = datetime.toLocaleDateString();
     let time = datetime.toLocaleTimeString();
-    let embedMsg = new Discord.RichEmbed()
+    let embedMsg = new Discord.MessageEmbed()
         .setTitle(`Latest ${type} for ${data.username || 'Unknown'} | ${data.user_id}`)
         .setColor(chatFormat.colors.information)
         .addField(`Ticket reference number: ${data.ticket_id}`,
@@ -17,7 +17,7 @@ function single(message, type, data) {
 
 function array(message, type, array) {
     let datetime, date, time;
-    let embedMsg = new Discord.RichEmbed()
+    let embedMsg = new Discord.MessageEmbed()
         .setTitle(`All ${type}s for ${array[0].username || 'Unknown'} | ${array[0].user_id}`)
         .setColor(chatFormat.colors.information);
 

@@ -4,21 +4,44 @@ const users = require('./helpers/users');
 const server = require('./helpers/server');
 const punishments = require('./helpers/punishments');
 const playlists = require('./helpers/playlists');
+const minigames = require('./helpers/minigames');
+const config = require('../../../private/config');
 
-const con = mysql.createConnection({
-    server: "localhost",
-    user: "chris",
-    password: "Pswrd123#!",
-    database: "discordbot"
-});
+const db_config = {
+    host: "localhost",
+    user: config.sql.username,
+    password: config.sql.password,
+    database: config.sql.database
+};
+
+var con;
+
+function onDisconnect() {
+    con = mysql.createConnection(db_config);
+
+    con.connect((err) => {
+        if (err) {
+            console.log('Error connecting to database. Retrying in 10 seconds.');
+            console.log(err);
+            setTimeout(onDisconnect(), 10000);
+        }
+        else
+            console.log('Connected to the SQL server.');
+    });
+
+    con.on('error', (err) => {
+        console.log('Database error;', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST')
+            onDisconnect();
+        else {
+            console.log('Disconnect was not connection lost error; retrying in 30 seconds.');
+            onDisconnect();
+        }
+    });
+}
 
 function startup() {
-    con.connect(function (err) {
-        if (err)
-            console.log(err);
-        else
-            console.log("Connected!");
-    });
+    onDisconnect();
 }
 
 module.exports = {
@@ -50,5 +73,16 @@ module.exports = {
         getAll: (message) => {return playlists.getAll(con, message)},
         delete: (message, name) => {return playlists.remove(con, message, name)},
         remove: (message, name, songURL) => {return playlists.removeSong(con, message, name, songURL)}
+    },
+    minigames: {
+        getStats: (message, userID) => {return minigames.getStats(con, message, userID)},
+        pay: (message, userID, amount) => {minigames.pay(con, message, userID, amount)},
+        getItemList: () => {return minigames.getItemList(con)},
+        getFishList: (rarity = null) => {return minigames.getFishList(con, rarity)},
+        fishing: {
+            get: (message, userID) => {return minigames.fishing.get(con, message, userID)}
+        },
+
+        updateCondition: (name, meta, value) => {minigames.updateCondition(con, name, meta, value)}
     }
 }

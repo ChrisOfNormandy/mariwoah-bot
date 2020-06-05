@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 function formatResponse(name, joinDate, roleList, user) {
     if (user.bot)
         name += ' -=[BOT]=-'
-    let embedMsg = new Discord.RichEmbed()
+    let embedMsg = new Discord.MessageEmbed()
         .setTitle(name)
         .setColor(chatFormat.colors.information)
         .addField("Join date", joinDate)

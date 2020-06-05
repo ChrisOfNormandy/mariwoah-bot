@@ -37,7 +37,7 @@ module.exports = async function (message, args) {
                             : help[args[0]];
                     }
 
-                    let embedMsg = new Discord.RichEmbed()
+                    let embedMsg = new Discord.MessageEmbed()
                         .setTitle(sect.header)
                         .setColor(chatFormat.colors.information);
                     let msg = '';
@@ -49,7 +49,7 @@ module.exports = async function (message, args) {
                     for (i in sect.commands.page[pageNumber]) {
                         s = sect.commands.page[pageNumber][i];
 
-                        if (sect.commands[s].permissionLevel && lvl < sect.commands[s].permissionLevel)
+                        if (sect.commands[s].permissionLevel && userLevel < sect.commands[s].permissionLevel)
                             continue;
 
                         msg += `${sect.commands[s].description}\n`;

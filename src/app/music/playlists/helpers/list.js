@@ -7,7 +7,7 @@ const intToTimeString = require('../../../common/bot/helpers/global/intToTimeStr
 function byName(message, name) {
     db.playlists.getList(message, name)
         .then(list => {
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(`Song list for ${name}`)
                 .setColor(chatFormat.colors.byName.aqua);
             let song;
@@ -23,7 +23,7 @@ function byName(message, name) {
 function all(message, index = 0) {
     db.playlists.getAll(message)
         .then(list => {
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(`List of available playlists`)
                 .setColor(chatFormat.colors.byName.aqua);
             let pl;
@@ -71,7 +71,7 @@ module.exports = async function (message, playlistName, pageNumber = 0, includeL
         .then(arrays => {
             let msg = '';
             let num = 0;
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(`Songs in ${playlistName}`)
                 .setColor(chatFormat.colors.information);
 

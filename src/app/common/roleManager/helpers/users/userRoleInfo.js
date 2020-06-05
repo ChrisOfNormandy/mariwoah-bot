@@ -7,7 +7,7 @@ module.exports = function (message, userID) {
         .then(user => {
             let discord_user = message.channel.guild.members.get(user.id).user;
 
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(discord_user.username + '#' + discord_user.discriminator)
                 .setColor(chatFormat.colors.information)
                 .addField(

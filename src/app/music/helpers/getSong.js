@@ -12,8 +12,8 @@ async function func(message, songURL) {
                 let arr = songInfo.player_response.videoDetails.thumbnail.thumbnails;
 
                 resolve({
-                    title: songInfo.title,
-                    url: songInfo.video_url,
+                    title: songInfo.videoDetails, //title: songInfo.videoDetails.title,
+                    url: songInfo.video_url, //url: songInfo.videoDetails.video_url,
                     author: songInfo.player_response.videoDetails.author,
                     requested: {
                         id: message.author.id,
@@ -64,7 +64,9 @@ module.exports = {
                         else if (!videos[videoIndex].url)
                             reject(null);
                         else
-                            resolve(func(message, videos[videoIndex].url));
+                            func(message, videos[videoIndex].url)
+                                .then(song => resolve(song))
+                                .catch(e => reject(e));
                     }
                 }
             });

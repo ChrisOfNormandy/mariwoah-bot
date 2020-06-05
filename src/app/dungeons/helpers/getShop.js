@@ -75,7 +75,7 @@ module.exports = {
     printRandom: async function (message, amount) {
         this.random(message, amount)
             .then(map => {
-                let embedMsg = new Discord.RichEmbed()
+                let embedMsg = new Discord.MessageEmbed()
                     .setTitle('Random shop listings')
                     .setColor(chatFormat.colors.byName.cyan);
                 let str = '';

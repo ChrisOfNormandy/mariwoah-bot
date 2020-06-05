@@ -8,7 +8,7 @@ function play(message, obj) {
     if (!queue.has(id))
         return;
 
-    const dispatcher = queue.get(id).connection.playStream(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
+    const dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('end', () => {
             if (!queue.has(id)) {
                 stop(message, '> End of queue.');
@@ -26,7 +26,7 @@ function play(message, obj) {
             else
                 stop(message, '> End of queue.');
         })
-        .on('error', error => console.error(error));
+        .on('error', error => console.log('Had an error playing the song:\n', song, error));
     dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
 }
 

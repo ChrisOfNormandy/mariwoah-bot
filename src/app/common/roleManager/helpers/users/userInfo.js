@@ -6,7 +6,7 @@ module.exports = function (message, userID) {
         .then(user => {
             let discord_user = message.channel.guild.members.get(userID).user;
 
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(discord_user.username + '#' + discord_user.discriminator)
                 .addField('Warnings', user.data.warnings.length, true)
                 .addField('Kicks', user.data.kicks.length, true)

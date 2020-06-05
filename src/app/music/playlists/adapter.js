@@ -17,7 +17,7 @@ module.exports = {
     append: (message, playlistName, songURL = null, songName = null) => {
         append(message, playlistName, songURL, songName)
             .then(song => {
-                let embedMsg = new Discord.RichEmbed();
+                let embedMsg = new Discord.MessageEmbed();
                 if (song !== undefined) {
                     console.log(song);
                     embedMsg.setTitle(`${song.title}`);

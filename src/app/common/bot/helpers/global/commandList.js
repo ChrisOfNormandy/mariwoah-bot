@@ -290,8 +290,31 @@ module.exports = {
     },
     minigames: {
         header: '### Minigame Commands ###',
-        commands: {},
-        subcommands: {}
+        commands: {
+            'stats': {
+                description: '',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            page: [
+                ['stats']
+            ]
+        },
+        subcommands: {
+            fishing: {
+                'cast': {
+                    description: '',
+                    permissionLevel: 1,
+                    selfClear: true
+                },
+                page: [
+                    ['cast']
+                ]
+            },
+            page: [
+                ['fishing']
+            ]
+        }
     },
     memes: {
         header: '### MEMES ###',

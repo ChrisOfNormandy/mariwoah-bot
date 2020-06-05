@@ -21,8 +21,8 @@ function verify(message, permissionLevel) {
 
 module.exports = {
     append: {
-        byURL: (message, songURL) => {getSong.byURL(message, songURL).then(obj => append(message, obj))},
-        byName: (message, songName) => {getSong.byName(message, songName).then(obj => append(message, obj))}
+        byURL: (message, songURL) => {getSong.byURL(message, songURL).then(obj => append(message, obj)).catch(e => console.log(e))},
+        byName: (message, songName) => {getSong.byName(message, songName).then(obj => append(message, obj)).catch(e => console.log(e))}
     },
     skip: (message) => {skip(message)},
     list: (message) => {list(message)},

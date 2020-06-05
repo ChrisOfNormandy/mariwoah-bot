@@ -4,7 +4,7 @@ const Discord = require('discord.js')
 function get(message) {
     db.server.getMotd(message.guild.id)
         .then(motd => {
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(message.guild.name);
 
             let arr = motd.split('|');

@@ -5,8 +5,9 @@ const getEmbed = require('../getEmbedSongInfo');
 
 module.exports = async function (message, song) {
     const voiceChannel = getVC(message);
+
     if (!voiceChannel)
-        return;
+        return console.log("No voice channel!");
 
     if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
         let activeQueue = {

@@ -2,7 +2,7 @@ const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 
 module.exports = function (message, obj) {
-    let embedMsg = new Discord.RichEmbed()
+    let embedMsg = new Discord.MessageEmbed()
         .setTitle(`Stats for ${obj.definition.name}`)
         .setColor(chatFormat.colors.byName.darkgreen)
         .addField('General',

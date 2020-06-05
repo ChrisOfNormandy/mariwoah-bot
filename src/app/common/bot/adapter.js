@@ -1,7 +1,6 @@
 module.exports = {
     features: {
         cleanChat: require('./helpers/features/cleanChat'),
-        covid: require('./helpers/features/covid19'),
         listHelp: require('./helpers/features/listHelp'),
         motd: require('./helpers/features/motd'),
         ping: require('./helpers/features/ping'),
@@ -9,7 +8,8 @@ module.exports = {
         printLog: require('./helpers/features/printLog'),
         reactions: require('./helpers/features/reactions'),
         roll: require('./helpers/features/roll'),
-        whoAre: require('./helpers/features/whoAre')
+        whoAre: require('./helpers/features/whoAre'),
+        commandLine: require('./helpers/features/commandLine')
     },
     file: {
         delete: require('./helpers/file/delete'),

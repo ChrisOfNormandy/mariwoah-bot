@@ -6,7 +6,7 @@ function setMotd(con, serverID, string) {
         return;
     query.getServer(con, serverID)
         .then(server => {
-            con.query(`update server set motd = "${string}" where id = "${serverID}";`, (err, result) => {
+            con.query(`update servers set motd = "${string}" where id = "${serverID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
@@ -20,7 +20,7 @@ function setMotd(con, serverID, string) {
 function setPrefix(con, serverID, prefix) {
     query.getServer(con, serverID)
         .then(server => {
-            con.query(`update server set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
+            con.query(`update servers set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else

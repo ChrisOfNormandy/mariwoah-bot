@@ -11,7 +11,7 @@ module.exports = {
             const song = activeQueue.songs[index].song || null;
             const requested = activeQueue.songs[index].request || 'Unknown';
 
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(title)
                 .setColor(chatFormat.colors.youtube)
                 .setThumbnail(song.thumbnail.url)
@@ -26,7 +26,7 @@ module.exports = {
         return new Promise((resolve, reject) =>  {
             const song = activeQueue.songs[0];
 
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle('Current song queue')
                 .setColor(chatFormat.colors.youtube)
 
@@ -56,7 +56,7 @@ module.exports = {
                 reject(null);
             }
 
-            let embedMsg = new Discord.RichEmbed()
+            let embedMsg = new Discord.MessageEmbed()
                 .setTitle(`Here's what I found...`)
                 .setColor(chatFormat.colors.youtube);
 
@@ -74,7 +74,7 @@ module.exports = {
             if (songURL !== null) {
                 getSongObject.byUrl(message, songURL)
                     .then(async (song) => {
-                        let embedMsg = new Discord.RichEmbed()
+                        let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
                             .setColor(chatFormat.colors.youtube)
                             .setThumbnail(song.thumbnail.url)
@@ -88,7 +88,7 @@ module.exports = {
             else if (songURL === null && songName !== null) {
                 getSongObject.byName(message, songName)
                     .then(async (song) => {
-                        let embedMsg = new Discord.RichEmbed()
+                        let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
                             .setColor(chatFormat.colors.youtube)
                             .setThumbnail(song.thumbnail.url)

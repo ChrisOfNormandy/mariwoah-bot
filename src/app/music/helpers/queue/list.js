@@ -6,7 +6,7 @@ module.exports = function(message) {
     if (!queue.has(message.guild.id))
         return message.channel.send('> There are no songs in the queue.');
 
-    let embedMsg = new Discord.RichEmbed()
+    let embedMsg = new Discord.MessageEmbed()
         .setTitle('Active queue:')
         .setColor(chatFormat.colors.information);
     let songs = queue.get(message.guild.id).songs;

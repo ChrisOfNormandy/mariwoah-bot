@@ -3,11 +3,11 @@ const query = require('./query');
 function setBotRole(con, serverID, userID, roleName) {
     query.getUser(con, serverID, userID)
         .then(user => {
-            con.query(`update users set bot_role = "${roleName}" where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
+            con.query(`update USERS set bot_role = "${roleName}" where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from users where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
+                    con.query(`select * from USERS where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
                         console.log(result);
                     });
             });
@@ -18,11 +18,11 @@ function setBotRole(con, serverID, userID, roleName) {
 function setPermissionLevel(con, serverID, userID, level) {
     query.getUser(con, serverID, userID)
         .then(user => {
-            con.query(`update users set permission_level = ${level} where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
+            con.query(`update USERS set permission_level = ${level} where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from users where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
+                    con.query(`select * from USERS where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
                         console.log(result);
                     });
             });

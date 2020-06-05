@@ -2,9 +2,15 @@ const db = require('../../../../sql/adapter');
 const Discord = require('discord.js');
 const config = require('../../../../../../private/config');
 
-module.exports = function () {
+let client = new Discord.Client();
+
+function run() {
     db.startup();
-    const client = new Discord.Client();
     client.login(config.auth.token);
     return client;
+}
+
+module.exports = {
+    run,
+    client
 }
