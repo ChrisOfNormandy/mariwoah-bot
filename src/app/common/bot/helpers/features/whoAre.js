@@ -19,35 +19,37 @@ function getDate(date) {
     return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`;
 }
 
-function getRoles(member, message) {
+function getRoles(member) {
     let roles = '';
-    for (let role in member._roles) {
-        roles += `${message.guild.roles.get(member._roles[role]).name}`
-        roles += (member._roles.length > 1 && role < member._roles.length - 1) ? ', ' : '';
-    }
+    let count = 0;
+    member.roles.cache.forEach((role, k, t) => {
+        roles += `${role}`
+        roles += (member.roles.cache.size > 1 && count < member.roles.cache.size - 1) ? ', ' : '';
+        count++;
+    });
+
     return roles;
 }
 
 module.exports = {
     self: function (message) {
-        let m = message.member;
-        let u = m.user;
+        let member = message.member;
+        let user = member.user;
 
-        let joinDate = getDate(new Date(m.joinedTimestamp));
-        let roles = getRoles(m, message);
-        let embedMsg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
+        let joinDate = getDate(new Date(member.joinedTimestamp));
+        let roles = getRoles(member, message);
+        let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, user);
 
         message.channel.send(embedMsg);
     },
 
     member: function (message) {
-        let id = message.mentions.users.first().id;
-        let user = message.guild.members.get(id);
-        let u = user.user;
+        let user = message.mentions.users.first();
+        let member = message.guild.member(user);
 
-        let joinDate = getDate(new Date(user.joinedTimestamp));
-        let roles = getRoles(user, message);
-        let embedMsg = formatResponse(u.username + '#' + u.discriminator, joinDate, roles, u);
+        let joinDate = getDate(new Date(member.joinedTimestamp));
+        let roles = getRoles(member, message);
+        let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, user);
 
         message.channel.send(embedMsg);
     }
