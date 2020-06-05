@@ -20,7 +20,7 @@ function get(message, userID, listAll = true) {
 }
 
 function set(message, userID, reason, duration, severity = 'normal') {
-    if (!message.guild.members.get(userID))
+    if (!message.guild.members.cache.get(userID))
         return message.channel.send('> Could not find target user.');
 
     if (reason.trim() == '')
@@ -30,9 +30,9 @@ function set(message, userID, reason, duration, severity = 'normal') {
     db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
     get(message, userID)
         .then(data => {
-            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data, {duration});
-            message.channel.send(`> Banned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} bans.`);
-            message.guild.members.get(userID).ban({reason: reason, days: duration});
+            messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data, {duration});
+            message.channel.send(`> Banned ${message.guild.members.cache.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} bans.`);
+            message.guild.members.cache.get(userID).ban({reason: reason, days: duration});
         })
         .catch(e => console.log(e));
 }

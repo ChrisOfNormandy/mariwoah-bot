@@ -162,20 +162,20 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             }
             case 'unban': {
                 verify(message, roleManagerLevel('unban'))
-                    .then(() => resolve(message.guild.unban(args[0])
+                    .then(() => resolve(message.guild.members.unban(args[0])
                         .then(user => {
                             message.channel.send(`Unbanned ${user.username}.`);
 
-                            message.channel.createInvite({
-                                maxUses: 1,
-                                unique: true,
-                                maxAge: 86400
-                            })
-                            .then(invite => {
+                            // message.channel.inviteCreate({
+                            //     maxUses: 1,
+                            //     unique: true,
+                            //     maxAge: 86400
+                            // })
+                            // .then(invite => {
                                 user.send(`You have been unbanned from ${message.guild.name}.`);
-                                user.send(invite);
-                            })
-                            .catch(console.log(e));
+                                // user.send(invite);
+                            // })
+                            // .catch(e => console.log(e));
                         })
                         .catch(e => message.channel.send(`Cannot unban user.\n${e.message}`))
                     ))
