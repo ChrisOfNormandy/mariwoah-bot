@@ -33,7 +33,7 @@ function setUser(con, message, userID, type, reason = null, duration = -1, sever
                     "${severity}", 
                     "${message.createdTimestamp}", 
                     "${message.author.id}", 
-                    "${message.guild.members.get(userID).user.username}", 
+                    "${message.guild.members.cache.get(userID).user.username}", 
                     "${datetime}");`,
                     (err, result) => {
                         if (err)

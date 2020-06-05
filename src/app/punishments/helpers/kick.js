@@ -1,5 +1,6 @@
 const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
+const messageTarget = require('./messageTarget');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
@@ -19,7 +20,7 @@ function get(message, userID, listAll = true) {
 }
 
 function set(message, userID, reason) {
-    if (!message.guild.members.get(userID))
+    if (!message.guild.members.cache.get(userID))
         return message.channel.send('> Could not find target user.');
         
     if (reason.trim() == '')
@@ -29,9 +30,9 @@ function set(message, userID, reason) {
     db.punishments.setUser(message, userID, 'kick', reason);
     get(message, userID)
         .then(data => {
-            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data);
-            message.channel.send(`> Kicked ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} kicks.`);
-            message.guild.members.get(userID).kick();
+            messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data);
+            message.channel.send(`> Kicked ${message.guild.members.cache.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} kicks.`);
+            message.guild.members.cache.get(userID).kick();
         })
         .catch(e => console.log(e));
 }
