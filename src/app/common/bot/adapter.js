@@ -9,7 +9,6 @@ module.exports = {
         reactions: require('./helpers/features/reactions'),
         roll: require('./helpers/features/roll'),
         whoAre: require('./helpers/features/whoAre'),
-        commandLine: require('./helpers/features/commandLine')
     },
     file: {
         delete: require('./helpers/file/delete'),
