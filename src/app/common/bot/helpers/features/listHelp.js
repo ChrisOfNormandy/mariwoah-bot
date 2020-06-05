@@ -90,7 +90,7 @@ module.exports = async function (message, args) {
                     message.channel.send(embedMsg)
                         .then(msg => {
                             message.delete();
-                            msg.delete(30000);
+                            msg.delete({timeout: 30000});
                         })
                         .catch(e => {
                             console.log(e);
