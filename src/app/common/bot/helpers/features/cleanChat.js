@@ -17,45 +17,51 @@ function getAge(a, b) {
 module.exports = async function (message) {
     let channel = message.channel;
 
-    if (channel.type == 'text') {
-        channel.fetchMessages()
-            .then(messages => {
-                if (message.mentions.users.first()) {
-                    const userMessages = messages.filter(msg => (msg.author.id == message.mentions.users.first().id &&
+    channel.messages.fetch()
+        .then(messages => {
+            console.log(`Filtering through ${messages.size} messages.`);
+
+            if (!!message.mentions.users.size) {
+                message.mentions.users.forEach((user, id, t) => {
+                    const userMessages = messages.filter(msg => (msg.author.id == id &&
                         getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                     ));
 
-                    let userMessagesDeleted = userMessages.array().length;
+                    const userMessagesDeleted = userMessages.array().length;
 
                     channel.bulkDelete(userMessages);
 
-                    channel.send(`Deletion of messages successful. Total messages deleted:\nTotal: ${userMessagesDeleted}`)
-                        .then(msg => msg.delete(5000))
+                    channel.send(`Deletion of messages successful. Total messages deleted for user ${user}: ${userMessagesDeleted}`)
+                        .then(message => message.delete({timeout: 5000}))
                         .catch(e => console.log(e));
-                }
-                else {
-                    db.server.getPrefix(message.guild.id)
-                        .then(prefix => {
-                            const botMessages = messages.filter(msg => (msg.author.bot &&
-                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                            ));
-                            const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
-                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                            ));
-        
-                            let botMessagesDeleted = botMessages.array().length;
-                            let cmdMessagesDeleted = cmdMessages.array().length;
-        
-                            channel.bulkDelete(botMessages);
-                            channel.bulkDelete(cmdMessages);
-        
-                            channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
-                                .then(msg => msg.delete(5000))
-                                .catch(e => console.log(e));
-                        })
-                    
-                }
-            })
-            .catch(err => console.log('Error while doing bulk delete.', err));
-    }
+                });
+            }
+            else {
+                db.server.getPrefix(message.guild.id)
+                    .then(prefix => {
+                        const botMessages = messages.filter(msg => (msg.author.bot &&
+                            getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                        ));
+                        const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
+                            getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                        ));
+    
+                        const botMessagesDeleted = botMessages.array().length;
+                        const cmdMessagesDeleted = cmdMessages.array().length;
+    
+                        channel.bulkDelete(botMessages);
+                        channel.bulkDelete(cmdMessages);
+    
+                        channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
+                            .then(message => message.delete({timeout: 5000}))
+                            .catch(e => console.log(e));
+                    })
+                    .catch(e => console.log(e));
+            }
+
+        })
+        .catch(e => console.log(e));
+    
+    if (message)
+        message.delete({timeout: 3000});
 }
