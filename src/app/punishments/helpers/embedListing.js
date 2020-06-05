@@ -10,7 +10,7 @@ function single(message, type, data) {
         .setColor(chatFormat.colors.information)
         .addField(`Ticket reference number: ${data.ticket_id}`,
             `Executed on ${date} at ${time}\n` +
-            `Staff: ${message.guild.members.get(data.staff_id) || 'Unavailable'} | ${data.staff_id}\n` +
+            `Staff: ${message.guild.members.cache.get(data.staff_id) || 'Unavailable'} | ${data.staff_id}\n` +
             `Reason: ${data.reason}`);
     return embedMsg;
 }
@@ -27,7 +27,7 @@ function array(message, type, array) {
         time = datetime.toLocaleTimeString();
         embedMsg.addField(`Ticket reference number: ${array[i].ticket_id}`,
             `Executed on ${date} at ${time}\n` +
-            `Staff: ${message.guild.members.get(array[i].staff_id) || 'Unavailable'} | ${array[i].staff_id}\n` +
+            `Staff: ${message.guild.members.cache.get(array[i].staff_id) || 'Unavailable'} | ${array[i].staff_id}\n` +
             `Reason: ${array[i].reason}`);
     }
     return embedMsg;
