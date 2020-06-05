@@ -12,8 +12,9 @@ async function func(message, songURL) {
                 let arr = songInfo.player_response.videoDetails.thumbnail.thumbnails;
 
                 resolve({
-                    title: songInfo.videoDetails, //title: songInfo.videoDetails.title,
-                    url: songInfo.video_url, //url: songInfo.videoDetails.video_url,
+                    videoDetails: songInfo.videoDetails,
+                    title: songInfo.videoDetails.title,
+                    url: songInfo.video_url,
                     author: songInfo.player_response.videoDetails.author,
                     requested: {
                         id: message.author.id,
