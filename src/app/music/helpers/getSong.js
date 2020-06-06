@@ -14,7 +14,7 @@ async function func(message, songURL) {
                 resolve({
                     // videoDetails: songInfo.videoDetails,
                     title: songInfo.videoDetails.title,
-                    url: songInfo.video_url,
+                    url: songInfo.videoDetails.video_url,
                     author: songInfo.player_response.videoDetails.author,
                     requested: {
                         id: message.author.id,

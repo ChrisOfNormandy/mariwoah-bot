@@ -9,11 +9,11 @@ function play(message, songObject) {
         return;
 
     queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
-        .on('end', () => {
+        .on('finish', () => {
             if (!queue.has(id)) {
-                stop(message, '> End of queue.');
-                return;
+                return stop(message, '> End of queue.');
             }
+
             queue.get(id).previousSong = song;
             queue.get(id).songs.shift();
 

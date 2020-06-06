@@ -295,6 +295,7 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
 
             // Music
 
+            case 'p': {}
             case 'play': {
                 verify(message, musicLevel('play'))
                     .then(() => {

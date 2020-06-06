@@ -187,6 +187,7 @@ module.exports = {
                     ['url | query string'],
                     ['YouTube URL for a given video/song | Search for a video based on title (query). ~play Some song title']
                 ],
+                alternatives: ['p'],
                 selfClear: true
             },
             'leave': {
