@@ -1,15 +1,22 @@
 const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
+const sql = require('../../../../sql/adapter')
 
-function formatResponse(name, joinDate, roleList, user) {
+function formatResponse(name, joinDate, roleList, member, data) {
+    const user = member.user;
+
     if (user.bot)
         name += ' -=[BOT]=-'
     let embedMsg = new Discord.MessageEmbed()
         .setTitle(name)
         .setColor(chatFormat.colors.information)
         .addField("Join date", joinDate)
-        .addField("Roles", roleList);
-
+        .addField("Roles", roleList, true)
+        .addField("Admin", member.hasPermission("ADMINISTRATOR") ? "Yes" : "No", true)        
+        .addField("User ID", data.user_id)
+        .addField("Permission level", data.permission_level, true)
+        .addField("Bot role", (data.bot_role === null) ? "None" : data.bot_role, true);
+        
     return embedMsg;
 }
 
@@ -38,9 +45,17 @@ module.exports = {
 
         let joinDate = getDate(new Date(member.joinedTimestamp));
         let roles = getRoles(member, message);
-        let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, user);
 
-        message.channel.send(embedMsg);
+        sql.user.get(message.guild.id, user.id)
+        .then(data => {
+            console.log(data);
+            let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+            message.channel.send(embedMsg);
+        })
+        .catch(e => {
+            console.log(e);
+            message.channel.send('> Failed to gather user data.');
+        });
     },
 
     member: function (message) {
@@ -49,8 +64,15 @@ module.exports = {
 
         let joinDate = getDate(new Date(member.joinedTimestamp));
         let roles = getRoles(member, message);
-        let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, user);
 
-        message.channel.send(embedMsg);
+        sql.user.get(message.guild.id, user.id)
+        .then(data => {
+            let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+            message.channel.send(embedMsg);
+        })
+        .catch(e => {
+            console.log(e);
+            message.channel.send('> Failed to gather user data.');
+        });
     }
 }

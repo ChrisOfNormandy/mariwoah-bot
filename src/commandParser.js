@@ -3,7 +3,7 @@ const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, permissionLevel) {
     return new Promise((resolve, reject) =>  {
-        adapter.common.roleManager.verifyPermission(message, message.author.id, permissionLevel)
+        adapter.rolemanagement.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
             .catch(reason => {
                 message.channel.send(reason);
@@ -190,56 +190,37 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //     break;
             // }
 
-            // case 'fetchbans': {
-            //     verify(message, roleManagerLevel('fetchbans'))
-            //         .then(() => resolve(common.roleManager.fetchBans(message)))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'rm-info': {
-            //     verify(message, roleManagerLevel('rm-info'))
-            //         .then(() => resolve(common.roleManager.userInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'rm-roleinfo': {
-            //     verify(message, roleManagerLevel('rm-roleinfo'))
-            //         .then(() => resolve(common.roleManager.userRoleInfo(message, (mentionedUser !== null) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+            case 'promote': {
+                verify(message, roleManagerLevel('promote'))
+                    .then(() => resolve(adapter.rolemanagement.setPermission.promote(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'demote': {
+                verify(message, roleManagerLevel('demote'))
+                    .then(() => resolve(adapter.rolemanagement.setPermission.demote(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
 
-            // case 'promote': {
-            //     verify(message, roleManagerLevel('promote'))
-            //         .then(() => resolve(common.roleManager.promoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'demote': {
-            //     verify(message, roleManagerLevel('demote'))
-            //         .then(() => resolve(common.roleManager.demoteUser(message, (mentionedUser) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-
-            // case 'setbotadmin': {
-            //     verify(message, roleManagerLevel('setbotadmin'))
-            //         .then(() => resolve(common.roleManager.setBotAdmin(message, (mentionedUser) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'setbotmod': {
-            //     verify(message, roleManagerLevel('setbotmod'))
-            //         .then(() => resolve(common.roleManager.setBotMod(message, (mentionedUser) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
-            // case 'setbothelper': {
-            //     verify(message, roleManagerLevel('setbothelper'))
-            //         .then(() => resolve(common.roleManager.setBotHelper(message, (mentionedUser) ? mentionedUser.id : args[0])))
-            //         .catch(r => reject(r));
-            //     break;
-            // }
+            case 'setbotadmin': {
+                verify(message, roleManagerLevel('setbotadmin'))
+                    .then(() => resolve(adapter.rolemanagement.setRank.admin(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'setbotmod': {
+                verify(message, roleManagerLevel('setbotmod'))
+                    .then(() => resolve(adapter.rolemanagement.setRank.moderator(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'setbothelper': {
+                verify(message, roleManagerLevel('setbothelper'))
+                    .then(() => resolve(adapter.rolemanagement.setRank.helper(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .catch(r => reject(r));
+                break;
+            }
 
             // Minigames
             case 'stats': {

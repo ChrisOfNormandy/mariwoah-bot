@@ -1,4 +1,4 @@
-const db = require('../../../sql/adapter');
+const db = require('../../sql/adapter');
 
 module.exports = function (message, userID, permLevel) {
     return new Promise((resolve, reject) => {

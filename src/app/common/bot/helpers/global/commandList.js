@@ -166,9 +166,50 @@ module.exports = {
                     ['ID of the target user.']
                 ]
             },
+            'promote': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ]
+            },
+            'demote': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ]
+            },
+            'setbotadmin': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ]
+            },
+            'setbotmod': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ]
+            },
+            'setbothelper': {
+                description: 'Returns list of user bans and reasons.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Ping of the target user']
+                ]
+            },
             page: [
                 ['warn', 'kick', 'ban', 'unban'],
                 ['warnings', 'kicks', 'bans'],
+                ['promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper']
             ]
         }
     },

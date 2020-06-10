@@ -1,6 +1,6 @@
 const commandList = require('../common/bot/helpers/global/commandList');
 const playlist = require('./playlists/adapter');
-const roleManager = require('../common/roleManager/adapter');
+const roleManager = require('../rolemanagement/adapter');
 
 const getSong = require('./helpers/getSong');
 const append = require('./helpers/queue/append');
