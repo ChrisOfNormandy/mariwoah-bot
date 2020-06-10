@@ -417,7 +417,7 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             }
             case 'theriddle': {
                 verify(message, memeLevel('theriddle'))
-                    .then(() => resolve(adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=RYdWk7Cn')))
+                    .then(() => resolve(adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI')))
                     .catch(r => reject(r));
             }
 
