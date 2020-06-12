@@ -10,7 +10,7 @@ client.on('ready', () => {
     adapter.common.bot.features.printLog('Ready!');
     commandLine.query();
 
-    client.user.setActivity(`you | ${client.users.cache.size} so far.`, { type: 'watching' });
+    client.user.setActivity(`${client.users.cache.size} epic gamers.`, {type: 'WATCHING'});
 });
 
 client.on('message', async message => {
