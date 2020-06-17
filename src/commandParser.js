@@ -192,13 +192,13 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
 
             case 'promote': {
                 verify(message, roleManagerLevel('promote'))
-                    .then(() => resolve(adapter.rolemanagement.setPermission.promote(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .then(() => resolve(adapter.rolemanagement.setPermission.promote(message, (mentionedUser) ? mentionedUser.id : args[0], args[1])))
                     .catch(r => reject(r));
                 break;
             }
             case 'demote': {
                 verify(message, roleManagerLevel('demote'))
-                    .then(() => resolve(adapter.rolemanagement.setPermission.demote(message, (mentionedUser) ? mentionedUser.id : args[0])))
+                    .then(() => resolve(adapter.rolemanagement.setPermission.demote(message, (mentionedUser) ? mentionedUser.id : args[0], args[1])))
                     .catch(r => reject(r));
                 break;
             }
@@ -427,6 +427,27 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //         .catch(r => reject(r));
             //     break;
             // }
+
+            case 'isadmin': {
+                adapter.rolemanagement.getRoles.admin(message, message.member);
+                break;
+            }
+            case 'refreshrole': {
+                adapter.rolemanagement.setRoles.refresh_user(message, message.member);
+                break;
+            }
+            case 'refreshroles': {
+                adapter.rolemanagement.setRoles.refresh_guild(message);
+                break;
+            }
+            case 'purgeroles': {
+                adapter.rolemanagement.setRoles.purge(message);
+                break;
+            }
+            case 'setrole': {
+                adapter.rolemanagement.setRoles.setRole(message, args[0], message.mentions.roles.first());
+                break;
+            }
             default: {
                 reject(null);
             }

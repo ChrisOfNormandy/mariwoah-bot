@@ -29,7 +29,7 @@ function getDate(date) {
 function getRoles(member) {
     let roles = '';
     let count = 0;
-    member.roles.cache.forEach((role, k, t) => {
+    member.roles.cache.forEach((role, k, m) => {
         roles += `${role}`
         roles += (member.roles.cache.size > 1 && count < member.roles.cache.size - 1) ? ', ' : '';
         count++;

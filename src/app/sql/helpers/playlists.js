@@ -1,5 +1,3 @@
-const query = require('./query');
-
 function getDuration(data) {
     let list = JSON.parse(data.list);
     if (list === null)

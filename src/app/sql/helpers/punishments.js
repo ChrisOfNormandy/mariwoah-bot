@@ -1,8 +1,9 @@
-const query = require('./query');
+const servers = require('./servers');
+const users = require('./users');
 
 function getUser(con, message, userID, type) {
     return new Promise((resolve, reject) =>  {
-    query.getUser(con, message.guild.id, userID)
+    users.getUser(con, message.guild.id, userID)
         .then(user => {
             con.query(`select * from PUNISHMENTS where server_id = "${message.guild.id}" and user_id = "${userID}" and type = "${type}";`, (err, result) => {
                 if (err)
@@ -19,7 +20,7 @@ function getUser(con, message, userID, type) {
 }
 
 function setUser(con, message, userID, type, reason = null, duration = -1, severity = 'normal') {
-    query.getUser(con, message.guild.id, userID)
+    users.getUser(con, message.guild.id, userID)
         .then(user => {
             const date = new Date(message.createdTimestamp);
             const datetime = `${date.toISOString().slice(0, 19).replace('T', ' ')}`;

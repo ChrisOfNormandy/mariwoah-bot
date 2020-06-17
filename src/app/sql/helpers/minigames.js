@@ -1,4 +1,4 @@
-const query = require('./query');
+const users = require('./users');
 
 function getStats(con, message, userID) {
     return new Promise((resolve, reject) =>  {

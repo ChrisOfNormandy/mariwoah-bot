@@ -1,7 +1,6 @@
 const mysql = require('mysql');
-const query = require('./helpers/query');
 const users = require('./helpers/users');
-const server = require('./helpers/server');
+const server = require('./helpers/servers');
 const punishments = require('./helpers/punishments');
 const playlists = require('./helpers/playlists');
 const minigames = require('./helpers/minigames');
@@ -48,16 +47,18 @@ module.exports = {
     con,
     startup,
     server: {
-        get: (serverID) => {return query.getServer(con, serverID)},
+        get: (serverID) => {return server.getServer(con, serverID)},
         setMotd: (serverID, string) => {server.setMotd(con, serverID, string)},
         setPrefix: (serverID, prefix) => {server.setPrefix(con, serverID, prefix)},
+        setRole: (serverID, role, id) => {return server.setRole(con, serverID, role, id)},
         getMotd: (serverID) => {return server.getMotd(con, serverID)},
-        getPrefix: (serverID) => {return server.getPrefix(con, serverID)}
+        getPrefix: (serverID) => {return server.getPrefix(con, serverID)},
+        getRoles: (serverID) => {return server.getRoles(con, serverID)}
     },
     user: {
-        get: (serverID, userID) => {return query.getUser(con, serverID, userID)},
-        setBotRole: (serverID, userID, roleName) => {users.setBotRole(con, serverID, userID, roleName)},
-        setPermissionLevel: (serverID, userID, level) => {users.setPermissionLevel(con, serverID, userID, level)},
+        get: (serverID, userID) => {return users.getUser(con, serverID, userID)},
+        setBotRole: (serverID, userID, roleName) => {return users.setBotRole(con, serverID, userID, roleName)},
+        setPermissionLevel: (serverID, userID, level) => {return users.setPermissionLevel(con, serverID, userID, level)},
         getBotRole: (serverID, userID) => {return users.getBotRole(con, serverID, userID)},
         getPermissionLevel: (serverID, userID) => {return users.getPermissionLevel(con, serverID, userID)}
     },
