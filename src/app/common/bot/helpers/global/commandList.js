@@ -206,6 +206,30 @@ module.exports = {
                     ['Ping of the target user']
                 ]
             },
+            'refreshrole': {
+                description: 'Refreshes the roles of the member by removing and adding appropriately.',
+                permissionLevel: 4,
+                arguments: [
+                    ['@user'],
+                    ['Optional; Ping of the target user, defaults to self.']
+                ]
+            },
+            'refreshroles': {
+                description: 'Refreshes the roles for each member in the server. Does induce lag.',
+                permissionLevel: 4
+            },
+            'purgeroles': {
+                description: 'USE WITH CAUTION; Deletes all roles from the server (except default bot role and @everyone).',
+                permissionLevel: 4
+            },
+            'setrole': {
+                description: 'Distinguishes a role to a specific rank.',
+                permissionLevel: 4,
+                arguments: [
+                    ['roleName', '@role'],
+                    ['bot, vip, helper, mod, admin', 'Ping of the target role.']
+                ]
+            },
             page: [
                 ['warn', 'kick', 'ban', 'unban'],
                 ['warnings', 'kicks', 'bans'],

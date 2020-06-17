@@ -221,6 +221,30 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
                     .catch(r => reject(r));
                 break;
             }
+            case 'refreshrole': {
+                verify(message, roleManagerLevel('refreshrole'))
+                    .then(() => resolve(adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'refreshroles': {
+                verify(message, roleManagerLevel('refreshroles'))
+                    .then(() => resolve(adapter.rolemanagement.setRoles.refresh_guild(message)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'purgeroles': {
+                verify(message, roleManagerLevel('purgeroles'))
+                    .then(() => resolve(adapter.rolemanagement.setRoles.purge(message)))
+                    .catch(r => reject(r));
+                break;
+            }
+            case 'setrole': {
+                verify(message, roleManagerLevel('setrole'))
+                    .then(() => resolve(adapter.rolemanagement.setRoles.setRole(message, args[0], message.mentions.roles.first())))
+                    .catch(r => reject(r));
+                break;
+            }
 
             // Minigames
             case 'stats': {
@@ -428,26 +452,11 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
             //     break;
             // }
 
-            case 'isadmin': {
-                adapter.rolemanagement.getRoles.admin(message, message.member);
-                break;
-            }
-            case 'refreshrole': {
-                adapter.rolemanagement.setRoles.refresh_user(message, message.member);
-                break;
-            }
-            case 'refreshroles': {
-                adapter.rolemanagement.setRoles.refresh_guild(message);
-                break;
-            }
-            case 'purgeroles': {
-                adapter.rolemanagement.setRoles.purge(message);
-                break;
-            }
-            case 'setrole': {
-                adapter.rolemanagement.setRoles.setRole(message, args[0], message.mentions.roles.first());
-                break;
-            }
+            // case 'isadmin': {
+            //     adapter.rolemanagement.getRoles.admin(message, message.member);
+            //     break;
+            // }
+            
             default: {
                 reject(null);
             }

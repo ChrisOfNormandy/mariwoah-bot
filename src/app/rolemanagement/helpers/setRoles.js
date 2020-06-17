@@ -204,7 +204,10 @@ function setRole(message, name, role) {
     return new Promise((resolve, reject) => {
         if (role) {
             sql.server.setRole(message.guild.id, name, role.id)
-                .then(r => resolve(r))
+                .then(r => {
+                    message.channel.send(`Set the role for ${name} to ${role}`);
+                    resolve(r);
+                })
                 .catch(e => reject(e));
         }
         else {
