@@ -233,6 +233,12 @@ function parseCommand(client, message, command, args = null, mentionedUser = nul
                     .catch(r => reject(r));
                 break;
             }
+            case 'resetroles': {
+                verify(message, roleManagerLevel('resetroles'))
+                    .then(() => resolve(adapter.rolemanagement.setRoles.reset_guild(message)))
+                    .catch(r => reject(r));
+                break;
+            }
             case 'purgeroles': {
                 verify(message, roleManagerLevel('purgeroles'))
                     .then(() => resolve(adapter.rolemanagement.setRoles.purge(message)))

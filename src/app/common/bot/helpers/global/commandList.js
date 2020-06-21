@@ -218,6 +218,10 @@ module.exports = {
                 description: 'Refreshes the roles for each member in the server. Does induce lag.',
                 permissionLevel: 4
             },
+            'resetroles': {
+                description: 'Resets the roles for each member in the server. Does induce lag.',
+                permissionLevel: 4
+            },
             'purgeroles': {
                 description: 'USE WITH CAUTION; Deletes all roles from the server (except default bot role and @everyone).',
                 permissionLevel: 4
