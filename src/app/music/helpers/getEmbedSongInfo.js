@@ -11,15 +11,35 @@ module.exports = {
             const song = activeQueue.songs[index].song || null;
             const requested = activeQueue.songs[index].request || 'Unknown';
 
-            let embedMsg = new Discord.MessageEmbed()
-                .setTitle(title)
-                .setColor(chatFormat.colors.youtube)
-                .setThumbnail(song.thumbnail.url)
-                .setURL(song.url)
-                .addField(song.title, `${song.author} | Requested: ${requested}`)
-                .addField(`Duration: ${song.durationString}`, `Queue position: ${index}`);
+            const embed = {
+                color: chatFormat.colors.youtube,
+                title: title,
+                url: song.url,
+                description: 'Powered by YouTube and pure rage.',
+                image: {
+                    url: song.thumbnail.url
+                },
+                fields: [
+                    {
+                        name: song.title,
+                        value: `${song.author} | Requested: ${requested}`
+                    },
+                    {
+                        name: `Duration: ${song.durationString}`,
+                        value: `Queue position: ${index}`
+                    }
+                ]
+            }
 
-            resolve(embedMsg);
+            // let embedMsg = new Discord.MessageEmbed()
+            //     .setTitle(title)
+            //     .setColor(chatFormat.colors.youtube)
+            //     .setThumbnail(song.thumbnail.url)
+            //     .setURL(song.url)
+            //     .addField(song.title, `${song.author} | Requested: ${requested}`)
+            //     .addField(`Duration: ${song.durationString}`, `Queue position: ${index}`);
+
+            resolve({embed});
         });
     },
     queueList: function (activeQueue) {
@@ -73,7 +93,7 @@ module.exports = {
 
             if (songURL !== null) {
                 getSongObject.byUrl(message, songURL)
-                    .then(async (song) => {
+                    .then((song) => {
                         let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
                             .setColor(chatFormat.colors.youtube)
@@ -85,9 +105,10 @@ module.exports = {
                     })
                     .catch(e => reject(e));
             }
-            else if (songURL === null && songName !== null) {
+            else {
+                console.log('Fetching song object for', songName)
                 getSongObject.byName(message, songName)
-                    .then(async (song) => {
+                    .then((song) => {
                         let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
                             .setColor(chatFormat.colors.youtube)

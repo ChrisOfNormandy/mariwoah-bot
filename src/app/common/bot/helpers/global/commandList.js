@@ -23,8 +23,20 @@ module.exports = {
             'dungeons': {
                 description: 'Dungeons and dragons tools.'
             },
+            'parameters': {
+                description: 'Available parameters used in commands.'
+            },
             page: [
-                ['common', 'rolemanager', 'music', 'playlists', 'minigames', 'memes', 'dungeons']
+                [
+                    'common',
+                    'rolemanager',
+                    'music',
+                    'playlists',
+                    'minigames',
+                    'memes',
+                    'dungeons',
+                    'parameters'
+                ]
             ]
         },
     },
@@ -35,14 +47,21 @@ module.exports = {
                 description: 'Cleans the chat of bot messages and commands.',
                 permissionLevel: 3,
                 arguments: [
-                    ['@Username'],
-                    ['Optional; Removes messages of pinged target user.']
+                    [
+                        '@Username(s)'
+                    ],
+                    [
+                        'Optional; Removes messages of mentioned user(s).'
+                    ]
                 ]
             },
             'help': {
                 description: 'Lists help.',
                 permissionLevel: 0,
-                alternatives: ['?']
+                alternatives: [
+                    '?'
+                ],
+                selfClear: true
             },
             'ping': {
                 description: 'Gets the Discord latency (delay between send and edit) and bot-to-server latency.',
@@ -53,57 +72,98 @@ module.exports = {
                 description: 'Rolls a number between 1 and a provided value (default 6).',
                 permissionLevel: 0,
                 arguments: [
-                    ['sides', 'count'],
-                    ['Maximum value / sides of dice. 2 = coin flip.', 'How many times the action should be repeated. Default 1; max 50.']
+                    [
+                        'sides',
+                        'count'
+                    ],
+                    [
+                        'Maximum value / sides of dice. 2 = coin flip.',
+                        'How many times the action should be repeated. Default 1; max 50.'
+                    ]
                 ]
             },
             'shuffle': {
                 description: 'Shuffles everything after the command.',
                 permissionLevel: 0,
                 arguments: [
-                    ['array'],
-                    ['Comma-separated list of items wanted split. Ex: 1,2,3,4,5 | Ex: cat,dog,fish,bird,cow']
+                    [
+                        'array'
+                    ],
+                    [
+                        'Comma-separated list of items wanted split. Ex: 1,2,3,4,5 | Ex: cat,dog,fish,bird,cow'
+                    ]
                 ]
             },
             'whoami': {
                 description: 'Lists your Discord name and discriminator (#numb), server join date and roles.',
-                permissionLevel: 0
+                permissionLevel: 0,
+                selfClear: true
             },
             'whoareyou': {
                 description: 'Lists a user Discord name and discriminator (#numb), server join date and roles.',
                 permissionLevel: 0,
                 arguments: [
-                    ['@Username'],
-                    ['The user you want information about.']
-                ]
+                    [
+                        '@Username'
+                    ],
+                    [
+                        'The user you want information about.'
+                    ]
+                ],
+                selfClear: true
             },
             'motd': {
                 description: 'Gets the server Message of the Day.',
-                permissionLevel: 0
+                permissionLevel: 0,
+                selfClear: true
             },
             'setmotd': {
                 description: 'Sets the server Message of the Day. Remains until executed again.',
                 permissionLevel: 4,
                 arguments: [
-                    ['message'],
-                    ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
-                ]
+                    [
+                        'message'
+                    ],
+                    [
+                        'MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)'
+                    ]
+                ],
+                selfClear: true
             },
             'prefix': {
                 description: 'Gets the server prefixes for commands.',
-                permissionLevel: 0
+                permissionLevel: 0,
+                selfClear: true
             },
             'setprefix': {
                 description: 'Sets the server prefixes for commands.',
                 permissionLevel: 4,
                 arguments: [
-                    ['prefixes'],
-                    ['String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'],
-                ]
+                    [
+                        'prefixes'
+                    ],
+                    [
+                        'String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'
+                    ],
+                ],
+                selfClear: true
             },
             page: [
-                ['clean', 'help', 'ping', 'roll', 'shuffle', 'whoami', 'whoareyou'],
-                ['motd', 'setmotd', 'prefix', 'setprefix']
+                [
+                    'clean',
+                    'help',
+                    'ping',
+                    'roll',
+                    'shuffle',
+                    'whoami',
+                    'whoareyou'
+                ],
+                [
+                    'motd',
+                    'setmotd',
+                    'prefix',
+                    'setprefix'
+                ]
             ]
         }
     },
@@ -114,130 +174,220 @@ module.exports = {
                 description: 'Warns the user with or without a specified reason.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | userID',
+                        'reason'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user.',
+                        'Optional; if supplied, will list reason for warning when checking user history.'
+                    ]
                 ]
             },
             'warnings': {
                 description: 'Returns list of user warnings and reasons.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | userID'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user.'
+                    ]
+                ],
+                selfClear: true
             },
             'kick': {
                 description: 'Kicks the user with or without a specified reason.',
                 permissionLevel: 3,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | userID',
+                        'reason'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user',
+                        'Optional; if supplied, will list reason for warning when checking user history.'
+                    ]
                 ]
             },
             'kicks': {
                 description: 'Returns list of user kicks and reasons.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | userID'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user.'
+                    ]
+                ],
+                selfClear: true
             },
             'ban': {
                 description: 'Bans the user with or without a specified reason.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | userID',
+                        'reason'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user.',
+                        'Optional; if supplied, will list reason for warning when checking user history.'
+                    ]
                 ]
             },
             'bans': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | userID'
+                    ],
+                    [
+                        'Ping of the target user | ID of the target user.'
+                    ]
+                ],
+                selfClear: true
             },
             'unban': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['userID'],
-                    ['ID of the target user.']
+                    [
+                        'userID'
+                    ],
+                    [
+                        'ID of the target user.'
+                    ]
                 ]
             },
             'promote': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Ping of the target user']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of the target user'
+                    ]
+                ],
+                selfClear: true
             },
             'demote': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Ping of the target user']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of the target user'
+                    ]
+                ],
+                selfClear: true
             },
             'setbotadmin': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Ping of the target user']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of the target user'
+                    ]
+                ],
+                selfClear: true
             },
             'setbotmod': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Ping of the target user']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of the target user'
+                    ]
+                ],
+                selfClear: true
             },
             'setbothelper': {
                 description: 'Returns list of user bans and reasons.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Ping of the target user']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of the target user'
+                    ]
+                ],
+                selfClear: true
             },
             'refreshrole': {
                 description: 'Refreshes the roles of the member by removing and adding appropriately.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user'],
-                    ['Optional; Ping of the target user, defaults to self.']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Optional; Ping of the target user, defaults to self.'
+                    ]
+                ],
+                selfClear: true
             },
             'refreshroles': {
                 description: 'Refreshes the roles for each member in the server. Does induce lag.',
-                permissionLevel: 4
+                permissionLevel: 4,
+                selfClear: true
             },
             'resetroles': {
                 description: 'Resets the roles for each member in the server. Does induce lag.',
-                permissionLevel: 4
+                permissionLevel: 4,
+                selfClear: true
             },
             'purgeroles': {
                 description: 'USE WITH CAUTION; Deletes all roles from the server (except default bot role and @everyone).',
-                permissionLevel: 4
+                permissionLevel: 4,
+                selfClear: true
             },
             'setrole': {
                 description: 'Distinguishes a role to a specific rank.',
                 permissionLevel: 4,
                 arguments: [
-                    ['roleName', '@role'],
-                    ['bot, vip, helper, mod, admin', 'Ping of the target role.']
-                ]
+                    [
+                        'roleName', '@role'
+                    ],
+                    [
+                        'bot, vip, helper, mod, admin', 'Ping of the target role.'
+                    ]
+                ],
+                selfClear: true
             },
             page: [
-                ['warn', 'kick', 'ban', 'unban'],
-                ['warnings', 'kicks', 'bans'],
-                ['promote', 'demote', 'setbotadmin', 'setbotmod', 'setbothelper']
+                [
+                    'warn',
+                    'kick',
+                    'ban',
+                    'unban'
+                ],
+                [
+                    'warnings',
+                    'kicks',
+                    'bans'
+                ],
+                [
+                    'promote',
+                    'demote',
+                    'setbotadmin',
+                    'setbotmod',
+                    'setbothelper'
+                ]
             ]
         }
     },
@@ -250,13 +400,31 @@ module.exports = {
                 selfClear: true
             },
             'play': {
-                description: 'Plays the YouTube URL audio in the active voice chat.',
+                description: 'Plays music in the voice channel the user is in.',
                 permissionLevel: 1,
                 arguments: [
-                    ['url | query string'],
-                    ['YouTube URL for a given video/song | Search for a video based on title (query). ~play Some song title']
+                    [
+                        'url(s) | song name'
+                    ],
+                    [
+                        'YouTube URL(s) | Search for a video based on title.'
+                    ]
                 ],
-                alternatives: ['p'],
+                flags: [
+                    [
+                        's',
+                        'n',
+                        'f'
+                    ],
+                    [
+                        'Shuffle the list of URLs.',
+                        'Do not output embeded messages to the chat.',
+                        'Only output the first embed, if no other songs in queue.'
+                    ]
+                ],
+                alternatives: [
+                    'p'
+                ],
                 selfClear: true
             },
             'leave': {
@@ -277,7 +445,9 @@ module.exports = {
             'queue': {
                 description: 'Lists the current music queue.',
                 permissionLevel: 1,
-                alternatives: ['q'],
+                alternatives: [
+                    'q'
+                ],
                 selfClear: true
             },
             'pause': {
@@ -291,7 +461,16 @@ module.exports = {
                 selfClear: true
             },
             page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue', 'pause', 'resume']
+                [
+                    'join',
+                    'leave',
+                    'play',
+                    'skip',
+                    'stop',
+                    'queue',
+                    'pause',
+                    'resume'
+                ]
             ]
         }
     },
@@ -302,8 +481,12 @@ module.exports = {
                 description: 'Creates a playlist of the given name.',
                 permissionLevel: 2,
                 arguments: [
-                    ['name'],
-                    ['Playlist name.']
+                    [
+                        'name'
+                    ],
+                    [
+                        'Playlist name.'
+                    ]
                 ],
                 selfClear: true
             },
@@ -311,8 +494,12 @@ module.exports = {
                 description: 'Deletes the playlist of the given name',
                 permissionLevel: 2,
                 arguments: [
-                    ['name'],
-                    ['Playlist name.']
+                    [
+                        'name'
+                    ],
+                    [
+                        'Playlist name.'
+                    ]
                 ],
                 selfClear: true
             },
@@ -320,8 +507,14 @@ module.exports = {
                 description: 'Adds URL to the playlist of the given name.',
                 permissionLevel: 2,
                 arguments: [
-                    ['name url'],
-                    ['Playlist name; YouTube URL for a given video/song.']
+                    [
+                        'name',
+                        'url'
+                    ],
+                    [
+                        'Playlist name',
+                        'YouTube URL for a given video/song.'
+                    ]
                 ],
                 selfClear: true
             },
@@ -329,15 +522,20 @@ module.exports = {
                 description: '...',
                 permissionLevel: 1,
                 arguments: [
-                    ['', 'name'],
                     [
-                        'Lists all available playlists.',
-                        'Lists all songs in the named playlist.'
+                        'name'
+                    ],
+                    [
+                        '*Optional; Lists all songs in the named playlist, empty lists all playlists.'
                     ]
                 ],
                 flags: [
-                    ['l'],
-                    ['Includes video URL.']
+                    [
+                        'l'
+                    ],
+                    [
+                        'Includes video URL.'
+                    ]
                 ],
                 selfClear: true
             },
@@ -345,8 +543,12 @@ module.exports = {
                 description: 'Removes the song at given index from the named playlist.',
                 permissionLevel: 2,
                 arguments: [
-                    ['name index'],
-                    ['Playlist name; Song index (found using list command).']
+                    [
+                        'name index'
+                    ],
+                    [
+                        'Playlist name; Song index (found using list command).'
+                    ]
                 ],
                 selfClear: true
             },
@@ -354,17 +556,31 @@ module.exports = {
                 description: 'Adds all songs in the named playlist to the music queue.',
                 permissionLevel: 1,
                 arguments: [
-                    ['name'],
-                    ['Playlist name.']
+                    [
+                        'name'
+                    ],
+                    [
+                        'Playlist name.'
+                    ]
                 ],
                 flags: [
-                    ['s'],
-                    ['Shuffles the playlist.']
+                    [
+                        's'
+                    ],
+                    [
+                        'Shuffles the playlist.'
+                    ]
                 ],
                 selfClear: true
             },
             page: [
-                ['create', 'list', 'add', 'remove', 'play'],
+                [
+                    'create',
+                    'list',
+                    'add',
+                    'remove',
+                    'play'
+                ],
             ],
         }
     },
@@ -377,7 +593,9 @@ module.exports = {
                 selfClear: true
             },
             page: [
-                ['stats']
+                [
+                    'stats'
+                ]
             ]
         },
         subcommands: {
@@ -388,11 +606,15 @@ module.exports = {
                     selfClear: true
                 },
                 page: [
-                    ['cast']
+                    [
+                        'cast'
+                    ]
                 ]
             },
             page: [
-                ['fishing']
+                [
+                    'fishing'
+                ]
             ]
         }
     },
@@ -429,7 +651,9 @@ module.exports = {
             'crabrave': {
                 description: 'Starts playing Crabrave by Noisestorm in the voice chat.',
                 permissionLevel: 1,
-                alternatives: ['cr'],
+                alternatives: [
+                    'cr'
+                ],
                 selfClear: true
             },
             'theriddle': {
@@ -438,14 +662,35 @@ module.exports = {
                 selfClear: true
             },
             page: [
-                ['f', 'fuck', 'yey'],
-                ['penguin', 'clayhead'],
-                ['crabrave', 'theriddle'],
+                [
+                    'f',
+                    'fuck',
+                    'yey'
+                ],
+                [
+                    'penguin',
+                    'clayhead'
+                ],
+                [
+                    'crabrave',
+                    'theriddle'
+                ],
             ],
         }
     },
     dungeons: {
         header: '### D&D ###',
         commands: {}
+    },
+    parameters: {
+        header: '### PARAMETERS ###',
+        type: {
+            string: {
+                
+            },
+            boolean: {
+                'json': 'Outputs JSON string if available.'
+            }
+        }
     }
 };

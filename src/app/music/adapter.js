@@ -2,6 +2,8 @@ const commandList = require('../common/bot/helpers/global/commandList');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../rolemanagement/adapter');
 
+const getEmbedSongInfo = require('./helpers/getEmbedSongInfo');
+
 const getSong = require('./helpers/getSong');
 const append = require('./helpers/queue/append');
 const skip = require('./helpers/functions/skip');
@@ -14,7 +16,7 @@ const getVC = require('../common/bot/helpers/global/getVoiceChannel');
 const pl = commandList.playlists.commands;
 
 function verify(message, permissionLevel) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
             .catch(e => reject(e));
@@ -23,12 +25,27 @@ function verify(message, permissionLevel) {
 
 module.exports = {
     append: {
-        byURL: (message, songURL) => {getSong.byURL(message, songURL).then(obj => append(message, obj)).catch(e => console.log(e))},
-        byName: (message, songName) => {getSong.byName(message, songName).then(obj => append(message, obj)).catch(e => console.log(e))}
+        byURL: (message, songURL) => {
+            return getSong.byURL(message, songURL)
+                .then(obj => append(message, obj))
+                .catch(e => console.log(e))
+        },
+        byURLArray: (message, songURLs, flags) => {
+            return getSong.byURLArray(message, songURLs)
+                .then(arr => {
+                    append(message, null, arr, flags)
+                })
+                .catch(e => console.log(e));
+        },
+        byName: (message, songName) => {
+            return getSong.byName(message, songName)
+                .then(obj => append(message, obj))
+                .catch(e => console.log(e));
+        }
     },
-    skip: (message) => {skip(message)},
-    list: (message) => {list(message)},
-    stop: (message) => {stop(message)},
+    skip: (message) => { skip(message) },
+    list: (message) => { list(message) },
+    stop: (message) => { stop(message) },
     join: (message) => {
         const vc = getVC(message);
         if (vc)
@@ -45,20 +62,31 @@ module.exports = {
     },
     pause: (message) => pause.pause(message),
     resume: (message) => pause.resume(message),
+    info: (message, songURL, songName) => {
+        console.log(`Searching for:`, songURL, songName)
+        getEmbedSongInfo.songInfo(message, songURL, songName)
+            .then(embed => {
+                message.channel.send(embed)
+            })
+            .catch(e => {
+                console.log(e);
+                message.channel.send('> Encountered error finding song information.');
+            });
+    },
 
-    pl_append: (message, playlistName, songURL = null, songName = null) => {playlist.append(message, playlistName, songURL, songName)},
-    pl_create: (message, playlistName) => {playlist.create(message, playlistName)},
-    pl_delete: (message, playlistName) => {playlist.delete(message, playlistName)},
-    pl_listAll: (message) => {playlist.listAll(message)},
-    pl_list: (message, playlistName) => {playlist.list(message, playlistName)},
-    pl_remove: (message, playlistName, songURL) => {playlist.remove(message, playlistName, songURL)},
-    pl_play: (message, playlistName, doShuffle = false) => {playlist.play(message, playlistName, doShuffle)},
+    pl_append: (message, playlistName, songURL = null, songName = null) => { playlist.append(message, playlistName, songURL, songName) },
+    pl_create: (message, playlistName) => { playlist.create(message, playlistName) },
+    pl_delete: (message, playlistName) => { playlist.delete(message, playlistName) },
+    pl_listAll: (message) => { playlist.listAll(message) },
+    pl_list: (message, playlistName) => { playlist.list(message, playlistName) },
+    pl_remove: (message, playlistName, songURL) => { playlist.remove(message, playlistName, songURL) },
+    pl_play: (message, playlistName, doShuffle = false) => { playlist.play(message, playlistName, doShuffle) },
 
     playlistCommand: function (message, args) {
         const _this = this;
         const command = args[0];
 
-        return new Promise((resolve, reject) =>  {
+        return new Promise((resolve, reject) => {
             if (command == 'play')
                 verify(message, pl.play.permissionLevel)
                     .then(() => resolve(_this.pl_play(message, args[1], args[2] === '-s')))
@@ -66,7 +94,7 @@ module.exports = {
             else if (command == 'list')
                 verify(message, pl.list.permissionLevel)
                     .then(() => resolve((args.length == 1)
-                        ? _this.pl_listAll(message) 
+                        ? _this.pl_listAll(message)
                         : _this.pl_list(message, args[1])))
                     .catch(r => reject(r));
             else if (command == 'create')

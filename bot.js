@@ -17,7 +17,9 @@ client.on('message', async message => {
     if (!message.author.bot)
         commandParser(client, message)
             .catch(e => {
-                if (e !== null)
+                if (e !== null) {
                     adapter.common.bot.features.printLog(e);
+                    console.log(e);
+                }
             });
 });
