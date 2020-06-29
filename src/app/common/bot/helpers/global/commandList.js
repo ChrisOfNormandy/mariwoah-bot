@@ -460,6 +460,112 @@ module.exports = {
                 permissionLevel: 1,
                 selfClear: true
             },
+            'playlist': {
+                description: 'Playlist commands.',
+                permissionLevel: 1,
+                selfClear: true,
+                alternatives: [
+                    'pl'
+                ],
+                subcommands: {
+                    'create': {
+                        description: 'Creates a playlist of the given name.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'delete': {
+                        description: 'Deletes the playlist of the given name',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'add': {
+                        description: 'Adds URL to the playlist of the given name.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name',
+                                'url'
+                            ],
+                            [
+                                'Playlist name',
+                                'YouTube URL for a given video/song.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'list': {
+                        description: '...',
+                        permissionLevel: 1,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                '*Optional; Lists all songs in the named playlist, empty lists all playlists.'
+                            ]
+                        ],
+                        flags: [
+                            [
+                                'l'
+                            ],
+                            [
+                                'Includes video URL.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'remove': {
+                        description: 'Removes the song at given index from the named playlist.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name index'
+                            ],
+                            [
+                                'Playlist name; Song index (found using list command).'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'play': {
+                        description: 'Adds all songs in the named playlist to the music queue.',
+                        permissionLevel: 1,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name.'
+                            ]
+                        ],
+                        flags: [
+                            [
+                                's'
+                            ],
+                            [
+                                'Shuffles the playlist.'
+                            ]
+                        ],
+                        selfClear: true
+                    }
+                }
+            },
             page: [
                 [
                     'join',
@@ -469,119 +575,10 @@ module.exports = {
                     'stop',
                     'queue',
                     'pause',
-                    'resume'
+                    'resume',
+                    'playlist'
                 ]
             ]
-        }
-    },
-    playlists: {
-        header: '### Playlist Commands ###\nUsage: playlist {subcommand} OR pl {subcommand}',
-        commands: {
-            'create': {
-                description: 'Creates a playlist of the given name.',
-                permissionLevel: 2,
-                arguments: [
-                    [
-                        'name'
-                    ],
-                    [
-                        'Playlist name.'
-                    ]
-                ],
-                selfClear: true
-            },
-            'delete': {
-                description: 'Deletes the playlist of the given name',
-                permissionLevel: 2,
-                arguments: [
-                    [
-                        'name'
-                    ],
-                    [
-                        'Playlist name.'
-                    ]
-                ],
-                selfClear: true
-            },
-            'add': {
-                description: 'Adds URL to the playlist of the given name.',
-                permissionLevel: 2,
-                arguments: [
-                    [
-                        'name',
-                        'url'
-                    ],
-                    [
-                        'Playlist name',
-                        'YouTube URL for a given video/song.'
-                    ]
-                ],
-                selfClear: true
-            },
-            'list': {
-                description: '...',
-                permissionLevel: 1,
-                arguments: [
-                    [
-                        'name'
-                    ],
-                    [
-                        '*Optional; Lists all songs in the named playlist, empty lists all playlists.'
-                    ]
-                ],
-                flags: [
-                    [
-                        'l'
-                    ],
-                    [
-                        'Includes video URL.'
-                    ]
-                ],
-                selfClear: true
-            },
-            'remove': {
-                description: 'Removes the song at given index from the named playlist.',
-                permissionLevel: 2,
-                arguments: [
-                    [
-                        'name index'
-                    ],
-                    [
-                        'Playlist name; Song index (found using list command).'
-                    ]
-                ],
-                selfClear: true
-            },
-            'play': {
-                description: 'Adds all songs in the named playlist to the music queue.',
-                permissionLevel: 1,
-                arguments: [
-                    [
-                        'name'
-                    ],
-                    [
-                        'Playlist name.'
-                    ]
-                ],
-                flags: [
-                    [
-                        's'
-                    ],
-                    [
-                        'Shuffles the playlist.'
-                    ]
-                ],
-                selfClear: true
-            },
-            page: [
-                [
-                    'create',
-                    'list',
-                    'add',
-                    'remove',
-                    'play'
-                ],
-            ],
         }
     },
     minigames: {

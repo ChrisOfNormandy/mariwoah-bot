@@ -43,13 +43,12 @@ module.exports = function (message, song, arr = null, flags = {}) {
                 if (arr === null) {
                     if (queue.get(message.guild.id).songs.length == 1) {
                         getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
-                            .then(msg => resolve(msg))
+                            .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
                             .catch(e => reject(e));
-                        resolve(play(message, queue.get(message.guild.id).songs[0]));
                     }
                     else {
                         getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1)
-                            .then(msg => resolve(msg))
+                            .then(embed => resolve({message: embed, result: null}))
                             .catch(e => reject(e));
                     }
                 }
@@ -58,18 +57,20 @@ module.exports = function (message, song, arr = null, flags = {}) {
                     if (startFlag) {
                         counter = 1;
                         getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
-                            .then(msg => resolve(msg))
+                            .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
                             .catch(e => reject(e));
                     }
                     if (!flags['f'])
                         while (counter < arr.length) {
                             getEmbed.single('Added to queue:', queue.get(message.guild.id), counter)
-                                .then(msg => resolve(msg))
+                                .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
                                 .catch(e => reject(e));
                             counter++;
                         }
-                    resolve(play(message, queue.get(message.guild.id).songs[0]));
                 }
+            }
+            else {
+                resolve({message: null, result: play(message, queue.get(message.guild.id).songs[0])});
             }
         }
     });

@@ -15,9 +15,5 @@ client.on('ready', () => {
 client.on('message', async message => {
     if (!message.author.bot)
         commandParser(client, message)
-            .catch(e => {
-                if (e !== null) {
-                    console.log(e);
-                }
-            });
+            .catch(e => console.log('FULL ERROR RETURN\n', e));
 });

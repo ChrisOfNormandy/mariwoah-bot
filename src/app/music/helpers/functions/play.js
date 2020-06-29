@@ -8,7 +8,7 @@ function play(message, songObject) {
     if (!queue.has(id))
         return 'No active queue.'
 
-    queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
+        queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('finish', () => {
             if (!queue.has(id)) {
                 return stop(message, '> End of queue.');
@@ -33,6 +33,4 @@ function play(message, songObject) {
         queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
 }
 
-module.exports = {
-    play
-}
+module.exports = play;

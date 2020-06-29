@@ -8,6 +8,7 @@ function byName(message, name) {
     return new Promise((resolve, reject) => {
         db.playlists.getList(message, name)
             .then(list => {
+                console.log(list);
                 let embedMsg = new Discord.MessageEmbed()
                     .setTitle(`Song list for ${name}`)
                     .setColor(chatFormat.colors.byName.aqua);

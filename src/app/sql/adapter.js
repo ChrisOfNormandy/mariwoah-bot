@@ -69,7 +69,7 @@ module.exports = {
     playlists: {
         create: (message, name) => {return playlists.create(con, message, name)},
         get: (message, name) => {return playlists.get(con, message, name)},
-        append: (message, name, song) => {playlists.append(con, message, name, song)},
+        append: (message, name, song) => {return playlists.append(con, message, name, song)},
         getList: (message, name) => {return playlists.getList(con, message, name)},
         getAll: (message) => {return playlists.getAll(con, message)},
         delete: (message, name) => {return playlists.remove(con, message, name)},

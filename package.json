@@ -26,7 +26,8 @@
         "twitch-webhooks": "^4.0.10",
         "winston": "^3.2.1",
         "ws": "^7.3.0",
-        "yt-search": "^1.1.2",
+        "yt-hunter": "0.0.0",
+        "yt-search": "^2.0.1",
         "ytdl": "^1.3.1",
         "ytdl-core": "^3.0.0"
     },
