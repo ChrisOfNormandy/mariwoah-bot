@@ -5,13 +5,11 @@ const queue = require('../../queue');
 module.exports = function (message) {
     const vc = getVC(message);
     if (!vc) {
-        message.channel.send("You're not in a voice channel, dummy...");
-        return;
+        return "You're not in a voice channel, dummy...";
     }
     else {
         vc.leave();
-        if (queue.serverMap.has(message.guild.id)) {
-            stop(message, 'Bot has left the voice channel.');
-        }
+        if (queue.serverMap.has(message.guild.id))
+            return stop(message, 'Bot has left the voice channel.');
     }
 }

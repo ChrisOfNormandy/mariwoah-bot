@@ -49,7 +49,6 @@ module.exports = {
             let embedMsg = new Discord.MessageEmbed()
                 .setTitle('Current song queue')
                 .setColor(chatFormat.colors.youtube)
-
                 .setThumbnail(song.thumbnail.url)
                 .addField(`Now playing: ${song.title}`, `${song.author} | Duration: ${song.durationString}\n
                     Requested: ${song.requested.username}`);
@@ -106,7 +105,6 @@ module.exports = {
                     .catch(e => reject(e));
             }
             else {
-                console.log('Fetching song object for', songName)
                 getSongObject.byName(message, songName)
                     .then((song) => {
                         let embedMsg = new Discord.MessageEmbed()

@@ -1,5 +1,4 @@
 const intToTimeString = require('../../common/bot/helpers/global/intToTimeString');
-// const getEmbedSongInfo = require('./getEmbedSongInfo');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 

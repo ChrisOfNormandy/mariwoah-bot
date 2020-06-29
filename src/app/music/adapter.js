@@ -26,65 +26,70 @@ function verify(message, permissionLevel) {
 module.exports = {
     append: {
         byURL: (message, songURL) => {
-            return getSong.byURL(message, songURL)
-                .then(obj => append(message, obj))
-                .catch(e => console.log(e))
+            return new Promise((resolve, reject) => {
+                getSong.byURL(message, songURL)
+                    .then(obj => resolve(append(message, obj)))
+                    .catch(e => reject(e))
+            });
         },
         byURLArray: (message, songURLs, flags) => {
-            return getSong.byURLArray(message, songURLs)
-                .then(arr => {
-                    append(message, null, arr, flags)
-                })
-                .catch(e => console.log(e));
+            return new Promise((resolve, reject) => {
+                getSong.byURLArray(message, songURLs)
+                    .then(arr => resolve(append(message, null, arr, flags)))
+                    .catch(e => reject(e));
+            });
         },
         byName: (message, songName) => {
-            return getSong.byName(message, songName)
-                .then(obj => append(message, obj))
-                .catch(e => console.log(e));
+            return new Promise((resolve, reject) => {
+                getSong.byName(message, songName)
+                    .then(obj => resolve(append(message, obj)))
+                    .catch(e => reject(e));
+            });
         }
     },
-    skip: (message) => { skip(message) },
-    list: (message) => { list(message) },
-    stop: (message) => { stop(message) },
+    skip,
+    list,
+    stop,
     join: (message) => {
         const vc = getVC(message);
         if (vc)
             vc.join();
         else
-            message.channel.send('> You must be in a voice channel to add bot.');
+            return '> You must be in a voice channel to add bot.';
     },
     leave: (message) => {
         const vc = getVC(message);
         if (vc)
             vc.leave();
         else
-            message.channel.send('> You must be in a voice channel to remove bot.')
+            return '> You must be in a voice channel to remove bot.';
     },
-    pause: (message) => pause.pause(message),
-    resume: (message) => pause.resume(message),
+    pause: (message) => {return pause.pause(message)},
+    resume: (message) => {return pause.resume(message)},
     info: (message, songURL, songName) => {
-        console.log(`Searching for:`, songURL, songName)
-        getEmbedSongInfo.songInfo(message, songURL, songName)
-            .then(embed => {
-                message.channel.send(embed)
-            })
-            .catch(e => {
-                console.log(e);
-                message.channel.send('> Encountered error finding song information.');
-            });
+        return new Promise((resolve, reject) => {
+            getEmbedSongInfo.songInfo(message, songURL, songName)
+                .then(embed => resolve(embed))
+                .catch(e => {
+                    console.log(e);
+                    resolve('> Encountered error finding song information.');
+                });
+        });
     },
 
-    pl_append: (message, playlistName, songURL = null, songName = null) => { playlist.append(message, playlistName, songURL, songName) },
-    pl_create: (message, playlistName) => { playlist.create(message, playlistName) },
-    pl_delete: (message, playlistName) => { playlist.delete(message, playlistName) },
-    pl_listAll: (message) => { playlist.listAll(message) },
-    pl_list: (message, playlistName) => { playlist.list(message, playlistName) },
-    pl_remove: (message, playlistName, songURL) => { playlist.remove(message, playlistName, songURL) },
-    pl_play: (message, playlistName, doShuffle = false) => { playlist.play(message, playlistName, doShuffle) },
+    pl_append: (message, playlistName, songURL = null, songName = null) => {return playlist.append(message, playlistName, songURL, songName)},
+    pl_create: (message, playlistName) => {return playlist.create(message, playlistName)},
+    pl_delete: (message, playlistName) => {return playlist.delete(message, playlistName)},
+    pl_listAll: (message) => {return playlist.listAll(message)},
+    pl_list: (message, playlistName) => {return playlist.list(message, playlistName)},
+    pl_remove: (message, playlistName, songURL) => {return playlist.remove(message, playlistName, songURL)},
+    pl_play: (message, playlistName, doShuffle = false) => {return playlist.play(message, playlistName, doShuffle)},
 
-    playlistCommand: function (message, args) {
+    playlistCommand: (message, data) => {
         const _this = this;
         const command = args[0];
+
+        console.log('here')
 
         return new Promise((resolve, reject) => {
             if (command == 'play')

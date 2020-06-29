@@ -1,9 +1,11 @@
 const db = require('../../../../sql/adapter');
 
+// Converts Discord timestamp to a nice date-time format
 function timestampToDate(timestamp) {
     return new Date(timestamp);
 }
 
+// Gets the age of a message by comparing original (a) to current (b)
 function getAge(a, b) {
     const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -15,53 +17,46 @@ function getAge(a, b) {
 }
 
 module.exports = async function (message) {
-    let channel = message.channel;
+    return new Promise((resolve, reject) => {
+        let channel = message.channel;
 
-    channel.messages.fetch()
-        .then(messages => {
-            console.log(`Filtering through ${messages.size} messages.`);
-
-            if (!!message.mentions.users.size) {
-                message.mentions.users.forEach((user, id, t) => {
-                    const userMessages = messages.filter(msg => (msg.author.id == id &&
-                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                    ));
-
-                    const userMessagesDeleted = userMessages.array().length;
-
-                    channel.bulkDelete(userMessages);
-
-                    channel.send(`Deletion of messages successful. Total messages deleted for user ${user}: ${userMessagesDeleted}`)
-                        .then(message => message.delete({timeout: 5000}))
-                        .catch(e => console.log(e));
-                });
-            }
-            else {
-                db.server.getPrefix(message.guild.id)
-                    .then(prefix => {
-                        const botMessages = messages.filter(msg => (msg.author.bot &&
+        channel.messages.fetch()
+            .then(messages => {
+                if (!!message.mentions.users.size) {
+                    message.mentions.users.forEach((user, id, m) => {
+                        const userMessages = messages.filter(msg => (msg.author.id == id &&
                             getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                         ));
-                        const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
-                            getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                        ));
-    
-                        const botMessagesDeleted = botMessages.array().length;
-                        const cmdMessagesDeleted = cmdMessages.array().length;
-    
-                        channel.bulkDelete(botMessages);
-                        channel.bulkDelete(cmdMessages);
-    
-                        channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
-                            .then(message => message.delete({timeout: 5000}))
-                            .catch(e => console.log(e));
-                    })
-                    .catch(e => console.log(e));
-            }
 
-        })
-        .catch(e => console.log(e));
-    
-    if (message)
-        message.delete({timeout: 3000});
+                        const userMessagesDeleted = userMessages.array().length;
+
+                        channel.bulkDelete(userMessages);
+
+                        resolve(`Deletion of messages successful. Total messages deleted for user ${user}: ${userMessagesDeleted}`);
+                    });
+                }
+                else {
+                    // Fetch the server prefix from the discordbot.SERVERS database table
+                    db.server.getPrefix(message.guild.id)
+                        .then(prefix => {
+                            const botMessages = messages.filter(msg => (msg.author.bot &&
+                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                            ));
+                            const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
+                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                            ));
+
+                            const botMessagesDeleted = botMessages.array().length;
+                            const cmdMessagesDeleted = cmdMessages.array().length;
+
+                            channel.bulkDelete(botMessages);
+                            channel.bulkDelete(cmdMessages);
+
+                            resolve(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`);
+                        })
+                        .catch(e => reject(e));
+                }
+            })
+            .catch(e => reject(e));
+    });
 }

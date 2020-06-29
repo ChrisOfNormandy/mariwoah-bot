@@ -1,29 +1,31 @@
 const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
 const help = require('../global/commandList');
-const db = require('../../../../sql/adapter');
+// const db = require('../../../../sql/adapter');
 
 module.exports = function (message, args) {
     return new Promise((resolve, reject) => {
+        // Convert the args to a single string for easier regex checking.
         let str = args.join(' ');
 
+        // Search the string for the first integer and set as page number.
         let reg = str.match(/\d/);
         let pageNumber = reg != null
             ? reg[0] - 1
             : 0;
+
+        // Search the string for all words. 0 = command category, 1 = subcommand
         let category = str.match(/[a-z]+/g) || ['main'];
 
         if (pageNumber < 0)
             pageNumber = 0;
 
-        sect = (category[1] && category[0] != 'parameters')
+        let sect = (category[1] && category[0] != 'parameters')
             ? help[category[0]].subcommands[category[1]]
             : help[category[0]];
 
         if (pageNumber > sect.commands.page.length)
             pageNumber = sect.commands.page.length;
-
-
 
         let embedMsg = new Discord.MessageEmbed()
             .setTitle(sect.header)
@@ -75,7 +77,7 @@ module.exports = function (message, args) {
                         msg += `> ${s}\n`;
                 embedMsg.addField('Subcommands', msg);
             }
-        
+
             embedMsg.setFooter(`Page ${pageNumber + 1} of ${sect.commands.page.length}\n\nThis message will self destruct in 30 seconds...`);
         }
         resolve(embedMsg);

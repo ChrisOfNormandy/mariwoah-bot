@@ -37,17 +37,22 @@ function setMotd(con, serverID, string) {
 }
 
 function setPrefix(con, serverID, prefix) {
-    getServer(con, serverID)
-        .then(server => {
-            con.query(`update SERVERS set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
-                if (err)
-                    console.log(err);
-                else
-                    con.query(`select * from SERVERS where id = "${serverID}";`, (err, result) => {
-                        console.log(result);
-                    });
+    return new Promise((resolve, reject) => {
+        getServer(con, serverID)
+            .then(server => {
+                con.query(`update SERVERS set prefix = "${prefix[0]}" where id = "${serverID}";`, (err, result) => {
+                    if (err)
+                        reject(err);
+                    else
+                        con.query(`select * from SERVERS where id = "${serverID}";`, (err, result) => {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(result);
+                        });
+                });
             });
-        });
+    });
 }
 
 function getMotd(con, serverID) {

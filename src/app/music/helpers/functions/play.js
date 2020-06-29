@@ -6,7 +6,7 @@ function play(message, songObject) {
     const song = songObject.song;
     const id = message.guild.id;
     if (!queue.has(id))
-        return;
+        return 'No active queue.'
 
     queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('finish', () => {
@@ -26,8 +26,13 @@ function play(message, songObject) {
             else
                 stop(message, '> End of queue.');
         })
-        .on('error', error => console.log('Had an error playing the song:\n', song, error));
+        .on('error', error => {
+            console.log('Error playing song:\n', song, error);
+            return `Had an issue playing ${song.title || 'an undefined song'}.`;
+        });
         queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
 }
 
-module.exports = (message, song) => play(message, song);
+module.exports = {
+    play
+}

@@ -48,8 +48,8 @@ module.exports = {
     startup,
     server: {
         get: (serverID) => {return server.getServer(con, serverID)},
-        setMotd: (serverID, string) => {server.setMotd(con, serverID, string)},
-        setPrefix: (serverID, prefix) => {server.setPrefix(con, serverID, prefix)},
+        setMotd: (serverID, string) => {return server.setMotd(con, serverID, string)},
+        setPrefix: (serverID, prefix) => {return server.setPrefix(con, serverID, prefix)},
         setRole: (serverID, role, id) => {return server.setRole(con, serverID, role, id)},
         getMotd: (serverID) => {return server.getMotd(con, serverID)},
         getPrefix: (serverID) => {return server.getPrefix(con, serverID)},

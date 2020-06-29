@@ -1,14 +1,15 @@
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 
 module.exports = function (message) {
-    const vc = getVC(message);
-    if (!vc) {
-        message.channel.send("You're not in a voice channel, dummy...");
-        return;
-    }
-    else {
-        vc.join()
-            .then(connection => console.log('Success! - ' + connection))
-            .catch(e => console.log(e));
-    }
+    return new Promise((resolve, reject) => {
+        const vc = getVC(message);
+        if (!vc) 
+            resolve(`You're not in a voice channel, dummy...`);
+        else
+            vc.join()
+                .catch(e => {
+                    console.log(e);
+                    resolve('Failed to join voice channel.')
+                });
+            });
 }

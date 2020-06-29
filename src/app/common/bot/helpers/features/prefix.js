@@ -1,16 +1,19 @@
 const db = require('../../../../sql/adapter');
 
 function get(message) {
-    db.server.getPrefix(message.guild.id)
-        .then(prefix => {
-            message.channel.send(`Server prefix: ${prefix}`);
-        })
-        .catch(e => console.log(e));
+    return new Promise((resolve, reject) => {
+        db.server.getPrefix(message.guild.id)
+            .then(prefix => resolve(`Server prefix: ${prefix}`))
+            .catch(e => reject(e));
+    })
 }
 
 function set(message, prefix) {
-    db.server.setPrefix(message.guild.id, prefix);
-    setTimeout(() => get(message), 1000);
+    return new Promise((resolve, reject) => {
+        db.server.setPrefix(message.guild.id, prefix)
+            .then(() => resolve(get(message)))
+            .catch(e => reject(e));
+    });
 }
 
 module.exports = {

@@ -1,6 +1,7 @@
 const db = require('../../../../sql/adapter');
 const Discord = require('discord.js')
 
+// This needs to be rewritten in JSON format instead of a custom string "thing"
 function get(message) {
     db.server.getMotd(message.guild.id)
         .then(motd => {
@@ -42,7 +43,7 @@ function get(message) {
         });
 }
 
-function set(message, string) {
+function set(message, string) { // Rewrite as Promise and not a setTimeout delay!!!
     db.server.setMotd(message.guild.id, string);
     setTimeout(() => get(message), 1000);
 }

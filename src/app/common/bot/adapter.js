@@ -5,8 +5,6 @@ module.exports = {
         motd: require('./helpers/features/motd'),
         ping: require('./helpers/features/ping'),
         prefix: require('./helpers/features/prefix'),
-        printLog: require('./helpers/features/printLog'),
-        reactions: require('./helpers/features/reactions'),
         roll: require('./helpers/features/roll'),
         whoAre: require('./helpers/features/whoAre'),
     },

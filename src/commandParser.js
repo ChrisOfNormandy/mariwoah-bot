@@ -337,7 +337,7 @@ function parseCommand(client, message, data) {
                     // }
 
                     case 'playlist': {
-                        value = adapter.music.playlistCommand(message, data.arguments);
+                        value = adapter.music.playlistCommand(message, data);
                         break;
                     }
 

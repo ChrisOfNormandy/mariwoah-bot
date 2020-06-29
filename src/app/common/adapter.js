@@ -1,11 +1,9 @@
-const Discord = require('discord.js');
 const chatFormat = require('./bot/helpers/global/chatFormat');
-const { setPrefix } = require('../sql/helpers/servers');
 
 function recur(input, tab) {
     let str = '';
 
-    for (let i in input) {   
+    for (let i in input) {
         if (typeof input[i] == 'object') {
             if (Object.keys(input[i]).length || input[i].length) {
                 str += ('.').repeat(tab * 3) + ' **' + i + '**: ';
@@ -35,11 +33,11 @@ function debug(input, useEmbed = true) {
                 }
             ]
         };
-        return {embed};
+        return { embed };
     }
     else {
         return '```js\n' + JSON.stringify(input).replace(/{/g, '{\n').replace(/}/g, '\n}').replace(/,/g, ',\n') + '```';
-    }    
+    }
 }
 
 module.exports = {

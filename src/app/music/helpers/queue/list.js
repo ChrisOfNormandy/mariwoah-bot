@@ -4,7 +4,7 @@ const queue = require('./map');
 
 module.exports = function(message) {
     if (!queue.has(message.guild.id))
-        return message.channel.send('> There are no songs in the queue.');
+        return '> There are no songs in the queue.';
 
     let embedMsg = new Discord.MessageEmbed()
         .setTitle('Active queue:')
@@ -19,5 +19,5 @@ module.exports = function(message) {
     if (songs.length > 20)
         embedMsg.setFooter(`... and ${songs.length - count} others.`);
     
-    message.channel.send(embedMsg);
+    return embedMsg;
 }

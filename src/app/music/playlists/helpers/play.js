@@ -9,7 +9,7 @@ async function func(message, array) {
     const voiceChannel = getVC(message);
 
     if (!voiceChannel)
-        return console.log("No voice channel!");
+        return "No voice channel!";
 
     if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
         let activeQueue = {
@@ -27,42 +27,46 @@ async function func(message, array) {
     }
 
     for (let i in array)
-        queue.get(message.guild.id).songs.push({song: array[i], request: message.author});
+        queue.get(message.guild.id).songs.push({ song: array[i], request: message.author });
 
     if (queue.get(message.guild.id).connection === null) {
         var connection = await voiceChannel.join();
         queue.get(message.guild.id).connection = connection;
     }
 
-    if (queue.get(message.guild.id).songs.length == 1) {
-        getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
-            .then(msg => message.channel.send(msg))
-            .catch(e => console.log(e));
-        play(message, queue.get(message.guild.id).songs[0]);
-    }
-    else {
-        getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1)
-            .then(msg => message.channel.send(msg))
-            .catch(e => console.log(e));
-    }
+    return new Promise((resolve, reject) => {
+        if (queue.get(message.guild.id).songs.length == 1) {
+            getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
+                .then(msg => resolve(msg))
+                .catch(e => reject(e));
+            play(message, queue.get(message.guild.id).songs[0]);
+        }
+        else {
+            getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1)
+                .then(msg => resolve(msg))
+                .catch(e => reject(e));
+        }
+    });
 }
 
-module.exports = function (message, name, doShuffle) {
-    db.playlists.get(message, name)
-        .then(data => {
-            let list = JSON.parse(data.list);
-            if (list === null)
-                return message.channel.send('> There are no songs in the selected playlist.');
+module.exports = function (message, name, doShuffle = null) {
+    return new Promise((resolve, reject) => {
+        db.playlists.get(message, name)
+            .then(data => {
+                let list = JSON.parse(data.list);
 
-            if (doShuffle) {
-                shuffle(list)
-                    .then(array => {
-                        func(message, array)
-                    })
-                    .catch(e => console.log(e));
-            }
-            else
-                func(message, list)
-        })
-        .catch(e => console.log(e));
+                if (list === null)
+                    resolve('> There are no songs in the selected playlist.');
+                else {
+                    if (doShuffle) {
+                        shuffle(list)
+                            .then(array => resolve(func(message, array)))
+                            .catch(e => reject(e));
+                    }
+                    else
+                        resolve(func(message, list));
+                }
+            })
+            .catch(e => reject(e));
+    });
 }

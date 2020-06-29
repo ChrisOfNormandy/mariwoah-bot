@@ -12,11 +12,11 @@ function formatResponse(name, joinDate, roleList, member, data) {
         .setColor(chatFormat.colors.information)
         .addField("Join date", joinDate)
         .addField("Roles", roleList, true)
-        .addField("Admin", member.hasPermission("ADMINISTRATOR") ? "Yes" : "No", true)        
+        .addField("Admin", member.hasPermission("ADMINISTRATOR") ? "Yes" : "No", true)
         .addField("User ID", data.user_id)
         .addField("Permission level", data.permission_level, true)
         .addField("Bot role", (data.bot_role === null) ? "None" : data.bot_role, true);
-        
+
     return embedMsg;
 }
 
@@ -46,15 +46,16 @@ module.exports = {
         let joinDate = getDate(new Date(member.joinedTimestamp));
         let roles = getRoles(member, message);
 
-        sql.user.get(message.guild.id, user.id)
-        .then(data => {
-            console.log(data);
-            let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-            message.channel.send(embedMsg);
-        })
-        .catch(e => {
-            console.log(e);
-            message.channel.send('> Failed to gather user data.');
+        return new Promise((resolve, reject) => {
+            sql.user.get(message.guild.id, user.id)
+                .then(data => {
+                    let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve(embedMsg);
+                })
+                .catch(e => {
+                    console.log(e);
+                    reject('> Failed to gather user data.');
+                });
         });
     },
 
@@ -65,14 +66,16 @@ module.exports = {
         let joinDate = getDate(new Date(member.joinedTimestamp));
         let roles = getRoles(member, message);
 
-        sql.user.get(message.guild.id, user.id)
-        .then(data => {
-            let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-            message.channel.send(embedMsg);
-        })
-        .catch(e => {
-            console.log(e);
-            message.channel.send('> Failed to gather user data.');
+        return new Promise((resolve, reject) => {
+            sql.user.get(message.guild.id, user.id)
+                .then(data => {
+                    let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve(embedMsg);
+                })
+                .catch(e => {
+                    console.log(e);
+                    resolve('> Failed to gather user data.');
+                });
         });
     }
 }

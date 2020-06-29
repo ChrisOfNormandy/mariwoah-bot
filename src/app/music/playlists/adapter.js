@@ -8,31 +8,33 @@ const list = require('./helpers/list');
 const play = require('./helpers/play');
 
 module.exports = {
-    play: (message, playlistName, doShuffle = false) => {play(message, playlistName, doShuffle)},
-    list: (message, playlistName) => {list.byName(message, playlistName)},
-    listAll: (message) => {list.all(message)},
-    create: (message, playlistName) => {create(message, playlistName)},
-    delete: (message, playlistName) => {remove.playlist(message, playlistName)},
-    remove: (message, playlistName, songURL) => {remove.song(message, playlistName, songURL)},
+    play,
+    list: (message, playlistName) => {return list.byName(message, playlistName)},
+    listAll: (message) => {return list.all(message)},
+    create: (message, playlistName) => {return create(message, playlistName)},
+    delete: (message, playlistName) => {return remove.playlist(message, playlistName)},
+    remove: (message, playlistName, songURL) => {return remove.song(message, playlistName, songURL)},
     append: (message, playlistName, songURL = null, songName = null) => {
-        append(message, playlistName, songURL, songName)
-            .then(song => {
-                let embedMsg = new Discord.MessageEmbed();
-                if (song !== undefined) {
-                    embedMsg.setTitle(`${song.title}`);
-                    embedMsg.setColor(chatFormat.colors.byName.green);
-                    embedMsg.setThumbnail(song.thumbnail.url);
-                    embedMsg.setURL(song.url);
-                    embedMsg.addField(':writing_hand: Success!', `Added song to the playlist.`);
-                    message.channel.send(embedMsg);
-                }
-                else {
-                    embedMsg.setTitle(`Error`);
-                    embedMsg.setColor(chatFormat.colors.byName.red);
-                    embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
-                    message.channel.send(embedMsg);
-                }
-            })
-            .catch(e => console.log(e));
+        return new Promise((resolve, reject) => {
+            append(message, playlistName, songURL, songName)
+                .then(song => {
+                    let embedMsg = new Discord.MessageEmbed();
+                    if (song !== undefined) {
+                        embedMsg.setTitle(`${song.title}`);
+                        embedMsg.setColor(chatFormat.colors.byName.green);
+                        embedMsg.setThumbnail(song.thumbnail.url);
+                        embedMsg.setURL(song.url);
+                        embedMsg.addField(':writing_hand: Success!', `Added song to the playlist.`);
+                        resolve(embedMsg);
+                    }
+                    else {
+                        embedMsg.setTitle(`Error`);
+                        embedMsg.setColor(chatFormat.colors.byName.red);
+                        embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
+                        resolve(embedMsg);
+                    }
+                })
+                .catch(e => reject(e));
+            });
     }
 }
