@@ -15,5 +15,8 @@ client.on('ready', () => {
 client.on('message', async message => {
     if (!message.author.bot)
         commandParser(client, message)
-            .catch(e => console.log('FULL ERROR RETURN\n', e));
+            .catch(e => {
+                console.log('FULL ERROR RETURN\n', e);
+                console.log(message.guild.name, message.author.username, message.content);
+            });
 });

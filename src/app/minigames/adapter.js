@@ -7,37 +7,46 @@ function printStats(message) {
     let embedMsg = new Discord.MessageEmbed()
         .setTitle(`Game stats for ${message.author.username}`)
         .setColor(chatFormat.colors.byName.yellow);
-    db.minigames.getStats(message, message.author.id)
-        .then(stats => {
-            embedMsg.addField('Level', stats.level, true);
-            embedMsg.addField('Experience', stats.experience, true);
-            embedMsg.addField('Balance', stats.balance);
-            message.channel.send(embedMsg);
-        })
-        .catch(e => console.log(e));
+
+    return new Promise((resolve, reject) => {
+        db.minigames.getStats(message, message.author.id)
+            .then(stats => {
+                embedMsg.addField('Level', stats.level, true);
+                embedMsg.addField('Experience', stats.experience, true);
+                embedMsg.addField('Balance', stats.balance);
+                resolve(embedMsg);
+            })
+            .catch(e => reject(e));
+    });
 }
 
-function printFishingStats(message) {
+function printStats_fishing(message) {
     let embedMsg = new Discord.MessageEmbed()
         .setTitle(`Fishing stats for ${message.author.username}`)
         .setColor(chatFormat.colors.byName.yellow);
-    db.minigames.fishing.get(message, message.author.id)
-        .then(stats => {
-            embedMsg.addField('Level', stats.level);
-            embedMsg.addField('Catches', stats.catches, true);
-            embedMsg.addField('Misses', stats.misses, true);
-            message.channel.send(embedMsg);
-        })
-        .catch(e => console.log(e));
+    
+    return new Promise((resolve, reject) => {
+        db.minigames.fishing.get(message, message.author.id)
+            .then(stats => {
+                embedMsg.addField('Level', stats.level, true);
+                embedMsg.addField('Experience', stats.experience, true);
+                embedMsg.addField('Returns', `*Catches*: ${stats.catches}\n*Misses*: ${stats.misses}\n*Trash*: ${stats.trash}`);
+                resolve(embedMsg);
+            })
+            .catch(e => reject(e));
+    });
 }
 
 module.exports = {
-    getStats: (message) => {db.minigames.getStats(message, message.author.id).then(stats => console.log(stats))},
-    printStats,
+    stats: {
+        all: (message) => {return printStats(message)},
+        fishing: (message) => {return printStats_fishing(message)}
+    },
+    inventory: {
+        find: (message, data) => {return db.minigames.inventory.find(message, data)}
+    },
     fishing: {
-        get: (message) => {db.minigames.fishing.get(message, message.author.id).then(stats => console.log(stats))},
-        print: (message) => {printFishingStats(message)},
-        cast: (message) => {fishing.cast(message)}
+        cast: (message) => {return fishing.cast(message)}
     }
 }
 

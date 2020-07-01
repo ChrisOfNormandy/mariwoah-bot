@@ -2,9 +2,13 @@ const generateFishObject = require('./generators/generateFishObject');
 const generateItemObject = require('./generators/generateItemObject');
 const getCatchChances = require('./generators/getCatchChances');
 
-module.exports = function (user) {
+const map = new Map();
+
+function generate(user) {
+    console.log(user);
     return new Promise((resolve, reject) =>  {
-        let rngValue = Math.floor(100 * Math.random());
+        // let rngValue = Math.floor(100 * Math.random());
+        let rngValue = 0;
 
         let chance = getCatchChances(user.level);
         chance.lowItem += chance.fish;
@@ -23,11 +27,12 @@ module.exports = function (user) {
         }
 
         if (rngValue <= chance.fish) {
-            let tier = (rngValue <= Math.floor(0.75 * chance.fish)) ? 'common' : 'uncommon';
+            // let tier = Math.floor(0.75 * chance.fish) % 5;
+            let tier = 0;
             generateFishObject(user.level, tier)
-                .then(arr => {
-                    gameInstance.returnItem = arr;
-                    gameInstance.expPayout = Math.round(arr[1].costPerLb * arr[1].weight);
+                .then(fish => {
+                    gameInstance.returnItem = fish;
+                    gameInstance.expPayout = Math.round(fish.price_per_pound * fish.weight);
 
                     resolve(gameInstance);
                 })
@@ -41,4 +46,29 @@ module.exports = function (user) {
         else
             resolve(gameInstance);
     });
+}
+
+function set(user) {
+    return new Promise((resolve, reject) => {
+        generate(user)
+            .then(instance => {
+                map.set(`${user.server_id},${user.user_id}`, instance);
+                resolve(instance);
+            });
+    });
+}
+
+function get(user) {
+    return map.get(`${user.server_id},${user.user_id}`);
+}
+
+function remove(user) {
+    map.delete(`${user.server_id},${user.user_id}`);
+}
+
+module.exports = {
+    get,
+    set,
+    map,
+    remove
 }

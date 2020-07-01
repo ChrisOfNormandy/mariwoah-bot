@@ -217,25 +217,29 @@ function parseCommand(client, message, data) {
                         }
 
                         // Minigames
-                        // case 'stats': {
-                        //     switch (data.arguments[0]) {
-                        //         case 'fishing': {
-                        //             value = adapter.minigames.fishing.print(message);
-                        //             break;
-                        //         }
-                        //         default: {
-                        //             value = adapter.minigames.printStats(message);
-                        //             break;
-                        //         }
-                        //     }
-                        // }
+                        case 'stats': {
+                            switch (data.arguments[0]) {
+                                case 'fishing': {
+                                    value = adapter.minigames.stats.fishing(message);
+                                    break;
+                                }
+                                default: {
+                                    value = adapter.minigames.stats.all(message);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
 
-                        // case 'cast': {
-                        //     verify(message, getMinigames('cast', 'fishing').permissionLevel)
-                        //         .then(() => resolve(adapter.minigames.fishing.cast(message)))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
+                        case 'cast': {
+                            value = adapter.minigames.fishing.cast(message);
+                            break;
+                        }
+
+                        case 'inventory': {
+                            value = adapter.minigames.inventory.find(message, data);
+                            break;
+                        }
 
                         // case 'slots': { }
                         // case 'blackjack': {
@@ -413,6 +417,7 @@ function formatResponse(input) {
                 try {
                     input
                         .then(val => {
+                            // console.log(val);
                             if (val.message)
                                 resolve(formatResponse(val.message));
                             else if (val.result)
@@ -542,6 +547,7 @@ module.exports = function (client, message) {
                                     .then(msg => message.channel.send(msg))
                                     .catch(e => {
                                         if (e.message) {
+                                            console.log(e);
                                             reject(e);
                                         }
                                         else {

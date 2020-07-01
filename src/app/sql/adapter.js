@@ -77,11 +77,23 @@ module.exports = {
     },
     minigames: {
         getStats: (message, userID) => {return minigames.getStats(con, message, userID)},
-        pay: (message, userID, amount) => {minigames.pay(con, message, userID, amount)},
+        pay: (message, userID, amount) => {return minigames.pay(con, message, userID, amount)},
+        exp: (message, userID, amount) => {return minigames.exp(con, message, userID, amount)},
         getItemList: () => {return minigames.getItemList(con)},
-        getFishList: (rarity = null) => {return minigames.getFishList(con, rarity)},
+        getFishList: (rarity = 0) => {return minigames.getFishList(con, rarity)},
+        inventory: {
+            get: (message, data) => {return minigames.inventory.get(con, message, data)},
+            set: (message, json) => {return minigames.inventory.set(con, message, json)},
+            give: (message, item, amount = 1) => {return minigames.inventory.give(con, message, item, amount)},
+            find: (message, data) => {return minigames.inventory.find(con, message, data)}
+        },
         fishing: {
-            get: (message, userID) => {return minigames.fishing.get(con, message, userID)}
+            get: (message, userID) => {return minigames.fishing.get(con, message, userID)},
+            catchFish: (message, userID, amount = 1) => {return minigames.fishing.catchFish(con, message, userID, amount)},
+            catchNone: (message, userID, amount = 1) => {return minigames.fishing.catchNone(con, message, userID, amount)},
+            catchTrash: (message, userID, amount = 1) => {return minigames.fishing.catchTrash(con, message, userID, amount)},
+            catchItem: (message, userID, amount = 1) => {return minigames.fishing.catchItem(con, message, userID, amount)},
+            exp: (message, userID, amount) => {return minigames.fishing.exp(con, message, userID, amount)}
         },
 
         updateCondition: (name, meta, value) => {minigames.updateCondition(con, name, meta, value)}

@@ -589,31 +589,25 @@ module.exports = {
                 permissionLevel: 1,
                 selfClear: true
             },
-            page: [
-                [
-                    'stats'
-                ]
-            ]
-        },
-        subcommands: {
-            fishing: {
-                'cast': {
-                    description: '',
-                    permissionLevel: 1,
-                    selfClear: true
-                },
-                page: [
-                    [
-                        'cast'
-                    ]
-                ]
+            'cast': {
+                description: '',
+                permissionLevel: 1,
+                selfClear: true
             },
-            page: [
-                [
-                    'fishing'
-                ]
+            'inventory': {
+                description: '',
+                permissionLevel: 1,
+                alternatives: [
+                    'inv'
+                ],
+                selfClear: true
+            }
+        },
+        page: [
+            [
+                'stats'
             ]
-        }
+        ]
     },
     memes: {
         header: '### MEMES ###',
