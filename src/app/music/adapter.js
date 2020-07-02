@@ -88,10 +88,17 @@ module.exports = {
                     .catch(e => reject(e));
             });
         },
-        byName: (message, songName) => {
+        byName: (message, data) => {
             return new Promise((resolve, reject) => {
-                getSong.byName(message, songName)
+                getSong.byName(message, data.arguments.join(' '), data)
                     .then(obj => resolve(append(message, obj)))
+                    .catch(e => reject(e));
+            });
+        },
+        byPlaylist: (message, data) => {
+            return new Promise((resolve, reject) => {
+                getSong.byPlaylist(message, data.arguments.join(' '), data)
+                    .then(arr => resolve(append(message, null, arr, data.flags)))
                     .catch(e => reject(e));
             });
         }

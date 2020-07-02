@@ -274,7 +274,12 @@ function parseCommand(client, message, data) {
 
                         case 'play': {
                             if (!data.urls.length)
-                                value = adapter.music.append.byName(message, data.arguments.join(' '));
+                                if (data.flags['p']) {
+                                    value = adapter.music.append.byPlaylist(message, data);
+                                }
+                                else {
+                                    value = adapter.music.append.byName(message, data);
+                                }
                             else {
                                 if (data.flags['s']) {
                                     value = new Promise((resolve, reject) => {

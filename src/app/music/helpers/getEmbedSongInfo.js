@@ -1,6 +1,6 @@
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const getSongObject = require('./getSong');
+const getSong = require('./getSong');
 
 module.exports = {
     single: function (title, activeQueue, index) {
@@ -30,14 +30,6 @@ module.exports = {
                     }
                 ]
             }
-
-            // let embedMsg = new Discord.MessageEmbed()
-            //     .setTitle(title)
-            //     .setColor(chatFormat.colors.youtube)
-            //     .setThumbnail(song.thumbnail.url)
-            //     .setURL(song.url)
-            //     .addField(song.title, `${song.author} | Requested: ${requested}`)
-            //     .addField(`Duration: ${song.durationString}`, `Queue position: ${index}`);
 
             resolve({embed});
         });
@@ -91,7 +83,7 @@ module.exports = {
                 reject(null);
 
             if (songURL !== null) {
-                getSongObject.byUrl(message, songURL)
+                getSong.byUrl(message, songURL)
                     .then((song) => {
                         let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
@@ -105,7 +97,7 @@ module.exports = {
                     .catch(e => reject(e));
             }
             else {
-                getSongObject.byName(message, songName)
+                getSong.byName(message, songName)
                     .then((song) => {
                         let embedMsg = new Discord.MessageEmbed()
                             .setTitle('Song information')
