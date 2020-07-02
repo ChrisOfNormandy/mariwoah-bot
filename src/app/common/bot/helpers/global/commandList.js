@@ -633,6 +633,11 @@ module.exports = {
                 permissionLevel: 1,
                 selfClear: true
             },
+            'bird': {
+                description: 'Bird. Dance.',
+                permissionLevel: 1,
+                selfClear: true
+            },
             'clayhead': {
                 description: 'I am not sorry for anything or anyone.',
                 permissionLevel: 1,

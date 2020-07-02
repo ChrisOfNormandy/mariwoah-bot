@@ -346,6 +346,10 @@ function parseCommand(client, message, data) {
                             value = adapter.memes.memeDispatch('penguin');
                             break;
                         }
+                        case 'bird': {
+                            value = adapter.memes.memeDispatch('bird');
+                            break;
+                        }
                         case 'clayhead': {
                             value = adapter.memes.memeDispatch('clayhead')
                             break;

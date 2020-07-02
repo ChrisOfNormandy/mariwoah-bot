@@ -7,5 +7,6 @@ module.exports = function (meme) {
         case 'fuuu': return links.rage.fuuu;
         case 'penguin': return 'src/app/common/assets/memes/penguin_walking_gif.gif';
         case 'yey': return links.rage.yey;
+        case 'bird': return 'src/app/common/assets/memes/bird_dance.gif';
     }
 }
