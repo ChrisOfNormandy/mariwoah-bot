@@ -52,6 +52,10 @@ module.exports = function (message, userID) {
                                                     .catch(e => reject(e));
                                             }
                                         }
+                                        else {
+                                            instance.remove(user);
+                                            resolve('(WIP) Nothing was caught.\n In the future, there will be items available to catch and more fish.\n I am too lazy to deal with MySQL entries right now.')
+                                        }
                                         msg.delete();
                                     }, game.delay * 3000);
                                 })

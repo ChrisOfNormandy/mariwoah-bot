@@ -7,8 +7,8 @@ const map = new Map();
 function generate(user) {
     console.log(user);
     return new Promise((resolve, reject) =>  {
-        // let rngValue = Math.floor(100 * Math.random());
-        let rngValue = 0;
+        let rngValue = Math.floor(100 * Math.random());
+        // let rngValue = 0;
 
         let chance = getCatchChances(user.level);
         chance.lowItem += chance.fish;
@@ -42,6 +42,7 @@ function generate(user) {
             // let itemObject = generateItemObject(user.level, tier);
             // gameInstance.returnItem = itemObject;
             // gameInstance.expPayout = Math.floor(itemObject.item.worth * itemObject.item.size);
+            resolve(gameInstance);
         }
         else
             resolve(gameInstance);
