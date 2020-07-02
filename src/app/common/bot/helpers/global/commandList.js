@@ -665,7 +665,8 @@ module.exports = {
                 ],
                 [
                     'penguin',
-                    'clayhead'
+                    'clayhead',
+                    'bird'
                 ],
                 [
                     'crabrave',
