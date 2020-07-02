@@ -24,20 +24,20 @@ module.exports = {
                 let songName = data.arguments.slice(2).join(' ');
                 append.byName(message, playlistName, songName)
                     .then(song => {
-                        let embedMsg = new Discord.MessageEmbed();
+                        let embed = new Discord.MessageEmbed();
                         if (song !== undefined) {
-                            embedMsg.setTitle(`${song.title}`);
-                            embedMsg.setColor(chatFormat.colors.byName.green);
-                            embedMsg.setThumbnail(song.thumbnail.url);
-                            embedMsg.setURL(song.url);
-                            embedMsg.addField(':writing_hand: Success!', `Added song to the playlist.`);
-                            resolve(embedMsg);
+                            embed.setTitle(`${song.title}`);
+                            embed.setColor(chatFormat.colors.byName.green);
+                            embed.setThumbnail(song.thumbnail.url);
+                            embed.setURL(song.url);
+                            embed.addField(':writing_hand: Success!', `Added song to the playlist.`);
+                            resolve(embed);
                         }
                         else {
-                            embedMsg.setTitle(`Error`);
-                            embedMsg.setColor(chatFormat.colors.byName.red);
-                            embedMsg.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
-                            resolve(embedMsg);
+                            embed.setTitle(`Error`);
+                            embed.setColor(chatFormat.colors.byName.red);
+                            embed.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
+                            resolve(embed);
                         }
                     })
                     .catch(e => reject(e));

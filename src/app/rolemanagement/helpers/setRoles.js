@@ -135,7 +135,8 @@ function refresh_user(message, member) {
                             return map;
                         }, {});
 
-                        refresh(message, member, roles);
+                        refresh(message, member, roles)
+                            .then(r => resolve({value: (r) ? chatFormat.response.roles.refresh_user_yes() : chatFormat.response.roles.refresh_user_no()}))
                     })
                     .catch((err) => reject(err));
             })
@@ -169,7 +170,8 @@ function refresh_guild(message, strip = false) {
 
                         Promise.all(toResolve)
                             .then(results => {
-                                resolve(results);
+                                let val = results.filter(v => v == true).length;
+                                resolve({value: chatFormat.response.roles.refresh_guild(val, results.length)})
                             })
                             .catch(e => reject(e));
                     })
@@ -214,7 +216,7 @@ function setRole(message, name, role) {
     return new Promise((resolve, reject) => {
         if (role) {
             sql.server.setRole(message.guild.id, name, role.id)
-                .then(r => resolve(chatFormat.response.roles.setRole(name, role)))
+                .then(r => resolve({value: chatFormat.response.roles.setRole(name, role)}))
                 .catch(e => reject(e));
         }
         else {

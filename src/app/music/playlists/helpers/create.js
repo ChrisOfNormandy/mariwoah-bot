@@ -6,19 +6,19 @@ module.exports = function (message, playlistName) {
     return new Promise((resolve, reject) => {
         db.playlists.create(message, playlistName)
             .then(data => {
-                let embedMsg = new Discord.MessageEmbed()
+                let embed = new Discord.MessageEmbed()
                     .setTitle('Created new playlist')
                     .setColor(chatFormat.colors.byName.green)
                     .addField('Successfully created playlist:', playlistName);
-                resolve(embedMsg);
+                resolve(embed);
             })
             .catch(e => {
                 console.log(e);
-                let embedMsg = new Discord.MessageEmbed()
+                let embed = new Discord.MessageEmbed()
                     .setTitle('Error')
                     .setColor(chatFormat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
-                resolve(embedMsg);
+                resolve(embed);
             });
     });
 }

@@ -23,7 +23,7 @@ function get(message, userID, listAll = true) {
 function set(message, userID, reason, duration, severity = 'normal') {
     return new Promise((resolve, reject) => {
         if (!message.guild.members.cache.get(userID))
-            resolve(chatFormat.response.punish.no_user());
+            resolve({value: chatFormat.response.punish.no_user()});
         else {
             if (reason.trim() == '')
                 reason = null;
@@ -35,39 +35,24 @@ function set(message, userID, reason, duration, severity = 'normal') {
             get(message, userID)
                 .then(data => {
                     messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data, { duration });
-                    message.guild.members.cache.get(userID).ban({ reason: reason, days: duration });
-                    
-                    resolve(chatFormat.response.punish.ban(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length));
+                    message.guild.members.cache.get(userID).ban({ reason: reason, days: duration });                    
+                    resolve({value: chatFormat.response.punish.ban(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length)});
                 })
                 .catch(e => reject(e));
         }
     })
 }
 
-function getLatest(message, userID) {
-    return get(message, userID, false);
-}
-
-function printLatest(message, userID) {
-    getLatest(message, userID)
-        .then(data => {
-            message.channel.send(embedListing.single(message, 'ban', data));
-        })
-        .catch(e => console.log(e));
-}
-
 function printAll(message, userID) {
+    return new Promise((resolve, reject) => {
     get(message, userID, true)
-        .then(data => {
-            message.channel.send(embedListing.array(message, 'ban', data));
-        })
-        .catch(e => console.log(e));
+        .then(data => resolve({embed: embedListing.array(message, 'ban', data)}))
+        .catch(e => reject(e));
+    });
 }
 
 module.exports = {
     get,
     set,
-    getLatest,
-    printLatest,
     printAll
 }

@@ -33,37 +33,23 @@ function set(message, userID, data) {
             get(message, userID)
                 .then(userData => {
                     messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, userData);
-                    resolve(chatFormat.response.punish.warn(message.guild.members.cache.get(userID), userData[userData.length - 1].reason, userData.length));
+                    resolve({value: chatFormat.response.punish.warn(message.guild.members.cache.get(userID), userData[userData.length - 1].reason, userData.length)});
                 })
                 .catch(e => reject(e));
         }
     });
 }
 
-function getLatest(message, userID) {
-    return get(message, userID, false);
-}
-
-function printLatest(message, userID) {
-    getLatest(message, userID)
-        .then(userData => {
-            message.channel.send(embedListing.single(message, 'warn', userData));
-        })
-        .catch(e => console.log(e));
-}
-
 function printAll(message, userID) {
+    return new Promise((resolve, reject) => {
     get(message, userID, true)
-        .then(userData => {
-            message.channel.send(embedListing.array(message, 'warn', userData));
-        })
-        .catch(e => console.log(e));
+        .then(userData => resolve({embed: embedListing.array(message, 'warn', userData)}))
+        .catch(e => reject(e));
+    });
 }
 
 module.exports = {
     get,
     set,
-    getLatest,
-    printLatest,
     printAll
 }

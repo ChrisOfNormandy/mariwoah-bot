@@ -11,7 +11,7 @@ module.exports = function (message, client) {
             .then(msg => {
                 embed.addField('Message latency', `${msg.createdTimestamp - message.createdTimestamp}ms.`);
                 msg.delete();
-                resolve(embed);
+                resolve({embed, options: {clear: 10}});
             });
     });
 }

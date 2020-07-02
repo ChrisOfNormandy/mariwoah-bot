@@ -1,5 +1,6 @@
 const adapter = require('./app/adapter');
 const shuffle = require('./app/common/bot/helpers/global/shuffle');
+const { response } = require('./app/common/bot/helpers/global/chatFormat');
 const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, properties, data) {
@@ -83,13 +84,13 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'roll': {
-                            value = adapter.common.bot.features.roll(message, data.arguments);
+                            value = adapter.common.bot.features.roll(data.arguments);
                             break;
                         }
                         case 'shuffle': {
                             value = new Promise((resolve, reject) => {
                                 adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                                    .then(arr => resolve(arr.join(', ')))
+                                    .then(arr => resolve({value: arr.join(', ')}))
                                     .catch(e => reject(e));
                             });
                             break;
@@ -161,20 +162,12 @@ function parseCommand(client, message, data) {
                                 message.guild.members.unban(data.arguments[0])
                                     .then(user => {
                                         user.send(`You have been unbanned from ${message.guild.name}.`);
-                                        resolve(`Unbanned ${user.username}.`);
+                                        resolve({value: `Unbanned ${user.username}.`});
                                     })
-                                    .catch(e => reject()`Cannot unban user.\n${e.message}`);
+                                    .catch(e => reject(`Cannot unban user.\n${e.message}`));
                             });
                             break;
                         }
-
-                        // case 'pardon': {
-                        //     verify(message, getRoleManager('pardon'))
-                        //         .then(() => resolve(common.roleManager.pardonUser(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(3).join(' '), data.arguments[1], data.arguments[2])))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-
                         case 'promote': {
                             value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
                             break;
@@ -217,6 +210,7 @@ function parseCommand(client, message, data) {
                         }
 
                         // Minigames
+
                         case 'stats': {
                             switch (data.arguments[0]) {
                                 case 'fishing': {
@@ -230,45 +224,14 @@ function parseCommand(client, message, data) {
                             }
                             break;
                         }
-
                         case 'cast': {
                             value = adapter.minigames.fishing.cast(message);
                             break;
                         }
-
                         case 'inventory': {
                             value = adapter.minigames.inventory.find(message, data);
                             break;
                         }
-
-                        // case 'slots': { }
-                        // case 'blackjack': {
-                        //     verify(message, getMinigames(command, 'gambling'))
-                        //         .then(() => resolve(common.minigames.run(message, 'gambling', command)))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-
-                        // case 'cast': {
-                        //     verify(message, getMinigames('cast', 'fishing'))
-                        //         .then(() => resolve(common.minigames.run(message, 'fishing', 'cast')))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-
-
-                        // case 'inv': {
-                        //     verify(message, getMinigames('inv'))
-                        //         .then(() => resolve(common.minigames.listInv(message)))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-                        // case 'sell': {
-                        //     verify(message, getMinigames('sell'))
-                        //         .then(() => resolve(common.minigames.sellInv(message)))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
 
                         // Music
 
@@ -283,7 +246,7 @@ function parseCommand(client, message, data) {
                             else {
                                 if (data.flags['s']) {
                                     value = new Promise((resolve, reject) => {
-                                        value = shuffle(data.urls)
+                                        shuffle(data.urls)
                                             .then(songUrls => resolve(adapter.music.append.byURLArray(message, songUrls, data.flags)))
                                             .catch(e => reject(e));
                                     });
@@ -310,7 +273,7 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'queue': {
-                            value = adapter.music.list(message);
+                            value = adapter.music.list(message, data);
                             break;
                         }
                         case 'pause': {
@@ -406,6 +369,7 @@ function parseCommand(client, message, data) {
                 else {
                     value = result.permission.reason;
                 }
+
                 resolve({
                     value,
                     result
@@ -417,27 +381,33 @@ function parseCommand(client, message, data) {
 
 function formatResponse(input) {
     return new Promise((resolve, reject) => {
-        switch (typeof input) {
-            case 'string': resolve(input);
-            case 'undefined': resolve(null);
-            default: {
-                try {
-                    input
-                        .then(val => {
-                            // console.log(val);
-                            if (val.message)
-                                resolve(formatResponse(val.message));
-                            else if (val.result)
-                                resolve(formatResponse(val.result));
-                            else
-                                resolve(formatResponse(val));
-                        })
-                        .catch(e => reject(e));
-                }
-                catch {
+        if (input.value) {
+            switch (typeof input.value) {
+                case 'string': {
                     resolve(input);
+                    break;
                 }
-                break;
+                case 'undefined': {
+                    resolve(null);
+                    break;
+                }
+                default: {
+                    resolve(input);
+                    break;
+                }
+            }
+        }
+        else {
+            try {
+                input
+                    .then(val => resolve(formatResponse(val)))
+                    .catch(e => reject(e));
+            }
+            catch {
+                if (input.embed)
+                    resolve({ value: input.embed, options: input.options });
+                else
+                    resolve(input);
             }
         }
     });
@@ -548,26 +518,36 @@ module.exports = function (client, message) {
                     };
 
                     parseCommand(client, message, data)
-                        .then(r => {
-                            if (r.value) {
-                                formatResponse(r.value)
-                                    .then(msg => message.channel.send(msg))
-                                    .catch(e => {
-                                        if (e.message) {
-                                            console.log(e);
-                                            reject(e);
-                                        }
-                                        else {
-                                            message.channel.send(e);
-                                        }
-                                    });
-                            }
+                        .then(returned => {
+                            formatResponse(returned.value)
+                                .then(response => {
+                                    message.channel.send(response.value)
+                                        .then(msg => {
+                                            if (response.options && response.options.clear)
+                                                setTimeout(() => msg.delete(), response.options.clear * 1000);
+                                        });
+                                })
+                                .catch(e => {
+                                    if (e.message) {
+                                        console.log(e);
+                                        reject(e);
+                                    }
+                                    else {
+                                        message.channel.send(e);
+                                    }
+                                });
+
                             if (data.parameters.boolean['debug'])
                                 message.channel.send(adapter.common.debug(r));
-                            if (r.result.properties.selfClear && !data.flags['C'])
-                                message.delete();
 
-                            resolve(r);
+                            if (returned.result.properties.selfClear && !data.flags['C']) {
+                                if (response.options && response.options.clear_command)
+                                        setTimeout(() => message.delete(), response.options.clear_command * 1000);
+                                else
+                                    message.delete();
+                            }
+
+                            resolve(response);
                         })
                         .catch(e => reject(e));
                 }

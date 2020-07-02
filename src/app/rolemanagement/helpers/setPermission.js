@@ -10,7 +10,7 @@ function promote(message, userID, toLevel = null) {
                     sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
                         .then(r => {
                             setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                            resolve(chatFormat.response.roles.promote(message.guild.members.cache.get(userID), toLevel));
+                            resolve({value: chatFormat.response.roles.promote(message.guild.members.cache.get(userID), toLevel)});
                         })
                         .catch(e => reject(e));
                 }
@@ -18,20 +18,20 @@ function promote(message, userID, toLevel = null) {
                     sql.user.setPermissionLevel(message.guild.id, userID, level + 1)
                         .then(r => {
                             setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                            resolve(chatFormat.response.roles.promote(message.guild.members.cache.get(userID), level + 1));
+                            resolve({value: chatFormat.response.roles.promote(message.guild.members.cache.get(userID), level + 1)});
                         })
                         .catch(e => reject(e));
                 }
                 else {
                     if (level > 4)
-                        resolve(chatFormat.response.roles.no_promote(message.guild.members.cache.get(userID), level));
+                        resolve({value: chatFormat.response.roles.no_promote(message.guild.members.cache.get(userID), level)});
                     else
-                        resolve(chatFormat.response.roles.fail_promote());
+                        resolve({value: chatFormat.response.roles.fail_promote()});
                 }
             })
             .catch(e => {
                 console.log(e);
-                resolve(chatFormat.response.roles.fail_promote());
+                resolve({value: chatFormat.response.roles.fail_promote()});
             });
     });
 }
@@ -44,7 +44,7 @@ function demote(message, userID, toLevel = null) {
                     sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
                         .then(r => {
                             setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                            resolve(chatFormat.response.roles.demote(message.guild.members.cache.get(userID), toLevel));
+                            resolve({value: chatFormat.response.roles.demote(message.guild.members.cache.get(userID), toLevel)});
                         })
                         .catch(e => reject(e));
                 }
@@ -52,20 +52,20 @@ function demote(message, userID, toLevel = null) {
                     sql.user.setPermissionLevel(message.guild.id, userID, level - 1)
                         .then(r => {
                             setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                            resolve(chatFormat.response.roles.demote(message.guild.members.cache.get(userID), level - 1));
+                            resolve({value: chatFormat.response.roles.demote(message.guild.members.cache.get(userID), level - 1)});
                         })
                         .catch(e => reject(e));
                 }
                 else {
                     if (level <= 0)
-                        resolve(chatFormat.response.roles.no_demote(message.guild.members.cache.get(userID), level));
+                        resolve({value: chatFormat.response.roles.no_demote(message.guild.members.cache.get(userID), level)});
                     else
-                        resolve(chatFormat.response.roles.fail_demote());
+                        resolve({value: chatFormat.response.roles.fail_demote()});
                 }
             })
             .catch(e => {
                 console.log(e);
-                resolve(chatFormat.response.roles.fail_demote());
+                resolve({value: chatFormat.response.roles.fail_demote()});
             });
     });
 }

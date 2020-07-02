@@ -5,14 +5,14 @@ const queue = require('./queue/map');
 
 function embedSongInfo(song) {
     console.log(song);
-    let embedMsg = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setTitle(song.title)
         .setColor(chatFormat.colors.youtube)
         .setThumbnail(song.thumbnail.url)
         .setURL(song.url)
         .addField(song.author, `Duration: ${song.durationString}`);
 
-    return embedMsg;
+    return embed;
 }
 
 module.exports = {
@@ -39,7 +39,7 @@ module.exports = {
                     },
                     {
                         name: `Duration: ${song.durationString}`,
-                        value: `Queue position: ${index}`
+                        value: `Queue position: ${index == 0 ? 'Right now!' : index}`
                     }
                 ]
             }
@@ -51,7 +51,7 @@ module.exports = {
         return new Promise((resolve, reject) =>  {
             const song = activeQueue.songs[0];
 
-            let embedMsg = new Discord.MessageEmbed()
+            let embed = new Discord.MessageEmbed()
                 .setTitle('Current song queue')
                 .setColor(chatFormat.colors.youtube)
                 .setThumbnail(song.thumbnail.url)
@@ -59,19 +59,19 @@ module.exports = {
                     Requested: ${song.requested.username}`);
 
             if (activeQueue.previousSong) {
-                embedMsg.addField(`Previous: ${activeQueue.previousSong.title}`, activeQueue.previousSong.url);
+                embed.addField(`Previous: ${activeQueue.previousSong.title}`, activeQueue.previousSong.url);
             }
             if (activeQueue.songs.length > 1) {
                 let upTo = (activeQueue.songs.length > 11) ? 11 : activeQueue.songs.length;
                 for (let i = 1; i < upTo; i++) {
-                    embedMsg.addField(`${(activeQueue.songs[i].removed) ? `x${i}x` : i}. ${activeQueue.songs[i].title}`,
+                    embed.addField(`${(activeQueue.songs[i].removed) ? `x${i}x` : i}. ${activeQueue.songs[i].title}`,
                         `Requested: ${activeQueue.songs[i].requested.username}`);
                 }
             }
             else
-                embedMsg.setFooter(`Use "~play" or "~playlist play" to add more songs!`);
+                embed.setFooter(`Use "~play" or "~playlist play" to add more songs!`);
 
-            resolve(embedMsg);
+            resolve(embed);
         });
     },
     possibleSongs: async function (videos) {
@@ -80,14 +80,14 @@ module.exports = {
                 reject(null);
             }
 
-            let embedMsg = new Discord.MessageEmbed()
+            let embed = new Discord.MessageEmbed()
                 .setTitle(`Here's what I found...`)
                 .setColor(chatFormat.colors.youtube);
 
             for (let i = 0; i < 5; i++)
-                embedMsg.addField(`${videos[i].title}`, videos[i].author);
+                embed.addField(`${videos[i].title}`, videos[i].author);
 
-            resolve(embedMsg);
+            resolve(embed);
         })
     },
     songInfo: function (message, data) {

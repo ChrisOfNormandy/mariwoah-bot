@@ -75,7 +75,7 @@ module.exports = {
     printRandom: async function (message, amount) {
         this.random(message, amount)
             .then(map => {
-                let embedMsg = new Discord.MessageEmbed()
+                let embed = new Discord.MessageEmbed()
                     .setTitle('Random shop listings')
                     .setColor(chatFormat.colors.byName.cyan);
                 let str = '';
@@ -84,8 +84,8 @@ module.exports = {
                     str += `${index}. ${v.name}: ${v.cost || 'Roll d20*d20 g'} |x| Stock: ${v.amount}\n`;
                     index++;
                 });
-                embedMsg.addField('Current stock:', str);
-                message.channel.send(embedMsg);
+                embed.addField('Current stock:', str);
+                message.channel.send(embed);
             })
             .catch(e => console.log(e));
     }

@@ -34,37 +34,23 @@ function set(message, userID, reason) {
                 .then(data => {
                     messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data);
                     message.guild.members.cache.get(userID).kick();
-                    resolve(chatFormat.response.punish.kick(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length));
+                    resolve({value: chatFormat.response.punish.kick(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length)});
                 })
                 .catch(e => reject(e));
         }
     });
 }
 
-function getLatest(message, userID) {
-    return get(message, userID, false);
-}
-
-function printLatest(message, userID) {
-    getLatest(message, userID)
-        .then(data => {
-            message.channel.send(embedListing.single(message, 'kick', data));
-        })
-        .catch(e => console.log(e));
-}
-
 function printAll(message, userID) {
+    return new Promise((resolve, reject) => {
     get(message, userID, true)
-        .then(data => {
-            message.channel.send(embedListing.array(message, 'kick', data));
-        })
-        .catch(e => console.log(e));
+        .then(data => resolve({embed: embedListing.array(message, 'kick', data)}))
+        .catch(e => reject(e));
+    });
 }
 
 module.exports = {
     get,
     set,
-    getLatest,
-    printLatest,
     printAll
 }

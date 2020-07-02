@@ -8,18 +8,17 @@ function byName(message, name) {
     return new Promise((resolve, reject) => {
         db.playlists.getList(message, name)
             .then(list => {
-                console.log(list);
-                let embedMsg = new Discord.MessageEmbed()
+                let embed = new Discord.MessageEmbed()
                     .setTitle(`Song list for ${name}`)
-                    .setColor(chatFormat.colors.byName.aqua);
+                    .setColor(chatFormat.colors.information);
 
                 let song;
                 for (let i in list) {
                     song = list[i];
-                    embedMsg.addField(`${song.title} | ${song.author}`, `${song.url} - Duration: ${song.durationString}`);
+                    embed.addField(`${song.title} | ${song.author}`, `${song.url} - Duration: ${song.durationString}`);
                 }
                 
-                resolve(embedMsg);
+                resolve(embed);
             })
             .catch(e => reject(e));
     });
@@ -29,11 +28,13 @@ function all(message, index = 0) {
     return new Promise((resolve, reject) => {
         db.playlists.getAll(message)
             .then(list => {
-                let embedMsg = new Discord.MessageEmbed()
+                let embed = new Discord.MessageEmbed()
                     .setTitle(`List of available playlists`)
-                    .setColor(chatFormat.colors.byName.aqua);
+                    .setColor(chatFormat.colors.information);
+
                 let pl;
                 let array = [];
+
                 for (let i in list)
                     array.push(list[i]);
 
@@ -43,9 +44,9 @@ function all(message, index = 0) {
                         for (let i in arr[index]) {
                             pl = arr[index][i];
                             count = (JSON.parse(pl.list) === null) ? 0 : JSON.parse(pl.list).length;
-                            embedMsg.addField(`${pl.name} | ${message.guild.members.cache.get(pl.creator_id).user.username || ''}`, `${count} songs - Duration: ${intToTimeString.seconds(pl.duration).string}`);
+                            embed.addField(`${pl.name} | ${message.guild.members.cache.get(pl.creator_id).user.username || ''}`, `${count} songs - Duration: ${intToTimeString.seconds(pl.duration).string}`);
                         }
-                        resolve(embedMsg);
+                        resolve(embed);
                     })
                     .catch(e => reject(e));
             })

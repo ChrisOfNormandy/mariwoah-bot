@@ -1,18 +1,18 @@
 const queue = require('../queue/map');
 const stop = require('./stop');
 const ytdl = require('ytdl-core');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 
 function play(message, songObject) {
     const song = songObject.song;
     const id = message.guild.id;
     if (!queue.has(id))
-        return 'No active queue.'
+        return chatFormat.response.music.queue.no_active();
 
-        queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
+    queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
         .on('finish', () => {
-            if (!queue.has(id)) {
-                return stop(message, '> End of queue.');
-            }
+            if (!queue.has(id))
+                return stop(message, chatFormat.response.music.queue.end());
 
             queue.get(id).previousSong = song;
             queue.get(id).songs.shift();
@@ -24,13 +24,13 @@ function play(message, songObject) {
                 play(message, queue.get(id).songs[0]);
             }
             else
-                stop(message, '> End of queue.');
+                stop(message, chatFormat.response.music.queue.end());
         })
         .on('error', error => {
             console.log('Error playing song:\n', song, error);
-            return `Had an issue playing ${song.title || 'an undefined song'}.`;
+            return chatFormat.response.music.play.error(song.title);
         });
-        queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
+    queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);
 }
 
 module.exports = play;

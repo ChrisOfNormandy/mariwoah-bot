@@ -7,7 +7,7 @@ function formatResponse(name, joinDate, roleList, member, data) {
 
     if (user.bot)
         name += ' -=[BOT]=-'
-    let embedMsg = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setTitle(name)
         .setColor(chatFormat.colors.information)
         .addField("Join date", joinDate)
@@ -17,7 +17,7 @@ function formatResponse(name, joinDate, roleList, member, data) {
         .addField("Permission level", data.permission_level, true)
         .addField("Bot role", (data.bot_role === null) ? "None" : data.bot_role, true);
 
-    return embedMsg;
+    return embed;
 }
 
 function getDate(date) {
@@ -49,12 +49,12 @@ module.exports = {
         return new Promise((resolve, reject) => {
             sql.user.get(message.guild.id, user.id)
                 .then(data => {
-                    let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve(embedMsg);
+                    let embed = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve({embed});
                 })
                 .catch(e => {
                     console.log(e);
-                    reject(chatFormat.response.whoAre.self_reject());
+                    reject({value: chatFormat.response.whoAre.self_reject()});
                 });
         });
     },
@@ -69,12 +69,12 @@ module.exports = {
         return new Promise((resolve, reject) => {
             sql.user.get(message.guild.id, user.id)
                 .then(data => {
-                    let embedMsg = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve(embedMsg);
+                    let embed = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve({embed});
                 })
                 .catch(e => {
                     console.log(e);
-                    resolve(chatFormat.response.whoAre.member_reject());
+                    resolve({value: chatFormat.response.whoAre.member_reject()});
                 });
         });
     }

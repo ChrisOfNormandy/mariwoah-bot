@@ -20,25 +20,42 @@ module.exports = function (message, args) {
         if (pageNumber < 0)
             pageNumber = 0;
 
-        let sect = (category[1] && category[0] != 'parameters')
-            ? help[category[0]].subcommands[category[1]]
-            : help[category[0]];
+        let sect;
+        if (category[0] != 'syntaxes') {
+            sect = (category[1])
+                ? help[category[0]].subcommands[category[1]]
+                : help[category[0]];
 
-        if (pageNumber > sect.commands.page.length)
-            pageNumber = sect.commands.page.length;
+            if (pageNumber > sect.commands.page.length)
+                pageNumber = sect.commands.page.length;
+        }
+        else {
+            sect = help.syntaxes;
+        }
 
-        let embedMsg = new Discord.MessageEmbed()
+        let embed = new Discord.MessageEmbed()
             .setTitle(sect.header)
             .setColor(chatFormat.colors.information);
         let msg = '';
         let s; // String name for command part from page array.
 
-        if (category[0] == 'parameters') {
-            let obj = help[category[0]].type;
+        if (category[0] == 'syntaxes') {
+            let obj = help.syntaxes;
             if (category[1]) {
                 for (let i in obj[category[1]]) {
-                    msg += `**${i}**: ${obj[category[1]][i]}\n`
+                    msg += `**${i}**:\n`
+                    for (let x in obj[category[1]][i]) {
+                        msg += `*${x}* -- ${obj[category[1]][i][x]}\n`
+                    }
                 }
+                embed.addField(category[1], msg)
+            }
+            else {
+                for (let i in obj) {
+                    if (i != 'header')
+                        msg += `${i}\n`
+                }
+                embed.addField('Subcommands', msg)
             }
         }
         else {
@@ -67,7 +84,7 @@ module.exports = function (message, args) {
                         msg += `>   -${sect.commands[s].flags[0][i]}: ${sect.commands[s].flags[1][i]}\n`;
                 }
 
-                embedMsg.addField(s, msg);
+                embed.addField(s, msg);
                 msg = '';
             }
 
@@ -75,11 +92,11 @@ module.exports = function (message, args) {
                 for (i in sect.subcommands.page)
                     for (s in sect.subcommands.page[i])
                         msg += `> ${s}\n`;
-                embedMsg.addField('Subcommands', msg);
+                embed.addField('Subcommands', msg);
             }
 
-            embedMsg.setFooter(`Page ${pageNumber + 1} of ${sect.commands.page.length}\n\nThis message will self destruct in 30 seconds...`);
+            embed.setFooter(`Page ${pageNumber + 1} of ${sect.commands.page.length}\n\nThis message will self destruct in 30 seconds...`);
         }
-        resolve(embedMsg);
+        resolve({embed, options: {clear: 30}});
     });
 }

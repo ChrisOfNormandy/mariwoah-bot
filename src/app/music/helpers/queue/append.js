@@ -39,17 +39,20 @@ module.exports = function (message, song, arr = null, flags = {}) {
                 var connection = await voiceChannel.join();
                 queue.get(message.guild.id).connection = connection;
             }
-        
-            if (!flags['n']) {
+
+            if (flags['n']) {
+                resolve({value: null, result: play(message, queue.get(message.guild.id).songs[0])});
+            }
+            else {
                 if (arr === null) {
                     if (queue.get(message.guild.id).songs.length == 1) {
                         getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
-                            .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
+                            .then(embed => resolve({value: embed, result: play(message, queue.get(message.guild.id).songs[0]), options: {clear: queue.get(message.guild.id).songs[0].song.duration.totalSeconds}}))
                             .catch(e => reject(e));
                     }
                     else {
                         getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1)
-                            .then(embed => resolve({message: embed, result: null}))
+                            .then(embed => resolve({value: embed, result: null}))
                             .catch(e => reject(e));
                     }
                 }
@@ -58,21 +61,19 @@ module.exports = function (message, song, arr = null, flags = {}) {
                     if (startFlag) {
                         counter = 1;
                         getEmbed.single('Now playing...', queue.get(message.guild.id), 0)
-                            .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
+                            .then(embed => resolve({value: embed, result: play(message, queue.get(message.guild.id).songs[0]), options: {clear: queue.get(message.guild.id).songs[0].song.duration.totalSeconds}}))
                             .catch(e => reject(e));
                     }
                     if (!flags['f'])
                         while (counter < arr.length) {
                             getEmbed.single('Added to queue:', queue.get(message.guild.id), counter)
-                                .then(embed => resolve({message: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
+                                .then(embed => resolve({value: embed, result: play(message, queue.get(message.guild.id).songs[0])}))
                                 .catch(e => reject(e));
                             counter++;
                         }
                 }
             }
-            else {
-                resolve({message: null, result: play(message, queue.get(message.guild.id).songs[0])});
-            }
+            
         }
     });
 }

@@ -33,7 +33,7 @@ module.exports = async function (message) {
 
                         channel.bulkDelete(userMessages);
 
-                        resolve(chatFormat.response.cleanChat.user(user, userMessagesDeleted));
+                        resolve({value: chatFormat.response.cleanChat.user(user, userMessagesDeleted), options: {clear: 10}});
                     });
                 }
                 else {
@@ -53,7 +53,7 @@ module.exports = async function (message) {
                             channel.bulkDelete(botMessages);
                             channel.bulkDelete(cmdMessages);
 
-                            resolve(chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted));
+                            resolve({value: chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted), options: {clear: 10}});
                         })
                         .catch(e => reject(e));
                 }

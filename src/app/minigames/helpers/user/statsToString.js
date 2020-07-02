@@ -2,7 +2,7 @@ const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 
 module.exports = function (message, obj) {
-    let embedMsg = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setTitle(`Stats for ${obj.definition.name}`)
         .setColor(chatFormat.colors.byName.darkgreen)
         .addField('General',
@@ -26,5 +26,5 @@ module.exports = function (message, obj) {
         `               | Loses | ${obj.stats.games.gambling.blackjack.loses}\n` +
         `               | Gain  | $ ${(obj.stats.games.gambling.blackjack.totalWins).toFixed(2)}\n` +
         `               | Lost  | $ ${(obj.stats.games.gambling.blackjack.totalLoses).toFixed(2)}`);
-    message.channel.send(embedMsg);
+    message.channel.send(embed);
 }

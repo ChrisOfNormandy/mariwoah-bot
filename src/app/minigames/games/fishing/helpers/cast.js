@@ -42,7 +42,7 @@ module.exports = function (message, userID) {
                                                                             embed.addField('You leveled up in stats!', `Level: ${val.level}\nExp: ${val.exp} / ${val.val}`);
 
                                                                         db.minigames.fishing.catchFish(message, message.author.id)
-                                                                            .then(r => resolve({ files: [image], embed }))
+                                                                            .then(r => resolve({value: { files: [image], embed }}))
                                                                             .catch(e => reject(e));
                                                                     })
 
@@ -54,7 +54,7 @@ module.exports = function (message, userID) {
                                         }
                                         else {
                                             instance.remove(user);
-                                            resolve('(WIP) Nothing was caught.\n In the future, there will be items available to catch and more fish.\n I am too lazy to deal with MySQL entries right now.')
+                                            resolve({value: '(WIP) Nothing was caught.\n In the future, there will be items available to catch and more fish.\n I am too lazy to deal with MySQL entries right now.'});
                                         }
                                         msg.delete();
                                     }, game.delay * 3000);

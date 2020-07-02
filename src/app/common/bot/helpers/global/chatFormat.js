@@ -50,11 +50,16 @@ module.exports = {
             },
             stop: {
                 plain: () => {return `> Stopping all music.`},
-                no_queue: () => {return `> No active queue, nothing to stop.`}
+                no_queue: () => {return `> Nothing to stop.`}
+            },
+            skip: {
+                plain: () => {return `> Skipping...`},
+                no_queue: () => {return `> Nothing to skip.`}
             },
             queue: {
                 no_data: () => {return `> There are no songs in the queue.`},
-                no_active: () => {return `> No active queue.`}
+                no_active: () => {return `> No active queue.`},
+                end: () => {return `> End of queue.`}
             },
             getSong: {
                 playlist: () => {return `Please wait while I fetch all the songs in the playlist.`}
@@ -64,6 +69,14 @@ module.exports = {
             },
             info: {
                 error: () => {return `> Encountered error finding song information.`}
+            },
+            play: {
+                error: (title) => {return `Had an issue playing ${title || 'an undefined song'}.`}
+            },
+            pause: {
+                no_stream: () => {return `> No active stream.`},
+                yes: () => {return `> :pause_button: Paused.`},
+                no: () => {return `> Resuming.`}
             }
         },
         punish: {
@@ -79,6 +92,9 @@ module.exports = {
             demote: (user, level) => {return `> Demoted ${user} to level ${level}.`},
             no_demote: (user, level) => {return `> Cannot demote ${user} any lower than default, level ${level}.`},
             fail_demote: () => {return `> Failed to demote user.`},
+            refresh_guild: (count, total) => {return `> Altered ${count} / ${total} users.`},
+            refresh_user_yes: () => {return `> Altered user successfully.`},
+            refresh_user_no: () => {return `> Didn't alter user, everything is fine.`},
 
             setRank: {
                 botRole_no: (user, rank) => {return `> ${user} is already a bot ${rank}.`},

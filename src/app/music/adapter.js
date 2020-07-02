@@ -29,7 +29,7 @@ function join(message) {
     if (vc)
         vc.join();
     else
-        return chatFormat.response.music.no_vc();
+        return {value: chatFormat.response.music.no_vc()};
 }
 
 function leave(message) {
@@ -37,16 +37,16 @@ function leave(message) {
     if (vc)
         vc.leave();
     else
-        return chatFormat.response.music.no_vc();
+        return {value: chatFormat.response.music.no_vc()};
 }
 
 function info(message, data) {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
-            .then(embed => resolve(embed))
+            .then(embed => resolve({embed}))
             .catch(e => {
                 console.log(e);
-                resolve(chatFormat.response.music.info.error());
+                resolve({value: chatFormat.response.music.info.error()});
             });
     });
 }
@@ -152,6 +152,9 @@ module.exports = {
                     case 'delete': {
                         resolve(pl_delete(message, data.arguments[1]))
                         break;
+                    }
+                    case 'remove': {
+                        resolve(pl_remove(message, data.arguments[1], data.urls[0]))
                     }
                     default: {
                         reject(null);

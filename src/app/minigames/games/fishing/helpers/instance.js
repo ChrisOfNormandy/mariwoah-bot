@@ -5,7 +5,6 @@ const getCatchChances = require('./generators/getCatchChances');
 const map = new Map();
 
 function generate(user) {
-    console.log(user);
     return new Promise((resolve, reject) =>  {
         let rngValue = Math.floor(100 * Math.random());
         // let rngValue = 0;
@@ -55,7 +54,8 @@ function set(user) {
             .then(instance => {
                 map.set(`${user.server_id},${user.user_id}`, instance);
                 resolve(instance);
-            });
+            })
+            .catch(e => reject(e));
     });
 }
 

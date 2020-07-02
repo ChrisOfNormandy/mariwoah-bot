@@ -6,15 +6,15 @@ function setRank(message, userID, rank) {
     sql.user.getBotRole(message.guild.id, userID)
     .then(role => {
         if (role == rank)
-            resolve(chatFormat.response.roles.setRank.botRole_no(message.guild.members.cache.get(userID), rank));
+            resolve({value: chatFormat.response.roles.setRank.botRole_no(message.guild.members.cache.get(userID), rank)});
         else {
             sql.user.setBotRole(message.guild.id, userID, rank);
-            resolve(chatFormat.response.roles.setRank.botRole(message.guild.members.cache.get(userID), rank));
+            resolve({value: chatFormat.response.roles.setRank.botRole(message.guild.members.cache.get(userID), rank)});
         }
     })
     .catch(e => {
         console.log(e);
-        resolve(chatFormat.response.roles.setRank.botRole_error());
+        resolve({value: chatFormat.response.roles.setRank.botRole_error()});
     })
 })
 }

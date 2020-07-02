@@ -5,7 +5,7 @@ const Discord = require('discord.js')
 function get(message) {
     db.server.getMotd(message.guild.id)
         .then(motd => {
-            let embedMsg = new Discord.MessageEmbed()
+            let embed = new Discord.MessageEmbed()
                 .setTitle(message.guild.name);
 
             let arr = motd.split('|');
@@ -30,12 +30,12 @@ function get(message) {
                     for (let s in splitLine)
                         adjustLine += splitLine[s] + '\n';
 
-                    embedMsg.addField(title, (link) ? linkText : adjustLine);
+                    embed.addField(title, (link) ? linkText : adjustLine);
                 }
                 if (link)
-                    embedMsg.setURL(link);
+                    embed.setURL(link);
             }
-            message.channel.send(embedMsg);
+            message.channel.send(embed);
         })
         .catch(e => {
             console.log(e);
