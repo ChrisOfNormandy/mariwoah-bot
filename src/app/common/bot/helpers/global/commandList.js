@@ -460,6 +460,14 @@ module.exports = {
                 permissionLevel: 1,
                 selfClear: true
             },
+            'songinfo': {
+                description: 'Gets information about a song.',
+                permissionLevel: 1,
+                alternatives: [
+                    'song?'
+                ],
+                selfClear: true
+            },
             'playlist': {
                 description: 'Playlist commands.',
                 permissionLevel: 1,

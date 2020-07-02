@@ -39,9 +39,9 @@ function leave(message) {
         return '> You must be in a voice channel to remove bot.';
 }
 
-function info(message, songURL, songName) {
+function info(message, data) {
     return new Promise((resolve, reject) => {
-        getEmbedSongInfo.songInfo(message, songURL, songName)
+        getEmbedSongInfo.songInfo(message, data)
             .then(embed => resolve(embed))
             .catch(e => {
                 console.log(e);

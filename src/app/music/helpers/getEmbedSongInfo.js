@@ -1,6 +1,19 @@
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const getSong = require('./getSong');
+const queue = require('./queue/map');
+
+function embedSongInfo(song) {
+    console.log(song);
+    let embedMsg = new Discord.MessageEmbed()
+        .setTitle(song.title)
+        .setColor(chatFormat.colors.youtube)
+        .setThumbnail(song.thumbnail.url)
+        .setURL(song.url)
+        .addField(song.author, `Duration: ${song.durationString}`);
+
+    return embedMsg;
+}
 
 module.exports = {
     single: function (title, activeQueue, index) {
@@ -77,38 +90,33 @@ module.exports = {
             resolve(embedMsg);
         })
     },
-    songInfo: function (message, songURL = null, songName = null) {
+    songInfo: function (message, data) {
         return new Promise((resolve, reject) =>  {
-            if (songURL === null && songName === null)
-                reject(null);
-
-            if (songURL !== null) {
-                getSong.byUrl(message, songURL)
+            if (data.urls.length) {
+                getSong.byUrl(message, data.urls[0])
                     .then((song) => {
-                        let embedMsg = new Discord.MessageEmbed()
-                            .setTitle('Song information')
-                            .setColor(chatFormat.colors.youtube)
-                            .setThumbnail(song.thumbnail.url)
-                            .setURL(song.url)
-                            .addField(song.title, `${song.author} | Duration: ${song.durationString}`)
-
-                        resolve(embedMsg);
+                        resolve(embedSongInfo(song));
                     })
                     .catch(e => reject(e));
             }
             else {
-                getSong.byName(message, songName)
-                    .then((song) => {
-                        let embedMsg = new Discord.MessageEmbed()
-                            .setTitle('Song information')
-                            .setColor(chatFormat.colors.youtube)
-                            .setThumbnail(song.thumbnail.url)
-                            .setURL(song.url)
-                            .addField(song.title, `${song.author} | Duration: ${song.durationString}`);
-
-                        resolve(embedMsg);
-                    })
-                    .catch(e => reject(e));
+                if (data.arguments.join(' ') == 'this') {
+                    if (queue.has(message.guild.id)) {
+                        let songs = queue.get(message.guild.id).songs;
+                        console.log(songs);
+                        resolve(embedSongInfo(songs[0].song));
+                    }
+                    else {
+                        resolve('> No active queue.');
+                    }
+                }
+                else {
+                    getSong.byName(message, data.arguments.join(' '))
+                        .then((song) => {
+                            resolve(embedSongInfo(song));
+                        })
+                        .catch(e => reject(e));
+                }
             }
         });
     }

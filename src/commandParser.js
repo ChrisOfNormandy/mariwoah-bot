@@ -322,10 +322,8 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'songinfo': {
-                            if (!data.arguments.join(' ').includes('youtube.com/watch?'))
-                                value = adapter.music.info(message, null, data.arguments.join(' '));
-                            else
-                                value = adapter.music.info(message, data.arguments[0], null);
+                            value = adapter.music.info(message, data);
+                            break;
                         }
 
                         case 'playlist': {
