@@ -331,23 +331,23 @@ function parseCommand(client, message, data) {
                         // Memes
 
                         case 'f': {
-                            value = adapter.memes.memeDispatch(message, 'f');
+                            value = adapter.memes.memeDispatch('f');
                             break;
                         }
                         case 'fuck': {
-                            value = adapter.memes.memeDispatch(message, 'fuuu');
+                            value = adapter.memes.memeDispatch('fuuu');
                             break;
                         }
                         case 'yey': {
-                            value = adapter.memes.memeDispatch(message, 'yey');
+                            value = adapter.memes.memeDispatch('yey');
                             break;
                         }
                         case 'penguin': {
-                            value = adapter.memes.memeDispatch(message, 'penguin');
+                            value = adapter.memes.memeDispatch('penguin');
                             break;
                         }
                         case 'clayhead': {
-                            value = adapter.memes.memeDispatch(message, 'clayhead')
+                            value = adapter.memes.memeDispatch('clayhead')
                             break;
                         }
                         case 'crabrave': {

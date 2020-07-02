@@ -630,12 +630,12 @@ module.exports = {
 
             'penguin': {
                 description: 'Penguin giffy. <3',
-                permission: 1,
+                permissionLevel: 1,
                 selfClear: true
             },
             'clayhead': {
                 description: 'I am not sorry for anything or anyone.',
-                permission: 1,
+                permissionLevel: 1,
                 selfClear: true
             },
 
