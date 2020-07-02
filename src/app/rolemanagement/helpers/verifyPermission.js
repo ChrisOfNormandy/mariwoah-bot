@@ -1,4 +1,5 @@
 const db = require('../../sql/adapter');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 module.exports = function (message, userID, permLevel) {
     return new Promise((resolve, reject) => {
@@ -15,7 +16,7 @@ module.exports = function (message, userID, permLevel) {
                     if (userLevel >= permLevel)
                         resolve({state: true, reason: ''});
                     else {
-                        resolve({state: false, reason: `You must be level ${permLevel} to use that command.`});
+                        resolve({state: false, reason: chatFormat.response.roles.verifyPermission(permLevel)});
                     }
                 }
             })

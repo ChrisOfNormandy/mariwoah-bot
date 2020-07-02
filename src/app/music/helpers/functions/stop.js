@@ -1,16 +1,17 @@
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const queue = require('../queue/map');
 
-module.exports = function (message, reason = '> Stopping all music.') {
+module.exports = function (message, reason = null) {
     const vc = getVC(message);
     if (!vc)
-        return '> You have to be in a voice channel to stop the music!';
+        return chatFormat.response.music.no_vc();
 
     if (!queue.has(message.guild.id))
-        return '> There is nothing to stop.';
+        return chatFormat.response.music.stop.no_queue();
 
     queue.delete(message.guild.id);
     getVC(message).leave();
 
-    return reason;
+    return reason || chatFormat.response.music.stop.plain();
 }

@@ -1,6 +1,7 @@
 const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
@@ -20,21 +21,24 @@ function get(message, userID, listAll = true) {
 }
 
 function set(message, userID, reason) {
-    if (!message.guild.members.cache.get(userID))
-        return message.channel.send('> Could not find target user.');
-        
-    if (reason.trim() == '')
-        reason = null;
-    else
-        reason = reason.trim();
-    db.punishments.setUser(message, userID, 'kick', reason);
-    get(message, userID)
-        .then(data => {
-            messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data);
-            message.channel.send(`> Kicked ${message.guild.members.cache.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} kicks.`);
-            message.guild.members.cache.get(userID).kick();
-        })
-        .catch(e => console.log(e));
+    return new Promise((resolve, reject) => {
+        if (!message.guild.members.cache.get(userID))
+            resolve(message.channel.send(chatFormat.response.punish.no_user()));
+        else {
+            if (reason.trim() == '')
+                reason = null;
+            else
+                reason = reason.trim();
+            db.punishments.setUser(message, userID, 'kick', reason);
+            get(message, userID)
+                .then(data => {
+                    messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data);
+                    message.guild.members.cache.get(userID).kick();
+                    resolve(chatFormat.response.punish.kick(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length));
+                })
+                .catch(e => reject(e));
+        }
+    });
 }
 
 function getLatest(message, userID) {

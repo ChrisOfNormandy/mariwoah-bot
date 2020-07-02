@@ -54,7 +54,7 @@ module.exports = {
                 })
                 .catch(e => {
                     console.log(e);
-                    reject('> Failed to gather user data.');
+                    reject(chatFormat.response.whoAre.self_reject());
                 });
         });
     },
@@ -74,7 +74,7 @@ module.exports = {
                 })
                 .catch(e => {
                     console.log(e);
-                    resolve('> Failed to gather user data.');
+                    resolve(chatFormat.response.whoAre.member_reject());
                 });
         });
     }

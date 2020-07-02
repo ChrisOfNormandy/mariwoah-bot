@@ -1,5 +1,4 @@
 module.exports = {
-    chatBreak: "-------------------------",
     colors: {
         youtube: '#990011',
         information: '#224466',
@@ -33,6 +32,65 @@ module.exports = {
             lightpink: '#ff66ff',
             pink: '#ff00ff',
             darkpink: '#990099'
+        }
+    },
+    response: {
+        cleanChat: {
+            user: (user, userMessagesDeleted) => {return `Deletion of messages successful. Total messages deleted for user ${user}: ${userMessagesDeleted}`},
+            all: (botMessagesDeleted, cmdMessagesDeleted) => {return `Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`}
+        },
+        whoAre: {
+            self_reject: () => {return `> Failed to gather user data.`},
+            member_reject: () => {return `> Failed to gather user data.`}
+        },
+        music: {
+            no_vc: () => {return `> You must be in a voice channel to use this feature.`},
+            join: {
+                error: () => {return `> Failed to join voice channel.`}
+            },
+            stop: {
+                plain: () => {return `> Stopping all music.`},
+                no_queue: () => {return `> No active queue, nothing to stop.`}
+            },
+            queue: {
+                no_data: () => {return `> There are no songs in the queue.`},
+                no_active: () => {return `> No active queue.`}
+            },
+            getSong: {
+                playlist: () => {return `Please wait while I fetch all the songs in the playlist.`}
+            },
+            playlist: {
+                no_data: () => {return `> There are no songs in the selected playlist.`}
+            },
+            info: {
+                error: () => {return `> Encountered error finding song information.`}
+            }
+        },
+        punish: {
+            no_user: () => {return `> Could not find target user.`},
+            ban: (user, reason, count) => {return `> Banned ${user} for reason: ${reason}\n> Currently has ${count} bans.`},
+            kick: (user, reason, count) => {return `> Kicked ${user} for reason: ${reason}\n> Currently has ${count} kicks.`},
+            warn: (user, reason, count) => {return `> Warned ${user} for reason: ${reason}\n> Currently has ${count} warnings.`}
+        },
+        roles: {
+            promote: (user, level) => {return `> Promoted ${user} to level ${level}.`},
+            no_promote: (user, level) => {return `> Cannot promote ${user} any higher than admin, level ${level}.`},
+            fail_promote: () => {return `> Failed to promote user.`},
+            demote: (user, level) => {return `> Demoted ${user} to level ${level}.`},
+            no_demote: (user, level) => {return `> Cannot demote ${user} any lower than default, level ${level}.`},
+            fail_demote: () => {return `> Failed to demote user.`},
+
+            setRank: {
+                botRole_no: (user, rank) => {return `> ${user} is already a bot ${rank}.`},
+                botRole: (user, rank) => {return `> Moved ${user} to the bot ${rank} group.`},
+                botRole_error: () => {return `> Failed to move member to role group due to error.`}
+            },
+
+            check: {
+                error: (name, id) => {return `> Could not fetch the ${name} role with the id: ${id}.\n`}
+            },
+            setRole: (name, role) => {return `Set the role for ${name} to ${role}`},
+            verifyPermission: (level) => {return `You must be level ${level} to use that command.`}
         }
     }
 }

@@ -1,6 +1,7 @@
 const shuffle = require('../../../common/bot/helpers/global/shuffle');
 const db = require('../../../sql/adapter');
 const append = require('../../helpers/queue/append');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 
 module.exports = function (message, data) {
     return new Promise((resolve, reject) => {
@@ -16,7 +17,7 @@ module.exports = function (message, data) {
                 }
 
                 if (!list.length)
-                    reject('> There are no songs in the selected playlist.');
+                    reject(chatFormat.response.music.playlist.no_data());
                 else {
 
                     if (data.flags['s']) {

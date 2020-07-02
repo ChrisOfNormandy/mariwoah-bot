@@ -103,11 +103,10 @@ module.exports = {
                 if (data.arguments.join(' ') == 'this') {
                     if (queue.has(message.guild.id)) {
                         let songs = queue.get(message.guild.id).songs;
-                        console.log(songs);
                         resolve(embedSongInfo(songs[0].song));
                     }
                     else {
-                        resolve('> No active queue.');
+                        resolve(chatFormat.response.music.queue.no_active());
                     }
                 }
                 else {

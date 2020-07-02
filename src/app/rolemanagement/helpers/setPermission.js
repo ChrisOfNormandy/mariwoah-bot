@@ -1,68 +1,73 @@
 const sql = require('../../sql/adapter');
 const setRoles = require('../../rolemanagement/helpers/setRoles');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function promote(message, userID, toLevel = null) {
-    sql.user.getPermissionLevel(message.guild.id, userID)
-        .then(level => {
-            if (toLevel && toLevel >= 0 && toLevel <= 4) {
-                sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
-                .then(r => {
-                    message.channel.send(`> Promoted ${message.guild.members.cache.get(userID)} to level ${toLevel}.`);
-                    setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                })
-                .catch(e => console.log(e));
-            }
-            else if (level < 4) {
-                sql.user.setPermissionLevel(message.guild.id, userID, level + 1)
-                .then(r => {
-                    message.channel.send(`> Promoted ${message.guild.members.cache.get(userID)} to level ${level + 1}.`);
-                    setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                })
-                .catch(e => console.log(e));
-            }
-            else {
-                if (level > 4)
-                    message.channel.send(`> Cannot promote ${message.guild.members.cache.get(userID)} any higher than admin, level ${level}.`);
-                else
-                    message.channel.send(`> Failed to promote user.`);
-            }
-        })
-        .catch(e => {
-            console.log(e);
-            message.channel.send(`> Failed to promote user due to error.`);
-        });
+    return new Promise((resolve, reject) => {
+        sql.user.getPermissionLevel(message.guild.id, userID)
+            .then(level => {
+                if (toLevel && toLevel >= 0 && toLevel <= 4) {
+                    sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
+                        .then(r => {
+                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            resolve(chatFormat.response.roles.promote(message.guild.members.cache.get(userID), toLevel));
+                        })
+                        .catch(e => reject(e));
+                }
+                else if (level < 4) {
+                    sql.user.setPermissionLevel(message.guild.id, userID, level + 1)
+                        .then(r => {
+                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            resolve(chatFormat.response.roles.promote(message.guild.members.cache.get(userID), level + 1));
+                        })
+                        .catch(e => reject(e));
+                }
+                else {
+                    if (level > 4)
+                        resolve(chatFormat.response.roles.no_promote(message.guild.members.cache.get(userID), level));
+                    else
+                        resolve(chatFormat.response.roles.fail_promote());
+                }
+            })
+            .catch(e => {
+                console.log(e);
+                resolve(chatFormat.response.roles.fail_promote());
+            });
+    });
 }
 
 function demote(message, userID, toLevel = null) {
-    sql.user.getPermissionLevel(message.guild.id, userID)
-        .then(level => {
-            if (toLevel && toLevel >= 0 && toLevel <= 4) {
-                sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
-                .then(r => {
-                    message.channel.send(`> Demoted ${message.guild.members.cache.get(userID)} to level ${toLevel}.`);
-                    setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                })
-                .catch(e => console.log(e));
-            }
-            else if (level > 0) {
-                sql.user.setPermissionLevel(message.guild.id, userID, level - 1)
-                    .then(r => {
-                        message.channel.send(`> Demoted ${message.guild.members.cache.get(userID)} to level ${level - 1}.`);
-                        setRoles.refresh_user(message, message.guild.members.cache.get(userID));
-                    })
-                    .catch(e => console.log(e));
-            }
-            else {
-                if (level <= 0)
-                    message.channel.send(`> Cannot demote ${message.guild.members.cache.get(userID)} any lower than default, level ${level}.`);
-                else
-                    message.channel.send(`> Failed to demote user.`);
-            }
-        })
-        .catch(e => {
-            console.log(e);
-            message.channel.send(`> Failed to demote user due to error.`);
-        });
+    return new Promise((resolve, reject) => {
+        sql.user.getPermissionLevel(message.guild.id, userID)
+            .then(level => {
+                if (toLevel && toLevel >= 0 && toLevel <= 4) {
+                    sql.user.setPermissionLevel(message.guild.id, userID, toLevel)
+                        .then(r => {
+                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            resolve(chatFormat.response.roles.demote(message.guild.members.cache.get(userID), toLevel));
+                        })
+                        .catch(e => reject(e));
+                }
+                else if (level > 0) {
+                    sql.user.setPermissionLevel(message.guild.id, userID, level - 1)
+                        .then(r => {
+                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            resolve(chatFormat.response.roles.demote(message.guild.members.cache.get(userID), level - 1));
+                        })
+                        .catch(e => reject(e));
+                }
+                else {
+                    if (level <= 0)
+                        resolve(chatFormat.response.roles.no_demote(message.guild.members.cache.get(userID), level));
+                    else
+                        resolve(chatFormat.response.roles.fail_demote());
+                }
+            })
+            .catch(e => {
+                console.log(e);
+                resolve(chatFormat.response.roles.fail_demote());
+            });
+    });
 }
 
 module.exports = {

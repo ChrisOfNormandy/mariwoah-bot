@@ -1,4 +1,5 @@
 const db = require('../../../../sql/adapter');
+const chatFormat = require('../global/chatFormat');
 
 // Converts Discord timestamp to a nice date-time format
 function timestampToDate(timestamp) {
@@ -32,7 +33,7 @@ module.exports = async function (message) {
 
                         channel.bulkDelete(userMessages);
 
-                        resolve(`Deletion of messages successful. Total messages deleted for user ${user}: ${userMessagesDeleted}`);
+                        resolve(chatFormat.response.cleanChat.user(user, userMessagesDeleted));
                     });
                 }
                 else {
@@ -52,7 +53,7 @@ module.exports = async function (message) {
                             channel.bulkDelete(botMessages);
                             channel.bulkDelete(cmdMessages);
 
-                            resolve(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`);
+                            resolve(chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted));
                         })
                         .catch(e => reject(e));
                 }

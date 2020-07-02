@@ -1,33 +1,34 @@
 const sql = require('../../sql/adapter');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function setRank(message, userID, rank) {
+    return new Promise((resolve, reject) => {
     sql.user.getBotRole(message.guild.id, userID)
     .then(role => {
         if (role == rank)
-            message.channel.send(`> ${message.guild.members.cache.get(userID)} is already a bot ${rank}.`);
+            resolve(chatFormat.response.roles.setRank.botRole_no(message.guild.members.cache.get(userID), rank));
         else {
             sql.user.setBotRole(message.guild.id, userID, rank);
-            message.channel.send(`> Moved ${message.guild.members.cache.get(userID)} to the bot ${rank} group.`);
+            resolve(chatFormat.response.roles.setRank.botRole(message.guild.members.cache.get(userID), rank));
         }
     })
     .catch(e => {
         console.log(e);
-        message.channel.send(`> Failed to move member to role group due to error.`);
+        resolve(chatFormat.response.roles.setRank.botRole_error());
     })
+})
 }
 
 function admin(message, userID) {
-    setRank(message, userID, 'admin');
+    return setRank(message, userID, 'admin');
 }
 
 function moderator(message, userID) {
-    setRank(message, userID, 'mod');
-
+    return setRank(message, userID, 'mod');
 }
 
 function helper(message, userID) {
-    setRank(message, userID, 'helper');
-
+    return setRank(message, userID, 'helper');
 }
 
 module.exports = {

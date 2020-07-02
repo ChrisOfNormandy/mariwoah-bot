@@ -1,6 +1,7 @@
 const commandList = require('../common/bot/helpers/global/commandList');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../rolemanagement/adapter');
+const chatFormat = require('../common/bot/helpers/global/chatFormat');
 
 const getEmbedSongInfo = require('./helpers/getEmbedSongInfo');
 
@@ -28,7 +29,7 @@ function join(message) {
     if (vc)
         vc.join();
     else
-        return '> You must be in a voice channel to add bot.';
+        return chatFormat.response.music.no_vc();
 }
 
 function leave(message) {
@@ -36,7 +37,7 @@ function leave(message) {
     if (vc)
         vc.leave();
     else
-        return '> You must be in a voice channel to remove bot.';
+        return chatFormat.response.music.no_vc();
 }
 
 function info(message, data) {
@@ -45,7 +46,7 @@ function info(message, data) {
             .then(embed => resolve(embed))
             .catch(e => {
                 console.log(e);
-                resolve('> Encountered error finding song information.');
+                resolve(chatFormat.response.music.info.error());
             });
     });
 }

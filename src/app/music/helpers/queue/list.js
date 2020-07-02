@@ -4,7 +4,7 @@ const queue = require('./map');
 
 module.exports = function(message) {
     if (!queue.has(message.guild.id))
-        return '> There are no songs in the queue.';
+        return chatFormat.response.music.queue.no_data();
 
     let embedMsg = new Discord.MessageEmbed()
         .setTitle('Active queue:')

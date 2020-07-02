@@ -1,7 +1,7 @@
 const intToTimeString = require('../../common/bot/helpers/global/intToTimeString');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const shuffle = require('../../common/bot/helpers/global/shuffle');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function func(message, songURL) {
     return new Promise((resolve, reject) => {
@@ -100,7 +100,7 @@ module.exports = {
     },
     byPlaylist: function (message, playlistName, data) {
         return new Promise((resolve, reject) => {
-            message.channel.send('Please wait while I fetch all the songs in the playlist.')
+            message.channel.send(chatFormat.response.music.getSong.playlist())
             .then(msg => {
                 search(playlistName)
                     .then(songData => {
@@ -112,7 +112,6 @@ module.exports = {
 
                                 this.byURLArray(message, arr)
                                     .then(songs => {
-                                        console.log(songs);
                                         msg.delete();
                                         resolve(songs);
                                     })

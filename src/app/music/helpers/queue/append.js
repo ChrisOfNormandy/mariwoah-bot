@@ -1,3 +1,4 @@
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const queue = require('./map');
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const play = require('../functions/play');
@@ -9,7 +10,7 @@ module.exports = function (message, song, arr = null, flags = {}) {
         let startFlag = false;
 
         if (!voiceChannel)
-            reject("No voice channel!");
+            reject(chatFormat.response.music.no_vc());
         else {
             if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
                 let activeQueue = {

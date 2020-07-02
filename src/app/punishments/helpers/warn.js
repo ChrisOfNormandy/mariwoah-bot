@@ -1,6 +1,7 @@
 const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) => {
@@ -22,7 +23,7 @@ function get(message, userID, listAll = true) {
 function set(message, userID, data) {
     return new Promise((resolve, reject) => {
         if (!message.guild.members.cache.get(userID))
-            resolve('> Could not find target user.');
+            resolve(chatFormat.response.punish.no_user());
         else {
             let reason = (data.parameters.string['reason'])
                 ? data.parameters.string['reason'].trim()
@@ -32,7 +33,7 @@ function set(message, userID, data) {
             get(message, userID)
                 .then(userData => {
                     messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, userData);
-                    resolve(`> Warned ${message.guild.members.cache.get(userID)} for reason: ${userData[userData.length - 1].reason}\n> Currently has ${userData.length} warnings.`);
+                    resolve(chatFormat.response.punish.warn(message.guild.members.cache.get(userID), userData[userData.length - 1].reason, userData.length));
                 })
                 .catch(e => reject(e));
         }

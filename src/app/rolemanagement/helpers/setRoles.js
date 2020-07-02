@@ -1,5 +1,5 @@
 const sql = require('../../sql/adapter');
-const config = require('./role_config');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function checkRole(message, name, id) {
     return new Promise((resolve, reject) => {
@@ -9,14 +9,13 @@ function checkRole(message, name, id) {
                 .catch(e => reject(e));
         }
         else {
-            message.channel.send(`> Could not fetch the ${name} role with the id: ${id}.\n`);
+            message.channel.send(chatFormat.response.roles.check.error(name, id));
             reject(id);
         }
     });
 }
 
 function refresh(message, member, roleMap, strip = false) {
-    if (member.hasPermission("ADMINISTRATOR")) console.log(member.user.username);
     return new Promise((resolve, reject) => {
         sql.user.getPermissionLevel(message.guild.id, member.id)
             .then(level => {
@@ -59,7 +58,6 @@ function refresh(message, member, roleMap, strip = false) {
                     }
                     else {
                         if (!admin && member.hasPermission("ADMINISTRATOR")) {
-                            console.log(`${member.user.username} should be Admin (permission)`)
                             if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
                             if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
                             if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
@@ -67,19 +65,17 @@ function refresh(message, member, roleMap, strip = false) {
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
-
                         else if (level == 0) {
                             if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
                             if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
                             if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));                            
+                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
                             if (admin || mod || helper || vip)
                                 resolve(true);
                             else
                                 resolve(null);
                         }
                         else if (!vip && level == 1) {
-                            console.log(`${member.user.username} should be VIP`)
                             if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
                             if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
                             if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
@@ -88,7 +84,6 @@ function refresh(message, member, roleMap, strip = false) {
                                 .catch(e => reject(e));
                         }
                         else if (!helper && level == 2) {
-                            console.log(`${member.user.username} should be Helper`)
                             if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
                             if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
                             if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
@@ -97,7 +92,6 @@ function refresh(message, member, roleMap, strip = false) {
                                 .catch(e => reject(e));
                         }
                         else if (!mod && level == 3) {
-                            console.log(`${member.user.username} should be Mod`)
                             if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
                             if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
                             if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
@@ -106,7 +100,6 @@ function refresh(message, member, roleMap, strip = false) {
                                 .catch(e => reject(e));
                         }
                         else if (!admin && level == 4) {
-                            console.log(`${member.user.username} should be Admin (level)`)
                             if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
                             if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
                             if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
@@ -114,7 +107,6 @@ function refresh(message, member, roleMap, strip = false) {
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
-                        
                         else
                             resolve(null);
                     }
@@ -125,61 +117,65 @@ function refresh(message, member, roleMap, strip = false) {
 }
 
 function refresh_user(message, member) {
-    sql.server.getRoles(message.guild.id)
-        .then(sql_roles => {
-            let roleArr = [
-                checkRole(message, 'admin', sql_roles.admin),
-                checkRole(message, 'mod', sql_roles.mod),
-                checkRole(message, 'helper', sql_roles.helper),
-                checkRole(message, 'vip', sql_roles.vip),
-                checkRole(message, 'bot', sql_roles.bot)
-            ];
+    return new Promise((resolve, reject) => {
+        sql.server.getRoles(message.guild.id)
+            .then(sql_roles => {
+                let roleArr = [
+                    checkRole(message, 'admin', sql_roles.admin),
+                    checkRole(message, 'mod', sql_roles.mod),
+                    checkRole(message, 'helper', sql_roles.helper),
+                    checkRole(message, 'vip', sql_roles.vip),
+                    checkRole(message, 'bot', sql_roles.bot)
+                ];
 
-            Promise.all(roleArr)
-                .then(rolesArr => {
-                    let roles = rolesArr.reduce((map, obj) => {
-                        map[obj.name] = obj.id;
-                        return map;
-                    }, {});
+                Promise.all(roleArr)
+                    .then(rolesArr => {
+                        let roles = rolesArr.reduce((map, obj) => {
+                            map[obj.name] = obj.id;
+                            return map;
+                        }, {});
 
-                    refresh(message, member, roles);
-                })
-                .catch((err) => console.log(err));
-        })
-        .catch(e => reject(e));
+                        refresh(message, member, roles);
+                    })
+                    .catch((err) => reject(err));
+            })
+            .catch(e => reject(e));
+    });
 }
 
 function refresh_guild(message, strip = false) {
-    sql.server.getRoles(message.guild.id)
-        .then(sql_roles => {
-            let roleArr = [
-                checkRole(message, 'admin', sql_roles.admin),
-                checkRole(message, 'mod', sql_roles.mod),
-                checkRole(message, 'helper', sql_roles.helper),
-                checkRole(message, 'vip', sql_roles.vip),
-                checkRole(message, 'bot', sql_roles.bot)
-            ];
+    return new Promise((resolve, reject) => {
+        sql.server.getRoles(message.guild.id)
+            .then(sql_roles => {
+                let roleArr = [
+                    checkRole(message, 'admin', sql_roles.admin),
+                    checkRole(message, 'mod', sql_roles.mod),
+                    checkRole(message, 'helper', sql_roles.helper),
+                    checkRole(message, 'vip', sql_roles.vip),
+                    checkRole(message, 'bot', sql_roles.bot)
+                ];
 
-            Promise.all(roleArr)
-                .then(rolesArr => {
-                    let roles = rolesArr.reduce((map, obj) => {
-                        map[obj.name] = obj.id;
-                        return map;
-                    }, {});
+                Promise.all(roleArr)
+                    .then(rolesArr => {
+                        let roles = rolesArr.reduce((map, obj) => {
+                            map[obj.name] = obj.id;
+                            return map;
+                        }, {});
 
-                    let toResolve = [];
-                    message.guild.members.cache.forEach((member, k, m) => {
-                        toResolve.push(refresh(message, member, roles, strip));
-                    });
+                        let toResolve = [];
+                        message.guild.members.cache.forEach((member, k, m) => {
+                            toResolve.push(refresh(message, member, roles, strip));
+                        });
 
-                    Promise.all(toResolve)
-                        .then(results => {
-                            console.log(results);
-                        })
-                        .catch(e => console.log(e));
-                })
-                .catch((err) => console.log(err));
-        });
+                        Promise.all(toResolve)
+                            .then(results => {
+                                resolve(results);
+                            })
+                            .catch(e => reject(e));
+                    })
+                    .catch((err) => reject(err));
+            });
+    });
 }
 
 function add(message, member, roleID) {
@@ -218,10 +214,7 @@ function setRole(message, name, role) {
     return new Promise((resolve, reject) => {
         if (role) {
             sql.server.setRole(message.guild.id, name, role.id)
-                .then(r => {
-                    message.channel.send(`Set the role for ${name} to ${role}`);
-                    resolve(r);
-                })
+                .then(r => resolve(chatFormat.response.roles.setRole(name, role)))
                 .catch(e => reject(e));
         }
         else {
@@ -235,12 +228,15 @@ function purge(message) {
         getRole(message, v.id)
             .then(role => {
                 try {
-                    if (role.id !== '488500539651391489' && role.id !== '641026182464143372') role.delete();
+                    if (role.id !== '488500539651391489' && role.id !== '641026182464143372')
+                        role.delete();
                 }
-                catch (e) { console.log(e) }
+                catch (e) {
+                    console.log(e);
+                }
             })
             .catch(e => console.log(e));
-    })
+    });
 }
 
 module.exports = {

@@ -1,6 +1,7 @@
 const db = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
@@ -20,21 +21,27 @@ function get(message, userID, listAll = true) {
 }
 
 function set(message, userID, reason, duration, severity = 'normal') {
-    if (!message.guild.members.cache.get(userID))
-        return message.channel.send('> Could not find target user.');
+    return new Promise((resolve, reject) => {
+        if (!message.guild.members.cache.get(userID))
+            resolve(chatFormat.response.punish.no_user());
+        else {
+            if (reason.trim() == '')
+                reason = null;
+            else
+                reason = reason.trim();
 
-    if (reason.trim() == '')
-        reason = null;
-    else
-        reason = reason.trim();
-    db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
-    get(message, userID)
-        .then(data => {
-            messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data, {duration});
-            message.channel.send(`> Banned ${message.guild.members.cache.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} bans.`);
-            message.guild.members.cache.get(userID).ban({reason: reason, days: duration});
-        })
-        .catch(e => console.log(e));
+            db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
+
+            get(message, userID)
+                .then(data => {
+                    messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data, { duration });
+                    message.guild.members.cache.get(userID).ban({ reason: reason, days: duration });
+                    
+                    resolve(chatFormat.response.punish.ban(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length));
+                })
+                .catch(e => reject(e));
+        }
+    })
 }
 
 function getLatest(message, userID) {
