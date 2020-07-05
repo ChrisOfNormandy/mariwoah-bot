@@ -18,7 +18,7 @@ function byName(message, name) {
                     embed.addField(`${song.title} | ${song.author}`, `${song.url} - Duration: ${song.durationString}`);
                 }
                 
-                resolve(embed);
+                resolve({embed});
             })
             .catch(e => reject(e));
     });
@@ -46,7 +46,7 @@ function all(message, index = 0) {
                             count = (JSON.parse(pl.list) === null) ? 0 : JSON.parse(pl.list).length;
                             embed.addField(`${pl.name} | ${message.guild.members.cache.get(pl.creator_id).user.username || ''}`, `${count} songs - Duration: ${intToTimeString.seconds(pl.duration).string}`);
                         }
-                        resolve(embed);
+                        resolve({embed});
                     })
                     .catch(e => reject(e));
             })

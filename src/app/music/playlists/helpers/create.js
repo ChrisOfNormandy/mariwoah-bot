@@ -10,7 +10,7 @@ module.exports = function (message, playlistName) {
                     .setTitle('Created new playlist')
                     .setColor(chatFormat.colors.byName.green)
                     .addField('Successfully created playlist:', playlistName);
-                resolve(embed);
+                resolve({embed});
             })
             .catch(e => {
                 console.log(e);
@@ -18,7 +18,7 @@ module.exports = function (message, playlistName) {
                     .setTitle('Error')
                     .setColor(chatFormat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
-                resolve(embed);
+                resolve({embed});
             });
     });
 }

@@ -19,20 +19,31 @@ function byURLs(message, playlistName, urls) {
     for (let i in urls) {
         arr.push(getSongObject.byUrl(message, urls[i]));
     }
-
-    Promise.all(arr)
-        .then(results => {
-            let arr_
-            for (let i in results) {
-                arr_.push(db.playlists.append(message, playlistName, results[i]))
-            }
-            Promise.all(arr_)
-                .then(r => resolve(results))
-                .catch(e => reject(e));
-        })
-        .catch(e => reject(e));
+    return new Promise((resolve, reject) => {
+        Promise.all(arr)
+            .then(results => {
+                let arr_
+                for (let i in results) {
+                    arr_.push(db.playlists.append(message, playlistName, results[i]))
+                }
+                Promise.all(arr_)
+                    .then(r => resolve(results))
+                    .catch(e => reject(e));
+            })
+            .catch(e => reject(e));
+    });
 }
+
+function bySong(message, playlistName, song) {
+    return new Promise((resolve, reject) => {
+        db.playlists.append(message, playlistName, song)
+            .then(r => resolve(song))
+            .catch(e => reject(e));
+    });
+}
+
 module.exports = {
     byName,
-    byURLs
+    byURLs,
+    bySong
 }
