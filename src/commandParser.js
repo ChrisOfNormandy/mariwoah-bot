@@ -236,24 +236,14 @@ function parseCommand(client, message, data) {
                         // Music
 
                         case 'play': {
-                            if (!data.urls.length)
-                                if (data.flags['p']) {
+                            if (!data.urls.length) {
+                                if (data.flags['p'])
                                     value = adapter.music.append.byPlaylist(message, data);
-                                }
-                                else {
-                                    value = adapter.music.append.byName(message, data);
-                                }
-                            else {
-                                if (data.flags['s']) {
-                                    value = new Promise((resolve, reject) => {
-                                        shuffle(data.urls)
-                                            .then(songUrls => resolve(adapter.music.append.byURLArray(message, songUrls, data.flags)))
-                                            .catch(e => reject(e));
-                                    });
-                                }
                                 else
-                                    value = adapter.music.append.byURLArray(message, data.urls);
+                                    value = adapter.music.append.byName(message, data);
                             }
+                            else
+                                value = adapter.music.append.byURLArray(message, data.urls);
                             break;
                         }
                         case 'join': {
@@ -538,7 +528,7 @@ module.exports = function (client, message) {
                                 });
 
                             if (data.parameters.boolean['debug'])
-                                message.channel.send(adapter.common.debug(r));
+                                message.channel.send(adapter.common.debug(returned.result.data, false));
 
                             if (returned.result.properties.selfClear && !data.flags['C']) {
                                 if (response.options && response.options.clear_command)

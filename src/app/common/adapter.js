@@ -36,7 +36,7 @@ function debug(input, useEmbed = true) {
         return { embed };
     }
     else {
-        return '```js\n' + JSON.stringify(input).replace(/{/g, '{\n').replace(/}/g, '\n}').replace(/,/g, ',\n') + '```';
+        return '```js\n' + JSON.stringify(input) + '```';
     }
 }
 

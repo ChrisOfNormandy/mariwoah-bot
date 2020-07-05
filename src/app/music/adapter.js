@@ -13,6 +13,7 @@ const stop = require('./helpers/functions/stop');
 const pause = require('./helpers/functions/pause');
 
 const getVC = require('../common/bot/helpers/global/getVoiceChannel');
+const shuffle = require('../common/bot/helpers/global/shuffle');
 
 const pl = commandList.music.commands.playlist.subcommands;
 
@@ -82,10 +83,18 @@ module.exports = {
                     .catch(e => reject(e))
             });
         },
-        byURLArray: (message, songURLs, flags) => {
+        byURLArray: (message, songURLs, data) => {
             return new Promise((resolve, reject) => {
                 getSong.byURLArray(message, songURLs)
-                    .then(arr => resolve(append(message, null, arr, flags)))
+                    .then(arr => {
+                        if (data.flags['s']) {
+                            shuffle(arr)
+                                .then(arr_ => resolve(append(message, null, arr_, data.flags)))
+                                .catch(e => reject(e));
+                        }
+                        else
+                            resolve(append(message, null, arr, data.flags))
+                    })
                     .catch(e => reject(e));
             });
         },
@@ -99,7 +108,15 @@ module.exports = {
         byPlaylist: (message, data) => {
             return new Promise((resolve, reject) => {
                 getSong.byPlaylist(message, data.arguments.join(' '), data)
-                    .then(arr => resolve(append(message, null, arr, data.flags)))
+                    .then(arr => {
+                        if (data.flags['s']) {
+                            shuffle(arr)
+                                .then(arr_ => resolve(append(message, null, arr_, data.flags)))
+                                .catch(e => reject(e));
+                        }
+                        else
+                            resolve(append(message, null, arr, data.flags))
+                    })
                     .catch(e => reject(e));
             });
         }
