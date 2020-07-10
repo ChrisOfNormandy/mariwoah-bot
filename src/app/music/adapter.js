@@ -11,8 +11,9 @@ const skip = require('./helpers/functions/skip');
 const list = require('./helpers/queue/list');
 const stop = require('./helpers/functions/stop');
 const pause = require('./helpers/functions/pause');
+const join = require('./helpers/functions/join');
+const leave = require('./helpers/functions/leave');
 
-const getVC = require('../common/bot/helpers/global/getVoiceChannel');
 const shuffle = require('../common/bot/helpers/global/shuffle');
 
 const pl = commandList.music.commands.playlist.subcommands;
@@ -25,29 +26,13 @@ function verify(message, permissionLevel) {
     });
 }
 
-function join(message) {
-    const vc = getVC(message);
-    if (vc)
-        vc.join();
-    else
-        return {value: chatFormat.response.music.no_vc()};
-}
-
-function leave(message) {
-    const vc = getVC(message);
-    if (vc)
-        vc.leave();
-    else
-        return {value: chatFormat.response.music.no_vc()};
-}
-
 function info(message, data) {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
-            .then(embed => resolve({embed}))
+            .then(embed => resolve({ embed }))
             .catch(e => {
                 console.log(e);
-                resolve({value: chatFormat.response.music.info.error()});
+                reject({ value: chatFormat.response.music.info.error() });
             });
     });
 }
@@ -74,52 +59,61 @@ function pl_play(message, data) {
     return playlist.play(message, data)
 }
 
+function fetch(message, data) {
+    if (data.urls.length)
+        return byURLArray(message, data);
+    return (data.flags['p'])
+        ? byPlaylist(message, data)
+        : byName(message, data);
+}
+
+function byName(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byName(message, data.arguments.join(' '), data)
+            .then(song => resolve(append(message, [song])))
+            .catch(e => reject(e));
+    });
+}
+
+function byURL(message, songURL) {
+    return new Promise((resolve, reject) => {
+        getSong.byURL(message, songURL)
+            .then(song => resolve(append(message, [song])))
+            .catch(e => reject(e))
+    });
+}
+
+function byURLArray(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byURLArray(message, data.urls)
+            .then(arr => {
+                if (data.flags['s']) {
+                    shuffle(arr)
+                        .then(arr_ => resolve(append(message, arr_, data.flags)))
+                        .catch(e => reject(e));
+                }
+                else
+                    resolve(append(message, arr, data.flags))
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function byPlaylist(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byPlaylist(message, data.arguments.join(' '), data)
+            .then(playlistData => resolve(append(message, playlistData, data.flags)))
+            .catch(e => reject(e));
+    });
+}
+
 module.exports = {
     append: {
-        byURL: (message, songURL) => {
-            return new Promise((resolve, reject) => {
-                getSong.byURL(message, songURL)
-                    .then(obj => resolve(append(message, obj)))
-                    .catch(e => reject(e))
-            });
-        },
-        byURLArray: (message, songURLs, data) => {
-            return new Promise((resolve, reject) => {
-                getSong.byURLArray(message, songURLs)
-                    .then(arr => {
-                        if (data.flags['s']) {
-                            shuffle(arr)
-                                .then(arr_ => resolve(append(message, null, arr_, data.flags)))
-                                .catch(e => reject(e));
-                        }
-                        else
-                            resolve(append(message, null, arr, data.flags))
-                    })
-                    .catch(e => reject(e));
-            });
-        },
-        byName: (message, data) => {
-            return new Promise((resolve, reject) => {
-                getSong.byName(message, data.arguments.join(' '), data)
-                    .then(obj => resolve(append(message, obj)))
-                    .catch(e => reject(e));
-            });
-        },
-        byPlaylist: (message, data) => {
-            return new Promise((resolve, reject) => {
-                getSong.byPlaylist(message, data.arguments.join(' '), data)
-                    .then(arr => {
-                        if (data.flags['s']) {
-                            shuffle(arr)
-                                .then(arr_ => resolve(append(message, null, arr_, data.flags)))
-                                .catch(e => reject(e));
-                        }
-                        else
-                            resolve(append(message, null, arr, data.flags))
-                    })
-                    .catch(e => reject(e));
-            });
-        }
+        fetch,
+        byName,
+        byURL,
+        byURLArray,
+        byPlaylist
     },
     skip,
     list,

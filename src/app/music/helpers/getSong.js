@@ -1,65 +1,94 @@
-const intToTimeString = require('../../common/bot/helpers/global/intToTimeString');
-const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
+const shuffle = require('../../common/bot/helpers/global/shuffle');
 
-function func(message, songURL) {
-    return new Promise((resolve, reject) => {
-        ytdl.getInfo(songURL)
-            .then((songInfo) => {
-                let obj = intToTimeString.seconds(songInfo.player_response.videoDetails.lengthSeconds);
-                let timestring = obj.string;
-                let arr = songInfo.player_response.videoDetails.thumbnail.thumbnails;
+function formatSongData(message, songData, playlistData = null) {
+    let obj = {
+        title: songData.title,
+        url: songData.url,
+        id: songData.videoId,
+        author: songData.author.name,
+        requested: message.author,
+        duration: {},
+        playlist: {},
+        thumbnail: songData.thumbnail || songData.thumbnailUrl,
+        removed: false
+    }
+    if (songData.duration) {
+        obj.duration = {
+            timestamp: songData.duration.timestamp,
+            seconds: songData.duration.seconds
+        };
+    }
+    if (playlistData) {
+        obj.playlist = {
+            title: playlistData.title,
+            url: playlistData.url,
+            videoCount: playlistData.items.length,
+        }
+    }
 
-                resolve({
-                    // videoDetails: songInfo.videoDetails,
-                    title: songInfo.videoDetails.title,
-                    url: songInfo.videoDetails.video_url,
-                    author: songInfo.player_response.videoDetails.author,
-                    requested: {
-                        id: message.author.id,
-                        username: message.author.username
-                    },
-                    durationString: timestring,
-                    duration: {
-                        hours: obj.hour,
-                        minutes: obj.minutes,
-                        seconds: obj.seconds,
-                        totalSeconds: songInfo.player_response.videoDetails.lengthSeconds
-                    },
-                    thumbnail: arr[arr.length - 1],
-                    removed: false
-                });
-            })
-            .catch(e => reject(e));
-    });
+    return obj;
 }
 
 function search(name, timeOut = 0) {
     return new Promise((resolve, reject) => {
         ytSearch(name, (err, data) => {
-            if (timeOut > 10)
-                reject(null);
+            if (err)
+                reject(err);
             else {
-                if (data.videos.length)
-                    resolve(data);
-                else
-                    resolve(search(name), timeOut++);
+                if (timeOut > 10) {
+                    console.log('getSong search timeout');
+                    reject(chatFormat.response.music.timeout(name));
+                }
+                else {
+                    if (data.videos.length)
+                        resolve(data);
+                    else
+                        resolve(search(name, timeOut++));
+                }
             }
         });
     });
 }
 
-function search_pl(listID, timeOut = 0) {
+function metaSearch_pl(metadata, timeOut = 0) {
     return new Promise((resolve, reject) => {
-        ytSearch({listId: listID}, (err, data) => {
-            if (timeOut > 10)
-                reject(null);
+        ytSearch({ listId: metadata }, (err, data) => {
+            if (err)
+                reject(err)
             else {
-                if (data.items.length)
-                    resolve(data);
-                else
-                    resolve(search_pl(listID), timeOut++);
+                if (timeOut > 10) {
+                    console.log('getSong metaSearch_pl timeout');
+                    reject(chatFormat.response.music.timeout('playlist id ' + metadata));
+                }
+                else {
+                    if (data.items.length)
+                        resolve(data);
+                    else
+                        resolve(metaSearch_pl(metadata, timeOut++));
+                }
+            }
+        });
+    });
+}
+
+function metaSearch(metadata, timeOut = 0) {
+    return new Promise((resolve, reject) => {
+        ytSearch({ videoId: metadata }, (err, data) => {
+            if (err)
+                reject(err)
+            else {
+                if (timeOut > 10) {
+                    console.log('getSong metaSearch timeout');
+                    reject(chatFormat.response.music.timeout('song id ' + metadata));
+                }
+                else {
+                    if (data)
+                        resolve(data);
+                    else
+                        resolve(metaSearch(metadata), timeOut++);
+                }
             }
         });
     });
@@ -68,8 +97,8 @@ function search_pl(listID, timeOut = 0) {
 module.exports = {
     byURL: async function (message, songURL) {
         return new Promise((resolve, reject) => {
-            func(message, songURL)
-                .then(song => resolve(song))
+            metaSearch(songURL.match(/\?v=([a-zA-Z0-9]+)/)[1])
+                .then(songData => resolve(formatSongData(message, songData)))
                 .catch(e => reject(e));
         });
     },
@@ -89,11 +118,7 @@ module.exports = {
             search(songName)
                 .then(songData => {
                     const videos = songData.videos;
-
-                    func(message, videos[0].url)
-                        .then(song => resolve(song))
-                        .catch(e => reject(e));
-
+                    resolve(formatSongData(message, videos[0]));
                 })
                 .catch(e => reject(e));
         });
@@ -101,26 +126,36 @@ module.exports = {
     byPlaylist: function (message, playlistName, data) {
         return new Promise((resolve, reject) => {
             message.channel.send(chatFormat.response.music.getSong.playlist())
-            .then(msg => {
-                search(playlistName)
-                    .then(songData => {
-                        const playlists = songData.playlists;
+                .then(msg => {
+                    search(playlistName)
+                        .then(songData => {
+                            const playlists = songData.playlists;
+                            metaSearch_pl(playlists[0].listId)
+                                .then(pl => {
+                                    msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
+                                    const videos = pl.items;
 
-                        search_pl(playlists[0].url.split('playlist?list=')[1])
-                            .then(pl => {
-                                let arr = pl.items.map((item) => { return item.url });
-
-                                this.byURLArray(message, arr)
-                                    .then(songs => {
-                                        msg.delete();
-                                        resolve(songs);
-                                    })
-                                    .catch(e => reject(e));
-                            })
-                            .catch(e => reject(e));
-                    })
-                    .catch(e => reject(e));
-            });
+                                    if (data.flags['s']) {
+                                        shuffle(videos)
+                                            .then(list => {   
+                                                let arr = [];
+                                                for (let i in list)
+                                                    arr.push(formatSongData(message, list[i], pl));
+                                                resolve(arr);
+                                            })
+                                            .catch(e => reject(e));
+                                    }
+                                    else {
+                                        let arr = [];
+                                        for (let i in videos)
+                                            arr.push(formatSongData(message, videos[i], pl));
+                                        resolve(arr);
+                                    }
+                                })
+                                .catch(e => reject(e));
+                        })
+                        .catch(e => reject(e));
+                });
         })
     }
 }

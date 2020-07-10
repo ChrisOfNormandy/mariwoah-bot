@@ -59,10 +59,12 @@ module.exports = {
             queue: {
                 no_data: () => {return `> There are no songs in the queue.`},
                 no_active: () => {return `> No active queue.`},
-                end: () => {return `> End of queue.`}
+                end: () => {return `> End of queue.`},
+                list_length: 10
             },
             getSong: {
-                playlist: () => {return `Please wait while I fetch all the songs in the playlist.`}
+                playlist: () => {return `Please wait while I fetch all the songs in the playlist.`},
+                playlist_result: (playlist) => {return `Found ${playlist.title} with ${playlist.videoCount} videos by ${playlist.author.name}.`}
             },
             playlist: {
                 no_data: () => {return `> There are no songs in the selected playlist.`}
@@ -77,7 +79,8 @@ module.exports = {
                 no_stream: () => {return `> No active stream.`},
                 yes: () => {return `> :pause_button: Paused.`},
                 no: () => {return `> Resuming.`}
-            }
+            },
+            timeout: (obj) => {return `Timed out searching for ${obj}.`}
         },
         punish: {
             no_user: () => {return `> Could not find target user.`},

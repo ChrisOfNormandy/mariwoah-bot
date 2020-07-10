@@ -90,7 +90,7 @@ function parseCommand(client, message, data) {
                         case 'shuffle': {
                             value = new Promise((resolve, reject) => {
                                 adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                                    .then(arr => resolve({value: arr.join(', ')}))
+                                    .then(arr => resolve({ value: arr.join(', ') }))
                                     .catch(e => reject(e));
                             });
                             break;
@@ -162,7 +162,7 @@ function parseCommand(client, message, data) {
                                 message.guild.members.unban(data.arguments[0])
                                     .then(user => {
                                         user.send(`You have been unbanned from ${message.guild.name}.`);
-                                        resolve({value: `Unbanned ${user.username}.`});
+                                        resolve({ value: `Unbanned ${user.username}.` });
                                     })
                                     .catch(e => reject(`Cannot unban user.\n${e.message}`));
                             });
@@ -236,14 +236,7 @@ function parseCommand(client, message, data) {
                         // Music
 
                         case 'play': {
-                            if (!data.urls.length) {
-                                if (data.flags['p'])
-                                    value = adapter.music.append.byPlaylist(message, data);
-                                else
-                                    value = adapter.music.append.byName(message, data);
-                            }
-                            else
-                                value = adapter.music.append.byURLArray(message, data.urls);
+                            value = adapter.music.append.fetch(message, data);
                             break;
                         }
                         case 'join': {
@@ -267,7 +260,7 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'pause': {
-                            adapter.music.pause(message);
+                            value = adapter.music.pause(message);
                             break;
                         }
                         case 'resume': {
@@ -518,12 +511,12 @@ module.exports = function (client, message) {
                                         });
                                 })
                                 .catch(e => {
-                                    if (e.message) {
-                                        console.log(e);
-                                        reject(e);
-                                    }
-                                    else {
-                                        message.channel.send(e);
+                                    // console.log(e);
+                                    if (e) {
+                                        if (e.message)
+                                            reject(e);
+                                        else
+                                            message.channel.send(e);
                                     }
                                 });
 
@@ -532,7 +525,7 @@ module.exports = function (client, message) {
 
                             if (returned.result.properties.selfClear && !data.flags['C']) {
                                 if (response.options && response.options.clear_command)
-                                        setTimeout(() => message.delete(), response.options.clear_command * 1000);
+                                    setTimeout(() => message.delete(), response.options.clear_command * 1000);
                                 else
                                     message.delete();
                             }

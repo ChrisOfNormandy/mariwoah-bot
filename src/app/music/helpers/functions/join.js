@@ -11,7 +11,7 @@ module.exports = function (message) {
                 .then(r => resolve(r))
                 .catch(e => {
                     console.log(e);
-                    resolve(chatFormat.response.music.join.join_error())
+                    reject(chatFormat.response.music.join.join_error())
                 });
     });
 }
