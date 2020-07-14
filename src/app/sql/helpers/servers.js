@@ -95,6 +95,7 @@ function setRole(con, serverID, role, id) {
     return new Promise((resolve, reject) => {
         getServer(con, serverID)
             .then(server => {
+                console.log(server);
                 let column = `${role}_role`;
 
                 con.query(`update SERVERS set ${column} = "${id}" where id = "${serverID}";`, (err, result) => {

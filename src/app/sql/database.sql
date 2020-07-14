@@ -2,9 +2,11 @@ create table SERVERS (
     id varchar(18) not null,
     motd varchar(255) default 'A First Title&tSome message.\nA new line|Second Title&tSome message.<l>http://google.com/',
     prefix varchar(1) default '~',
-    feature_minigames boolean default true,
-    feature_music boolean default true,
-    feature_playlists boolean default true,
+    admin varchar(18),
+    moderator varchar(18),
+    helper varchar(18),
+    vip varchar(18),
+    bot varchar(18),
     primary key (id)
 );
 
@@ -98,6 +100,6 @@ create table STATS_FISHING (
 create table STATS_INVENTORIES (
     server_id varchar(18),
     user_id varchar(18),
-    fishing json,
+    items json,
     primary key (server_id, user_id)
 );

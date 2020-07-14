@@ -363,6 +363,7 @@ function parseCommand(client, message, data) {
 }
 
 function formatResponse(input) {
+    console.log('input:', input);
     return new Promise((resolve, reject) => {
         if (input.value) {
             switch (typeof input.value) {

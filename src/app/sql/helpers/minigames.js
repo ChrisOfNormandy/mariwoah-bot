@@ -197,6 +197,7 @@ function inventory_get(con, message) {
                 else {
                     inventory_set(con, message, { "items": [] })
                         .then(r => {
+                            console.log(r);
                             inventory_get(con, message)
                                 .then(r => resolve(r))
                                 .catch(e => reject(e));
@@ -210,7 +211,8 @@ function inventory_get(con, message) {
 
 function inventory_set(con, message, json) {
     return new Promise((resolve, reject) => {
-        con.query(`insert into STATS_INVENTORIES (server_id, user_id, list) values (${message.guild.id}, ${message.author.id}, '${JSON.stringify(json)}');`, (err, result) => {
+        let list = JSON.stringify(json);
+        con.query(`insert into STATS_INVENTORIES (server_id, user_id, list) values ("${message.guild.id}", "${message.author.id}", '${list}');`, (err, result) => {
             if (err)
                 reject(err);
             else
@@ -231,16 +233,19 @@ function inventory_update(con, message, json) {
 }
 
 function inventory_give(con, message, item, amount) {
+    console.log('INVENTORY GIVE', message.author.username, item, amount);
     return new Promise((resolve, reject) => {
         inventory_get(con, message)
             .then(data => {
                 console.log('data', data);
                 let json = JSON.parse(data.list);
+
                 let count = 0;
                 while (count < amount) {
                     json.items.push(item);
                     count++;
                 }
+
                 inventory_update(con, message, json)
                     .then(r => resolve(r))
                     .catch(e => reject(e));

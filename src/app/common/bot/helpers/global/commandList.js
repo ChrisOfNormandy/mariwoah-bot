@@ -623,8 +623,7 @@ module.exports = {
             },
             'cast': {
                 description: 'Play the fishing minigame.',
-                permissionLevel: 1,
-                selfClear: true
+                permissionLevel: 1
             },
             'inventory': {
                 description: 'List your minigame inventory.',

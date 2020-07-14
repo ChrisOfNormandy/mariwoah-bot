@@ -4,7 +4,7 @@ const getCatchChances = require('./generators/getCatchChances');
 
 const map = new Map();
 
-function generate(user) {
+function generate(message, user) {
     return new Promise((resolve, reject) =>  {
         let rngValue = Math.floor(100 * Math.random());
         // let rngValue = 0;
@@ -18,21 +18,28 @@ function generate(user) {
             chance = { fish: 20, lowItem: 15, medItem: 9, highItem: 1 };
 
         let gameInstance = {
-            delay: 10 - Math.floor(user.level / 10),
+            channel: message.channel,
+            user: message.author,
+            delay: Math.abs(10 - Math.floor(user.level / 10)),
             chances: chance,
             rngValue: rngValue,
             returnItem: null,
-            expPayout: 0
+            expPayout: 0,
+            returnType: null
         }
 
         if (rngValue <= chance.fish) {
-            // let tier = Math.floor(0.75 * chance.fish) % 5;
-            let tier = 0;
+            let tierMax = 5 * Math.round(0.2 * user.level / 20);
+            let tier = Math.round(Math.random() * tierMax);
+
+            gameInstance.returnType = 'fish';
+
+            console.log('Max tier', tierMax, 'tier', tier);
+
             generateFishObject(user.level, tier)
                 .then(fish => {
                     gameInstance.returnItem = fish;
                     gameInstance.expPayout = Math.round(fish.price_per_pound * fish.weight);
-
                     resolve(gameInstance);
                 })
         }
@@ -48,9 +55,9 @@ function generate(user) {
     });
 }
 
-function set(user) {
+function set(message, user) {
     return new Promise((resolve, reject) => {
-        generate(user)
+        generate(message, user)
             .then(instance => {
                 map.set(`${user.server_id},${user.user_id}`, instance);
                 resolve(instance);

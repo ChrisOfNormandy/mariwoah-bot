@@ -16,9 +16,14 @@ client.on('message', async message => {
     if (!message.author.bot)
         commandParser(client, message)
             .catch(e => {
-                if (!e) {
-                    console.log('FULL ERROR RETURN\n', e);
+                if (e === null) {
+                    // No response available. All is good :)
                 }
-                console.log(message.guild.id, message.channel.id, message.author.username, message.content);
+                else if (!e)
+                    console.log('FULL ERROR RETURN\n', e);
+                else if (e.message)
+                    console.log(e);
+                else
+                    console.log(message.guild.id, message.channel.id, message.author.username, message.content);
             });
 });
