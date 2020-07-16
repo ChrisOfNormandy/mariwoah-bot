@@ -1,11 +1,10 @@
-const db = require('../../../../sql/adapter');
+const connection = require('../../../../sql/helpers/connection');
 const Discord = require('discord.js');
 const config = require('../../../../../../private/config');
 
 let client = new Discord.Client();
 
 function run() {
-    db.startup();
     client.login(config.auth.token);
     return client;
 }

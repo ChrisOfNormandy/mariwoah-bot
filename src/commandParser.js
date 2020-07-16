@@ -1,6 +1,7 @@
 const adapter = require('./app/adapter');
 const shuffle = require('./app/common/bot/helpers/global/shuffle');
 const { response } = require('./app/common/bot/helpers/global/chatFormat');
+const { format } = require('mysql');
 const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, properties, data) {
@@ -208,6 +209,42 @@ function parseCommand(client, message, data) {
                             value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
                             break;
                         }
+                        case 'guild': {
+                            switch(data.arguments[0]) {
+                                case 'create': {
+                                    value = adapter.rolemanagement.guilds.newCandidate(message, data);
+                                    break;
+                                }
+                                case 'icon': {
+                                    value = adapter.rolemanagement.guilds.setIcon(message, data);
+                                    break;
+                                }
+                                case 'color': {
+                                    value = adapter.rolemanagement.guilds.setColor(message, data);
+                                    break;
+                                }
+                                case 'list': {
+                                    value = adapter.rolemanagement.guilds.list(message, data);
+                                    break;
+                                }
+                                case 'join': {
+                                    value = adapter.rolemanagement.guilds.join(message, data);
+                                    break;
+                                }
+                                case 'leave': {
+                                    value = adapter.rolemanagement.guilds.leave(message, data);
+                                    break;
+                                }
+                                case 'refresh': {
+                                    break;
+                                }
+                                default: {
+                                    value = adapter.rolemanagement.guilds.view(message, data);
+                                    break;
+                                }
+                            }                            
+                            break;
+                        }
 
                         // Minigames
 
@@ -291,6 +328,10 @@ function parseCommand(client, message, data) {
                             value = adapter.memes.memeDispatch('yey');
                             break;
                         }
+                        case 'thowonk': {
+                            value = adapter.memes.memeDispatch('thowonk');
+                            break;
+                        }
                         case 'penguin': {
                             value = adapter.memes.memeDispatch('penguin');
                             break;
@@ -300,7 +341,11 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'clayhead': {
-                            value = adapter.memes.memeDispatch('clayhead')
+                            value = adapter.memes.memeDispatch('clayhead');
+                            break;
+                        }
+                        case 'extrathicc': {
+                            value = adapter.memes.memeDispatch('extra_thicc');
                             break;
                         }
                         case 'crabrave': {
@@ -352,7 +397,7 @@ function parseCommand(client, message, data) {
                 else {
                     value = result.permission.reason;
                 }
-
+                console.log(value);
                 resolve({
                     value,
                     result
@@ -363,7 +408,6 @@ function parseCommand(client, message, data) {
 }
 
 function formatResponse(input) {
-    console.log('input:', input);
     return new Promise((resolve, reject) => {
         if (input.value) {
             switch (typeof input.value) {
@@ -380,6 +424,16 @@ function formatResponse(input) {
                     break;
                 }
             }
+        }
+        else if (input.values) {
+            console.log(input.values);
+            let arr = [];
+            for (let i in input.values) {
+                arr.push(formatResponse(input.values[i]))
+            }
+            Promise.all(arr)
+                .then(arr => resolve({array: arr}))
+                .catch(e => reject(e));
         }
         else {
             try {
@@ -399,7 +453,7 @@ function formatResponse(input) {
 
 module.exports = function (client, message) {
     return new Promise((resolve, reject) => {
-        adapter.sql.server.getPrefix(message.guild.id)
+        adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
                 let msgArray = message.content.split(' ');
                 let content = msgArray.slice(1).join(' ').toString();
@@ -503,13 +557,27 @@ module.exports = function (client, message) {
 
                     parseCommand(client, message, data)
                         .then(returned => {
+                            console.log(returned);
+
                             formatResponse(returned.value)
                                 .then(response => {
+                                    console.log(response);
+
+                                    if (response.array) {
+                                        for (let i in response.array)
+                                            message.channel.send(response.array[i].value)
+                                            .then(msg => {
+                                                if (response.options && response.options.clear)
+                                                    setTimeout(() => msg.delete(), response.options.clear * 1000);
+                                            });
+                                    }
+                                    else {
                                     message.channel.send(response.value)
                                         .then(msg => {
                                             if (response.options && response.options.clear)
                                                 setTimeout(() => msg.delete(), response.options.clear * 1000);
                                         });
+                                    }
                                 })
                                 .catch(e => {
                                     // console.log(e);

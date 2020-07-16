@@ -374,6 +374,18 @@ module.exports = {
                 ],
                 selfClear: true
             },
+            'guild': {
+                description: '',
+                permissionLevel: 1,
+                arguments: [
+                    [
+
+                    ],
+                    [
+
+                    ]
+                ]
+            },
             page: [
                 [
                     'warn',
@@ -672,6 +684,16 @@ module.exports = {
                 selfClear: true
             },
             'clayhead': {
+                description: 'I fear nothing.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'extrathicc': {
+                description: 'I fear nothing.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'thowonk': {
                 description: 'I fear nothing.',
                 permissionLevel: 1,
                 selfClear: true

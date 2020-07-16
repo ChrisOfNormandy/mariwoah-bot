@@ -15,6 +15,9 @@ create table USERS (
     user_id varchar(18) not null,
     permission_level tinyint default 0,
     bot_role enum('admin', 'mod', 'helper'),
+    guild varchar(32),
+    guild_role enum('leader', 'officer', 'member', 'exhiled'),
+    guild_title varchar(32),
     primary key (server_id, user_id),
     foreign key (server_id) references SERVERS(id)
 );
