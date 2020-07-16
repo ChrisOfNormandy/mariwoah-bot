@@ -1,10 +1,10 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const db = require('../../../sql/adapter');
+const sql = require('../../../sql/adapter');
 
 module.exports = function (message, playlistName) {
     return new Promise((resolve, reject) => {
-        db.playlists.create(message, playlistName)
+        sql.playlists.create(message, playlistName)
             .then(data => {
                 let embed = new Discord.MessageEmbed()
                     .setTitle('Created new playlist')

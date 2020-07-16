@@ -1,51 +1,64 @@
-const db = require('../../../../sql/adapter');
+const sql = require('../../../../sql/adapter');
 const Discord = require('discord.js')
 
-// This needs to be rewritten in JSON format instead of a custom string "thing"
-function get(message) {
-    db.server.getMotd(message.guild.id)
-        .then(motd => {
-            let embed = new Discord.MessageEmbed()
-                .setTitle(message.guild.name);
-
-            let arr = motd.split('|');
-
-            let str = '';
-            let title, line, link, linkText, adjustLine, splitLine;
-
-            for (let i in arr) {
-                str = arr[i].split('&t');
-                title = str[0];
-                line = str[1];
-
-                if (line && line.includes('<l>')) {
-                    linkText = line.split('<l>')[0];
-                    link = line.split('<l>')[1];
-                }
-
-                adjustLine = '';
-                if (line) {
-                    splitLine = line.split('\\n');
-
-                    for (let s in splitLine)
-                        adjustLine += splitLine[s] + '\n';
-
-                    embed.addField(title, (link) ? linkText : adjustLine);
-                }
-                if (link)
-                    embed.setURL(link);
+function defaultMotd(message) {
+    return {
+        title: `${message.guild.name} MOTD`,
+        color: '#a81686',
+        fields: [{
+                name: "This is a field.",
+                value: "You can set this value to whatever you want using the setmotd command.",
+                inline: true
+            },
+            {
+                name: "For information on how to set these values...",
+                value: "click the link provided (Discord documentation).",
+                inline: true
             }
-            message.channel.send(embed);
-        })
-        .catch(e => {
-            console.log(e);
-            message.channel.send('Check syntax for how to format the MOTD.');
-        });
+        ],
+        url: "https://discordjs.guide/popular-topics/embeds.html#using-an-embed-object"
+    };
 }
 
-function set(message, string) { // Rewrite as Promise and not a setTimeout delay!!!
-    db.server.setMotd(message.guild.id, string);
-    setTimeout(() => get(message), 1000);
+function get(message, data) {
+    return new Promise((resolve, reject) => {
+        sql.server.general.getMotd(message.guild.id)
+            .then(motd => {
+                let embed = JSON.parse(motd);
+                if (!embed)
+                    embed = defaultMotd(message);
+                    
+                if (data.parameters.boolean['json'])
+                    resolve({
+                        value: JSON.stringify(embed)
+                    });
+                else
+                    resolve({
+                        value: {
+                            embed
+                        }
+                    });
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function set(message, json_string) {
+    console.log(json_string);
+    return new Promise((resolve, reject) => {
+
+        let json;
+        if (json_string == 'reset')
+            json = null;
+        else
+            json = JSON.parse(json_string) || null;
+        console.log(json);
+        sql.server.general.setMotd(message.guild.id, json)
+            .then(r => resolve({
+                value: 'Changed server MOTD.'
+            }))
+            .catch(e => reject(e));
+    });
 }
 
 module.exports = {

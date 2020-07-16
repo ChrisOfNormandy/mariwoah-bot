@@ -1,5 +1,5 @@
-const db = require('../connection');
-const con = db.con;
+const sql = require('../connection');
+const con = sql.con;
 
 function get(server_id) {
     return new Promise((resolve, reject) => {
@@ -22,28 +22,28 @@ function get(server_id) {
     });
 }
 
-function setMotd(server_id, string) {
-    if (string.length > 255)
-        return;
-    get(server_id)
-        .then(server => {
-            con.query(`update SERVERS set motd = "${string}" where id = "${server_id}";`, (err, result) => {
-                if (err)
-                    console.log(err);
-                else
-                con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
-                        console.log(result);
-                    });
-            });
-        })
+function setMotd(server_id, json) {
+    let string = JSON.stringify(json);
+    console.log(string);
+    return new Promise((resolve, reject) => {
+        get(server_id)
+            .then(server => {
+                con.query(`update SERVERS set motd = '${string}' where id = "${server_id}";`, (err, result) => {
+                    if (err)
+                        reject(err);
+                    else
+                        con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
+                            resolve(result);
+                        });
+                });
+            })
+    });
 }
 
 function getMotd(server_id) {
     return new Promise((resolve, reject) => {
         get(server_id)
-            .then(server => {
-                resolve(server.motd);
-            })
+            .then(server => resolve(server.motd))
             .catch(e => reject(e));
     });
 }
@@ -56,7 +56,7 @@ function setPrefix(server_id, prefix) {
                     if (err)
                         reject(err);
                     else
-                    con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
+                        con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
                             if (err)
                                 reject(err);
                             else

@@ -112,15 +112,7 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'motd': {
-                            if (data.parameters.boolean['json']) {
-                                value = new Promise((resolve, reject) => {
-                                    adapter.sql.server.getMotd(message.guild.id)
-                                        .then(raw => resolve(`> ${raw.replace('\n', '\\n')}`))
-                                        .catch(e => reject(e));
-                                });
-                            }
-                            else
-                                value = adapter.common.bot.features.motd.get(message);
+                            value = adapter.common.bot.features.motd.get(message, data);
                             break;
                         }
                         case 'setprefix': {
@@ -461,7 +453,7 @@ module.exports = function (client, message) {
                 let reg = `[${prefix.toString()}](\\w|[?])+`;
 
                 let commandRegex = new RegExp(reg);
-                let flagRegex = /-[a-zA-Z]+/g;
+                let flagRegex = /-[a-zA-Z]+\s/g;
                 let boolParamRegex = /\?\w+:(t|f)/g;
                 let stringParamRegex = /\$\w+:".*?"/g;
                 let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
@@ -478,8 +470,9 @@ module.exports = function (client, message) {
                         for (let i in flagArr) {
                             flags[flagArr[i]] = true;
                         }
+                        content = content.replace(flagRegex, '');
                     }
-                    content = content.replace(flagRegex, '');
+                    
 
                     let bools = content.match(boolParamRegex);
                     content = content.replace(boolParamRegex, '');

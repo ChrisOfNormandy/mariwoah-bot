@@ -1,11 +1,11 @@
-const db = require('../../sql/adapter');
+const sql = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
-        db.punishments.getUser(message, userID, 'ban')
+        sql.punishments.getUser(message, userID, 'ban')
             .then(data => {
                 let list = [];
                 for (let i in data)
@@ -30,7 +30,7 @@ function set(message, userID, reason, duration, severity = 'normal') {
             else
                 reason = reason.trim();
 
-            db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
+            sql.punishments.setUser(message, userID, 'ban', reason, duration, severity);
 
             get(message, userID)
                 .then(data => {

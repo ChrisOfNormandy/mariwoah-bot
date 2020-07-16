@@ -1,8 +1,8 @@
-const db = require('../../../../../sql/adapter');
+const sql = require('../../../../../sql/adapter');
 
 module.exports = function (level, tier) {
     return new Promise((resolve, reject) => {
-        db.minigames.getFishList(tier)
+        sql.minigames.getFishList(tier)
             .then(list => {
                 let index = Math.floor(Math.random() * list.length);
                 let fish = list[index];

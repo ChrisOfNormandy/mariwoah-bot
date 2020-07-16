@@ -1,5 +1,5 @@
 const chatFormat = require('../../../../common/bot/helpers/global/chatFormat');
-const db = require('../../../../sql/adapter');
+const sql = require('../../../../sql/adapter');
 const instance = require('./instance');
 const Discord = require('discord.js');
 
@@ -7,7 +7,7 @@ const assetPath = 'src/app/common/assets/items/fish/'
 
 module.exports = function (message, userID) {
     return new Promise((resolve, reject) => {
-        db.minigames.fishing.get(message, userID)
+        sql.minigames.fishing.get(message, userID)
             .then(user => {
                 if (!instance.get(user)) {
                     instance.set(message, user)
@@ -42,13 +42,13 @@ module.exports = function (message, userID) {
                                                 let imageName = game.returnItem.fish.image_url.split('/fish/')[1];
                                                 embed.setImage(`attachment://${imageName}`);
 
-                                                db.minigames.inventory.give(message, game.returnItem, 1)
+                                                sql.minigames.inventory.give(message, game.returnItem, 1)
                                                     .then(r => {
                                                         message.channel.send(`${message.author.toString()} You caught a ${game.returnItem.fish.item_name}`);
 
-                                                        db.minigames.exp(message, message.author.id, 1)
+                                                        sql.minigames.exp(message, message.author.id, 1)
                                                             .then(val => {
-                                                                db.minigames.fishing.exp(message, message.author.id, Math.floor(1.5 * game.returnItem.weight))
+                                                                sql.minigames.fishing.exp(message, message.author.id, Math.floor(1.5 * game.returnItem.weight))
                                                                     .then(f_val => {
                                                                         embed.addField('Experience earned', Math.floor(game.returnItem.weight));
 
@@ -57,7 +57,7 @@ module.exports = function (message, userID) {
                                                                         if (val.change)
                                                                             embed.addField('You leveled up in stats!', `Level: ${val.level}\nExp: ${val.exp} / ${val.val}`);
 
-                                                                        db.minigames.fishing.catchFish(message, message.author.id)
+                                                                        sql.minigames.fishing.catchFish(message, message.author.id)
                                                                             .then(r => resolve({
                                                                                 value: {
                                                                                     files: [image],

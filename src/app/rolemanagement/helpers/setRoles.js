@@ -118,7 +118,7 @@ function refresh(message, member, roleMap, strip = false) {
 
 function refresh_user(message, member) {
     return new Promise((resolve, reject) => {
-        sql.server.getRoles(message.guild.id)
+        sql.server.roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -146,7 +146,7 @@ function refresh_user(message, member) {
 
 function refresh_guild(message, strip = false) {
     return new Promise((resolve, reject) => {
-        sql.server.getRoles(message.guild.id)
+        sql.server.roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -215,7 +215,7 @@ function getRole(message, id) {
 function setRole(message, name, role) {
     return new Promise((resolve, reject) => {
         if (role) {
-            sql.server.setRole(message.guild.id, name, role.id)
+            sql.server.roles.set(message.guild.id, name, role.id)
                 .then(r => resolve({value: chatFormat.response.roles.setRole(name, role)}))
                 .catch(e => reject(e));
         }

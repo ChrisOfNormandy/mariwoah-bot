@@ -1,4 +1,4 @@
-const db = require('../sql/adapter');
+const sql = require('../sql/adapter');
 const chatFormat = require('../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const fishing = require('./games/fishing/adapter');
@@ -9,7 +9,7 @@ function printStats(message) {
         .setColor(chatFormat.colors.byName.yellow);
 
     return new Promise((resolve, reject) => {
-        db.minigames.getStats(message, message.author.id)
+        sql.minigames.getStats(message, message.author.id)
             .then(stats => {
                 embed.addField('Level', stats.level, true);
                 embed.addField('Experience', stats.experience, true);
@@ -26,7 +26,7 @@ function printStats_fishing(message) {
         .setColor(chatFormat.colors.byName.yellow);
     
     return new Promise((resolve, reject) => {
-        db.minigames.fishing.get(message, message.author.id)
+        sql.minigames.fishing.get(message, message.author.id)
             .then(stats => {
                 embed.addField('Level', stats.level, true);
                 embed.addField('Experience', stats.experience, true);
@@ -43,7 +43,7 @@ module.exports = {
         fishing: (message) => {return printStats_fishing(message)}
     },
     inventory: {
-        find: (message, data) => {return db.minigames.inventory.find(message, data)}
+        find: (message, data) => {return sql.minigames.inventory.find(message, data)}
     },
     fishing: {
         cast: (message) => {return fishing.cast(message)}

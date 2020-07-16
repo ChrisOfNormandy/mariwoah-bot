@@ -1,4 +1,4 @@
-const db = require('../../../../sql/adapter');
+const sql = require('../../../../sql/adapter');
 const chatFormat = require('../global/chatFormat');
 
 // Converts Discord timestamp to a nice date-time format
@@ -38,7 +38,7 @@ module.exports = async function (message) {
                 }
                 else {
                     // Fetch the server prefix from the discordbot.SERVERS database table
-                    db.server.getPrefix(message.guild.id)
+                    sql.server.general.getPrefix(message.guild.id)
                         .then(prefix => {
                             const botMessages = messages.filter(msg => (msg.author.bot &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14

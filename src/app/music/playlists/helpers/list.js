@@ -1,12 +1,12 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const divideArray = require('../../../common/bot/helpers/global/divideArray');
-const db = require('../../../sql/adapter');
+const sql = require('../../../sql/adapter');
 const intToTimeString = require('../../../common/bot/helpers/global/intToTimeString');
 
 function byName(message, name) {
     return new Promise((resolve, reject) => {
-        db.playlists.getList(message, name)
+        sql.playlists.getList(message, name)
             .then(list => {
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Song list for ${name}`)
@@ -26,7 +26,7 @@ function byName(message, name) {
 
 function all(message, index = 0) {
     return new Promise((resolve, reject) => {
-        db.playlists.getAll(message)
+        sql.playlists.getAll(message)
             .then(list => {
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`List of available playlists`)

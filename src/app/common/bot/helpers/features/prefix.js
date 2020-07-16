@@ -1,8 +1,8 @@
-const db = require('../../../../sql/adapter');
+const sql = require('../../../../sql/adapter');
 
 function get(message) {
     return new Promise((resolve, reject) => {
-        db.server.getPrefix(message.guild.id)
+        sql.server.general.getPrefix(message.guild.id)
             .then(prefix => resolve({value: `Server prefix: ${prefix}`}))
             .catch(e => reject(e));
     })
@@ -10,7 +10,7 @@ function get(message) {
 
 function set(message, prefix) {
     return new Promise((resolve, reject) => {
-        db.server.setPrefix(message.guild.id, prefix)
+        sql.server.general.setPrefix(message.guild.id, prefix)
             .then(() => {
                 get(message)
                     .then(r => resolve(r))

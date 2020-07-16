@@ -1,5 +1,5 @@
 const shuffle = require('../../../common/bot/helpers/global/shuffle');
-const db = require('../../../sql/adapter');
+const sql = require('../../../sql/adapter');
 const append = require('../../helpers/queue/append');
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 
@@ -7,7 +7,7 @@ module.exports = function (message, data) {
     return new Promise((resolve, reject) => {
         let name = data.arguments[1];
 
-        db.playlists.get(message, name)
+        sql.playlists.get(message, name)
             .then(db_data => {
                 let list;
                 if (db_data.list != 'null') 
