@@ -1,7 +1,4 @@
 const adapter = require('./app/adapter');
-const shuffle = require('./app/common/bot/helpers/global/shuffle');
-const { response } = require('./app/common/bot/helpers/global/chatFormat');
-const { format } = require('mysql');
 const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, properties, data) {
@@ -24,8 +21,7 @@ function verify(message, properties, data) {
                     }
                 }
             }
-        }
-        else {
+        } else {
             adapter.rolemanagement.verifyPermission(message, message.author.id, properties.permissionLevel)
                 .then(r => {
                     resolve({
@@ -49,23 +45,36 @@ function getCommon(name) {
 function getRoleManager(name) {
     return commandList.rolemanager.commands[name];
 }
+
 function getMusic(name) {
     return commandList.music.commands[name];
 }
+
 function getMinigames(name, section = null) {
-    return (section == null)
-        ? commandList.minigames.commands[name]
-        : commandList.minigames.subcommands[section].commands;
+    return (section == null) ?
+        commandList.minigames.commands[name] :
+        commandList.minigames.subcommands[section].commands;
 }
+
 function getMeme(name) {
     return commandList.memes.commands[name];
 }
-function getDungeons(name) {
-    return commandList.dungeons.commands[name];
+// function getDungeons(name) {
+//     return commandList.dungeons.commands[name];
+// }
+function getOther(name, subcommand) {
+    try {
+        return (subcommand)
+            ? commandList[name].subcommands[subcommand]
+            : commandList[name].commands[name];
+    } catch {
+        return commandList[name].commands[name];
+    }
 }
 
 function parseCommand(client, message, data) {
-    let properties = getCommon(data.command) || getRoleManager(data.command) || getMusic(data.command) || getMinigames(data.command) || getMeme(data.command) || getDungeons(data.command);
+    let properties = getCommon(data.command) || getRoleManager(data.command) || getMusic(data.command) || getMinigames(data.command) || getMeme(data.command) || getOther(data.command, data.arguments[0]);
+
     return new Promise((resolve, reject) => {
         verify(message, properties, data)
             .then(result => {
@@ -91,7 +100,9 @@ function parseCommand(client, message, data) {
                         case 'shuffle': {
                             value = new Promise((resolve, reject) => {
                                 adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                                    .then(arr => resolve({ value: arr.join(', ') }))
+                                    .then(arr => resolve({
+                                        value: arr.join(', ')
+                                    }))
                                     .catch(e => reject(e));
                             });
                             break;
@@ -155,7 +166,9 @@ function parseCommand(client, message, data) {
                                 message.guild.members.unban(data.arguments[0])
                                     .then(user => {
                                         user.send(`You have been unbanned from ${message.guild.name}.`);
-                                        resolve({ value: `Unbanned ${user.username}.` });
+                                        resolve({
+                                            value: `Unbanned ${user.username}.`
+                                        });
                                     })
                                     .catch(e => reject(`Cannot unban user.\n${e.message}`));
                             });
@@ -201,8 +214,32 @@ function parseCommand(client, message, data) {
                             value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
                             break;
                         }
+
+                        // Guilds
+
+                        case 'guild_admin': {
+                            switch (data.arguments[0]) {
+                                case 'refresh': {
+                                    value = adapter.rolemanagement.guilds.update(message, data.arguments.slice(1).join(' '));
+                                    break;
+                                }
+                                case 'other_join': {
+                                    value = adapter.rolemanagement.guilds.admin_join(message, data);
+                                    break;
+                                }
+                                case 'other_leave': {
+                                    value = adapter.rolemanagement.guilds.admin_leave(message, data);
+                                    break;
+                                }
+                                case 'disband': {
+                                    value = adapter.rolemanagement.guilds.admin_disband(message, data);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                         case 'guild': {
-                            switch(data.arguments[0]) {
+                            switch (data.arguments[0]) {
                                 case 'create': {
                                     value = adapter.rolemanagement.guilds.newCandidate(message, data);
                                     break;
@@ -213,6 +250,18 @@ function parseCommand(client, message, data) {
                                 }
                                 case 'color': {
                                     value = adapter.rolemanagement.guilds.setColor(message, data);
+                                    break;
+                                }
+                                case 'setlore': {
+                                    value = adapter.rolemanagement.guilds.setLore(message, data);
+                                    break;
+                                }
+                                case 'setmotto': {
+                                    value = adapter.rolemanagement.guilds.setMotto(message, data);
+                                    break;
+                                }
+                                case 'lore': {
+                                    value = adapter.rolemanagement.guilds.getLore(message, data);
                                     break;
                                 }
                                 case 'list': {
@@ -227,14 +276,47 @@ function parseCommand(client, message, data) {
                                     value = adapter.rolemanagement.guilds.leave(message, data);
                                     break;
                                 }
-                                case 'refresh': {
+                                case 'invite': {
+                                    value = adapter.rolemanagement.guilds.invite(message, data);
+                                    break;
+                                }
+                                case 'toggle': {
+                                    value = adapter.rolemanagement.guilds.toggleInvites(message, data);
+                                    break;
+                                }
+                                case 'invites': {
+                                    value = adapter.rolemanagement.guilds.getInvites(message, data);
+                                    break;
+                                }
+                                case 'deny': {
+                                    value = adapter.rolemanagement.guilds.deleteInvite(message, data);
+                                    break;
+                                }
+                                case 'setofficer': {
+                                    value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
+                                    break;
+                                }
+                                case 'setleader': {
+                                    value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
+                                    break;
+                                }
+                                case 'setmember': {
+                                    value = adapter.rolemanagement.guilds.promote(message, data, 'member');
+                                    break;
+                                }
+                                case 'exhile': {
+                                    value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
+                                    break;
+                                }
+                                case 'settitle': {
+                                    value = adapter.rolemanagement.guilds.setTitle(message, data);
                                     break;
                                 }
                                 default: {
                                     value = adapter.rolemanagement.guilds.view(message, data);
                                     break;
                                 }
-                            }                            
+                            }
                             break;
                         }
 
@@ -385,11 +467,10 @@ function parseCommand(client, message, data) {
                             break;
                         }
                     }
-                }
-                else {
+                } else {
                     value = result.permission.reason;
                 }
-                console.log(value);
+                // console.log(value);
                 resolve({
                     value,
                     result
@@ -400,6 +481,7 @@ function parseCommand(client, message, data) {
 }
 
 function formatResponse(input) {
+    // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
         if (input.value) {
             switch (typeof input.value) {
@@ -416,26 +498,28 @@ function formatResponse(input) {
                     break;
                 }
             }
-        }
-        else if (input.values) {
-            console.log(input.values);
+        } else if (input.values) {
+            // console.log(input.values);
             let arr = [];
             for (let i in input.values) {
                 arr.push(formatResponse(input.values[i]))
             }
             Promise.all(arr)
-                .then(arr => resolve({array: arr}))
+                .then(arr => resolve({
+                    array: arr
+                }))
                 .catch(e => reject(e));
-        }
-        else {
+        } else {
             try {
                 input
                     .then(val => resolve(formatResponse(val)))
                     .catch(e => reject(e));
-            }
-            catch {
+            } catch {
                 if (input.embed)
-                    resolve({ value: input.embed, options: input.options });
+                    resolve({
+                        value: input.embed,
+                        options: input.options
+                    });
                 else
                     resolve(input);
             }
@@ -462,8 +546,7 @@ module.exports = function (client, message) {
 
                 if (!commandRegex.test(msgArray[0])) {
                     reject(null);
-                }
-                else {
+                } else {
                     let flags = {};
                     if (content.match(flagRegex) != null) {
                         let flagArr = content.match(flagRegex)[0].slice(1).split('');
@@ -472,7 +555,7 @@ module.exports = function (client, message) {
                         }
                         content = content.replace(flagRegex, '');
                     }
-                    
+
 
                     let bools = content.match(boolParamRegex);
                     content = content.replace(boolParamRegex, '');
@@ -550,49 +633,41 @@ module.exports = function (client, message) {
 
                     parseCommand(client, message, data)
                         .then(returned => {
-                            console.log(returned);
+                            // console.log(returned);
 
                             formatResponse(returned.value)
                                 .then(response => {
-                                    console.log(response);
+                                    // console.log(response);
 
                                     if (response.array) {
                                         for (let i in response.array)
-                                            message.channel.send(response.array[i].value)
+                                            if (response.array[i])
+                                                message.channel.send(response.array[i].value)
+                                                .then(msg => {
+                                                    if (response.options && response.options.clear)
+                                                        setTimeout(() => msg.delete(), response.options.clear * 1000);
+                                                });
+                                    } else {
+                                        message.channel.send(response.value)
                                             .then(msg => {
                                                 if (response.options && response.options.clear)
                                                     setTimeout(() => msg.delete(), response.options.clear * 1000);
                                             });
                                     }
-                                    else {
-                                    message.channel.send(response.value)
-                                        .then(msg => {
-                                            if (response.options && response.options.clear)
-                                                setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                        });
-                                    }
-                                })
-                                .catch(e => {
-                                    // console.log(e);
-                                    if (e) {
-                                        if (e.message)
-                                            reject(e);
+
+                                    if (data.parameters.boolean['debug'])
+                                        message.channel.send(adapter.common.debug(returned.result.data, false));
+
+                                    if (returned.result.properties.selfClear && !data.flags['C']) {
+                                        if (response.options && response.options.clear_command)
+                                            setTimeout(() => message.delete(), response.options.clear_command * 1000);
                                         else
-                                            message.channel.send(e);
+                                            message.delete();
                                     }
-                                });
 
-                            if (data.parameters.boolean['debug'])
-                                message.channel.send(adapter.common.debug(returned.result.data, false));
-
-                            if (returned.result.properties.selfClear && !data.flags['C']) {
-                                if (response.options && response.options.clear_command)
-                                    setTimeout(() => message.delete(), response.options.clear_command * 1000);
-                                else
-                                    message.delete();
-                            }
-
-                            resolve(response);
+                                    resolve(response);
+                                })
+                                .catch(e => reject(e));
                         })
                         .catch(e => reject(e));
                 }

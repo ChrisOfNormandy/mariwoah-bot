@@ -106,3 +106,10 @@ create table STATS_INVENTORIES (
     items json,
     primary key (server_id, user_id)
 );
+
+create table TIMEOUTS (
+    name varchar(255),
+    server_id varchar(18),
+    timestamp varchar(13) not null,
+    primary key (name, server_id)
+);

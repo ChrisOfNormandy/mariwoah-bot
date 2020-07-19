@@ -216,12 +216,58 @@ function setRole(message, name, role) {
     return new Promise((resolve, reject) => {
         if (role) {
             sql.server.roles.set(message.guild.id, name, role.id)
-                .then(r => resolve({value: chatFormat.response.roles.setRole(name, role)}))
+                .then(r => resolve({value: chatFormat.response.roles.setRole(name, role), r}))
                 .catch(e => reject(e));
         }
         else {
             reject(role);
         }
+    });
+}
+
+function createByData(message, data) {
+    return new Promise((resolve, reject) => {
+        
+    })
+}
+
+function create(message, name, color, reason = 'Automated creation') {
+    let role = null;
+
+    message.guild.roles.cache.forEach((v, k, m) => {
+        if (v.name == name)
+            role = v;
+    });
+    
+    if (role !== null) {
+        return new Promise((resolve, reject) => {
+            message.guild.roles.fetch(role.id)
+            .then(role => {
+                message.guild.roles.resolve(role).setColor(color)
+                    .then(role => role.setHoist(true).then(role => role.setMentionable(true).then(role => resolve(role))));
+            })
+            .catch(e => reject(e));
+        });
+    }
+
+    return new Promise((resolve, reject) => {
+        message.guild.roles.create({
+            data: {
+                name,
+                color
+            },
+            reason
+        })
+        .then(role => {
+            role.setHoist(true)
+            .then(role => {
+                role.setMentionable(true)
+                .then(role => resolve(role))
+                .catch(e => reject(e));
+            })
+            .catch(e => reject(e));
+        })
+        .catch(e => reject(e));
     });
 }
 
@@ -245,6 +291,8 @@ module.exports = {
     refresh_guild: (message) => refresh_guild(message),
     reset_guild: (message) => refresh_guild(message, true),
     refresh_user,
+    create,
+    createByData,
     add,
     remove,
     purge,

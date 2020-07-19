@@ -25,3 +25,11 @@ create table GUILD_RIVALRIES (
     timestamp varchar(13) not null,
     primary key (server_id, guild_a_name, guild_b_name)
 );
+
+create table GUILD_INVITES (
+    server_id varchar(18) not null,
+    guild_name varchar(32) not null,
+    user_id varchar(18) not null,
+    issued_user_id varchar(18) not null,
+    primary key (server_id, guild_name, user_id)
+);

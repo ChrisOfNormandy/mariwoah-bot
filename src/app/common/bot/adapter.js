@@ -21,6 +21,7 @@ module.exports = {
         chatFormat: require('./helpers/global/chatFormat'),
         commandList: require('./helpers/global/commandList'),
         divideArray: require('./helpers/global/divideArray'),
+        getAge: require('./helpers/global/getAge'),
         getVoiceChannel: require('./helpers/global/getVoiceChannel'),
         intToTimeString: require('./helpers/global/intToTimeString'),
         mapToJson: require('./helpers/global/mapToJson'),

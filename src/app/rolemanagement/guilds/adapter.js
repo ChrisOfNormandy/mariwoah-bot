@@ -5,115 +5,139 @@ const sql = require('../../sql/adapter');
 function newCandidate(message, data) {
     if (!data.parameters.string.name)
         return {
-            value: 'Check syntax.'
+            value: chatFormat.response.syntax.error('Missing parameter $name')
         };
 
+    const guild_name = data.parameters.string.name.trim();
+
+    if (guild_name > 32)
+        return {
+            value: chatFormat.response.syntax.error('Name cannot be longer than 32 characters')
+        }
+
+
     return new Promise((resolve, reject) => {
-        sql.server.guilds.check(message, data.parameters.string.name)
+        sql.server.guilds.check(message, guild_name)
             .then(r => {
                 if (r) {
                     resolve({
-                        value: 'That guild already exists.'
+                        value: chatFormat.response.guilds.create.already_exists(guild_name)
                     });
                 } else {
-                    sql.server.guilds.create(message, data)
-                        .then(r => resolve(r))
-                        .catch(e => reject(e));
+                    sql.server.guilds.getByUser(message, message.author.id)
+                        .then(list => {
+                            if (list.length)
+                                resolve({
+                                    value: chatFormat.response.guilds.create.already_member()
+                                });
+                            else
+                                sql.server.guilds.create(message, data)
+                                .then(r => resolve(r))
+                                .catch(e => reject(e));
+                        })
+
                 }
             })
             .catch(e => reject(e));
     });
 }
 
-function formatListing(message, data) {
+function guildEmbed(message, guild) {
     let embed = new Discord.MessageEmbed();
+
     return new Promise((resolve, reject) => {
-        if (!data.parameters.string.name) {
+        embed.setTitle(guild.name);
+        embed.setColor(guild.color)
+
+        let guild_users = [
+            sql.server.guilds.getLeaders(message, guild.name),
+            sql.server.guilds.getOfficers(message, guild.name),
+            sql.server.guilds.getMembers(message, guild.name),
+            sql.server.guilds.getExhiled(message, guild.name),
+        ];
+
+        Promise.all(guild_users)
+            .then(arr => {
+                const leaders = arr[0];
+                const officers = arr[1];
+                const members = arr[2];
+                const exhiled = arr[3];
+
+                let str_l = `Leader${leaders.length > 1 ? 's' : ''}:\n`;
+                let str_r = `Officers\n`;
+
+                for (let i in leaders)
+                    str_l += `> ${leaders[i].guild_title ? leaders[i].guild_title + ' ' : ''}${message.guild.members.cache.get(leaders[i].user_id).user.username}\n`;
+
+                if (officers.length)
+                    for (let i in officers)
+                        str_r += `> ${officers[i].guild_title ? officers[i].guild_title + ' ' : ''}${message.guild.members.cache.get(officers[i].user_id).user.username}\n`;
+                else
+                    str_r += '_no officers_\n';
+
+                str_l += '\nMembers:\n';
+
+                if (members.length && members.length <= 10)
+                    for (let i in members)
+                        str_l += `> ${members[i].guild_title ? members[i].guild_title + ' ' : ''}${message.guild.members.cache.get(members[i].user_id).user.username}\n`;
+                else if (members.length > 10)
+                    str_l += `${members.length} strong`;
+                else
+                    str_l += '_vaccant_\n';
+
+                str_r += '\nExhiled:\n';
+
+                if (exhiled.length && members.length <= 10)
+                    for (let i in exhiled)
+                        str_r += `> ${exhiled[i].guild_title ? exhiled[i].guild_title + ' ' : ''}${message.guild.members.cache.get(exhiled[i].user_id).user.username}\n`;
+                else if (exhiled.length > 10)
+                    str_r += `${exhiled.length} strong`;
+                else
+                    str_r += '_nobody_';
+
+                embed.addField(`${guild.members} members${guild.limbo != 0 ? ' (in limbo)' : ''}`, str_l, true);
+                embed.addField(`Requires invite: ${guild.invite_only ? 'Yes' : 'No'}`, str_r, true);
+
+                embed.setDescription('"' + (JSON.parse(guild.text_assets).motto || 'Do you know, the muffin man?') + '"');
+                if (guild.icon != 'null')
+                    embed.setThumbnail(guild.icon);
+
+                resolve({
+                    embed
+                });
+            })
+            .catch(e => reject(e));
+    })
+}
+
+function formatListing(message, data) {
+    return new Promise((resolve, reject) => {
+        const guild_name = !data.parameters.string.name ? null : data.parameters.string.name.trim();
+
+        if (!guild_name) {
             sql.server.guilds.getByUser(message, message.author.id)
                 .then(guildList => {
                     if (guildList.length) {
                         const guild = guildList[0];
-                        embed.setTitle(guild.name);
-                        embed.setColor(guild.color)
-
-                        let guild_users = [
-                            sql.server.guilds.getLeaders(message, guild.name),
-                            sql.server.guilds.getOfficers(message, guild.name),
-                            sql.server.guilds.getMembers(message, guild.name),
-                            sql.server.guilds.getExhiled(message, guild.name)
-                        ];
-
-                        Promise.all(guild_users)
-                            .then(arr => {
-                                const leaders = arr[0];
-                                const officers = arr[1];
-                                const members = arr[2];
-                                const exhiled = arr[3];
-
-                                let str_l = `Leader${leaders.length > 1 ? 's' : ''}:\n`;
-                                let str_r = `Officers\n`;
-
-                                for (let i in leaders)
-                                    str_l += `> ${leaders[i].guild_title ? leaders[i].guild_title + ' ' : ''}${message.guild.members.cache.get(leaders[i].user_id).user.username}\n`;
-
-                                if (officers.length)
-                                    for (let i in officers)
-                                        str_r += `${officers[i].guild_title ? officers[i].guild_title + ' ' : ''}${message.guild.members.cache.get(officers[i].user_id).user.username}\n`;
-                                else
-                                    str_r += '_no officers_\n';
-
-                                str_l += '\nMembers:\n';
-
-                                if (members.length && members.length <= 10)
-                                    for (let i in members)
-                                        str_l += `> ${members[i].guild_title ? members[i].guild_title + ' ' : ''}${message.guild.members.cache.get(members[i].user_id).user.username}\n`;
-                                else if (members.length > 10)
-                                    str_l += `${members.length} strong`;
-                                else
-                                    str_l += '_vaccant_\n';
-
-                                str_r += '\nExhiled:\n';
-
-                                if (exhiled.length && members.length <= 10)
-                                    for (let i in exhiled)
-                                        str_r += `> ${exhiled[i].guild_title ? exhiled[i].guild_title + ' ' : ''}${message.guild.members.cache.get(exhiled[i].user_id).user.username}\n`;
-                                else if (exhiled.length > 10)
-                                    str_r += `${exhiled.length} strong`;
-                                else
-                                    str_r += '_nobody_';
-
-                                embed.addField(`${guild.members} members${guild.limbo != 0 ? ' (in limbo)' : ''}`, str_l, true);
-                                embed.addField(`Requires invite: ${guild.invite_only ? 'Yes' : 'No'}`, str_r, true);
-
-                                if (guild.icon != 'null')
-                                    embed.setThumbnail(guild.icon);
-
-                                resolve({
-                                    embed
-                                });
-                            })
-                            .catch(e => reject(e));
-
+                        resolve(guildEmbed(message, guild));
                     } else {
                         resolve({
-                            value: '> You are not part of a guild.'
-                        })
+                            value: chatFormat.response.guilds.error.no_guild()
+                        });
                     }
                 })
                 .catch(e => reject(e));
         } else {
-            sql.server.guilds.get(message, data)
-                .then(guild => {
-                    embed.setTitle(guild.name);
-
-                    // embed.addField(`Leader: ${message.guild.members.cache.get(guild.leader_id).user.username}`, 'yes');
-
-                    if (guild.icon != 'null')
-                        embed.setThumbnail(guild.icon);
-
-                    resolve({
-                        embed
-                    })
+            sql.server.guilds.getByName(message, guild_name)
+                .then(guildList => {
+                    if (guildList.length) {
+                        const guild = guildList[0];
+                        resolve(guildEmbed(message, guild));
+                    } else {
+                        resolve({
+                            value: chatFormat.response.guilds.error.no_guild()
+                        });
+                    }
                 })
                 .catch(e => reject(e));
         }
@@ -123,17 +147,119 @@ function formatListing(message, data) {
 function setIcon(message, data) {
     return (data.urls.length) ?
         sql.server.guilds.setIcon(message, data.urls[0]) : {
-            value: 'You must provide a valid URL for an icon image.'
+            value: chatFormat.response.guilds.icon.bad_url()
         };
 }
 
 function setColor(message, data) {
     let regex = /#[a-f0-9]{6}/g;
     let color = message.content.match(regex);
-    if (color.length)
-        return sql.server.guilds.setColor(message, color[0]);
-    else
-        return {value: 'You must provide a valid hex color for a guild color.\nExample: #ffffff = white, #000000 = black'};
+    return (color !== null) ?
+        sql.server.guilds.setColor(message, color[0]) : {
+            value: chatFormat.response.guilds.color.bad_hex()
+        };
+}
+
+function setLore(message, data) {
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guilds => {
+                if (guilds.length) {
+                    const guild = guilds[0];
+
+                    sql.server.guilds.isLeader(message, guild.name)
+                        .then(r => {
+                            if (r)
+                                sql.server.guilds.setLore(message, guild.name, data.arguments.slice(1).join(' ').trim())
+                                .then(r => resolve({
+                                    value: chatFormat.response.guilds.text_asset.lore.success(guild.name)
+                                }))
+                                .catch(e => reject(e));
+                            else
+                                resolve({
+                                    value: chatFormat.response.guilds.text_asset.lore.no_perms()
+                                })
+                        })
+                } else
+                    resolve({
+                        value: chatFormat.response.guilds.error.no_guild()
+                    });
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function setMotto(message, data) {
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guilds => {
+                if (guilds.length) {
+                    const guild = guilds[0];
+
+                    sql.server.guilds.isLeader(message, guild.name)
+                        .then(r => {
+                            if (r)
+                                sql.server.guilds.setMotto(message, guild.name, data.arguments.slice(1).join(' ').trim())
+                                .then(r => resolve({
+                                    value: chatFormat.response.guilds.text_asset.motto.success(guild.name)
+                                }))
+                                .catch(e => reject(e));
+                            else
+                                resolve({
+                                    value: chatFormat.response.guilds.text_asset.motto.no_perms()
+                                })
+                        })
+                } else
+                    resolve({
+                        value: chatFormat.response.guilds.error.no_guild()
+                    });
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function getLore(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.parameters.string.name) {
+            sql.server.guilds.getByUser(message, message.author.id)
+                .then(guilds => {
+                    if (guilds.length) {
+                        const guild = guilds[0];
+
+                        let embed = new Discord.MessageEmbed()
+                            .setTitle(`The Lore of ${guild.name}`)
+                            .addField('And thus it is written...', JSON.parse(guild.text_assets).lore || '...absolutely nothing is known about the guild. Mysterious.');
+
+                        resolve({
+                            embed
+                        });
+                    } else
+                        resolve({
+                            value: chatFormat.response.guilds.error.no_guild()
+                        });
+                })
+                .catch(e => reject(e));
+        } else {
+            sql.server.guilds.getByName(message, data.parameters.string.name)
+                .then(guilds => {
+                    if (guilds.length) {
+                        const guild = guilds[0];
+
+                        let embed = new Discord.MessageEmbed()
+                            .setTitle(`The Lore of ${guild.name}`)
+                            .addField('And thus it is written...', JSON.parse(guild.text_asset).lore || '...absolutely nothing is known about the guild. Mysterious.');
+
+                        resolve({
+                            embed
+                        });
+                    } else
+                        resolve({
+                            value: chatFormat.response.guilds.error.not_found(data.parameters.string.name)
+                        });
+                })
+                .catch(e => reject(e));
+        }
+    });
 }
 
 function list(message, data) {
@@ -144,9 +270,8 @@ function list(message, data) {
                     .setTitle(`Guilds in ${message.guild.name}`);
 
                 if (list.length)
-                    for (let i in list) {
-                        embed.addField(list[i].name, `${list[i].members} members${list[i].limbo != 0 ? ' (in limbo)' : ''}`);
-                    }
+                    for (let i in list)
+                        embed.addField(list[i].name, `${list[i].members} members${list[i].limbo != 0 ? ' (in limbo)' : ''}${list[i].invite_only ? '\nInvite only.' : ''}`);
                 else
                     embed.addField('There are no guilds in this server.', 'Use the "guild create" command to make some!');
 
@@ -159,14 +284,124 @@ function list(message, data) {
 }
 
 function join(message, data) {
-    let guild_name = data.arguments.slice(1).join(' ');
+    let guild_name = data.arguments.slice(1).join(' ').trim();
+
     return new Promise((resolve, reject) => {
-        sql.server.guilds.addMember(message, guild_name, message.author.id)
-            .then(r => resolve({
-                value: (r) ? `> ${message.author} has joined ${guild_name}!` : `There are no guilds named ${guild_name} in this server.`
-            }))
+        if (!guild_name)
+            resolve({
+                value: chatFormat.response.guilds.join.no_name()
+            });
+        else
+            sql.server.guilds.getUserInvites(message, message.author.id, guild_name)
+            .then(invites => {
+                sql.server.guilds.getByUser(message, message.author.id)
+                    .then(guildList => {
+                        if (guildList.length) {
+                            resolve({
+                                value: chatFormat.response.guilds.join.already_member()
+                            });
+                        } else {
+                            if (invites.length)
+                                sql.server.guilds.addMember(message, guild_name, message.author.id)
+                                .then(result => resolve({
+                                    values: [(result[0]) ? chatFormat.response.guilds.join.success(message.author, guild_name) : chatFormat.response.guilds.join.not_found(guild_name), result[1]]
+                                }))
+                                .catch(e => reject(e));
+                            else
+                                resolve({
+                                    value: chatFormat.response.guilds.join.no_invite(guild_name)
+                                })
+                        }
+                    })
+            })
             .catch(e => reject(e));
     });
+}
+
+function admin_join(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.parameters.string.name || !data.mentions.members.size)
+            resolve({
+                value: chatFormat.response.syntax.error((!data.parameters.string.name) ? 'Missing parameter $name' : 'Missing mentioned member')
+            });
+        else {
+            let arr = [];
+            data.mentions.members.forEach((v, k, m) => {
+                arr.push(sql.server.guilds.addMember(message, data.parameters.string.name, k))
+            });
+
+            Promise.all(arr)
+                .then(results => {
+                    console.log('#######', results);
+                    let return_arr = [];
+                    for (let i in results) {
+                        if (results[i][1].status === true) {
+                            return_arr.push({
+                                value: chatFormat.response.guilds.join.success(message.guild.members.cache.get(results[i][0]).user, data.parameters.string.name)
+                            });
+                        }
+                        else
+                            return_arr.push(results[i][1]);
+                    }
+                    resolve({
+                        values: return_arr
+                    })
+                })
+                .catch(e => reject(e));
+        }
+    });
+}
+
+function admin_leave(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.parameters.string.name || !data.mentions.members.size)
+            resolve({
+                value: chatFormat.response.syntax.error((!data.parameters.string.name) ? 'Missing parameter $name' : 'Missing mentioned member')
+            });
+        else {
+            let arr = [];
+            data.mentions.members.forEach((v, k, m) => {
+                arr.push(sql.server.guilds.removeMember(message, data.parameters.string.name, k));
+            });
+
+            Promise.all(arr)
+                .then(results => {
+                    console.log('######', results)
+                    let return_arr = [];
+                    for (let i in results) {
+                        if (results[i][1].status === false) {
+                            return_arr.push({
+                                value: chatFormat.response.guilds.leave.success(message.guild.members.cache.get(results[i][0]).user, data.parameters.string.name)
+                            });
+                        }
+                        else {
+                            return_arr.push(
+                                results[i][1]
+                            );
+                        }
+                    }
+                    resolve({
+                        values: return_arr
+                    });
+                })
+                .catch(e => reject(e));
+        }
+    });
+}
+
+function admin_disband(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.parameters.string.name)
+            resolve({
+                value: chatFormat.response.syntax.error('Missing parameter $name')
+            });
+        else
+            sql.server.guilds.purge(message, data.parameters.string.name)
+            .then(r => resolve({
+                value: chatFormat.response.guilds.admin.disbanded(data.parameters.string.name)
+            }))
+            .catch(e => reject(e));
+    })
 }
 
 function leave(message, data) {
@@ -177,22 +412,22 @@ function leave(message, data) {
                     const guild = guildList[0];
 
                     sql.server.guilds.removeMember(message, guild.name, message.author.id)
-                        .then(r => {
-                            if (r != null)
+                        .then(result => {
+                            if (result[0].status === false)
                                 resolve({
                                     values: [{
-                                        value: `> ${message.author} has left ${guild.name}!`
-                                    }, r]
+                                        value: chatFormat.response.guilds.leave.success(message.author, guild.name)
+                                    }, result[1]]
                                 });
                             else
                                 resolve({
-                                    value: `> ${message.author} has left ${guild.name}!`
+                                    value: chatFormat.response.guilds.leave.success(message.author, guild.name)
                                 });
                         })
                         .catch(e => reject(e));
                 } else {
                     resolve({
-                        value: '> You must first be in a guild to leave.'
+                        value: chatFormat.response.guilds.leave.no_guild()
                     });
                 }
             })
@@ -200,12 +435,223 @@ function leave(message, data) {
     });
 }
 
-function refreshGuild(message, data) {
-    sql.server.getUserGuild(sql.con, message, message.author.id)
-        .then(guild => {})
+function invite(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.mentions.members.size)
+            resolve({
+                value: chatFormat.response.guilds.invite.no_users()
+            });
+        else if (data.mentions.members.size > 5) {
+            resolve({
+                value: chatFormat.response.guilds.invite.too_many_users()
+            });
+        } else {
+            sql.server.guilds.getByUser(message, message.author.id)
+                .then(guildList => {
+                    const guild = guildList[0];
+
+                    let users_arr = [
+                        sql.server.guilds.getLeaders(message, guild.name),
+                        sql.server.guilds.getOfficers(message, guild.name)
+                    ];
+
+                    Promise.all(users_arr)
+                        .then(users => {
+                            let leader_ids = users[0].reduce((arr, user) => {
+                                if (user.user_id == message.author.id)
+                                    arr.push(user.user_id);
+                                return arr;
+                            }, []);
+
+                            let officer_ids = users[1].reduce((arr, user) => {
+                                if (user.user_id == message.author.id)
+                                    arr.push(user.user_id);
+                                return arr;
+                            }, []);
+
+                            if (leader_ids.length || officer_ids.length) {
+                                let invites = [];
+                                data.mentions.members.forEach((v, k, m) => {
+                                    invites.push(sql.server.guilds.inviteMember(message, guild.name, k));
+                                })
+
+                                Promise.all(invites)
+                                    .then(results => resolve({
+                                        values: results
+                                    }))
+                                    .catch(e => reject(e));
+                            }
+                        })
+                        .catch(e => {
+                            reject(e);
+                        });
+                });
+        }
+    });
 }
 
+function toggleInvites(message, data) {
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
 
+                    sql.server.guilds.isLeader(message, guild.name)
+                        .then(r => {
+                            if (r) {
+                                sql.server.guilds.toggleInvites(message, guild)
+                                    .then(r => resolve(r))
+                                    .catch(e => reject(e));
+                            } else
+                                resolve({
+                                    value: chatFormat.response.guilds.invite.toggle_no_perms()
+                                });
+                        })
+                        .catch(e => reject(e));
+                } else
+                    resolve({
+                        value: chatFormat.response.guilds.error.no_guild()
+                    });
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function deleteInvite(message, data) {
+    return new Promise((resolve, reject) => {
+        if (!data.parameters.string.name)
+            resolve({
+                value: chatFormat.response.syntax.error('Missing parameter $name')
+            });
+        else {
+            sql.server.guilds.deleteInvite(message.guild.id, data.parameters.string.name, message.author.id)
+                .then(r => resolve({
+                    value: chatFormat.response.guilds.invite.reject(message.author.username, data.parameters.string.name)
+                }))
+                .catch(e => reject(e));
+        }
+    });
+}
+
+function getInvites(message, data) {
+    return new Promise((resolve, reject) => {
+        if (data.parameters.string.name) {
+
+        } else {
+            sql.server.guilds.getByUser(message, message.author.id)
+                .then(guildList => {
+                    if (guildList.length) {
+                        resolve({
+                            value: chatFormat.response.guilds.invite.get.already_member()
+                        });
+                    } else {
+                        sql.server.guilds.getUserInvites(message, message.author.id)
+                            .then(invites => {
+                                let embed = new Discord.MessageEmbed()
+                                    .setTitle(`Guild Invites for ${message.author.username}`)
+                                    .setColor(chatFormat.colors.information);
+
+                                let str = '';
+                                if (invites.length) {
+                                    let count = 0;
+                                    while (count < invites.length) {
+                                        str += `${count + 1}. ${invites[count].guild_name}\n`;
+                                        count++;
+                                    }
+                                } else
+                                    str = 'No available invites.';
+
+                                embed.addField('List:', str);
+
+                                resolve({
+                                    embed
+                                });
+                            })
+                            .catch(e => reject(e));
+                    }
+                })
+                .catch(e => reject(e));
+        }
+    })
+}
+
+function update(message, guild_name) {
+    return sql.server.guilds.updateMembers(message, guild_name);
+}
+
+function promote(message, data, role) {
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guilds => {
+                if (guilds.length) {
+                    const guild_name = guilds[0].name;
+
+                    sql.server.guilds.isLeader(message, guild_name, message.author.id)
+                        .then(r => {
+                            if (r) {
+                                if (data.mentions.members.size > 0) {
+                                    sql.server.guilds.setUserRole(message, data.mentions.members.first().id, role)
+                                        .then(r => resolve(r))
+                                        .catch(e => reject(e));
+                                } else
+                                    resolve({
+                                        value: chatFormat.response.guilds.role.promote.no_user()
+                                    });
+                            } else
+                                resolve({
+                                    value: chatFormat.response.guilds.role.no_perms()
+                                });
+                        })
+                        .catch(e => reject(e));
+                } else
+                    resolve({
+                        value: chatFormat.response.guilds.error.no_guild()
+                    })
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function setTitle(message, data) {
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guilds => {
+                if (guilds.length) {
+                    const guild_name = guilds[0].name;
+
+                    sql.server.guilds.isLeader(message, guild_name, message.author.id)
+                        .then(r => {
+                            if (r) {
+                                if (data.mentions.members.size > 0) {
+                                    let arr = [];
+                                    data.mentions.members.forEach((v, k, m) => {
+                                        arr.push(sql.server.guilds.setUserTitle(message, guild_name, k, data.parameters.string.title || ''));
+                                    });
+
+                                    Promise.all(arr)
+                                        .then(results => resolve({
+                                            values: results
+                                        }))
+                                        .catch(e => reject(e));
+                                } else
+                                    resolve({
+                                        value: chatFormat.response.guilds.role.promote.no_user()
+                                    });
+                            } else
+                                resolve({
+                                    value: chatFormat.response.guilds.role.no_perms()
+                                });
+                        })
+                        .catch(e => reject(e));
+                } else
+                    resolve({
+                        value: chatFormat.response.guilds.error.no_guild()
+                    })
+            })
+            .catch(e => reject(e));
+    });
+}
 
 module.exports = {
     create: sql.server.guilds.create,
@@ -214,9 +660,23 @@ module.exports = {
 
     setIcon,
     setColor,
+    setLore,
+    setMotto,
+    promote,
+    setTitle,
 
     newCandidate,
     list,
     join,
-    leave
+    leave,
+    update,
+    invite,
+    getInvites,
+    deleteInvite,
+    getLore,
+    toggleInvites,
+
+    admin_join,
+    admin_leave,
+    admin_disband
 }

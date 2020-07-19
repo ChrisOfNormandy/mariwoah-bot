@@ -20,8 +20,11 @@ module.exports = {
             'memes': {
                 description: 'Meme commands. Just for fun.'
             },
-            'dungeons': {
-                description: 'Dungeons and dragons tools.'
+            // 'dungeons': {
+            //     description: 'Dungeons and dragons tools.'
+            // },
+            'guild': {
+                description: 'Guild commands for Discord roles.'
             },
             'syntaxes': {
                 description: 'Available parameters and flags used in commands.'
@@ -34,7 +37,7 @@ module.exports = {
                     'playlists',
                     'minigames',
                     'memes',
-                    'dungeons',
+                    'guild',
                     'syntaxes'
                 ]
             ]
@@ -122,10 +125,10 @@ module.exports = {
                 permissionLevel: 4,
                 arguments: [
                     [
-                        'message'
+                        'JSON'
                     ],
                     [
-                        'MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)'
+                        'A stringified JSON for your message.'
                     ]
                 ],
                 selfClear: true
@@ -373,18 +376,6 @@ module.exports = {
                     ]
                 ],
                 selfClear: true
-            },
-            'guild': {
-                description: '',
-                permissionLevel: 1,
-                arguments: [
-                    [
-
-                    ],
-                    [
-
-                    ]
-                ]
             },
             page: [
                 [
@@ -734,11 +725,260 @@ module.exports = {
         header: '### D&D ###',
         commands: {}
     },
+    guild: {
+        header: '### Guilds ###',
+        commands: {
+            'guild': {
+                description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '$name:"GuildName"'
+                    ],
+                    [
+                        'The guild name. In the future, other arguments will be allowed with the creation of guilds.'
+                    ]
+                ],
+                selfClear: true
+            }
+        },
+        subcommands: {
+            'create': {
+                description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '$name:"GuildName"'
+                    ],
+                    [
+                        'The guild name. In the future, other arguments will be allowed with the creation of guilds.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'icon': {
+                description: 'Leaders only; changes the guild icon.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        'URL'
+                    ],
+                    [
+                        'A valid image url (usally ends with .jpg, .png, etc...); can be a discord image link, as long as the image is not deleted.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'color': {
+                description: 'Leaders only; changes the guild color (in the guild display embed and the role color).',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        'Hex color code'
+                    ],
+                    [
+                        'Any hex color code. Will allow names in the future. Format: # followed by 6 numbers (0-9) or letters (a-f).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setlore': {
+                description: 'Leaders only; changes the guild lore.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        'Text'
+                    ],
+                    [
+                        'Any amount of text. If left blank, will reset to default (empty).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setmotto': {
+                description: 'Leaders only; changes the guild motto.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        'Text'
+                    ],
+                    [
+                        'Any amount of text. If left blank, will reset to default.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'lore': {
+                description: 'Displays the lore of a guild.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '*$name:"GuildName"'
+                    ],
+                    [
+                        'The name of a guild. If ignored, gets the lore for the guild of the current user.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'list': {
+                description: 'Displays a list of all guilds in the Discord.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'join': {
+                description: 'Places the user under the leadership of a guild.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        'Guild name'
+                    ],
+                    [
+                        'The name of the guild you wish to join.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'leave': {
+                description: 'Releashes the user from the leadership of a guild.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'invite': {
+                description: 'Leaders and officers only; invite members to join the guild.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'User ping'
+                    ]
+                ],
+                selfClear: true
+            },
+            'toggle': {
+                description: 'Leaders only; toggles the invite requirement of the guild.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'invites': {
+                description: 'Lists all invites extended to a user.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'deny': {
+                description: 'Reject an extended invite. A new one can be redelievered.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '$name:"GuildName"'
+                    ],
+                    [
+                        'Name of the guild.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setleader': {
+                description: 'Leaders only; changes the guild role for a user to Leader - does not change their title.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setofficer': {
+                description: 'Leaders only; changes the guild role for a user to Officer - does not change their title.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setmember': {
+                description: 'Leaders only; changes the guild role for a user to Member - does not change their title.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'exhile': {
+                description: 'Leaders only; exhiles a player in a guild. They remain under its leadership, but have no power unless they leave.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'settitle': {
+                description: 'Leaders only; changes the title of a user.',
+                permissionLevel: 1,
+                arguments: [
+                    [
+                        '$title:"title"'
+                    ],
+                    [
+                        'Whatever title is desired.'
+                    ]
+                ],
+                selfClear: true
+            },
+            page: [
+                [
+                    'create',
+                    'list',
+                    'join',
+                    'leave',
+                    'invites',
+                    'deny',
+                    'lore'
+                ],
+                [
+                    'icon',
+                    'color',
+                    'setlore',
+                    'setmotto',
+                    'invite',
+                    'toggle'
+                ],
+                [
+                    'exhile',
+                    'setmember',
+                    'setofficer',
+                    'setleader',
+                    'settitle'
+                ]
+            ]
+        }
+    },
     syntaxes: {
         header: '### Parameters and Flags ###',
         parameters: {
             string: {
-                'reason': 'Provide a reason to commands that use one.'
+                'reason': 'Provides a reason to commands that use one.',
+                'name': 'Provides the name of an object.'
             },
             boolean: {
                 'debug': 'Not very helpful, just outputs a stringified JSON of the return value if available.',

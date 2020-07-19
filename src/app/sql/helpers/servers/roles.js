@@ -1,8 +1,10 @@
-const sql = require('../../adapter');
+const connection = require('../connection');
+const con = connection.con;
+const general = require('./general');
 
-function get(serverID) {
+function get(server_id) {
     return new Promise((resolve, reject) => {
-        getServer(sql.con, serverID)
+        general.get(server_id)
             .then(server => {
                 resolve({
                     "admin": server.admin_role,
@@ -16,23 +18,16 @@ function get(serverID) {
     });
 }
 
-function set(serverID, role, id) {
+function set(server_id, role, id) {
     return new Promise((resolve, reject) => {
-        getServer(sql.con, serverID)
+        general.get(server_id)
             .then(server => {
                 let column = `${role}_role`;
-
-                sql.con.query(`update SERVERS set ${column} = "${id}" where id = "${serverID}";`, (err, result) => {
+                con.query(`update SERVERS set ${column} = '${id}' where id = '${server_id}';`, (err, result) => {
                     if (err)
                         reject(err);
-                    else {
-                        sql.con.query(`select * from SERVERS where id = "${serverID}";`, (err, result) => {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(result);
-                        });
-                    }
+                    else
+                        resolve(result);
                 });
             })
             .catch(e => reject(e));

@@ -32,7 +32,7 @@ function info(message, data) {
             .then(embed => resolve({ embed }))
             .catch(e => {
                 console.log(e);
-                reject({ value: chatFormat.response.music.info.error() });
+                resolve({ value: chatFormat.response.music.info.error() });
             });
     });
 }

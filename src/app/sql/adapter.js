@@ -9,7 +9,8 @@ module.exports = {
         get: server.general.get,
         general: server.general,
         guilds: server.guilds,
-        roles: server.roles
+        roles: server.roles,
+        timeouts: server.timeout
     },
     user: {
         get: (serverID, userID) => {return users.getUser(serverID, userID)},

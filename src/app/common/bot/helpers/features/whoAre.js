@@ -54,7 +54,7 @@ module.exports = {
                 })
                 .catch(e => {
                     console.log(e);
-                    reject({value: chatFormat.response.whoAre.self_reject()});
+                    resolve({value: chatFormat.response.whoAre.self_reject()});
                 });
         });
     },

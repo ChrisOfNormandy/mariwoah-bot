@@ -16,7 +16,7 @@ module.exports = function (message, userID, permLevel) {
                     if (userLevel >= permLevel)
                         resolve({state: true, reason: ''});
                     else {
-                        resolve({state: false, reason: chatFormat.response.roles.verifyPermission(permLevel)});
+                        resolve({state: false, reason: {value: chatFormat.response.roles.verifyPermission(permLevel)}});
                     }
                 }
             })
