@@ -1,103 +1,85 @@
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const getSongObject = require('./getSong');
+const getSong = require('./getSong');
+const queue = require('./queue/map');
+
+function embedSongInfo(song) {
+    let embed = new Discord.MessageEmbed()
+        .setTitle(song.title)
+        .setColor(chatFormat.colors.youtube)
+        .setImage(song.thumbnail)
+        .setURL(song.url)
+        .addField(song.author, `Duration: ${song.duration.timestamp}`);
+
+    return embed;
+}
 
 module.exports = {
-    single: function (title, activeQueue, index) {
-        return new Promise((resolve, reject) =>  {
+    single: function (title, activeQueue, index, fromPlaylist = false) {
+        return new Promise((resolve, reject) => {
             if (!activeQueue.songs[index])
                 reject(null);
 
-            const song = activeQueue.songs[index].song || null;
-            const requested = activeQueue.songs[index].request || 'Unknown';
+            const song = activeQueue.songs[index] || null;
+            const requested = activeQueue.songs[index].requested || 'Unknown';
 
-            let embedMsg = new Discord.RichEmbed()
-                .setTitle(title)
-                .setColor(chatFormat.colors.youtube)
-                .setThumbnail(song.thumbnail.url)
-                .setURL(song.url)
-                .addField(song.title, `${song.author} | Requested: ${requested}`)
-                .addField(`Duration: ${song.durationString}`, `Queue position: ${index}`);
-
-            resolve(embedMsg);
-        });
-    },
-    queueList: function (activeQueue) {
-        return new Promise((resolve, reject) =>  {
-            const song = activeQueue.songs[0];
-
-            let embedMsg = new Discord.RichEmbed()
-                .setTitle('Current song queue')
-                .setColor(chatFormat.colors.youtube)
-
-                .setThumbnail(song.thumbnail.url)
-                .addField(`Now playing: ${song.title}`, `${song.author} | Duration: ${song.durationString}\n
-                    Requested: ${song.requested.username}`);
-
-            if (activeQueue.previousSong) {
-                embedMsg.addField(`Previous: ${activeQueue.previousSong.title}`, activeQueue.previousSong.url);
+            const embed = {
+                color: chatFormat.colors.youtube,
+                title: title,
+                url: song.url,
+                footer: {
+                    text: 'Powered by YouTube and pure rage.'
+                },
+                image: undefined,
+                thumbnail: undefined,
+                fields: [
+                    {
+                        name: song.title,
+                        value: `${song.author} | Requested: ${requested}`
+                    },
+                    {
+                        name: song.duration.timestamp
+                            ? `Duration: ${song.duration.timestamp}`
+                            : song.playlist.title
+                                ? `Playlist: ${song.playlist.title}`
+                                : 'Enjoy!',
+                        value: `Queue position: ${index == 0 ? 'Right now!' : index}`
+                    }
+                ]
             }
-            if (activeQueue.songs.length > 1) {
-                let upTo = (activeQueue.songs.length > 11) ? 11 : activeQueue.songs.length;
-                for (let i = 1; i < upTo; i++) {
-                    embedMsg.addField(`${(activeQueue.songs[i].removed) ? `x${i}x` : i}. ${activeQueue.songs[i].title}`,
-                        `Requested: ${activeQueue.songs[i].requested.username}`);
-                }
-            }
+
+            if (fromPlaylist)
+                embed.thumbnail = { url: song.thumbnail };
             else
-                embedMsg.setFooter(`Use "~play" or "~playlist play" to add more songs!`);
+                embed.image = { url: song.thumbnail };
 
-            resolve(embedMsg);
+            resolve({ embed });
         });
     },
-    possibleSongs: async function (videos) {
-        return new Promise((resolve, reject) =>  {
-            if (!videos) {
-                reject(null);
-            }
-
-            let embedMsg = new Discord.RichEmbed()
-                .setTitle(`Here's what I found...`)
-                .setColor(chatFormat.colors.youtube);
-
-            for (let i = 0; i < 5; i++)
-                embedMsg.addField(`${videos[i].title}`, videos[i].author);
-
-            resolve(embedMsg);
-        })
-    },
-    songInfo: function (message, songURL = null, songName = null) {
-        return new Promise((resolve, reject) =>  {
-            if (songURL === null && songName === null)
-                reject(null);
-
-            if (songURL !== null) {
-                getSongObject.byUrl(message, songURL)
-                    .then(async (song) => {
-                        let embedMsg = new Discord.RichEmbed()
-                            .setTitle('Song information')
-                            .setColor(chatFormat.colors.youtube)
-                            .setThumbnail(song.thumbnail.url)
-                            .setURL(song.url)
-                            .addField(song.title, `${song.author} | Duration: ${song.durationString}`)
-
-                        resolve(embedMsg);
-                    })
+    songInfo: function (message, data) {
+        return new Promise((resolve, reject) => {
+            if (data.urls.length) {
+                getSong.byUrl(message, data.urls[0])
+                    .then(video => resolve(embedSongInfo(video)))
                     .catch(e => reject(e));
             }
-            else if (songURL === null && songName !== null) {
-                getSongObject.byName(message, songName)
-                    .then(async (song) => {
-                        let embedMsg = new Discord.RichEmbed()
-                            .setTitle('Song information')
-                            .setColor(chatFormat.colors.youtube)
-                            .setThumbnail(song.thumbnail.url)
-                            .setURL(song.url)
-                            .addField(song.title, `${song.author} | Duration: ${song.durationString}`);
-
-                        resolve(embedMsg);
-                    })
-                    .catch(e => reject(e));
+            else {
+                if (data.arguments.join(' ') === 'this') {
+                    if (queue.has(message.guild.id)) {
+                        let songs = queue.get(message.guild.id).songs;
+                        resolve(embedSongInfo(songs[0]));
+                    }
+                    else {
+                        resolve(chatFormat.response.music.queue.no_active());
+                    }
+                }
+                else {
+                    getSong.byName(message, data.arguments.join(' '))
+                        .then((song) => {
+                            resolve(embedSongInfo(song));
+                        })
+                        .catch(e => reject(e));
+                }
             }
         });
     }

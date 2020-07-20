@@ -1,6 +1,6 @@
 module.exports = {
     main: {
-        header: '### Help Commands ###\nUsage: help {subcommand} OR ? {subcommand}',
+        header: '### Help Commands ###\nUsage: help {subcommand} OR ? {subcommand}\nArguments marked * are optional.',
         commands: {
             'common': {
                 description: 'General use commands.',
@@ -20,11 +20,26 @@ module.exports = {
             'memes': {
                 description: 'Meme commands. Just for fun.'
             },
-            'dungeons': {
-                description: 'Dungeons and dragons tools.'
+            // 'dungeons': {
+            //     description: 'Dungeons and dragons tools.'
+            // },
+            'guild': {
+                description: 'Guild commands for Discord roles.'
+            },
+            'syntaxes': {
+                description: 'Available parameters and flags used in commands.'
             },
             page: [
-                ['common', 'rolemanager', 'music', 'playlists', 'minigames', 'memes', 'dungeons']
+                [
+                    'common',
+                    'rolemanager',
+                    'music',
+                    'playlists',
+                    'minigames',
+                    'memes',
+                    'guild',
+                    'syntaxes'
+                ]
             ]
         },
     },
@@ -32,78 +47,130 @@ module.exports = {
         header: '### Common Commands ###',
         commands: {
             'clean': {
-                description: 'Cleans the chat of bot messages and commands.',
+                description: 'Cleans the chat! Without arguments cleans bot messages and commands. With pinged user(s) will clean only their messages.',
                 permissionLevel: 3,
                 arguments: [
-                    ['@Username'],
-                    ['Optional; Removes messages of pinged target user.']
+                    [
+                        '*@user(s)'
+                    ],
+                    [
+                        'User ping(s).'
+                    ]
                 ]
             },
             'help': {
-                description: 'Lists help.',
+                description: 'Lists help and syntaxes',
                 permissionLevel: 0,
-                alternatives: ['?']
+                alternatives: [
+                    '?'
+                ],
+                selfClear: true
             },
             'ping': {
-                description: 'Gets the Discord latency (delay between send and edit) and bot-to-server latency.',
+                description: 'Gets the Discord message latency (delay between send and edit) for the bot.',
                 permissionLevel: 0,
                 selfClear: true
             },
             'roll': {
-                description: 'Rolls a number between 1 and a provided value (default 6).',
+                description: 'Gets a number between 1 and a provided value (default 6) a given amount of times (default once).',
                 permissionLevel: 0,
                 arguments: [
-                    ['sides', 'count'],
-                    ['Maximum value / sides of dice. 2 = coin flip.', 'How many times the action should be repeated. Default 1; max 50.']
+                    [
+                        '*sides',
+                        '*count'
+                    ],
+                    [
+                        'Maximum value / sides of die; min 2 = coin flip.',
+                        'How many times the action should be repeated; max 50.'
+                    ]
                 ]
             },
             'shuffle': {
-                description: 'Shuffles everything after the command.',
+                description: 'Shuffles everything after the command separated by commas (no space).',
                 permissionLevel: 0,
                 arguments: [
-                    ['array'],
-                    ['Comma-separated list of items wanted split. Ex: 1,2,3,4,5 | Ex: cat,dog,fish,bird,cow']
+                    [
+                        'array'
+                    ],
+                    [
+                        'List of items wanted split. Ex: 1,2,3,4,5 or cat,dog,fish,bird,cow.'
+                    ]
                 ]
             },
             'whoami': {
-                description: 'Lists your Discord name and discriminator (#numb), server join date and roles.',
-                permissionLevel: 0
+                description: 'Lists your  name and discriminator (#number), server join date, roles and other info.',
+                permissionLevel: 0,
+                selfClear: true
             },
             'whoareyou': {
-                description: 'Lists a user Discord name and discriminator (#numb), server join date and roles.',
+                description: `Lists a user's  name and discriminator (#number), server join date, roles and other info.`,
                 permissionLevel: 0,
                 arguments: [
-                    ['@Username'],
-                    ['The user you want information about.']
-                ]
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping user you want information about.'
+                    ]
+                ],
+                selfClear: true
             },
             'motd': {
-                description: 'Gets the server Message of the Day.',
-                permissionLevel: 0
+                description: 'Get the server Message of the Day.',
+                permissionLevel: 0,
+                selfClear: true
             },
             'setmotd': {
-                description: 'Sets the server Message of the Day. Remains until executed again.',
+                description: 'Set the server Message of the Day. Remains until reset',
                 permissionLevel: 4,
                 arguments: [
-                    ['message'],
-                    ['MOTD formatted as: First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://optional_link_for_header.com/\n&t - end of title; \\n - new line; <l> - header link (optional, at end)']
-                ]
+                    [
+                        'JSON'
+                    ],
+                    [
+                        'A stringified JSON for your message.'
+                    ]
+                ],
+                selfClear: true
             },
             'prefix': {
-                description: 'Gets the server prefixes for commands.',
-                permissionLevel: 0
+                description: 'Get the server command prefix.',
+                permissionLevel: 0,
+                selfClear: true
             },
             'setprefix': {
-                description: 'Sets the server prefixes for commands.',
+                description: 'Set the server command prefix.',
                 permissionLevel: 4,
                 arguments: [
-                    ['prefixes'],
-                    ['String of characters without spaces. Leaving blank returns current.\n.-~ would be . or - or ~\nMaximum of 3 characters.'],
-                ]
+                    [
+                        'character'
+                    ],
+                    [
+                        'Any single character.'
+                    ],
+                ],
+                selfClear: true
+            },
+            'timeout': {
+                description: '',
+                permissionLevel: 4
             },
             page: [
-                ['clean', 'help', 'ping', 'roll', 'shuffle', 'whoami', 'whoareyou'],
-                ['motd', 'setmotd', 'prefix', 'setprefix']
+                [
+                    'clean',
+                    'help',
+                    'ping',
+                    'roll',
+                    'shuffle',
+                    'whoami',
+                    'whoareyou'
+                ],
+                [
+                    'motd',
+                    'setmotd',
+                    'prefix',
+                    'setprefix'
+                ]
             ]
         }
     },
@@ -111,64 +178,235 @@ module.exports = {
         header: '### Role Manager Commands ###',
         commands: {
             'warn': {
-                description: 'Warns the user with or without a specified reason.',
+                description: 'Issue a user a warning',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | user ID',
+                        '*reason'
+                    ],
+                    [
+                        'User ping | User ID.',
+                        'Reason for warning. Provide using: $reason:"Your reason."'
+                    ]
                 ]
             },
             'warnings': {
-                description: 'Returns list of user warnings and reasons.',
+                description: 'Return a list of user warnings.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | user ID'
+                    ],
+                    [
+                        'User ping | User ID.'
+                    ]
+                ],
+                selfClear: true
             },
             'kick': {
-                description: 'Kicks the user with or without a specified reason.',
+                description: 'Kick a user from the server.',
                 permissionLevel: 3,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | user ID',
+                        '*reason'
+                    ],
+                    [
+                        'User ping | User ID',
+                        'Reason for kick. Provide using: $reason:"Your reason."'
+                    ]
                 ]
             },
             'kicks': {
-                description: 'Returns list of user kicks and reasons.',
+                description: 'Return a list of user kicks.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | user ID'
+                    ],
+                    [
+                        'User ping | User ID.'
+                    ]
+                ],
+                selfClear: true
             },
             'ban': {
-                description: 'Bans the user with or without a specified reason.',
+                description: 'Ban a user from the Discord. Requires an unban to undo.',
                 permissionLevel: 4,
                 arguments: [
-                    ['@user | userID', 'reason'],
-                    ['Ping of the target user | ID of the target user.', 'Optional; if supplied, will list reason for warning when checking user history.']
+                    [
+                        '@user | user ID',
+                        '*reason'
+                    ],
+                    [
+                        'User ping | User ID.',
+                        'Reason for ban. Provide using: $reason:"Your reason."'
+                    ]
                 ]
             },
             'bans': {
-                description: 'Returns list of user bans and reasons.',
+                description: 'Return a list of user bans.',
                 permissionLevel: 2,
                 arguments: [
-                    ['@user | userID'],
-                    ['Ping of the target user | ID of the target user.']
-                ]
+                    [
+                        '@user | user ID'
+                    ],
+                    [
+                        'User ping | User ID.'
+                    ]
+                ],
+                selfClear: true
             },
             'unban': {
-                description: 'Returns list of user bans and reasons.',
+                description: 'Return a list of user bans.',
                 permissionLevel: 4,
                 arguments: [
-                    ['userID'],
-                    ['ID of the target user.']
+                    [
+                        'user ID'
+                    ],
+                    [
+                        'User ID.'
+                    ]
                 ]
             },
+            'promote': {
+                description: 'Promote a user.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user',
+                        '*level'
+                    ],
+                    [
+                        'User ping.',
+                        'Rank number between 0 (default) and 4 (admin).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'demote': {
+                description: 'Demote a user.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user',
+                        '*level'
+                    ],
+                    [
+                        'User ping.',
+                        'Rank number between 0 (default) and 4 (admin).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setbotadmin': {
+                description: 'Development feature only, does nothing for users.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'User ping.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setbotmod': {
+                description: 'Development feature only, does nothing for users.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'User ping.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setbothelper': {
+                description: 'Development feature only, does nothing for users.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'User ping.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'refreshrole': {
+                description: 'Refresh roles for a user by removing and adding appropriately.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '*@user'
+                    ],
+                    [
+                        'User ping, defaults to self.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'refreshroles': {
+                description: 'Refresh roles for all users in the server. Will take time for larger servers.',
+                permissionLevel: 4,
+                selfClear: true
+            },
+            'resetroles': {
+                description: 'Remove the roles used by the bot for each member in the server. Will take time for larger servers.',
+                permissionLevel: 4,
+                selfClear: true
+            },
+            'purgeroles': {
+                description: 'USE WITH CAUTION - Delete all roles from the server (except the bot default role and @everyone).',
+                permissionLevel: 4,
+                selfClear: true
+            },
+            'setrole': {
+                description: 'Distinguish a role to a specific rank.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        'roleName',
+                        '@role'
+                    ],
+                    [
+                        'bot, vip, helper, mod, admin', 'Role ping.'
+                    ]
+                ],
+                selfClear: true
+            },
             page: [
-                ['warn', 'kick', 'ban', 'unban'],
-                ['warnings', 'kicks', 'bans'],
+                [
+                    'warn',
+                    'kick',
+                    'ban',
+                    'unban'
+                ],
+                [
+                    'warnings',
+                    'kicks',
+                    'bans'
+                ],
+                [
+                    'promote',
+                    'demote',
+                    'setbotadmin',
+                    'setbotmod',
+                    'setbothelper'
+                ],
+                [
+                    'refreshrole',
+                    'refreshroles',
+                    'resetroles',
+                    'purgeroles',
+                    'setrole'
+                ]
             ]
         }
     },
@@ -176,151 +414,246 @@ module.exports = {
         header: '### Music Commands ###',
         commands: {
             'join': {
-                description: 'Puts the bot into your active voice chat. You must be connected to a voice chat to work.',
+                description: 'Put the bot into your current voice channel.',
                 permissionLevel: 1,
                 selfClear: true
             },
             'play': {
-                description: 'Plays the YouTube URL audio in the active voice chat.',
+                description: 'Play music in your current voice channel.',
                 permissionLevel: 1,
                 arguments: [
-                    ['url | query string'],
-                    ['YouTube URL for a given video/song | Search for a video based on title (query). ~play Some song title']
+                    [
+                        'url(s) | video name | playlist name'
+                    ],
+                    [
+                        'YouTube URL(s) | Video title | Playlist title (requires flag).'
+                    ]
+                ],
+                flags: [
+                    [
+                        's',
+                        'n',
+                        'f',
+                        'p'
+                    ],
+                    [
+                        'Shuffle the list of URLs.',
+                        'Do not output embeded messages to the chat.',
+                        'Only output the first embed, if no other songs in queue.',
+                        'Search for a YouTube playlist instead of a single video.'
+                    ]
+                ],
+                alternatives: [
+                    'p'
                 ],
                 selfClear: true
             },
             'leave': {
-                description: 'Kicks the bot out of its active voice chat.',
+                description: 'Remove the bot from current voice channel.',
                 permissionLevel: 2,
                 selfClear: true
             },
             'skip': {
-                description: 'Skips the current song, plays next if another available in queue.',
+                description: 'Skip the current song, will play next if another song is available in the queue.',
                 permissionLevel: 1,
                 selfClear: true
             },
             'stop': {
-                description: 'Clears the music queue and disconnects the bot from the voice channel.',
+                description: 'Clear the music queue and disconnect the bot from the current voice channel.',
                 permissionLevel: 1,
                 selfClear: true
             },
             'queue': {
-                description: 'Lists the current music queue.',
+                description: 'List the current music queue.',
                 permissionLevel: 1,
-                alternatives: ['q'],
-                selfClear: true
-            },
-            page: [
-                ['join', 'leave', 'play', 'skip', 'stop', 'queue']
-            ]
-        }
-    },
-    playlists: {
-        header: '### Playlist Commands ###\nUsage: playlist {subcommand} OR pl {subcommand}',
-        commands: {
-            'create': {
-                description: 'Creates a playlist of the given name.',
-                permissionLevel: 2,
-                arguments: [
-                    ['name'],
-                    ['Playlist name.']
+                alternatives: [
+                    'q'
                 ],
-                selfClear: true
-            },
-            'delete': {
-                description: 'Deletes the playlist of the given name',
-                permissionLevel: 2,
-                arguments: [
-                    ['name'],
-                    ['Playlist name.']
-                ],
-                selfClear: true
-            },
-            'add': {
-                description: 'Adds URL to the playlist of the given name.',
-                permissionLevel: 2,
-                arguments: [
-                    ['name url'],
-                    ['Playlist name; YouTube URL for a given video/song.']
-                ],
-                selfClear: true
-            },
-            'list': {
-                description: '...',
-                permissionLevel: 1,
-                arguments: [
-                    ['', 'name'],
+                flags: [
                     [
-                        'Lists all available playlists.',
-                        'Lists all songs in the named playlist.'
+                        'l'
+                    ],
+                    [
+                        'List songs in the queue using their URL instead of title.'
                     ]
                 ],
-                flags: [
-                    ['l'],
-                    ['Includes video URL.']
-                ],
                 selfClear: true
             },
-            'remove': {
-                description: 'Removes the song at given index from the named playlist.',
-                permissionLevel: 2,
-                arguments: [
-                    ['name index'],
-                    ['Playlist name; Song index (found using list command).']
-                ],
+            'pause': {
+                description: 'Pause the current song.',
+                permissionLevel: 1,
                 selfClear: true
             },
-            'play': {
-                description: 'Adds all songs in the named playlist to the music queue.',
+            'resume': {
+                description: 'Resume the paused song.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'songinfo': {
+                description: 'Get information about a song.',
                 permissionLevel: 1,
                 arguments: [
-                    ['name'],
-                    ['Playlist name.']
+                    [
+                        'url | video name | "this"'
+                    ],
+                    [
+                        'YouTube video URL | Video title | Without quotes, current song in queue if available'
+                    ]
                 ],
-                flags: [
-                    ['s'],
-                    ['Shuffles the playlist.']
+                alternatives: [
+                    'song?'
                 ],
                 selfClear: true
             },
+            'playlist': {
+                description: 'Playlist commands, requires subcommand.',
+                permissionLevel: 1, // Minimum level
+                selfClear: true,
+                alternatives: [
+                    'pl'
+                ],
+                subcommands: {
+                    'create': {
+                        description: 'Create a playlist.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name, single word.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'delete': {
+                        description: 'Delete a playlist.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'add': {
+                        description: 'Add a video to a playlist.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name',
+                                'Video URL(s) | Video name'
+                            ],
+                            [
+                                'Playlist name.',
+                                'YouTube video URL(s) | YouTube video title.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'list': {
+                        description: 'List server playlists or videos in a playlist.',
+                        permissionLevel: 1,
+                        arguments: [
+                            [
+                                '*name'
+                            ],
+                            [
+                                'List all videos in a playlist, by default lists all server playlist names.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'remove': {
+                        description: 'Remove a video from a playlist.',
+                        permissionLevel: 2,
+                        arguments: [
+                            [
+                                'name',
+                                'url'
+                            ],
+                            [
+                                'Playlist name.',
+                                'Video URL.'
+                            ]
+                        ],
+                        selfClear: true
+                    },
+                    'play': {
+                        description: 'Add all songs in a playlist to the music queue.',
+                        permissionLevel: 1,
+                        arguments: [
+                            [
+                                'name'
+                            ],
+                            [
+                                'Playlist name.'
+                            ]
+                        ],
+                        flags: [
+                            [
+                                's'
+                            ],
+                            [
+                                'Shuffle the playlist before adding to queue'
+                            ]
+                        ],
+                        selfClear: true
+                    }
+                }
+            },
             page: [
-                ['create', 'list', 'add', 'remove', 'play'],
-            ],
+                [
+                    'join',
+                    'leave',
+                    'play',
+                    'skip',
+                    'stop',
+                    'queue',
+                    'pause',
+                    'resume',
+                    'playlist'
+                ]
+            ]
         }
     },
     minigames: {
         header: '### Minigame Commands ###',
         commands: {
             'stats': {
-                description: '',
+                description: 'Get minigame statistics.',
                 permissionLevel: 1,
                 selfClear: true
             },
-            page: [
-                ['stats']
-            ]
-        },
-        subcommands: {
-            fishing: {
-                'cast': {
-                    description: '',
-                    permissionLevel: 1,
-                    selfClear: true
-                },
-                page: [
-                    ['cast']
-                ]
+            'cast': {
+                description: 'Play the fishing minigame.',
+                permissionLevel: 1
             },
-            page: [
-                ['fishing']
+            'inventory': {
+                description: 'List your minigame inventory.',
+                permissionLevel: 1,
+                alternatives: [
+                    'inv'
+                ],
+                selfClear: true
+            }
+        },
+        page: [
+            [
+                'stats',
+                'cast',
+                'inventory'
             ]
-        }
+        ]
     },
     memes: {
         header: '### MEMES ###',
         commands: {
             'f': {
-                description: 'Drops an f in the chat.',
+                description: 'Drop an f in the chat.',
                 permissionLevel: 1,
                 selfClear: true
             },
@@ -337,35 +670,366 @@ module.exports = {
 
             'penguin': {
                 description: 'Penguin giffy. <3',
-                permission: 1,
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'bird': {
+                description: 'Bird. Dance.',
+                permissionLevel: 1,
                 selfClear: true
             },
             'clayhead': {
-                description: 'I am not sorry for anything or anyone.',
-                permission: 1,
+                description: 'I fear nothing.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'extrathicc': {
+                description: 'I fear nothing.',
+                permissionLevel: 1,
+                selfClear: true
+            },
+            'thowonk': {
+                description: 'I fear nothing.',
+                permissionLevel: 1,
                 selfClear: true
             },
 
             'crabrave': {
-                description: 'Starts playing Crabrave by Noisestorm in the voice chat.',
+                description: 'Play Crabrave by Noisestorm in the current voice channel.',
                 permissionLevel: 1,
-                alternatives: ['cr'],
+                alternatives: [
+                    'cr'
+                ],
                 selfClear: true
             },
             'theriddle': {
-                description: 'Starts playing The Riddle by Gigi D\'Agostino in the voice chat.',
+                description: 'Play The Riddle by Gigi D\'Agostino in the current voice channel.',
                 permissionLevel: 1,
                 selfClear: true
             },
             page: [
-                ['f', 'fuck', 'yey'],
-                ['penguin', 'clayhead'],
-                ['crabrave', 'theriddle'],
+                [
+                    'f',
+                    'fuck',
+                    'yey'
+                ],
+                [
+                    'penguin',
+                    'clayhead',
+                    'bird'
+                ],
+                [
+                    'crabrave',
+                    'theriddle'
+                ],
             ],
         }
     },
     dungeons: {
         header: '### D&D ###',
         commands: {}
+    },
+    guild: {
+        header: '### Guilds ###',
+        commands: {
+            'guild': {
+                description: 'Displays guild information.',
+                permissionLevel: 0,
+                parameters: {
+                    string: {
+                        '*name': 'The guild name. By default shows current guild information.'
+                    }
+                },
+                selfClear: true
+            },
+            page: [
+                [
+                    'guild'
+                ]
+            ]
+        },
+        subcommands: {
+            'create': {
+                description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
+                permissionLevel: 0,
+                parameters: {
+                    string: {
+                        'name': 'Guild name; must be equal or fewer than 32 characters.',
+                        '*color': 'Guild color; must be a valid hex color code such as #ffffff or #000000.'
+                    }
+                },
+                flags: {
+                    'p': 'Creates the guild as publicly joinable. By default, guilds are created as invite-only / private.'
+                },
+                selfClear: true
+            },
+            'icon': {
+                description: 'Leaders only; changes the guild icon.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        'URL'
+                    ],
+                    [
+                        'A valid image url (usally ends with .jpg, .png, etc...); can be a discord image link, as long as the image is not deleted.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'color': {
+                description: 'Leaders only; changes the guild color (in the guild display embed and the role color).',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        'Hex color code'
+                    ],
+                    [
+                        'Any hex color code. Will allow names in the future. Format: # followed by 6 numbers (0-9) or letters (a-f).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setlore': {
+                description: 'Leaders only; changes the guild lore.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        'Text'
+                    ],
+                    [
+                        'Any amount of text. If left blank, will reset to default (empty).'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setmotto': {
+                description: 'Leaders only; changes the guild motto.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        'Text'
+                    ],
+                    [
+                        'Any amount of text. If left blank, will reset to default.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'lore': {
+                description: 'Displays the lore of a guild.',
+                permissionLevel: 0,
+                parameters: {
+                    string: {
+                        '*name': 'The name of a guild. If ignored, gets the lore for the guild of the current user.'
+                    }
+                },
+                selfClear: true
+            },
+            'list': {
+                description: 'Displays a list of all guilds in the Discord.',
+                permissionLevel: 0,
+                selfClear: true
+            },
+            'join': {
+                description: 'Places the user under the leadership of a guild.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        'Guild name'
+                    ],
+                    [
+                        'The name of the guild you wish to join.'
+                    ]
+                ],
+                selfClear: true
+            },
+            'leave': {
+                description: 'Releashes the user from the leadership of a guild.',
+                permissionLevel: 0,
+                selfClear: true
+            },
+            'invite': {
+                description: 'Leaders and officers only; invite members to join the guild.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'User ping'
+                    ]
+                ],
+                selfClear: true
+            },
+            'toggle': {
+                description: 'Leaders only; toggles the invite requirement of the guild.',
+                permissionLevel: 0,
+                selfClear: true
+            },
+            'invites': {
+                description: 'Lists all invites extended to a user.',
+                permissionLevel: 0,
+                selfClear: true
+            },
+            'deny': {
+                description: 'Reject an extended invite. A new one can be redelievered.',
+                permissionLevel: 0,
+                parameters: {
+                    string: {
+                        'name': 'Name of the guild you wish to reject active invites.'
+                    }
+                },
+                selfClear: true
+            },
+            'setleader': {
+                description: 'Leaders only; changes the guild role for a user to Leader - does not change their title.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setofficer': {
+                description: 'Leaders only; changes the guild role for a user to Officer - does not change their title.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'setmember': {
+                description: 'Leaders only; changes the guild role for a user to Member - does not change their title.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'exhile': {
+                description: 'Leaders only; exhiles a player in a guild. They remain under its leadership, but have no power unless they leave.',
+                permissionLevel: 0,
+                arguments: [
+                    [
+                        '@user'
+                    ],
+                    [
+                        'Ping of a user'
+                    ]
+                ],
+                selfClear: true
+            },
+            'settitle': {
+                description: 'Leaders only; changes the title of a user.',
+                permissionLevel: 0,
+                parameters: {
+                    string: {
+                        'title': 'Whatever title is desired.'
+                    }
+                },
+                selfClear: true
+            },
+            page: [
+                [
+                    'create',
+                    'list',
+                    'join',
+                    'leave',
+                    'invites',
+                    'deny',
+                    'lore'
+                ],
+                [
+                    'icon',
+                    'color',
+                    'setlore',
+                    'setmotto',
+                    'invite',
+                    'toggle'
+                ],
+                [
+                    'exhile',
+                    'setmember',
+                    'setofficer',
+                    'setleader',
+                    'settitle'
+                ]
+            ]
+        }
+    },
+    guild_admin: {
+        header: '### Admin-only Commands for Guilds ###',
+        commands: {},
+        subcommands: {
+            'other_join': {
+                description: 'Forces members to join a guild.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user(s)'
+                    ],
+                    [
+                        'Ping(s) of user(s).'
+                    ]
+                ]
+            },
+            'other_leave': {
+                description: 'Forces members to leave a guild.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user(s)'
+                    ],
+                    [
+                        'Ping(s) of user(s).'
+                    ]
+                ]
+            },
+            'refresh': {
+                description: 'Forces members into a guild.',
+                permissionLevel: 4,
+            },
+            'disband': {
+                description: 'Deletes a guild.',
+                permissionLevel: 4,
+                parameters: {
+                    string: {
+                        'name': 'Guild name.'
+                    }
+                }
+            }
+        }
+    },
+    syntaxes: {
+        header: '### Parameters and Flags ###',
+        parameters: {
+            string: {
+                'reason': 'Provides a reason to commands that use one.',
+                'name': 'Provides the name of an object.'
+            },
+            boolean: {
+                'debug': 'Not very helpful, just outputs a stringified JSON of the return value if available.',
+                'json': 'Outputs JSON string if available.'
+            }
+        },
+        flags: {
+            global: {
+                'C': 'Do not remove message if the command has auto-clear enabled.'
+            }
+        }
     }
 };

@@ -1,43 +1,26 @@
-const db = require('../../../../../sql/adapter');
+const sql = require('../../../../../sql/adapter');
 
 module.exports = function (level, tier) {
     return new Promise((resolve, reject) => {
-        db.minigames.getFishList(tier)
-        .then(list => {
-            let index = Math.floor(Math.random() * list.length);
-            let obj = list[index];
-            obj.conditions = JSON.parse(obj.conditions);
-            let fish = obj.conditions;
+        sql.minigames.getFishList(tier)
+            .then(list => {
+                let index = Math.floor(Math.random() * list.length);
+                let fish = list[index];
 
-            let maxSize = (level < 72)
-                ? (level <= 50)
-                    ? (level <= 30)
-                        ? (level <= 10 && level > 0)
-                            ? Number((fish.maxSize / 10).toFixed(2))
-                            : Number((fish.maxSize / 5).toFixed(2))
-                        : Number((fish.maxSize / 2).toFixed(2))
-                    : Number(((4 / 5) * fish.maxSize).toFixed(2))
-                : fish.maxSize;
+                let divisor = (-5.5 / 100) * level + 5.5;
+                let length = Number((fish.length / divisor).toFixed(2));
 
-            let size = Number(((Math.random() * (maxSize - fish.minSize) + 1) + fish.minSize).toFixed(2));
-            if (size < fish.minSize)
-                size = fish.minSize;
+                let size = Number(((Math.random() * (length - length * 0.5) + 1) + length * 0.5).toFixed(2));
 
-            console.log(maxSize);
-            console.log(size);
-            console.log(fish.weights)
+                let val_a = fish.intercept + fish.slope * Math.log10(fish.length);
+                let val_b = Math.pow(10, val_a)
+                let weight = Math.abs(Math.log10(val_b)).toFixed(2);
 
-            let weight = Number((Math.pow(10, Number(fish.weights[0]) + Number(fish.weights[1]) * Math.log10(size))).toFixed(2));
-
-            console.log(weight);
-
-            resolve([
-                obj, {
+                resolve({
+                    fish,
                     size,
-                    weight,
-                    costPerLb: fish.costPerLb
-                }
-            ])
-        });
+                    weight
+                })
+            });
     })
 }

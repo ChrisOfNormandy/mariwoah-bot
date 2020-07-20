@@ -1,5 +1,3 @@
-const query = require('./query');
-
 function getDuration(data) {
     let list = JSON.parse(data.list);
     if (list === null)
@@ -14,8 +12,8 @@ function getDuration(data) {
 }
 
 function get(con, message, name) {
-    return new Promise((resolve, reject) =>  {
-        con.query(`select * from playlists where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+    return new Promise((resolve, reject) => {
+        con.query(`select * from PLAYLISTS where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
                 reject(err);
             else {
@@ -29,8 +27,8 @@ function get(con, message, name) {
 }
 
 function create(con, message, name) {
-    return new Promise((resolve, reject) =>  {
-        con.query(`insert into playlists (creator_id, list, name, server_id) values ("${message.author.id}", '${['null']}', "${name}", "${message.guild.id}");`, (err, result) => {
+    return new Promise((resolve, reject) => {
+        con.query(`insert into PLAYLISTS (creator_id, list, name, server_id) values ("${message.author.id}", '${['null']}', "${name}", "${message.guild.id}");`, (err, result) => {
             if (err)
                 reject(err);
             else
@@ -40,8 +38,8 @@ function create(con, message, name) {
 }
 
 function remove(con, message, name) {
-    return new Promise((resolve, reject) =>  {
-        con.query(`delete from playlists where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+    return new Promise((resolve, reject) => {
+        con.query(`delete from PLAYLISTS where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
                 reject(err);
             else
@@ -51,7 +49,7 @@ function remove(con, message, name) {
 }
 
 function removeSong(con, message, name, songURL) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         get(con, message, name)
             .then(data => {
                 let list;
@@ -70,15 +68,15 @@ function removeSong(con, message, name, songURL) {
                     }
                 }
 
-                con.query(`update playlists set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+                con.query(`update PLAYLISTS set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
                     if (err)
                         return console.log(err);
                     else {
                         get(con, message, name)
                             .then(data => {
                                 let time = getDuration(data);
-    
-                                con.query(`update playlists set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+
+                                con.query(`update PLAYLISTS set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
                                     if (err)
                                         console.log(err);
                                     else
@@ -95,49 +93,56 @@ function removeSong(con, message, name, songURL) {
 }
 
 function append(con, message, name, song) {
-    get(con, message, name)
-        .then(data => {
-            let list = JSON.parse(data.list);
-
-            if (list === null)
-                list = [song];
-            else {
+    song.title = song.title.replace("'", "''");
+    
+    return new Promise((resolve, reject) => {
+        get(con, message, name)
+            .then(data => {
+                let list = [];
                 let flag = true;
+                if (data.list != 'null') 
+                    list = JSON.parse(data.list)
+                else {
+                    list = [];
+                }
+
                 let count = 0;
                 while (count < list.length && flag) {
                     if (list[count].url == song.url)
                         flag = false;
                     count++;
                 }
-                if (!flag)
-                    return message.channel.send('> Playlist already includes that song!');
 
-                list.push(song);
-            }
-            con.query(`update playlists set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
-                if (err)
-                    return console.log(err);
-                else {
-                    get(con, message, name)
-                        .then(data => {
-                            let time = getDuration(data);
-
-                            con.query(`update playlists set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
-                                if (err)
-                                    console.log(err);
-                                else
-                                    console.log(result);
-                            });
-                        })
-                        .catch(e => console.log(e));
+                if (!flag) {
+                    reject('> Playlist already includes that song!');
                 }
-            });
-        })
-        .catch(e => console.log(e));
+                else {
+                    list.push(song);
+                    con.query(`update PLAYLISTS set list = '${JSON.stringify(list)}' where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+                        if (err)
+                            reject(err);
+                        else {
+                            get(con, message, name)
+                                .then(data => {
+                                    let time = getDuration(data);
+                                    con.query(`update PLAYLISTS set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
+                                        if (err)
+                                            reject(err);
+                                        else
+                                            resolve(result);
+                                    });
+                                })
+                                .catch(e => reject(e));
+                        }
+                    });
+                }
+            })
+            .catch(e => reject(e));
+    });
 }
 
 function getList(con, message, name) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         get(con, message, name)
             .then(data => {
                 let list = JSON.parse(data.list);
@@ -152,8 +157,8 @@ function getList(con, message, name) {
 }
 
 function getAll(con, message) {
-    return new Promise((resolve, reject) =>  {
-        con.query(`select * from playlists where server_id = ${message.guild.id}`, (err, result) => {
+    return new Promise((resolve, reject) => {
+        con.query(`select * from PLAYLISTS where server_id = ${message.guild.id}`, (err, result) => {
             if (err)
                 reject(err);
             else {

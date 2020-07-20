@@ -1,13 +1,9 @@
 const memeDispatcher = require('./helpers/memeDispatcher');
+const Discord = require('discord.js');
 
 module.exports = {
-    memeDispatch: function (message, meme) {
-        message.channel.send('', { file: memeDispatcher(meme) });
-        try {
-            message.delete();
-        }
-        catch (e) {
-            message.channel.send('I require admin permissions to operate correctly.');
-        }
+    memeDispatch: function (meme) {
+        let image = new Discord.MessageAttachment(memeDispatcher(meme));
+        return ({value: {files:[image]}});
     }
 }

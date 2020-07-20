@@ -1,9 +1,12 @@
-const db = require('../../../../sql/adapter');
+const sql = require('../../../../sql/adapter');
+const chatFormat = require('../global/chatFormat');
 
+// Converts Discord timestamp to a nice date-time format
 function timestampToDate(timestamp) {
     return new Date(timestamp);
 }
 
+// Gets the age of a message by comparing original (a) to current (b)
 function getAge(a, b) {
     const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -15,26 +18,27 @@ function getAge(a, b) {
 }
 
 module.exports = async function (message) {
-    let channel = message.channel;
+    return new Promise((resolve, reject) => {
+        let channel = message.channel;
 
-    if (channel.type == 'text') {
-        channel.fetchMessages()
+        channel.messages.fetch()
             .then(messages => {
-                if (message.mentions.users.first()) {
-                    const userMessages = messages.filter(msg => (msg.author.id == message.mentions.users.first().id &&
-                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                    ));
+                if (!!message.mentions.users.size) {
+                    message.mentions.users.forEach((user, id, m) => {
+                        const userMessages = messages.filter(msg => (msg.author.id == id &&
+                            getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                        ));
 
-                    let userMessagesDeleted = userMessages.array().length;
+                        const userMessagesDeleted = userMessages.array().length;
 
-                    channel.bulkDelete(userMessages);
+                        channel.bulkDelete(userMessages);
 
-                    channel.send(`Deletion of messages successful. Total messages deleted:\nTotal: ${userMessagesDeleted}`)
-                        .then(msg => msg.delete(5000))
-                        .catch(e => console.log(e));
+                        resolve({value: chatFormat.response.cleanChat.user(user, userMessagesDeleted), options: {clear: 10}});
+                    });
                 }
                 else {
-                    db.server.getPrefix(message.guild.id)
+                    // Fetch the server prefix from the discordbot.SERVERS database table
+                    sql.server.general.getPrefix(message.guild.id)
                         .then(prefix => {
                             const botMessages = messages.filter(msg => (msg.author.bot &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
@@ -42,20 +46,18 @@ module.exports = async function (message) {
                             const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
                                 getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
                             ));
-        
-                            let botMessagesDeleted = botMessages.array().length;
-                            let cmdMessagesDeleted = cmdMessages.array().length;
-        
+
+                            const botMessagesDeleted = botMessages.array().length;
+                            const cmdMessagesDeleted = cmdMessages.array().length;
+
                             channel.bulkDelete(botMessages);
                             channel.bulkDelete(cmdMessages);
-        
-                            channel.send(`Deletion of messages successful. Total messages deleted:\nBot spam: ${botMessagesDeleted}\nCommands: ${cmdMessagesDeleted}`)
-                                .then(msg => msg.delete(5000))
-                                .catch(e => console.log(e));
+
+                            resolve({value: chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted), options: {clear: 10}});
                         })
-                    
+                        .catch(e => reject(e));
                 }
             })
-            .catch(err => console.log('Error while doing bulk delete.', err));
-    }
+            .catch(e => reject(e));
+    });
 }

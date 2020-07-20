@@ -2,23 +2,14 @@
 
 Misc. utilities bot for discord, written in JavaScript.
 
-Functions in the bot:
+Functions the bot performs:
 
-* Plays music through voice chat
-* Assembles and manages playlists of music to play through voice chat
-* Chat minigames (WIP)
+* Plays music through voice chat.
+* Assembles and manages playlists of music to play through voice chat.
+* Chat minigames (WIP).
+* Basic server utility (warn, kick, ban, unban, list offenses, clean chat).
+* Some nice memes.
+* Custom per-server guilds created by users.
 
-> Fishing
-> Gambling - slots, blackjack
-
-* Drops an F in chat
-* Drops a different F in chat
-* Misc. things as I want to add them.
-
-> Prefixes are custom per server. Defaults are . - ~
-
-# List of planned features needing implementation
-
-* Slots are broken.
-* Fishing returns bad message when fish caught.
-* Fishing can probably be rewritten and cleaned.
+> Prefixes can be custom per server. Default is ~ (tilde).
+> Allows setting server MOTDs using Discord MessageEmbeds.

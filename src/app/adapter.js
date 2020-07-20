@@ -5,5 +5,6 @@ module.exports = {
     minigames: require('./minigames/adapter'),
     music: require('./music/adapter'),
     punishments: require('./punishments/adapter'),
+    rolemanagement: require('./rolemanagement/adapter'),
     sql: require('./sql/adapter')
 }

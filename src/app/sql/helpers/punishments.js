@@ -1,10 +1,11 @@
-const query = require('./query');
+const servers = require('./servers');
+const users = require('./users');
 
 function getUser(con, message, userID, type) {
     return new Promise((resolve, reject) =>  {
-    query.getUser(con, message.guild.id, userID)
+    users.getUser(con, message.guild.id, userID)
         .then(user => {
-            con.query(`select * from punishments where server_id = "${message.guild.id}" and user_id = "${userID}" and type = "${type}";`, (err, result) => {
+            con.query(`select * from PUNISHMENTS where server_id = "${message.guild.id}" and user_id = "${userID}" and type = "${type}";`, (err, result) => {
                 if (err)
                     reject(err);
                 else
@@ -19,13 +20,13 @@ function getUser(con, message, userID, type) {
 }
 
 function setUser(con, message, userID, type, reason = null, duration = -1, severity = 'normal') {
-    query.getUser(con, message.guild.id, userID)
+    users.getUser(con, message.guild.id, userID)
         .then(user => {
             const date = new Date(message.createdTimestamp);
             const datetime = `${date.toISOString().slice(0, 19).replace('T', ' ')}`;
             console.log(datetime);
             if (reason == null)
-                con.query(`insert into punishments (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime) values (` +
+                con.query(`insert into PUNISHMENTS (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime) values (` +
                     `"${message.guild.id}", 
                     "${userID}", 
                     "${type}", 
@@ -33,7 +34,7 @@ function setUser(con, message, userID, type, reason = null, duration = -1, sever
                     "${severity}", 
                     "${message.createdTimestamp}", 
                     "${message.author.id}", 
-                    "${message.guild.members.get(userID).user.username}", 
+                    "${message.guild.members.cache.get(userID).user.username}", 
                     "${datetime}");`,
                     (err, result) => {
                         if (err)
@@ -42,7 +43,7 @@ function setUser(con, message, userID, type, reason = null, duration = -1, sever
                             console.log(result);
                 });
             else
-                con.query(`insert into punishments (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime, reason) values (` +
+                con.query(`insert into PUNISHMENTS (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime, reason) values (` +
                     `"${message.guild.id}", 
                     "${userID}", 
                     "${type}", 
@@ -50,7 +51,7 @@ function setUser(con, message, userID, type, reason = null, duration = -1, sever
                     "${severity}", 
                     "${message.createdTimestamp}", 
                     "${message.author.id}", 
-                    "${message.guild.members.get(userID).user.username}", 
+                    "${message.guild.members.cache.get(userID).user.username}", 
                     "${datetime}", 
                     "${reason}");`,
                     (err, result) => {

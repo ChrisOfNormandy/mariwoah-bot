@@ -1,38 +1,71 @@
-const query = require('./query');
+const connection = require('../helpers/connection');
+const con = connection.con;
 
-function setBotRole(con, serverID, userID, roleName) {
-    query.getUser(con, serverID, userID)
-        .then(user => {
-            con.query(`update users set bot_role = "${roleName}" where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
-                if (err)
-                    console.log(err);
-                else
-                    con.query(`select * from users where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
-                        console.log(result);
+function get(server_id, user_id) {
+    return new Promise((resolve, reject) => {
+        con.query(`select * from USERS where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
+            if (err)
+                reject(err);
+            else {
+                if (result.length)
+                    resolve(result[0]);
+                else {
+                    con.query(`insert into USERS (server_id, user_id) values ("${server_id}", "${user_id}");`, (err, result) => {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(get(server_id, user_id));
                     });
-            });
-        })
-        .catch(e => console.log(e));
+                }
+            }
+        });
+    });
 }
 
-function setPermissionLevel(con, serverID, userID, level) {
-    query.getUser(con, serverID, userID)
-        .then(user => {
-            con.query(`update users set permission_level = ${level} where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
-                if (err)
-                    console.log(err);
-                else
-                    con.query(`select * from users where server_id = "${serverID}" and user_id = "${userID}";`, (err, result) => {
-                        console.log(result);
-                    });
-            });
-        })
-        .catch(e => console.log(e));
+function setBotRole(server_id, user_id, roleName) {
+    return new Promise((resolve, reject) => {
+        get(server_id, user_id)
+            .then(user => {
+                con.query(`update USERS set bot_role = "${roleName}" where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
+                    if (err)
+                        reject(err);
+                    else
+                        con.query(`select * from USERS where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(result);
+                        });
+                });
+            })
+            .catch(e => reject(e));
+    })
+
 }
 
-function getBotRole(con, serverID, userID) {
-    return new Promise(function(resolve, reject) {
-        query.getUser(con, serverID, userID)
+function setPermissionLevel(server_id, user_id, level) {
+    return new Promise((resolve, reject) => {
+        get(server_id, user_id)
+            .then(user => {
+                con.query(`update USERS set permission_level = ${level} where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
+                    if (err)
+                        reject(err);
+                    else
+                        con.query(`select * from USERS where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(result);
+                        });
+                });
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function getBotRole(server_id, user_id) {
+    return new Promise(function (resolve, reject) {
+        get(server_id, user_id)
             .then(user => {
                 resolve(user.bot_role);
             })
@@ -40,9 +73,9 @@ function getBotRole(con, serverID, userID) {
     });
 }
 
-function getPermissionLevel(con, serverID, userID) {
-    return new Promise(function(resolve, reject) {
-        query.getUser(con, serverID, userID)
+function getPermissionLevel(server_id, user_id) {
+    return new Promise(function (resolve, reject) {
+        get(server_id, user_id)
             .then(user => {
                 resolve(user.permission_level);
             })
@@ -51,6 +84,7 @@ function getPermissionLevel(con, serverID, userID) {
 }
 
 module.exports = {
+    get,
     setBotRole,
     setPermissionLevel,
     getBotRole,

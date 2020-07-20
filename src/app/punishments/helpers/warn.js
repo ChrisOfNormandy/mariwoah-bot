@@ -1,15 +1,16 @@
-const db = require('../../sql/adapter');
+const sql = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
-    return new Promise((resolve, reject) =>  {
-        db.punishments.getUser(message, userID, 'warn')
-            .then(data => {
+    return new Promise((resolve, reject) => {
+        sql.punishments.getUser(message, userID, 'warn')
+            .then(userData => {
                 let list = [];
-                for (let i in data)
-                    list.push(data[i])
-                
+                for (let i in userData)
+                    list.push(userData[i])
+
                 if (listAll)
                     resolve(list);
                 else
@@ -19,47 +20,36 @@ function get(message, userID, listAll = true) {
     })
 }
 
-function set(message, userID, reason) {
-    if (!message.guild.members.get(userID))
-        return message.channel.send('> Could not find target user.');
-        
-    if (reason.trim() == '')
-        reason = null;
-    else
-        reason = reason.trim();
-    db.punishments.setUser(message, userID, 'warn', reason);
-    get(message, userID)
-        .then(data => {
-            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data);
-            message.channel.send(`> Warned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} warnings.`);
-        })
-        .catch(e => console.log(e));
-}
+function set(message, userID, data) {
+    return new Promise((resolve, reject) => {
+        if (!message.guild.members.cache.get(userID))
+            resolve(chatFormat.response.punish.no_user());
+        else {
+            let reason = (data.parameters.string['reason'])
+                ? data.parameters.string['reason'].trim()
+                : 'No reason provided.'
 
-function getLatest(message, userID) {
-    return get(message, userID, false);
-}
-
-function printLatest(message, userID) {
-    getLatest(message, userID)
-        .then(data => {
-            message.channel.send(embedListing.single(message, 'warn', data));
-        })
-        .catch(e => console.log(e));
+            sql.punishments.setUser(message, userID, 'warn', reason);
+            get(message, userID)
+                .then(userData => {
+                    messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, userData);
+                    resolve({value: chatFormat.response.punish.warn(message.guild.members.cache.get(userID), userData[userData.length - 1].reason, userData.length)});
+                })
+                .catch(e => reject(e));
+        }
+    });
 }
 
 function printAll(message, userID) {
+    return new Promise((resolve, reject) => {
     get(message, userID, true)
-        .then(data => {
-            message.channel.send(embedListing.array(message, 'warn', data));
-        })
-        .catch(e => console.log(e));
+        .then(userData => resolve({embed: embedListing.array(message, 'warn', userData)}))
+        .catch(e => reject(e));
+    });
 }
 
 module.exports = {
     get,
     set,
-    getLatest,
-    printLatest,
     printAll
 }

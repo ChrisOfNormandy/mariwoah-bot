@@ -1,11 +1,16 @@
 const queue = require('../queue/map');
+const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
+const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const getEmbedSongInfo = require('../getEmbedSongInfo');
 
 module.exports = function (message) {
-    if (!message.member.voiceChannel)
-        return message.channel.send('> You have to be in a voice channel to stop the music!');
+    if (!getVC(message))
+        return { value: chatFormat.response.music.no_vc() };
     if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active)
-        return message.channel.send(`> There's nothing to skip.`);
+        return { value: chatFormat.response.music.skip.no_queue() };
 
-    message.channel.send('> Skipping song...');
     queue.get(message.guild.id).connection.dispatcher.end();
+    return (queue.get(message.guild.id).songs.length > 1)
+        ? getEmbedSongInfo.single('Now playing...', queue.get(message.guild.id), 1)
+        : { value: chatFormat.response.music.skip.plain() };
 }

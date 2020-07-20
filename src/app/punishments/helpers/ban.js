@@ -1,10 +1,11 @@
-const db = require('../../sql/adapter');
+const sql = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
+const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function get(message, userID, listAll = true) {
     return new Promise((resolve, reject) =>  {
-        db.punishments.getUser(message, userID, 'ban')
+        sql.punishments.getUser(message, userID, 'ban')
             .then(data => {
                 let list = [];
                 for (let i in data)
@@ -20,47 +21,38 @@ function get(message, userID, listAll = true) {
 }
 
 function set(message, userID, reason, duration, severity = 'normal') {
-    if (!message.guild.members.get(userID))
-        return message.channel.send('> Could not find target user.');
+    return new Promise((resolve, reject) => {
+        if (!message.guild.members.cache.get(userID))
+            resolve({value: chatFormat.response.punish.no_user()});
+        else {
+            if (reason.trim() == '')
+                reason = null;
+            else
+                reason = reason.trim();
 
-    if (reason.trim() == '')
-        reason = null;
-    else
-        reason = reason.trim();
-    db.punishments.setUser(message, userID, 'ban', reason, duration, severity);
-    get(message, userID)
-        .then(data => {
-            messageTarget(message.guild.members.get(userID), message.guild.members.get(message.author.id), message.guild.name, data, {duration});
-            message.channel.send(`> Banned ${message.guild.members.get(userID)} for reason: ${data[data.length - 1].reason}\n> Currently has ${data.length} bans.`);
-            message.guild.members.get(userID).ban({reason: reason, days: duration});
-        })
-        .catch(e => console.log(e));
-}
+            sql.punishments.setUser(message, userID, 'ban', reason, duration, severity);
 
-function getLatest(message, userID) {
-    return get(message, userID, false);
-}
-
-function printLatest(message, userID) {
-    getLatest(message, userID)
-        .then(data => {
-            message.channel.send(embedListing.single(message, 'ban', data));
-        })
-        .catch(e => console.log(e));
+            get(message, userID)
+                .then(data => {
+                    messageTarget(message.guild.members.cache.get(userID), message.guild.members.cache.get(message.author.id), message.guild.name, data, { duration });
+                    message.guild.members.cache.get(userID).ban({ reason: reason, days: duration });                    
+                    resolve({value: chatFormat.response.punish.ban(message.guild.members.cache.get(userID), data[data.length - 1].reason,data.length)});
+                })
+                .catch(e => reject(e));
+        }
+    })
 }
 
 function printAll(message, userID) {
+    return new Promise((resolve, reject) => {
     get(message, userID, true)
-        .then(data => {
-            message.channel.send(embedListing.array(message, 'ban', data));
-        })
-        .catch(e => console.log(e));
+        .then(data => resolve({embed: embedListing.array(message, 'ban', data)}))
+        .catch(e => reject(e));
+    });
 }
 
 module.exports = {
     get,
     set,
-    getLatest,
-    printLatest,
     printAll
 }

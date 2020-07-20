@@ -1,15 +1,12 @@
 module.exports = {
     features: {
         cleanChat: require('./helpers/features/cleanChat'),
-        covid: require('./helpers/features/covid19'),
         listHelp: require('./helpers/features/listHelp'),
         motd: require('./helpers/features/motd'),
         ping: require('./helpers/features/ping'),
         prefix: require('./helpers/features/prefix'),
-        printLog: require('./helpers/features/printLog'),
-        reactions: require('./helpers/features/reactions'),
         roll: require('./helpers/features/roll'),
-        whoAre: require('./helpers/features/whoAre')
+        whoAre: require('./helpers/features/whoAre'),
     },
     file: {
         delete: require('./helpers/file/delete'),
@@ -24,10 +21,10 @@ module.exports = {
         chatFormat: require('./helpers/global/chatFormat'),
         commandList: require('./helpers/global/commandList'),
         divideArray: require('./helpers/global/divideArray'),
+        getAge: require('./helpers/global/getAge'),
         getVoiceChannel: require('./helpers/global/getVoiceChannel'),
         intToTimeString: require('./helpers/global/intToTimeString'),
         mapToJson: require('./helpers/global/mapToJson'),
-        paths: require('./helpers/global/paths'),
         shuffle: require('./helpers/global/shuffle'),
         startup: require('./helpers/global/startup')
     }

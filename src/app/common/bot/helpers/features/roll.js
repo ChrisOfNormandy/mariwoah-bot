@@ -1,16 +1,16 @@
-module.exports = async function (message, args) {
+module.exports = function (args) {
     let count = 1;
     let sides = 6;
-
+    
     if (!isNaN(args[0]) && args[0] > 1)
         sides = args[0];
     else if (args[0] == 1)
-        return message.channel.send("Cannot roll a d1.");
+        return {value: "Cannot roll a d1."};
 
     if (!isNaN(args[1]) && args[1] >= 1 && args[1] <= 50)
         count = args[1];
     else if (args[1] > 50)
-        return message.channel.send("Cannot roll more than 50 times at once.")
+        return {value: "Cannot roll more than 50 times at once."};
 
     let rolls = [];
     let roll;
@@ -37,11 +37,11 @@ module.exports = async function (message, args) {
         }
     }
 
-    let m = await message.channel.send(`Rolled: ${rolls.join(", ")}`);
+    let value = `Rolled: ${rolls.join(", ")}`;
     if (rolls.length > 1) {
-        if (sides > 2)
-            m.edit(`Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`);
-        else
-            m.edit(`Flipped: ${rolls.join(", ")}\nHeads: ${sum}\n\nTails: ${rolls.length - sum}`);
+        value = (sides > 2)
+            ? `Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`
+            : `Flipped: ${rolls.join(", ")}\n\nHeads: ${sum}\nTails: ${rolls.length - sum}`;
     }
+    return {value}
 }

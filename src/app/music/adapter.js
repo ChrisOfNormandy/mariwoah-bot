@@ -1,91 +1,178 @@
 const commandList = require('../common/bot/helpers/global/commandList');
 const playlist = require('./playlists/adapter');
-const roleManager = require('../common/roleManager/adapter');
+const roleManager = require('../rolemanagement/adapter');
+const chatFormat = require('../common/bot/helpers/global/chatFormat');
+
+const getEmbedSongInfo = require('./helpers/getEmbedSongInfo');
 
 const getSong = require('./helpers/getSong');
 const append = require('./helpers/queue/append');
 const skip = require('./helpers/functions/skip');
 const list = require('./helpers/queue/list');
 const stop = require('./helpers/functions/stop');
-const getVC = require('../common/bot/helpers/global/getVoiceChannel');
+const pause = require('./helpers/functions/pause');
+const join = require('./helpers/functions/join');
+const leave = require('./helpers/functions/leave');
 
-const pl = commandList.playlists.commands;
+const shuffle = require('../common/bot/helpers/global/shuffle');
+
+const pl = commandList.music.commands.playlist.subcommands;
 
 function verify(message, permissionLevel) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         roleManager.verifyPermission(message, message.author.id, permissionLevel)
             .then(r => resolve(r))
             .catch(e => reject(e));
     });
 }
 
+function info(message, data) {
+    return new Promise((resolve, reject) => {
+        getEmbedSongInfo.songInfo(message, data)
+            .then(embed => resolve({ embed }))
+            .catch(e => {
+                console.log(e);
+                resolve({ value: chatFormat.response.music.info.error() });
+            });
+    });
+}
+
+function pl_append(message, data) {
+    return playlist.append(message, data)
+}
+function pl_create(message, playlistName) {
+    return playlist.create(message, playlistName)
+}
+function pl_delete(message, playlistName) {
+    return playlist.delete(message, playlistName)
+}
+function pl_listAll(message) {
+    return playlist.listAll(message)
+}
+function pl_list(message, playlistName) {
+    return playlist.list(message, playlistName)
+}
+function pl_remove(message, playlistName, songURL) {
+    return playlist.remove(message, playlistName, songURL)
+}
+function pl_play(message, data) {
+    return playlist.play(message, data)
+}
+
+function fetch(message, data) {
+    if (data.urls.length)
+        return byURLArray(message, data);
+    return (data.flags['p'])
+        ? byPlaylist(message, data)
+        : byName(message, data);
+}
+
+function byName(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byName(message, data.arguments.join(' '), data)
+            .then(song => resolve(append(message, [song])))
+            .catch(e => reject(e));
+    });
+}
+
+function byURL(message, songURL) {
+    return new Promise((resolve, reject) => {
+        getSong.byURL(message, songURL)
+            .then(song => resolve(append(message, [song])))
+            .catch(e => reject(e))
+    });
+}
+
+function byURLArray(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byURLArray(message, data.urls)
+            .then(arr => {
+                if (data.flags['s']) {
+                    shuffle(arr)
+                        .then(arr_ => resolve(append(message, arr_, data.flags)))
+                        .catch(e => reject(e));
+                }
+                else
+                    resolve(append(message, arr, data.flags))
+            })
+            .catch(e => reject(e));
+    });
+}
+
+function byPlaylist(message, data) {
+    return new Promise((resolve, reject) => {
+        getSong.byPlaylist(message, data.arguments.join(' '), data)
+            .then(playlistData => resolve(append(message, playlistData, data.flags)))
+            .catch(e => reject(e));
+    });
+}
+
 module.exports = {
     append: {
-        byURL: (message, songURL) => {getSong.byURL(message, songURL).then(obj => append(message, obj)).catch(e => reject(e))},
-        byName: (message, songName) => {getSong.byName(message, songName).then(obj => append(message, obj)).catch(e => reject(e))}
+        fetch,
+        byName,
+        byURL,
+        byURLArray,
+        byPlaylist
     },
-    skip: (message) => {skip(message)},
-    list: (message) => {list(message)},
-    stop: (message) => {stop(message)},
-    join: (message) => {
-        const vc = getVC(message);
-        if (vc)
-            vc.join();
-        else
-            message.channel.send('> You must be in a voice channel to add bot.');
-    },
-    leave: (message) => {
-        const vc = getVC(message);
-        if (vc)
-            vc.leave();
-        else
-            message.channel.send('> You must be in a voice channel to remove bot.')
-    },
+    skip,
+    list,
+    stop,
+    join,
+    leave,
+    pause: (message) => { return pause.pause(message) },
+    resume: (message) => { return pause.resume(message) },
+    info,
 
-    pl_append: (message, playlistName, songURL = null, songName = null) => {playlist.append(message, playlistName, songURL, songName)},
-    pl_create: (message, playlistName) => {playlist.create(message, playlistName)},
-    pl_delete: (message, playlistName) => {playlist.delete(message, playlistName)},
-    pl_listAll: (message) => {playlist.listAll(message)},
-    pl_list: (message, playlistName) => {playlist.list(message, playlistName)},
-    pl_remove: (message, playlistName, songURL) => {playlist.remove(message, playlistName, songURL)},
-    pl_play: (message, playlistName, doShuffle = false) => {playlist.play(message, playlistName, doShuffle)},
+    pl_append,
+    pl_create,
+    pl_delete,
+    pl_listAll,
+    pl_list,
+    pl_remove,
+    pl_play,
 
-    playlistCommand: function (message, args) {
-        const _this = this;
-        const command = args[0];
+    playlistCommand: (message, data) => {
+        const command = (data.arguments.length) ? data.arguments[0] : '';
 
-        return new Promise((resolve, reject) =>  {
-            if (command == 'play')
-                verify(message, pl.play.permissionLevel)
-                    .then(() => resolve(_this.pl_play(message, args[1], args[2] === '-s')))
-                    .catch(r => reject(r));
-            else if (command == 'list')
-                verify(message, pl.list.permissionLevel)
-                    .then(() => resolve((args.length == 1)
-                        ? _this.pl_listAll(message) 
-                        : _this.pl_list(message, args[1])))
-                    .catch(r => reject(r));
-            else if (command == 'create')
-                verify(message, pl.create.permissionLevel)
-                    .then(() => resolve(_this.pl_create(message, args[1])))
-                    .catch(r => reject(r));
-            else if (command == 'delete')
-                verify(message, pl.delete.permissionLevel)
-                    .then(() => resolve(_this.pl_delete(message, args[1])))
-                    .catch(r => reject(r));
-            else if (command == 'add')
-                verify(message, pl.add.permissionLevel)
-                    .then(() => {
-                        if (!args.join(' ').includes('youtube.com/watch?'))
-                            resolve(_this.pl_append(message, args[1], null, args.slice(2).join(' ')));
-                        else resolve(_this.pl_append(message, args[1], args[2], null));
-                    })
-                    .catch(r => reject(r));
-            else if (command == 'remove')
-                verify(message, pl.remove.permissionLevel)
-                    .then(() => resolve(_this.pl_remove(message, args[1], args[2])))
-                    .catch(r => reject(r));
-            else reject(null);
+        return new Promise((resolve, reject) => {
+            if (!pl[command].permissionLevel)
+                reject(null);
+            else {
+                verify(message, pl[command].permissionLevel)
+                switch (command) {
+                    case 'play': {
+                        resolve(pl_play(message, data))
+                        break;
+                    }
+                    case 'list': {
+                        if (!data.arguments[1])
+                            resolve(pl_listAll(message));
+                        else
+                            resolve(pl_list(message, data.arguments[1]));
+                        break;
+                    }
+                    case 'create': {
+                        resolve(pl_create(message, data.arguments[1]));
+                        break;
+                    }
+                    case 'add': {
+                        resolve(pl_append(message, data));
+                        break;
+                    }
+                    case 'delete': {
+                        resolve(pl_delete(message, data.arguments[1]))
+                        break;
+                    }
+                    case 'remove': {
+                        resolve(pl_remove(message, data.arguments[1], data.urls[0]))
+                    }
+                    default: {
+                        reject(null);
+                        break;
+                    }
+                }
+            }
         });
     }
 }
