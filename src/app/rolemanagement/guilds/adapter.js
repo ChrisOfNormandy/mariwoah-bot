@@ -303,9 +303,20 @@ function join(message, data) {
                         } else {
                             if (invites.length)
                                 sql.server.guilds.addMember(message, guild_name, message.author.id)
-                                .then(result => resolve({
-                                    values: [(result[0]) ? chatFormat.response.guilds.join.success(message.author, guild_name) : chatFormat.response.guilds.join.not_found(guild_name), result[1]]
-                                }))
+                                .then(result => {
+                                    console.log(result);
+                                    if (result.status === true)
+                                        resolve({
+                                            value: chatFormat.response.guilds.leave.success(message.author, guild.name)
+                                        });
+                                    else
+                                        resolve({
+                                            values: [
+                                                {value: chatFormat.response.guilds.join.success(message.author, guild.name)},
+                                                result
+                                            ]
+                                        });
+                                })
                                 .catch(e => reject(e));
                             else
                                 resolve({
@@ -326,25 +337,29 @@ function admin_join(message, data) {
             });
         else {
             let arr = [];
+            let members = [];
             data.mentions.members.forEach((v, k, m) => {
-                arr.push(sql.server.guilds.addMember(message, data.parameters.string.name, k))
+                arr.push(sql.server.guilds.addMember(message, data.parameters.string.name, k));
+                members.push(v);
             });
 
             Promise.all(arr)
                 .then(results => {
-                    console.log('#######', results);
-                    let return_arr = [];
+                    let values = [];
                     for (let i in results) {
-                        if (results[i][1].status === true) {
-                            return_arr.push({
-                                value: chatFormat.response.guilds.join.success(message.guild.members.cache.get(results[i][0]).user, data.parameters.string.name)
-                            });
+                        console.log(results[i])
+                        if (results[i].status === true) {
+                                values.push({
+                                    value: chatFormat.response.guilds.join.success(members[i], data.parameters.string.name)
+                                });
+                                
+                            }
+                        else {
+                            values.push(results[i]);
                         }
-                        else
-                            return_arr.push(results[i][1]);
                     }
                     resolve({
-                        values: return_arr
+                        values
                     })
                 })
                 .catch(e => reject(e));
@@ -360,28 +375,27 @@ function admin_leave(message, data) {
             });
         else {
             let arr = [];
+            let members = [];
             data.mentions.members.forEach((v, k, m) => {
                 arr.push(sql.server.guilds.removeMember(message, data.parameters.string.name, k));
+                members.push(v);
             });
 
             Promise.all(arr)
                 .then(results => {
-                    console.log('######', results)
-                    let return_arr = [];
+                    let values = [];
                     for (let i in results) {
-                        if (results[i][1].status === false) {
-                            return_arr.push({
-                                value: chatFormat.response.guilds.leave.success(message.guild.members.cache.get(results[i][0]).user, data.parameters.string.name)
-                            });
-                        }
-                        else {
-                            return_arr.push(
-                                results[i][1]
-                            );
-                        }
+                        if (results[i].status === false)
+                                values.push({
+                                    value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name)
+                                });
+                            else {
+                                values.push({value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name)});
+                                values.push(results[i]);
+                            }
                     }
                     resolve({
-                        values: return_arr
+                        values
                     });
                 })
                 .catch(e => reject(e));
@@ -413,15 +427,17 @@ function leave(message, data) {
 
                     sql.server.guilds.removeMember(message, guild.name, message.author.id)
                         .then(result => {
-                            if (result[0].status === false)
+                            console.log(result);
+                            if (result.status === false)
                                 resolve({
-                                    values: [{
-                                        value: chatFormat.response.guilds.leave.success(message.author, guild.name)
-                                    }, result[1]]
+                                    value: chatFormat.response.guilds.leave.success(message.author, guild.name)
                                 });
                             else
                                 resolve({
-                                    value: chatFormat.response.guilds.leave.success(message.author, guild.name)
+                                    values: [
+                                        {value: chatFormat.response.guilds.leave.success(message.author, guild.name)},
+                                        result
+                                    ]
                                 });
                         })
                         .catch(e => reject(e));

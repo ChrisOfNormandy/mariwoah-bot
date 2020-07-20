@@ -214,6 +214,15 @@ function parseCommand(client, message, data) {
                             value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
                             break;
                         }
+                        case 'timeout': {
+                            switch(data.arguments[0]) {
+                                case 'roles': {
+                                    value = adapter.sql.server.timeouts.toMessage(message);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
 
                         // Guilds
 
@@ -481,7 +490,7 @@ function parseCommand(client, message, data) {
 }
 
 function formatResponse(input) {
-    // console.log('INPUT: ', input);
+    console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
         if (input.value) {
             switch (typeof input.value) {

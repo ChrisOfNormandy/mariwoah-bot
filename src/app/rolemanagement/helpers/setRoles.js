@@ -1,5 +1,6 @@
 const sql = require('../../sql/adapter');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
+const timeouts = require('../../sql/helpers/servers/timeout');
 
 function checkRole(message, name, id) {
     return new Promise((resolve, reject) => {
@@ -182,25 +183,31 @@ function refresh_guild(message, strip = false) {
 
 function add(message, member, roleID) {
     return new Promise((resolve, reject) => {
-        message.guild.roles.fetch(roleID)
-            .then(role => {
-                member.roles.add(message.guild.roles.resolve(role))
-                    .then(r => resolve(r))
-                    .catch(e => reject(e));
-            })
-            .catch(e => reject(e));
+        if (!message.guild.roles.cache.has(roleID))
+            reject(false);
+        else
+            message.guild.roles.fetch(roleID)
+                .then(role => {
+                    member.roles.add(message.guild.roles.resolve(role))
+                        .then(r => resolve(r))
+                        .catch(e => reject(e));
+                })
+                .catch(e => reject(e));
     });
 }
 
 function remove(message, member, roleID) {
     return new Promise((resolve, reject) => {
-        message.guild.roles.fetch(roleID)
-            .then(role => {
-                member.roles.remove(message.guild.roles.resolve(role))
-                    .then(r => resolve(r))
-                    .catch(e => reject(e));
-            })
-            .catch(e => reject(e));
+        if (!message.guild.roles.cache.has(roleID))
+            reject(false);
+        else
+            message.guild.roles.fetch(roleID)
+                .then(role => {
+                    member.roles.remove(message.guild.roles.resolve(role))
+                        .then(r => resolve(r))
+                        .catch(e => reject(e));
+                })
+                .catch(e => reject(e));
     });
 }
 
@@ -232,13 +239,14 @@ function createByData(message, data) {
 }
 
 function create(message, name, color, reason = 'Automated creation') {
+    console.log('Creating a new role: ', name)
     let role = null;
 
     message.guild.roles.cache.forEach((v, k, m) => {
         if (v.name == name)
             role = v;
     });
-    
+
     if (role !== null) {
         return new Promise((resolve, reject) => {
             message.guild.roles.fetch(role.id)
@@ -251,23 +259,33 @@ function create(message, name, color, reason = 'Automated creation') {
     }
 
     return new Promise((resolve, reject) => {
-        message.guild.roles.create({
-            data: {
-                name,
-                color
-            },
-            reason
-        })
-        .then(role => {
-            role.setHoist(true)
-            .then(role => {
-                role.setMentionable(true)
-                .then(role => resolve(role))
+        timeouts.checkRole_upTick(message)
+        .then(valid => {
+            console.log(valid);
+            if (valid) {
+                message.guild.roles.create({
+                    data: {
+                        name,
+                        color
+                    },
+                    reason
+                })
+                .then(role => {
+                    role.setHoist(true)
+                    .then(role => {
+                        role.setMentionable(true)
+                        .then(role => resolve(role))
+                        .catch(e => reject(e));
+                    })
+                    .catch(e => reject(e));
+                })
                 .catch(e => reject(e));
-            })
-            .catch(e => reject(e));
+            }
+            else {
+                resolve({value: chatFormat.response.guilds.role.limit()})
+            }
         })
-        .catch(e => reject(e));
+        .catch(e => reject(e));        
     });
 }
 

@@ -151,6 +151,10 @@ module.exports = {
                 ],
                 selfClear: true
             },
+            'timeout': {
+                description: '',
+                permissionLevel: 4
+            },
             page: [
                 [
                     'clean',
@@ -971,6 +975,52 @@ module.exports = {
                     'settitle'
                 ]
             ]
+        }
+    },
+    guild_admin: {
+        header: '### Admin-only Commands for Guilds ###',
+        commands: {},
+        subcommands: {
+            'other_join': {
+                description: 'Forces members to join a guild.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user(s)'
+                    ],
+                    [
+                        'Ping(s) of user(s).'
+                    ]
+                ]
+            },
+            'other_leave': {
+                description: 'Forces members to leave a guild.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '@user(s)'
+                    ],
+                    [
+                        'Ping(s) of user(s).'
+                    ]
+                ]
+            },
+            'refresh': {
+                description: 'Forces members into a guild.',
+                permissionLevel: 4,
+            },
+            'disband': {
+                description: 'Deletes a guild.',
+                permissionLevel: 4,
+                arguments: [
+                    [
+                        '$name:"GuildName"'
+                    ],
+                    [
+                        'Guild name.'
+                    ]
+                ]
+            }
         }
     },
     syntaxes: {

@@ -54,5 +54,5 @@ module.exports = {
         },
 
         updateCondition: (name, meta, value) => {minigames.updateCondition(name, meta, value)}
-    }
+    },
 }
