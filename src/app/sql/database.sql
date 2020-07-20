@@ -1,12 +1,12 @@
 create table SERVERS (
     id varchar(18) not null,
-    motd varchar(255) default 'A First Title&tSome message.\nA new line|Second Title&tSome message.<l>http://google.com/',
+    motd json,
     prefix varchar(1) default '~',
-    admin varchar(18),
-    moderator varchar(18),
-    helper varchar(18),
-    vip varchar(18),
-    bot varchar(18),
+    admin_role varchar(18),
+    mod_role varchar(18),
+    helper_role varchar(18),
+    vip_role varchar(18),
+    bot_role varchar(18),
     primary key (id)
 );
 

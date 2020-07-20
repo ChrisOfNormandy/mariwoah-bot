@@ -7,6 +7,8 @@ create table GUILDS (
     icon varchar(255) default '',
     limbo boolean default true,
     text_assets json,
+    color varchar(7) default '#a85432',
+    role_id varchar(18),
     primary key (server_id, name)
 );
 
