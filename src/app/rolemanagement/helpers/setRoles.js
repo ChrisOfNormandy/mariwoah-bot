@@ -1,4 +1,5 @@
 const sql = require('../../sql/adapter');
+const roles = require('../../sql/helpers/servers/roles');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const timeouts = require('../../sql/helpers/servers/timeout');
 
@@ -119,7 +120,7 @@ function refresh(message, member, roleMap, strip = false) {
 
 function refresh_user(message, member) {
     return new Promise((resolve, reject) => {
-        sql.server.roles.get(message.guild.id)
+        roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -147,7 +148,7 @@ function refresh_user(message, member) {
 
 function refresh_guild(message, strip = false) {
     return new Promise((resolve, reject) => {
-        sql.server.roles.get(message.guild.id)
+        roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -247,45 +248,66 @@ function create(message, name, color, reason = 'Automated creation') {
             role = v;
     });
 
-    if (role !== null) {
-        return new Promise((resolve, reject) => {
-            message.guild.roles.fetch(role.id)
-            .then(role => {
-                message.guild.roles.resolve(role).setColor(color)
-                    .then(role => role.setHoist(true).then(role => role.setMentionable(true).then(role => resolve(role))));
-            })
-            .catch(e => reject(e));
-        });
-    }
-
     return new Promise((resolve, reject) => {
-        timeouts.checkRole_upTick(message)
-        .then(valid => {
-            console.log(valid);
-            if (valid) {
-                message.guild.roles.create({
-                    data: {
-                        name,
-                        color
-                    },
-                    reason
-                })
-                .then(role => {
-                    role.setHoist(true)
-                    .then(role => {
-                        role.setMentionable(true)
-                        .then(role => resolve(role))
-                        .catch(e => reject(e));
+        roles.get(message.guild.id)
+            .then(roles => {
+                if (role !== null) {
+                    switch (role.id) {
+                        case roles.admin: { }
+                        case roles.mod: { }
+                        case roles.helper: { }
+                        case roles.vip: { }
+                        case roles.bot: {
+                            role = 'FAKE';
+                        }
+                    }
+                    console.log('Role is not reserved.')
+
+                    if (role !== 'FAKE') {
+                        message.guild.roles.fetch(role.id)
+                            .then(role => {
+                                message.guild.roles.resolve(role).setColor(color)
+                                    .then(role => role.setHoist(true).then(role => role.setMentionable(true).then(role => resolve(role))));
+                            })
+                            .catch(e => reject(e));
+                    }
+                }
+
+                timeouts.checkRole_upTick(message)
+                    .then(valid => {
+                        console.log(valid);
+                        if (valid) {
+                            let role_name = (role === 'FAKE')
+                                ? `FAKE - ${name}`
+                                : name;
+                            if (role_name.length > 32)
+                                role_name = role_name.slice(-1 * (role_name.length - 32));
+
+                            message.guild.roles.create({
+                                data: {
+                                    name: role_name,
+                                    color
+                                },
+                                reason
+                            })
+                                .then(role => {
+                                    role.setHoist(true)
+                                        .then(role => {
+                                            role.setMentionable(true)
+                                                .then(role => resolve(role))
+                                                .catch(e => reject(e));
+                                        })
+                                        .catch(e => reject(e));
+                                })
+                                .catch(e => reject(e));
+                        }
+                        else {
+                            resolve({ value: chatFormat.response.guilds.role.limit() })
+                        }
                     })
                     .catch(e => reject(e));
-                })
-                .catch(e => reject(e));
-            }
-            else {
-                resolve({value: chatFormat.response.guilds.role.limit()})
-            }
-        })
-        .catch(e => reject(e));        
+            })
+            .catch(e => reject(e));
     });
 }
 

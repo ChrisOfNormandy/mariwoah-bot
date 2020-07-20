@@ -8,32 +8,31 @@ function newCandidate(message, data) {
             value: chatFormat.response.syntax.error('Missing parameter $name')
         };
 
-    const guild_name = data.parameters.string.name.trim();
+    const guild_name = data.parameters.string.name;
 
-    if (guild_name > 32)
+    if (guild_name.length > 32)
         return {
             value: chatFormat.response.syntax.error('Name cannot be longer than 32 characters')
-        }
-
+        };
 
     return new Promise((resolve, reject) => {
         sql.server.guilds.check(message, guild_name)
             .then(r => {
-                if (r) {
+                if (r) { // Guild already exists
                     resolve({
                         value: chatFormat.response.guilds.create.already_exists(guild_name)
                     });
                 } else {
                     sql.server.guilds.getByUser(message, message.author.id)
                         .then(list => {
-                            if (list.length)
+                            if (list.length) // Member is already in a guild
                                 resolve({
                                     value: chatFormat.response.guilds.create.already_member()
                                 });
                             else
                                 sql.server.guilds.create(message, data)
-                                .then(r => resolve(r))
-                                .catch(e => reject(e));
+                                    .then(r => resolve(r))
+                                    .catch(e => reject(e));
                         })
 
                 }
@@ -145,36 +144,84 @@ function formatListing(message, data) {
 }
 
 function setIcon(message, data) {
-    return (data.urls.length) ?
-        sql.server.guilds.setIcon(message, data.urls[0]) : {
+    if (!data.urls.length)
+        return {
             value: chatFormat.response.guilds.icon.bad_url()
         };
+
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
+                    sql.server.guilds.isLeader(message, guild.name, message.author.id)
+                        .then(r => {
+                            if (r) {
+                                sql.server.guilds.setIcon(message, data.urls[0])
+                                    .then(r => resolve({ value: chatFormat.response.guilds.icon.success(guild.name) }))
+                                    .catch(e => reject(e));
+                            }
+                            else
+                                resolve({ value: chatFormat.response.guilds.icon.no_perms() })
+                        })
+                        .catch(e => reject(e));
+                }
+                else
+                    resolve({ value: chatFormat.response.guilds.error.no_guild() })
+            })
+            .catch(e => reject(e));
+    });
 }
 
 function setColor(message, data) {
     let regex = /#[a-f0-9]{6}/g;
     let color = message.content.match(regex);
-    return (color !== null) ?
-        sql.server.guilds.setColor(message, color[0]) : {
+
+    if (color === null)
+        return {
             value: chatFormat.response.guilds.color.bad_hex()
         };
+
+    return new Promise((resolve, reject) => {
+        sql.server.guilds.getByUser(message, message.author.id)
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
+                    sql.server.guilds.isLeader(message, guild.name, message.author.id)
+                        .then(r => {
+                            if (r) {
+                                sql.server.guilds.setColor(message, color)
+                                    .then(r => resolve({ value: chatFormat.response.guilds.color.success(guild.name) }))
+                                    .catch(e => reject(e));
+                            }
+                            else
+                                resolve({ value: chatFormat.response.guilds.color.no_perms() })
+                        })
+                        .catch(e => reject(e));
+                }
+                else
+                    resolve({ value: chatFormat.response.guilds.error.no_guild() })
+            })
+            .catch(e => reject(e));
+    })
 }
 
 function setLore(message, data) {
     return new Promise((resolve, reject) => {
         sql.server.guilds.getByUser(message, message.author.id)
-            .then(guilds => {
-                if (guilds.length) {
-                    const guild = guilds[0];
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
 
                     sql.server.guilds.isLeader(message, guild.name)
                         .then(r => {
-                            if (r)
+                            if (r) {
                                 sql.server.guilds.setLore(message, guild.name, data.arguments.slice(1).join(' ').trim())
-                                .then(r => resolve({
-                                    value: chatFormat.response.guilds.text_asset.lore.success(guild.name)
-                                }))
-                                .catch(e => reject(e));
+                                    .then(r => resolve({
+                                        value: chatFormat.response.guilds.text_asset.lore.success(guild.name)
+                                    }))
+                                    .catch(e => reject(e));
+                                }
                             else
                                 resolve({
                                     value: chatFormat.response.guilds.text_asset.lore.no_perms()
@@ -192,22 +239,23 @@ function setLore(message, data) {
 function setMotto(message, data) {
     return new Promise((resolve, reject) => {
         sql.server.guilds.getByUser(message, message.author.id)
-            .then(guilds => {
-                if (guilds.length) {
-                    const guild = guilds[0];
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
 
                     sql.server.guilds.isLeader(message, guild.name)
                         .then(r => {
-                            if (r)
+                            if (r) {
                                 sql.server.guilds.setMotto(message, guild.name, data.arguments.slice(1).join(' ').trim())
-                                .then(r => resolve({
-                                    value: chatFormat.response.guilds.text_asset.motto.success(guild.name)
-                                }))
-                                .catch(e => reject(e));
+                                    .then(r => resolve({
+                                        value: chatFormat.response.guilds.text_asset.motto.success(guild.name)
+                                    }))
+                                    .catch(e => reject(e));
+                                }
                             else
                                 resolve({
                                     value: chatFormat.response.guilds.text_asset.motto.no_perms()
-                                })
+                                });
                         })
                 } else
                     resolve({
@@ -222,9 +270,9 @@ function getLore(message, data) {
     return new Promise((resolve, reject) => {
         if (!data.parameters.string.name) {
             sql.server.guilds.getByUser(message, message.author.id)
-                .then(guilds => {
-                    if (guilds.length) {
-                        const guild = guilds[0];
+                .then(guildList => {
+                    if (guildList.length) {
+                        const guild = guildList[0];
 
                         let embed = new Discord.MessageEmbed()
                             .setTitle(`The Lore of ${guild.name}`)
@@ -241,9 +289,9 @@ function getLore(message, data) {
                 .catch(e => reject(e));
         } else {
             sql.server.guilds.getByName(message, data.parameters.string.name)
-                .then(guilds => {
-                    if (guilds.length) {
-                        const guild = guilds[0];
+                .then(guildList => {
+                    if (guildList.length) {
+                        const guild = guildList[0];
 
                         let embed = new Discord.MessageEmbed()
                             .setTitle(`The Lore of ${guild.name}`)
@@ -263,16 +311,23 @@ function getLore(message, data) {
 }
 
 function list(message, data) {
+    console.log(data);
     return new Promise((resolve, reject) => {
         sql.server.guilds.list(message)
             .then(list => {
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Guilds in ${message.guild.name}`);
 
-                if (list.length)
-                    for (let i in list)
+                let guild_list = [];
+
+                for (let i in list) {
+                    if ((data.flags['p'] && list[i].invite_only) || !list[i].invite_only) {
                         embed.addField(list[i].name, `${list[i].members} members${list[i].limbo != 0 ? ' (in limbo)' : ''}${list[i].invite_only ? '\nInvite only.' : ''}`);
-                else
+                        guild_list.push(list[i]);
+                    }
+                }
+
+                if (!guild_list.length)
                     embed.addField('There are no guilds in this server.', 'Use the "guild create" command to make some!');
 
                 resolve({
@@ -293,39 +348,39 @@ function join(message, data) {
             });
         else
             sql.server.guilds.getUserInvites(message, message.author.id, guild_name)
-            .then(invites => {
-                sql.server.guilds.getByUser(message, message.author.id)
-                    .then(guildList => {
-                        if (guildList.length) {
-                            resolve({
-                                value: chatFormat.response.guilds.join.already_member()
-                            });
-                        } else {
-                            if (invites.length)
-                                sql.server.guilds.addMember(message, guild_name, message.author.id)
-                                .then(result => {
-                                    console.log(result);
-                                    if (result.status === true)
-                                        resolve({
-                                            value: chatFormat.response.guilds.leave.success(message.author, guild.name)
-                                        });
-                                    else
-                                        resolve({
-                                            values: [
-                                                {value: chatFormat.response.guilds.join.success(message.author, guild.name)},
-                                                result
-                                            ]
-                                        });
-                                })
-                                .catch(e => reject(e));
-                            else
+                .then(invites => {
+                    sql.server.guilds.getByUser(message, message.author.id)
+                        .then(guildList => {
+                            if (guildList.length) {
                                 resolve({
-                                    value: chatFormat.response.guilds.join.no_invite(guild_name)
-                                })
-                        }
-                    })
-            })
-            .catch(e => reject(e));
+                                    value: chatFormat.response.guilds.join.already_member()
+                                });
+                            } else {
+                                if (invites.length)
+                                    sql.server.guilds.addMember(message, guild_name, message.author.id)
+                                        .then(result => {
+                                            console.log(result);
+                                            if (result.status === true)
+                                                resolve({
+                                                    value: chatFormat.response.guilds.leave.success(message.author, guild.name)
+                                                });
+                                            else
+                                                resolve({
+                                                    values: [
+                                                        { value: chatFormat.response.guilds.join.success(message.author, guild.name) },
+                                                        result
+                                                    ]
+                                                });
+                                        })
+                                        .catch(e => reject(e));
+                                else
+                                    resolve({
+                                        value: chatFormat.response.guilds.join.no_invite(guild_name)
+                                    })
+                            }
+                        })
+                })
+                .catch(e => reject(e));
     });
 }
 
@@ -349,11 +404,11 @@ function admin_join(message, data) {
                     for (let i in results) {
                         console.log(results[i])
                         if (results[i].status === true) {
-                                values.push({
-                                    value: chatFormat.response.guilds.join.success(members[i], data.parameters.string.name)
-                                });
-                                
-                            }
+                            values.push({
+                                value: chatFormat.response.guilds.join.success(members[i], data.parameters.string.name)
+                            });
+
+                        }
                         else {
                             values.push(results[i]);
                         }
@@ -386,13 +441,13 @@ function admin_leave(message, data) {
                     let values = [];
                     for (let i in results) {
                         if (results[i].status === false)
-                                values.push({
-                                    value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name)
-                                });
-                            else {
-                                values.push({value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name)});
-                                values.push(results[i]);
-                            }
+                            values.push({
+                                value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name)
+                            });
+                        else {
+                            values.push({ value: chatFormat.response.guilds.leave.success(members[i], data.parameters.string.name) });
+                            values.push(results[i]);
+                        }
                     }
                     resolve({
                         values
@@ -411,10 +466,10 @@ function admin_disband(message, data) {
             });
         else
             sql.server.guilds.purge(message, data.parameters.string.name)
-            .then(r => resolve({
-                value: chatFormat.response.guilds.admin.disbanded(data.parameters.string.name)
-            }))
-            .catch(e => reject(e));
+                .then(r => resolve({
+                    value: chatFormat.response.guilds.admin.disbanded(data.parameters.string.name)
+                }))
+                .catch(e => reject(e));
     })
 }
 
@@ -435,7 +490,7 @@ function leave(message, data) {
                             else
                                 resolve({
                                     values: [
-                                        {value: chatFormat.response.guilds.leave.success(message.author, guild.name)},
+                                        { value: chatFormat.response.guilds.leave.success(message.author, guild.name) },
                                         result
                                     ]
                                 });

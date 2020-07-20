@@ -67,32 +67,38 @@ function check(message, guild_name) {
 
 // Guild work
 function create(message, data) {
-    if (!data.parameters.string.name)
-        return {
-            value: chatFormat.response.syntax.error(`Missing parameter $name`)
-        };
-
     let obj = {
         name: data.parameters.string.name,
         server_id: message.guild.id,
-        leader_id: message.author.id,
         timestamp: message.createdTimestamp
     }
 
     return new Promise((resolve, reject) => {
-        con.query(`insert into GUILDS (server_id, name, timestamp, limbo, text_assets) values ('${obj.server_id}', "${obj.name}", '${obj.timestamp}', true, '{"lore":"","motto":""}');`, (err, result) => {
+        const invite_only = !data.flags['p'];
+
+        con.query(`insert into GUILDS (server_id, name, timestamp, limbo, text_assets, invite_only) values ('${obj.server_id}', "${obj.name}", '${obj.timestamp}', true, '{"lore":"","motto":""}', ${invite_only});`, (err, result) => {
             if (err) {
-                if (err.code == 'ER_DUP_ENTRY')
+                if (err.code == 'ER_DUP_ENTRY') // Guild already exists; only for double error checking
                     resolve({
                         value: chatFormat.response.guilds.create.already_exists(obj.name)
                     });
                 else
                     reject(err);
             } else {
-                addMember(message, obj.name, obj.leader_id, 'leader', 'Leader', true)
-                    .then(r => resolve({
-                        value: chatFormat.response.guilds.create.success(obj.name)
-                    }))
+                addMember(message, obj.name, message.author.id, 'leader', 'Leader', true)
+                    .then(result => {
+                        let values = [];
+
+                        values.push({value: chatFormat.response.guilds.create.success(obj.name)});
+                        values.push(result.status !== true ? result : {value: chatFormat.response.guilds.join.success(message.author, obj.name)});
+
+                        if (data.parameters.string.color) {
+                            const color = (data.parameters.string.color).match(/#[a-f0-9]{6}/);
+                            values.push(setColor(message, color[0]));
+                        }
+
+                        resolve({values});
+                    })
                     .catch(e => reject(e));
             }
         });
@@ -143,23 +149,14 @@ function purge(message, guild_name) {
 
 function setIcon(message, iconURL) {
     return new Promise((resolve, reject) => {
-        users.get(message.guild.id, message.author.id)
-            .then(user => {
-                if (user.guild_role == 'leader') {
-                    con.query(`update GUILDS set icon = '${iconURL}' where server_id = '${message.guild.id}' and name = '${user.guild}';`, (err, result) => {
-                        if (err)
-                            reject(err);
-                        else
-                            resolve({
-                                value: chatFormat.response.guilds.icon.success(user.guild)
-                            });
-                    });
-                } else
-                    resolve({
-                        value: chatFormat.response.guilds.icon.no_perms()
-                    });
-            })
-            .catch(e => reject(e));
+        con.query(`update GUILDS set icon = '${iconURL}' where server_id = '${message.guild.id}' and name = '${user.guild}';`, (err, result) => {
+            if (err)
+                reject(err);
+            else
+                resolve({
+                    value: chatFormat.response.guilds.icon.success(user.guild)
+                });
+        });
     });
 }
 
@@ -259,20 +256,18 @@ function setMotto(message, guild_name, motto) {
             if (err)
                 reject(err);
             else {
-                if (result.length) {
-                    let json = JSON.parse(result[0].text_assets) || {
-                        "lore": "",
-                        "motto": ""
-                    };
-                    json.motto = motto;
+                let json = JSON.parse(result[0].text_assets) || {
+                    "lore": "",
+                    "motto": ""
+                };
+                json.motto = motto;
 
-                    con.query(`update GUILDS set text_assets = '${JSON.stringify(json)}' where server_id = '${message.guild.id}' and name = '${guild_name}';`, (err, result) => {
-                        if (err)
-                            reject(err);
-                        else
-                            resolve(result);
-                    })
-                }
+                con.query(`update GUILDS set text_assets = '${JSON.stringify(json)}' where server_id = '${message.guild.id}' and name = '${guild_name}';`, (err, result) => {
+                    if (err)
+                        reject(err);
+                    else
+                        resolve(result);
+                });
             }
         });
     });
@@ -467,59 +462,59 @@ function updateMembers(message, guild_name, user_id = null) {
                                                             .catch(e => reject(e));
                                                     } else {
                                                         console.log('The guild already has a role set: ', guild.role_id)
-                                                        
+
                                                         console.log('Updating all guild members with new role')
-                                                            getUserIds(message, guild.name)
-                                                                .then(ids => {
-                                                                    let arr = [];
-                                                                    for (let i in ids)
-                                                                        arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), guild.role_id));
+                                                        getUserIds(message, guild.name)
+                                                            .then(ids => {
+                                                                let arr = [];
+                                                                for (let i in ids)
+                                                                    arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), guild.role_id));
 
-                                                                    Promise.all(arr)
-                                                                        .then(results => {
-                                                                            console.log('Updated all users: ', results)
-                                                                            resolve({
-                                                                                value: chatFormat.response.guilds.create.establish(guild.name, current_members)
-                                                                            });
-                                                                        })
-                                                                        .catch(e => {
-                                                                            if (e === false) {
-                                                                                console.log('Does not have a guild role.')
-                                                                                setRoles.create(message, guild.name, guild.color) // Creates or fetches role
-                                                                                    .then(role => {
-                                                                                        console.log('New guild role: ', role.id)
-                                                                                        con.query(`update GUILDS set role_id = ${role.id} where server_id = '${guild.server_id}' and name = '${guild.name}';`, (err, result) => {
-                                                                                            if (err)
-                                                                                                reject(err);
-                                                                                            else {
-                                                                                                console.log('Updating all users with new role')
-                                                                                                getUserIds(message, guild.name)
-                                                                                                    .then(ids => {
-                                                                                                        let arr = [];
-                                                                                                        for (let i in ids)
-                                                                                                            arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), role.id));
-
-                                                                                                        Promise.all(arr)
-                                                                                                            .then(results => {
-                                                                                                                console.log('Updated all users: ', results.length)
-                                                                                                                resolve({
-                                                                                                                    value: chatFormat.response.guilds.create.establish(guild.name, current_members)
-                                                                                                                })
-                                                                                                            })
-                                                                                                            .catch(e => reject(e));
-                                                                                                    })
-                                                                                                    .catch(e => reject(e));
-
-                                                                                            }
-                                                                                        });
-
-                                                                                    })
-                                                                                    .catch(e => reject(e));
-                                                                            } else
-                                                                                reject(e);
+                                                                Promise.all(arr)
+                                                                    .then(results => {
+                                                                        console.log('Updated all users: ', results)
+                                                                        resolve({
+                                                                            value: chatFormat.response.guilds.create.establish(guild.name, current_members)
                                                                         });
-                                                                })
-                                                                .catch(e => reject(e));
+                                                                    })
+                                                                    .catch(e => {
+                                                                        if (e === false) {
+                                                                            console.log('Does not have a guild role.')
+                                                                            setRoles.create(message, guild.name, guild.color) // Creates or fetches role
+                                                                                .then(role => {
+                                                                                    console.log('New guild role: ', role.id)
+                                                                                    con.query(`update GUILDS set role_id = ${role.id} where server_id = '${guild.server_id}' and name = '${guild.name}';`, (err, result) => {
+                                                                                        if (err)
+                                                                                            reject(err);
+                                                                                        else {
+                                                                                            console.log('Updating all users with new role')
+                                                                                            getUserIds(message, guild.name)
+                                                                                                .then(ids => {
+                                                                                                    let arr = [];
+                                                                                                    for (let i in ids)
+                                                                                                        arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), role.id));
+
+                                                                                                    Promise.all(arr)
+                                                                                                        .then(results => {
+                                                                                                            console.log('Updated all users: ', results.length)
+                                                                                                            resolve({
+                                                                                                                value: chatFormat.response.guilds.create.establish(guild.name, current_members)
+                                                                                                            })
+                                                                                                        })
+                                                                                                        .catch(e => reject(e));
+                                                                                                })
+                                                                                                .catch(e => reject(e));
+
+                                                                                        }
+                                                                                    });
+
+                                                                                })
+                                                                                .catch(e => reject(e));
+                                                                        } else
+                                                                            reject(e);
+                                                                    });
+                                                            })
+                                                            .catch(e => reject(e));
                                                     }
                                                 })
                                                 .catch(e => reject(e));
@@ -693,8 +688,8 @@ function removeMember(message, guild_name, user_id) {
                 reject(err);
             else
                 updateMembers(message, guild_name, user_id)
-                .then(result => resolve(result))
-                .catch(e => reject(e));
+                    .then(result => resolve(result))
+                    .catch(e => reject(e));
         });
     });
 }
