@@ -64,7 +64,9 @@ module.exports = {
                         else if (!videos[videoIndex].url)
                             reject(null);
                         else
-                            resolve(func(message, videos[videoIndex].url));
+                            func(message, videos[videoIndex].url)
+                                .then(song => resolve(song))
+                                .catch(e => reject(e));
                     }
                 }
             });

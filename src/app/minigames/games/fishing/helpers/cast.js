@@ -10,10 +10,6 @@ module.exports = function (message, userID) {
                 .then(msg => {
                     newInstance(user)
                         .then(instance => {
-
-                            if (instance.returnItem === null)
-                                return console.log('Aborted');
-
                             console.log(instance);
 
                             setTimeout(() => {
@@ -29,21 +25,26 @@ module.exports = function (message, userID) {
                                     // modUser(user.definition.id, 'levelup', { game: 'fishing', message: message })
                                     let embedMsg = new Discord.RichEmbed()
                                         .setTitle(`:fishing_pole_and_fish: ${instance.returnItem[0].name.replace('_', ' ')}`);
-                                        switch(instance.returnItem[0].rarity) {
-                                            case 'common': {
-                                                embedMsg.setColor(chatFormat.colors.byName.lightgray);
-                                                break;
-                                            }
-                                            case 'uncommon': {
-                                                embedMsg.setColor(chatFormat.colors.byName.green);
-                                                break;
-                                            }
+                                    switch (instance.returnItem[0].rarity) {
+                                        case 'common': {
+                                            embedMsg.setColor(chatFormat.colors.byName.lightgray);
+                                            break;
                                         }
+                                        case 'uncommon': {
+                                            embedMsg.setColor(chatFormat.colors.byName.green);
+                                            break;
+                                        }
+                                    }
                                     embedMsg.addField(
                                         `Rarity: ${instance.returnItem[0].rarity}`,
                                         `Weight: ${instance.returnItem[1].weight} lbs.\n` +
                                         `Size: ${instance.returnItem[1].size} inches`
                                     );
+                                    msg.edit(embedMsg);
+                                }
+                                else {
+                                    let embedMsg = new Discord.RichEmbed()
+                                        .setTitle(`It got away...`);
                                     msg.edit(embedMsg);
                                 }
                             }, instance.delay * 1000);
