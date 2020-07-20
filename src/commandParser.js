@@ -68,7 +68,7 @@ function getOther(name, subcommand) {
             ? commandList[name].subcommands[subcommand]
             : commandList[name].commands[name];
     } catch {
-        return commandList[name].commands[name];
+        return undefined;
     }
 }
 
@@ -546,7 +546,7 @@ module.exports = function (client, message) {
                 let reg = `[${prefix.toString()}](\\w|[?])+`;
 
                 let commandRegex = new RegExp(reg);
-                let flagRegex = /-[a-zA-Z]+\s/g;
+                let flagRegex = /-[a-zA-Z]+\s*/g;
                 let boolParamRegex = /\?\w+:(t|f)/g;
                 let stringParamRegex = /\$\w+:".*?"/g;
                 let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
@@ -557,7 +557,8 @@ module.exports = function (client, message) {
                     reject(null);
                 } else {
                     let flags = {};
-                    if (content.match(flagRegex) != null) {
+                    const has_flags = content.match(flagRegex);
+                    if (has_flags !== null) {
                         let flagArr = content.match(flagRegex)[0].slice(1).split('');
                         for (let i in flagArr) {
                             flags[flagArr[i]] = true;

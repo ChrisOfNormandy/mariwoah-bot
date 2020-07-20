@@ -158,6 +158,7 @@ module.exports = {
                 promote_leader: (username, guild_name) => {return `> ${username} has been promoted to a leader of ${guild_name}.`},
                 no_perms: () => {return `> You must be a guild leader to change the roles of the guild.`},
                 limit: () => {return `> Cannot create a new role, limit has been reached for this server (50 per 48 hours).`},
+                reserved: (role_name) => {return `> The role ${role_name} is reserved and will not be reassigned.`},
                 promote: {
                     exhile: (user, guild_name) => {return `> Exiled ${user} within ${guild_name}. They are a member, but at what cost?`},
                     member: (user, guild_name) => {return `> Updated ${user} to the role of guild member in ${guild_name}.`},

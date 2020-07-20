@@ -733,31 +733,34 @@ module.exports = {
         header: '### Guilds ###',
         commands: {
             'guild': {
-                description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
+                description: 'Displays guild information.',
                 permissionLevel: 1,
-                arguments: [
-                    [
-                        '$name:"GuildName"'
-                    ],
-                    [
-                        'The guild name. In the future, other arguments will be allowed with the creation of guilds.'
-                    ]
-                ],
+                parameters: {
+                    string: {
+                        '*name': 'The guild name. By default shows current guild information.'
+                    }
+                },
                 selfClear: true
-            }
+            },
+            page: [
+                [
+                    'guild'
+                ]
+            ]
         },
         subcommands: {
             'create': {
                 description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
                 permissionLevel: 1,
-                arguments: [
-                    [
-                        '$name:"GuildName"'
-                    ],
-                    [
-                        'The guild name. In the future, other arguments will be allowed with the creation of guilds.'
-                    ]
-                ],
+                parameters: {
+                    string: {
+                        'name': 'Guild name; must be equal or fewer than 32 characters.',
+                        '*color': 'Guild color; must be a valid hex color code such as #ffffff or #000000.'
+                    }
+                },
+                flags: {
+                    'p': 'Creates the guild as publicly joinable. By default, guilds are created as invite-only / private.'
+                },
                 selfClear: true
             },
             'icon': {
@@ -815,14 +818,11 @@ module.exports = {
             'lore': {
                 description: 'Displays the lore of a guild.',
                 permissionLevel: 1,
-                arguments: [
-                    [
-                        '*$name:"GuildName"'
-                    ],
-                    [
-                        'The name of a guild. If ignored, gets the lore for the guild of the current user.'
-                    ]
-                ],
+                parameters: {
+                    string: {
+                        '*name': 'The name of a guild. If ignored, gets the lore for the guild of the current user.'
+                    }
+                },
                 selfClear: true
             },
             'list': {
@@ -874,14 +874,11 @@ module.exports = {
             'deny': {
                 description: 'Reject an extended invite. A new one can be redelievered.',
                 permissionLevel: 1,
-                arguments: [
-                    [
-                        '$name:"GuildName"'
-                    ],
-                    [
-                        'Name of the guild.'
-                    ]
-                ],
+                parameters: {
+                    string: {
+                        'name': 'Name of the guild you wish to reject active invites.'
+                    }
+                },
                 selfClear: true
             },
             'setleader': {
@@ -939,14 +936,11 @@ module.exports = {
             'settitle': {
                 description: 'Leaders only; changes the title of a user.',
                 permissionLevel: 1,
-                arguments: [
-                    [
-                        '$title:"title"'
-                    ],
-                    [
-                        'Whatever title is desired.'
-                    ]
-                ],
+                parameters: {
+                    string: {
+                        'title': 'Whatever title is desired.'
+                    }
+                },
                 selfClear: true
             },
             page: [
@@ -1012,14 +1006,11 @@ module.exports = {
             'disband': {
                 description: 'Deletes a guild.',
                 permissionLevel: 4,
-                arguments: [
-                    [
-                        '$name:"GuildName"'
-                    ],
-                    [
-                        'Guild name.'
-                    ]
-                ]
+                parameters: {
+                    string: {
+                        'name': 'Guild name.'
+                    }
+                }
             }
         }
     },
