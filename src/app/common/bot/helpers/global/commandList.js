@@ -734,7 +734,7 @@ module.exports = {
         commands: {
             'guild': {
                 description: 'Displays guild information.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 parameters: {
                     string: {
                         '*name': 'The guild name. By default shows current guild information.'
@@ -751,7 +751,7 @@ module.exports = {
         subcommands: {
             'create': {
                 description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 parameters: {
                     string: {
                         'name': 'Guild name; must be equal or fewer than 32 characters.',
@@ -765,7 +765,7 @@ module.exports = {
             },
             'icon': {
                 description: 'Leaders only; changes the guild icon.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         'URL'
@@ -778,7 +778,7 @@ module.exports = {
             },
             'color': {
                 description: 'Leaders only; changes the guild color (in the guild display embed and the role color).',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         'Hex color code'
@@ -791,7 +791,7 @@ module.exports = {
             },
             'setlore': {
                 description: 'Leaders only; changes the guild lore.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         'Text'
@@ -804,7 +804,7 @@ module.exports = {
             },
             'setmotto': {
                 description: 'Leaders only; changes the guild motto.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         'Text'
@@ -817,7 +817,7 @@ module.exports = {
             },
             'lore': {
                 description: 'Displays the lore of a guild.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 parameters: {
                     string: {
                         '*name': 'The name of a guild. If ignored, gets the lore for the guild of the current user.'
@@ -827,12 +827,12 @@ module.exports = {
             },
             'list': {
                 description: 'Displays a list of all guilds in the Discord.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 selfClear: true
             },
             'join': {
                 description: 'Places the user under the leadership of a guild.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         'Guild name'
@@ -845,12 +845,12 @@ module.exports = {
             },
             'leave': {
                 description: 'Releashes the user from the leadership of a guild.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 selfClear: true
             },
             'invite': {
                 description: 'Leaders and officers only; invite members to join the guild.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         '@user'
@@ -863,17 +863,17 @@ module.exports = {
             },
             'toggle': {
                 description: 'Leaders only; toggles the invite requirement of the guild.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 selfClear: true
             },
             'invites': {
                 description: 'Lists all invites extended to a user.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 selfClear: true
             },
             'deny': {
                 description: 'Reject an extended invite. A new one can be redelievered.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 parameters: {
                     string: {
                         'name': 'Name of the guild you wish to reject active invites.'
@@ -883,7 +883,7 @@ module.exports = {
             },
             'setleader': {
                 description: 'Leaders only; changes the guild role for a user to Leader - does not change their title.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         '@user'
@@ -896,7 +896,7 @@ module.exports = {
             },
             'setofficer': {
                 description: 'Leaders only; changes the guild role for a user to Officer - does not change their title.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         '@user'
@@ -909,7 +909,7 @@ module.exports = {
             },
             'setmember': {
                 description: 'Leaders only; changes the guild role for a user to Member - does not change their title.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         '@user'
@@ -922,7 +922,7 @@ module.exports = {
             },
             'exhile': {
                 description: 'Leaders only; exhiles a player in a guild. They remain under its leadership, but have no power unless they leave.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 arguments: [
                     [
                         '@user'
@@ -935,7 +935,7 @@ module.exports = {
             },
             'settitle': {
                 description: 'Leaders only; changes the title of a user.',
-                permissionLevel: 1,
+                permissionLevel: 0,
                 parameters: {
                     string: {
                         'title': 'Whatever title is desired.'

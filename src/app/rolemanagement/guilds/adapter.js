@@ -82,7 +82,7 @@ function guildEmbed(message, guild) {
                 else if (members.length > 10)
                     str_l += `${members.length} strong`;
                 else
-                    str_l += '_vaccant_\n';
+                    str_l += '_vacant_\n';
 
                 str_r += '\nExhiled:\n';
 
@@ -654,15 +654,15 @@ function update(message, guild_name) {
 function promote(message, data, role) {
     return new Promise((resolve, reject) => {
         sql.server.guilds.getByUser(message, message.author.id)
-            .then(guilds => {
-                if (guilds.length) {
-                    const guild_name = guilds[0].name;
+            .then(guildList => {
+                if (guildList.length) {
+                    const guild = guildList[0];
 
-                    sql.server.guilds.isLeader(message, guild_name, message.author.id)
+                    sql.server.guilds.isLeader(message, guild.name, message.author.id)
                         .then(r => {
                             if (r) {
                                 if (data.mentions.members.size > 0) {
-                                    sql.server.guilds.setUserRole(message, data.mentions.members.first().id, role)
+                                    sql.server.guilds.setUserRole(message, data.mentions.members.first().id, guild, role)
                                         .then(r => resolve(r))
                                         .catch(e => reject(e));
                                 } else

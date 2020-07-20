@@ -191,7 +191,7 @@ function setColor(message, color) {
     });
 }
 
-function setUserRole(message, user_id, role) {
+function setUserRole(message, user_id, guild, role) {
     return new Promise((resolve, reject) => {
         if (role != 'leader' && role != 'officer' && role != 'member' && role != 'exhiled')
             resolve({
