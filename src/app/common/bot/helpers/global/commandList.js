@@ -749,6 +749,11 @@ module.exports = {
             ]
         },
         subcommands: {
+            'help': {
+                description: 'Some basic guidance on the basics of the bot and guilds.',
+                permissionLevel: 0,
+                selfClear: true
+            },
             'create': {
                 description: 'Create a new guild. Will be established when it reaches a total of at least 3 members.',
                 permissionLevel: 0,
@@ -763,7 +768,7 @@ module.exports = {
                 },
                 selfClear: true
             },
-            'icon': {
+            'seticon': {
                 description: 'Leaders only; changes the guild icon.',
                 permissionLevel: 0,
                 arguments: [
@@ -776,7 +781,7 @@ module.exports = {
                 ],
                 selfClear: true
             },
-            'color': {
+            'setcolor': {
                 description: 'Leaders only; changes the guild color (in the guild display embed and the role color).',
                 permissionLevel: 0,
                 arguments: [

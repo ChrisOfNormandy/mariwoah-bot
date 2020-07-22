@@ -182,29 +182,30 @@ function refresh_guild(message, strip = false) {
     });
 }
 
-function add(message, member, roleID) {
+function add(message, user_id, roleID) {
     return new Promise((resolve, reject) => {
-        if (!message.guild.roles.cache.has(roleID))
-            reject(false);
-        else
+        if (!message.guild.roles.cache.has(roleID) || !message.guild.members.cache.has(user_id))
+            reject(user_id);
+        else {
             message.guild.roles.fetch(roleID)
                 .then(role => {
-                    member.roles.add(message.guild.roles.resolve(role))
+                    message.guild.members.cache.get(user_id).roles.add(message.guild.roles.resolve(role))
                         .then(r => resolve(r))
                         .catch(e => reject(e));
                 })
                 .catch(e => reject(e));
+        }
     });
 }
 
-function remove(message, member, roleID) {
+function remove(message, user_id, roleID) {
     return new Promise((resolve, reject) => {
-        if (!message.guild.roles.cache.has(roleID))
-            reject(false);
+        if (!message.guild.roles.cache.has(roleID) || !message.guild.members.cache.has(user_id))
+            reject(user_id);
         else
             message.guild.roles.fetch(roleID)
                 .then(role => {
-                    member.roles.remove(message.guild.roles.resolve(role))
+                    message.guild.members.cache.get(user_id).roles.remove(message.guild.roles.resolve(role))
                         .then(r => resolve(r))
                         .catch(e => reject(e));
                 })

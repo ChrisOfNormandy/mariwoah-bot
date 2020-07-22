@@ -229,7 +229,7 @@ function parseCommand(client, message, data) {
                         case 'guild_admin': {
                             switch (data.arguments[0]) {
                                 case 'refresh': {
-                                    value = adapter.rolemanagement.guilds.update(message, data.arguments.slice(1).join(' '));
+                                    value = adapter.rolemanagement.guilds.update(message, data);
                                     break;
                                 }
                                 case 'other_join': {
@@ -253,11 +253,11 @@ function parseCommand(client, message, data) {
                                     value = adapter.rolemanagement.guilds.newCandidate(message, data);
                                     break;
                                 }
-                                case 'icon': {
+                                case 'seticon': {
                                     value = adapter.rolemanagement.guilds.setIcon(message, data);
                                     break;
                                 }
-                                case 'color': {
+                                case 'setcolor': {
                                     value = adapter.rolemanagement.guilds.setColor(message, data);
                                     break;
                                 }
@@ -319,6 +319,10 @@ function parseCommand(client, message, data) {
                                 }
                                 case 'settitle': {
                                     value = adapter.rolemanagement.guilds.setTitle(message, data);
+                                    break;
+                                }
+                                case 'help': {
+                                    value = adapter.rolemanagement.guilds.listHelp(message, data);
                                     break;
                                 }
                                 default: {
@@ -490,7 +494,7 @@ function parseCommand(client, message, data) {
 }
 
 function formatResponse(input) {
-    console.log('INPUT: ', input);
+    // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
         if (input.value) {
             switch (typeof input.value) {

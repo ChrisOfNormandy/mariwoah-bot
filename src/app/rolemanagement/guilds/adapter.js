@@ -2,6 +2,78 @@ const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const sql = require('../../sql/adapter');
 
+function listHelp(message, data) {
+    
+        let headers = [
+            `The Basics of Commands`,
+            `Getting Started with Guilds`,
+            `Useful Commands`
+        ]
+        let msgs = [
+            [
+                `Creating a guild is fairly simple once you understand the bot syntax.\n`,
+                `Here are some basic terms you will see often:\n`,
+                `\n`,
+                `Flags: Used like "-p" or "-spl" where s, p and l are individual flags.\n`,
+                `Flags are used for specifying certain operations, such as what to return from a query/search or shuffling data.\n`,
+                `They can be placed anywhere in the command, but if you use a parameter with a hyphen, -, you must place the flags at the start of the command.\n`,
+                `\n`,
+                `Parameters: Used like $name:"Some text" or ?value:t.\n`,
+                `Parameters are used for specifying certain variables, such as names, colors, reasons and quantities.\n`,
+                `Strings use a $ to specify they are a string/text. Values are placed inside double quotes.\n`,
+                `Booleans (true or false) use a ? to specify they are a boolean value. They use either t or f.\n`,
+                `Integers use a ^ to specify they are a whole number, negative or positive.\n`,
+                `Doubles (decimals) use a % to specify they are a decimal value. They can extend up to 10 decimal points and be negative.`,
+            ],
+            [
+                `Now that you should be up-to-date on how to format your commands!\n`,
+                `To create a guild, you need a name and optionally a color.\n`,
+                `The format is:\n`,
+                `> guild create $name:"Your Guild Name" (optional: $color:"#Hex Color")\n`,
+                `\n`,
+                `> Once you have created a guild, you can change its color, its motto, its lore and its icon.\n`,
+                `To do so, you can use the following:\n`,
+                `> guild seticon (Your image URL. This can be a Discord image link as long as the original is not deleted.)\n`,
+                `> guild setcolor (color as a hex code - https://htmlcolorcodes.com/color-picker/; Looks like #FF5733. You need the # sign!)\n`,
+                `> guild setmotto (Your motto as plain text)\n`,
+                `> guild setlore (Your lore as plain text)`
+            ],
+            [
+                `To toggle the visability of your guild (public or private) you can use:\n`,
+                `> guild toggle\n`,
+                `\n`,
+                `To invite members to your private guild, use:\n`,
+                `> guild invite @member (ping)\n`,
+                `\n`,
+                `To join a public guild or a private guild with an invite, use:\n`,
+                `> guild join Guild Name\n`,
+                `\n`,
+                `To reject an invite, use:`,
+                `> guild reject $name:"Guild Name"\n`,
+                `You must specify a name in this manner; future options will be available in the future.\n`,
+                `\n`,
+                `To leave a guild, use:\n`,
+                `> guild leave`
+            ]
+        ];
+
+
+        for (let i in headers) {
+            let embed = new Discord.MessageEmbed()
+                .setColor(chatFormat.colors.byName.yellow)
+                .setTitle(`Guild Help from ${message.guild.name} | ${i} / ${headers.length - 1}`);
+            let str = '';
+            for (let line in msgs[i]) {
+                str += msgs[i][line];
+            }
+            embed.addField(headers[i], str);
+
+            message.author.send(embed);
+        }
+
+    return {value: `${message.author}, you have been sent some help in your direct messages.`};
+}
+
 function newCandidate(message, data) {
     if (!data.parameters.string.name)
         return {
@@ -98,9 +170,9 @@ function guildEmbed(message, guild) {
                 embed.addField(`Requires invite: ${guild.invite_only ? 'Yes' : 'No'}`, str_r, true);
 
                 embed.setDescription('"' + (JSON.parse(guild.text_assets).motto || 'Do you know, the muffin man?') + '"');
-                if (guild.icon != 'null')
-                    embed.setThumbnail(guild.icon);
 
+                embed.setThumbnail(guild.icon.toString());
+                console.log(embed);
                 resolve({
                     embed
                 });
@@ -157,7 +229,7 @@ function setIcon(message, data) {
                     sql.server.guilds.isLeader(message, guild.name, message.author.id)
                         .then(r => {
                             if (r) {
-                                sql.server.guilds.setIcon(message, data.urls[0])
+                                sql.server.guilds.setIcon(message, guild, data.urls[0])
                                     .then(r => resolve({ value: chatFormat.response.guilds.icon.success(guild.name) }))
                                     .catch(e => reject(e));
                             }
@@ -190,7 +262,7 @@ function setColor(message, data) {
                     sql.server.guilds.isLeader(message, guild.name, message.author.id)
                         .then(r => {
                             if (r) {
-                                sql.server.guilds.setColor(message, color)
+                                sql.server.guilds.setColor(message, guild, color)
                                     .then(r => resolve({ value: chatFormat.response.guilds.color.success(guild.name) }))
                                     .catch(e => reject(e));
                             }
@@ -213,7 +285,7 @@ function setLore(message, data) {
                 if (guildList.length) {
                     const guild = guildList[0];
 
-                    sql.server.guilds.isLeader(message, guild.name)
+                    sql.server.guilds.isLeader(message, guild.name, message.author.id)
                         .then(r => {
                             if (r) {
                                 sql.server.guilds.setLore(message, guild.name, data.arguments.slice(1).join(' ').trim())
@@ -362,12 +434,12 @@ function join(message, data) {
                                             console.log(result);
                                             if (result.status === true)
                                                 resolve({
-                                                    value: chatFormat.response.guilds.leave.success(message.author, guild.name)
+                                                    value: chatFormat.response.guilds.join.success(message.author, guild_name)
                                                 });
                                             else
                                                 resolve({
                                                     values: [
-                                                        { value: chatFormat.response.guilds.join.success(message.author, guild.name) },
+                                                        { value: chatFormat.response.guilds.join.success(message.author, guild_name) },
                                                         result
                                                     ]
                                                 });
@@ -647,8 +719,26 @@ function getInvites(message, data) {
     })
 }
 
-function update(message, guild_name) {
-    return sql.server.guilds.updateMembers(message, guild_name);
+function update(message, data) {
+    if (data.parameters.string.name)
+        return sql.server.guilds.updateMembers(message, data.parameters.string.name, null, true);
+    else
+        return new Promise((resolve, reject) => {
+            sql.server.guilds.list(message)
+                .then(guilds => {
+                    let arr = [];
+                    for (let i in guilds)
+                        arr.push(sql.server.guilds.updateMembers(message, guilds[i].name, null, true));
+                    
+                    Promise.all(arr)
+                        .then(results => {
+                            console.log(results);
+                            resolve({values: results});
+                        })
+                        .catch(e => reject(e));
+                })
+                .catch(e => reject(e));
+        })
 }
 
 function promote(message, data, role) {
@@ -728,6 +818,8 @@ module.exports = {
     create: sql.server.guilds.create,
     get: sql.server.guilds.get,
     view: formatListing,
+
+    listHelp,
 
     setIcon,
     setColor,

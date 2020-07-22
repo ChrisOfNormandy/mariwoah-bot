@@ -4,6 +4,7 @@ const con = connection.con;
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const users = require('../users');
 const setRoles = require('../../../rolemanagement/helpers/setRoles');
+const remove = require('../../../music/playlists/helpers/remove');
 
 // Fetch guild
 function get(message, data) {
@@ -147,47 +148,31 @@ function purge(message, guild_name) {
     });
 }
 
-function setIcon(message, iconURL) {
+function setIcon(message, guild, iconURL) {
     return new Promise((resolve, reject) => {
-        con.query(`update GUILDS set icon = '${iconURL}' where server_id = '${message.guild.id}' and name = '${user.guild}';`, (err, result) => {
+        con.query(`update GUILDS set icon = '${iconURL}' where server_id = '${message.guild.id}' and name = '${guild.name}';`, (err, result) => {
             if (err)
                 reject(err);
-            else
+            else {
                 resolve({
-                    value: chatFormat.response.guilds.icon.success(user.guild)
+                    value: chatFormat.response.guilds.icon.success(guild.name)
                 });
+            }
         });
     });
 }
 
-function setColor(message, color) {
+function setColor(message, guild, color) {
     return new Promise((resolve, reject) => {
-        users.get(message.guild.id, message.author.id)
-            .then(user => {
-                if (user.guild_role == 'leader') {
-                    con.query(`update GUILDS set color = '${color}' where server_id = '${message.guild.id}' and name = '${user.guild}';`, (err, result) => {
-                        if (err)
-                            reject(err);
-                        else {
-                            getByName(message, user.guild)
-                                .then(guildList => {
-                                    const guild = guildList[0];
-
-                                    if (message.guild.roles.cache.has(guild.role_id))
-                                        message.guild.roles.cache.get(guild.role_id).setColor(color);
-                                    resolve({
-                                        value: chatFormat.response.guilds.color.success(user.guild)
-                                    });
-                                })
-                                .catch(e => reject(e));
-                        }
-                    });
-                } else
-                    resolve({
-                        value: chatFormat.response.guilds.color.no_perms()
-                    });
-            })
-            .catch(e => reject(e));
+        con.query(`update GUILDS set color = '${color}' where server_id = '${message.guild.id}' and name = '${guild.name}';`, (err, result) => {
+            if (err)
+                reject(err);
+            else {
+                resolve({
+                    value: chatFormat.response.guilds.color.success(guild.name)
+                });
+            }
+        });
     });
 }
 
@@ -285,33 +270,6 @@ function getUserIds(message, guild_name) {
     });
 }
 
-function stripRoles(message, guild_name, user_id = null) {
-    return new Promise((resolve, reject) => {
-        getByName(message, guild_name)
-            .then(guildList => {
-                if (guildList.length) {
-                    const guild = guildList[0];
-
-                    let arr = [];
-                    if (!user_id)
-                        message.guild.members.cache.forEach((v, k, m) => {
-                            v.roles.cache.forEach((role, id) => {
-                                if (id == guild.role_id)
-                                    arr.push(setRoles.remove(message, v, guild.role_id));
-                            });
-                        });
-                    else
-                        arr.push(setRoles.remove(message, message.guild.members.cache.get(user_id), guild.role_id))
-
-                    Promise.all(arr)
-                        .then(results => resolve(results))
-                        .catch(e => reject(e));
-                }
-            })
-            .catch(e => reject(e));
-    });
-}
-
 function purgeUserData(message, guild_name) {
     return new Promise((resolve, reject) => {
         getByName(message, guild_name)
@@ -323,7 +281,7 @@ function purgeUserData(message, guild_name) {
                     message.guild.members.cache.forEach((v, k, m) => {
                         v.roles.cache.forEach((role, id) => {
                             if (id == guild.role_id)
-                                arr.push(setRoles.remove(message, v, guild.role_id));
+                                arr.push(setRoles.remove(message, k, guild.role_id));
                         });
                     });
 
@@ -374,8 +332,10 @@ function isLeader(message, guild_name, user_id = null) {
                 let filter = (user_id != null) ?
                     leaders.filter(id => id.user_id == user_id) :
                     leaders.filter(id => id.user_id == message.author.id);
-
-                resolve(filter[0].guild_role == 'leader');
+                if (filter.length)
+                    resolve(filter[0].guild_role == 'leader');
+                else
+                    reject(filter)
             })
             .catch(e => reject(e));
     });
@@ -397,269 +357,157 @@ function getExhiled(message, guild_name = null) {
     return getUsersByRole(message, 'exhiled', guild_name);
 }
 
-function updateMembers(message, guild_name, user_id = null) {
+function updateMembers(message, guild_name, user_id = null, force_update = false) {
     console.log('Updating > ', user_id);
 
     return new Promise((resolve, reject) => {
         getByName(message, guild_name)
-            .then(guilds => {
-                if (guilds.length > 0) {
-                    const guild = guilds[0];
+            .then(guildList => {
+                console.log('Found guilds: ', guildList.length)
+                if (guildList.length > 0) {
+                    const guild = guildList[0];
                     const old_members = guild.members;
 
                     // Update the SQL entry with updated member count
-                    con.query(`update GUILDS set members = (select count(*) from USERS where guild = "${guild.name}" and server_id = '${message.guild.id}');`, (err, result) => {
+                    con.query(`update GUILDS set members = (select count(*) from USERS where guild = '${guild.name}' and server_id = '${message.guild.id}') where server_id = '${message.guild.id}' and name = '${guild.name}';`, (err, result) => {
                         if (err)
                             reject(err)
                         else {
-                            // Get the guild
+                            // Get the updated guild
                             getByName(message, guild.name)
-                                .then(guilds_updated => {
-                                    const guild_updated = guilds_updated[0];
-                                    const current_members = guild_updated.members;
+                                .then(guildList => {
+                                    const guild = guildList[0];
+                                    const current_members = guild.members;
+                                    console.log('GUILD: ', guild.name)
 
-                                    // Gained a member
-                                    if (old_members < current_members) {
-                                        console.log(guild.name, ' gained a member')
-                                        // If there are more than 3 members and the guild is still in limbo
-                                        if (guild.limbo && current_members >= 3) {
-                                            console.log('No longer in limbo')
-                                            // Get rid of limbo
-                                            setLimbo(message, guild.name, false)
-                                                .then(r => {
-                                                    console.log('Limbo: ', r);
-                                                    // Create a new role or get/reset an existing role
-                                                    if (!guild.role_id) { // If a role already exists, do not attempt to reset
-                                                        console.log('Does not have a guild role.')
-                                                        setRoles.create(message, guild.name, guild.color) // Creates or fetches role
-                                                            .then(role => {
-                                                                console.log('New guild role: ', role.id)
-                                                                con.query(`update GUILDS set role_id = ${role.id} where server_id = '${guild.server_id}' and name = '${guild.name}';`, (err, result) => {
-                                                                    if (err)
-                                                                        reject(err);
-                                                                    else {
-                                                                        console.log('Updating user roles.')
-                                                                        getUserIds(message, guild.name)
-                                                                            .then(ids => {
-                                                                                let arr = [];
-                                                                                for (let i in ids)
-                                                                                    arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), role.id));
+                                    setLimbo(message, guild.name, !(current_members >= 3))
+                                        .then(limbo => {
+                                            console.log('Set limbo to ', !(current_members >= 3));
 
-                                                                                Promise.all(arr)
-                                                                                    .then(results => {
-                                                                                        console.log('Updated all users: ', results.length)
-                                                                                        resolve({
-                                                                                            value: chatFormat.response.guilds.create.establish(guild.name, current_members)
-                                                                                        })
-                                                                                    })
-                                                                                    .catch(e => reject(e));
-                                                                            })
-                                                                            .catch(e => reject(e));
-                                                                    }
+                                            if (!limbo) { // Not in limbo
+                                                console.log('Guild is not in limbo.');
+                                                if (guild.role_id) { // Has a role ID
+                                                    console.log('Guild already has a role: ', guild.role_id);
+                                                    if (user_id) { // Update role for only given user
+                                                        console.log('Adding role to ', user_id);
+                                                        let values = [];
+                                                        setRoles.add(message, user_id, guild.role_id)
+                                                            .then(r => {
+                                                                values.push({
+                                                                    value: '',
+                                                                    status: true
                                                                 });
+                                                                if (old_members < 3)
+                                                                    values.push({ value: chatFormat.response.guilds.create.establish(guild.name, current_members) });
 
-                                                            })
-                                                            .catch(e => reject(e));
-                                                    } else {
-                                                        console.log('The guild already has a role set: ', guild.role_id)
-
-                                                        console.log('Updating all guild members with new role')
+                                                                resolve({ values });
+                                                            }) // Gained member, already valid
+                                                            .catch(e => {
+                                                                console.log('Failed to add role: ', user_id, e);
+                                                                removeMember(message, guild.name, e)
+                                                                    .then(r => resolve(r))
+                                                                    .catch(e => reject(e));
+                                                            });
+                                                    }
+                                                    else { // Update roles for all users
+                                                        console.log('Updating roles for all users.')
                                                         getUserIds(message, guild.name)
                                                             .then(ids => {
                                                                 let arr = [];
+                                                                console.log('List of user IDs:\n', ids, '\nUpdating all roles, no limbo, has role.');
                                                                 for (let i in ids)
-                                                                    arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), guild.role_id));
+                                                                    arr.push(setRoles.add(message, ids[i].user_id, guild.role_id));
 
                                                                 Promise.all(arr)
                                                                     .then(results => {
-                                                                        console.log('Updated all users: ', results)
+                                                                        console.log('Updated all users: ', guild.name, ' ', results.length)
                                                                         resolve({
-                                                                            value: chatFormat.response.guilds.create.establish(guild.name, current_members)
+                                                                            value: '',
+                                                                            status: true
                                                                         });
                                                                     })
                                                                     .catch(e => {
-                                                                        if (e === false) {
-                                                                            console.log('Does not have a guild role.')
-                                                                            setRoles.create(message, guild.name, guild.color) // Creates or fetches role
-                                                                                .then(role => {
-                                                                                    console.log('New guild role: ', role.id)
-                                                                                    con.query(`update GUILDS set role_id = ${role.id} where server_id = '${guild.server_id}' and name = '${guild.name}';`, (err, result) => {
-                                                                                        if (err)
-                                                                                            reject(err);
-                                                                                        else {
-                                                                                            console.log('Updating all users with new role')
-                                                                                            getUserIds(message, guild.name)
-                                                                                                .then(ids => {
-                                                                                                    let arr = [];
-                                                                                                    for (let i in ids)
-                                                                                                        arr.push(setRoles.add(message, message.guild.members.cache.get(ids[i].user_id), role.id));
-
-                                                                                                    Promise.all(arr)
-                                                                                                        .then(results => {
-                                                                                                            console.log('Updated all users: ', results.length)
-                                                                                                            resolve({
-                                                                                                                value: chatFormat.response.guilds.create.establish(guild.name, current_members)
-                                                                                                            })
-                                                                                                        })
-                                                                                                        .catch(e => reject(e));
-                                                                                                })
-                                                                                                .catch(e => reject(e));
-
-                                                                                        }
-                                                                                    });
-
-                                                                                })
-                                                                                .catch(e => reject(e));
-                                                                        } else
-                                                                            reject(e);
+                                                                        console.log('Failed to add role: ', e);
+                                                                        removeMember(message, guild.name, e)
+                                                                            .then(r => resolve(r))
+                                                                            .catch(e => reject(e));
                                                                     });
                                                             })
                                                             .catch(e => reject(e));
                                                     }
-                                                })
-                                                .catch(e => reject(e));
-                                        } else {
-                                            console.log('Adding another member - limbo: ', guild.limbo, ' ', current_members, ' members')
-                                            if (user_id && !guild.limbo) {
-                                                console.log('Updating the role for user: ', user_id)
-                                                setRoles.add(message, message.guild.members.cache.get(user_id), guild.role_id)
-                                                    .then(r => resolve({
-                                                        value: '',
-                                                        status: true
-                                                    })) // Gained member, already valid
-                                                    .catch(e => reject(e));
-                                            } else {
-                                                console.log('Just adding a member.')
-                                                resolve({
-                                                    value: '',
-                                                    status: true
-                                                })
-                                            } // Gained member
-                                        }
-                                    } else { // Lost a member or stayed the same
-                                        if (current_members <= 0) {
-                                            console.log('Guild has lost all members - deleting')
-                                            purge(message, guild.name)
-                                                .then(result => resolve({
-                                                    value: chatFormat.response.guilds.delete.abandoned(guild.name)
-                                                }))
-                                                .catch(e => reject(e));
-                                        } else {
-                                            if (current_members < 3) {
-                                                console.log('Guild has fewer than 3 members.')
-                                                setLimbo(message, guild.name, true)
-                                                    .then(r => {
-                                                        console.log('Limbo: ', r)
-                                                        getLeaders(message, guild.name)
-                                                            .then(leaders => {
-                                                                if (leaders.length == 0) {
-                                                                    console.log('No leaders')
-                                                                    getOfficers(message, guild.name)
-                                                                        .then(officers => {
-                                                                            if (officers.length == 0) {
-                                                                                console.log('No officers - deleting')
-                                                                                purge(message, guild.name)
-                                                                                    .then(result => resolve({
-                                                                                        value: chatFormat.response.guilds.delete.no_leader(guild.name)
-                                                                                    }))
-                                                                                    .catch(e => reject(e));
-                                                                            } else {
-                                                                                console.log('Promoting first officer to leader')
-                                                                                setUserRole(message, officers[0].user_id, 'leader')
-                                                                                    .then(result => {
-                                                                                        console.log('Removing role from all guild members.')
-                                                                                        getUserIds(message, guild.name)
-                                                                                            .then(ids => {
-                                                                                                let arr = [];
-                                                                                                for (let i in ids)
-                                                                                                    setRoles.remove(message, message.guild.members.cache.get(ids[i].user_id), guild.role_id)
+                                                }
+                                                else { // Does not have a role ID
+                                                    setRoles.create(message, guild.name, guild.color) // Creates or fetches role
+                                                        .then(role => {
+                                                            console.log('New guild role: ', role.id)
+                                                            con.query(`update GUILDS set role_id = ${role.id} where server_id = '${guild.server_id}' and name = '${guild.name}';`, (err, result) => {
+                                                                if (err)
+                                                                    reject(err);
+                                                                else {
+                                                                    console.log('Updating user roles.')
+                                                                    getUserIds(message, guild.name)
+                                                                        .then(ids => {
+                                                                            let arr = [];
+                                                                            console.log('List of user IDs:\n', ids, '\nAFTER CREATING NEW ROLE');
+                                                                            for (let i in ids)
+                                                                                arr.push(setRoles.add(message, ids[i].user_id, role.id));
 
-                                                                                                Promise.all(arr)
-                                                                                                    .then(results => {
-                                                                                                        console.log('Removal: ', results)
-                                                                                                        resolve({
-                                                                                                            value: chatFormat.response.guilds.role.promote_leader(message.guild.members.cache.get(officers[0].user_id), guild.name)
-                                                                                                        })
-                                                                                                    })
-                                                                                                    .catch(e => reject(e));
-                                                                                            })
-                                                                                            .catch(e => reject(e));
-
-                                                                                    })
-                                                                                    .catch(e => reject(e));
-                                                                            }
+                                                                            Promise.all(arr)
+                                                                                .then(results => {
+                                                                                    console.log('Updated all users: ', guild.name, ' ', results.length)
+                                                                                    resolve({
+                                                                                        value: '',
+                                                                                        status: true
+                                                                                    });
+                                                                                })
+                                                                                .catch(e => {
+                                                                                    console.log('Failed to add role: ', e);
+                                                                                    removeMember(message, guild.name, e)
+                                                                                        .then(r => resolve(r))
+                                                                                        .catch(e => reject(e));
+                                                                                });
                                                                         })
-                                                                        .catch(e => reject(e))
-                                                                } else {
-                                                                    console.log('Has a leader, removing roles.')
-                                                                    stripRoles(message, guild.name)
-                                                                        .then(r => resolve({
-                                                                            value: chatFormat.response.guilds.create.undo(guild.name, current_members)
-                                                                        }))
                                                                         .catch(e => reject(e));
                                                                 }
-                                                            })
-                                                            .catch(e => reject(e));
-                                                    })
-                                                    .catch(e => reject(e));
-                                            } else {
-                                                if (old_members == current_members) {
-                                                    console.log('No change')
-                                                    resolve({
-                                                        value: chatFormat.response.guilds.join.no_change(),
-                                                        status: null
-                                                    });
-                                                } else {
-                                                    getLeaders(message, guild.name)
-                                                        .then(leaders => {
-                                                            if (leaders.length == 0) {
-                                                                console.log('No leaders')
-                                                                getOfficers(message, guild.name)
-                                                                    .then(officers => {
-                                                                        if (officers.length == 0) {
-                                                                            console.log('No officers - deleting')
-                                                                            purge(message, guild.name)
-                                                                                .then(result => resolve({
-                                                                                    value: chatFormat.response.guilds.delete.no_leader(guild.name)
-                                                                                }))
-                                                                                .catch(e => reject(e));
-                                                                        } else {
-                                                                            setUserRole(message, officers[0].user_id, 'leader')
-                                                                                .then(result => resolve({
-                                                                                    value: chatFormat.response.guilds.role.promote_leader(message.guild.members.cache.get(officers[0].user_id), guild.name)
-                                                                                }))
-                                                                                .catch(e => reject(e));
-                                                                        }
-                                                                    })
-                                                                    .catch(e => reject(e));
-                                                            } else {
-                                                                console.log('Has leaders')
-                                                                if (user_id) {
-                                                                    console.log('Removing the role of ', user_id)
-                                                                    setRoles.remove(message, message.guild.members.cache.get(user_id), guild.role_id)
-                                                                        .then(r => resolve({
-                                                                            value: '',
-                                                                            status: false
-                                                                        })) // Gained member, already valid
-                                                                        .catch(e => reject(e));
-                                                                } else {
-                                                                    console.log('###')
-                                                                    resolve({
-                                                                        value: '',
-                                                                        status: false
-                                                                    });
-                                                                }
-                                                            }
+                                                            });
                                                         })
                                                         .catch(e => reject(e));
                                                 }
                                             }
-                                        }
-                                    }
+                                            else { // In limbo
+                                                console.log('Guild is in limbo');
+                                                console.log(`Removing roles for: ${old_members >= 3 ? 'Dropping below 3 members' : 'Being below 3 members.'}`);
+                                                getUserIds(message, guild.name)
+                                                    .then(ids => {
+                                                        let arr = [];
+                                                        console.log('List of user IDs:\n', ids, '\nUSERS ARE IN LIMBO');
+                                                        for (let i in ids)
+                                                            if (guild.role_id)
+                                                                arr.push(setRoles.remove(message, ids[i].user_id, guild.role_id));
+
+                                                        Promise.all(arr)
+                                                            .then(results => {
+                                                                console.log('Updated all users: ', guild.name, ' ', results.length)
+                                                                resolve({
+                                                                    value: '',
+                                                                    status: false
+                                                                });
+                                                            })
+                                                            .catch(e => {
+                                                                console.log('Failed to remove role: ', e);
+                                                                removeMember(message, guild.name, e)
+                                                                    .then(r => resolve(r))
+                                                                    .catch(e => reject(e));
+                                                            });
+                                                    })
+                                                    .catch(e => reject(e));
+                                            }
+                                        })
+                                        .catch(e => reject(e));
                                 })
                                 .catch(e => reject(e));
                         }
-                    });
+                    }); // End query
                 } else
                     reject(result);
             })
