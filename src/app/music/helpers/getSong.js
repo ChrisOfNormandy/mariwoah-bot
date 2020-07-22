@@ -5,7 +5,7 @@ const shuffle = require('../../common/bot/helpers/global/shuffle');
 function formatSongData(message, songData, playlistData = null) {
     let obj = {
         title: songData.title,
-        url: songData.url,
+        url: (songData.url) ? songData.url : `https://www.youtube.com/watch?v=${songData.videoId}`,
         id: songData.videoId,
         author: songData.author.name,
         requested: message.author,
@@ -24,7 +24,7 @@ function formatSongData(message, songData, playlistData = null) {
         obj.playlist = {
             title: playlistData.title,
             url: playlistData.url,
-            videoCount: playlistData.items.length,
+            videoCount: playlistData.videos.length,
         }
     }
 
@@ -63,7 +63,7 @@ function metaSearch_pl(metadata, timeOut = 0) {
                     reject(chatFormat.response.music.timeout('playlist id ' + metadata));
                 }
                 else {
-                    if (data.items.length)
+                    if (data.videos.length)
                         resolve(data);
                     else
                         resolve(metaSearch_pl(metadata, timeOut++));
@@ -133,7 +133,7 @@ module.exports = {
                             metaSearch_pl(playlists[0].listId)
                                 .then(pl => {
                                     msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
-                                    const videos = pl.items;
+                                    const videos = pl.videos;
 
                                     if (data.flags['s']) {
                                         shuffle(videos)
