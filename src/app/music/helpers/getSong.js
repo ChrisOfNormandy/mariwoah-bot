@@ -52,11 +52,11 @@ function search(name, timeOut = 0) {
     });
 }
 
-function metaSearch_pl(metadata, timeOut = 0) {
+function metaSearch_pl(listId, timeOut = 0) {
     return new Promise((resolve, reject) => {
-        ytSearch({ listId: metadata }, (err, data) => {
+        ytSearch({ listId }, (err, data) => {
             if (err)
-                reject(err)
+                reject(err);
             else {
                 if (timeOut > 10) {
                     console.log('getSong metaSearch_pl timeout');
@@ -123,36 +123,45 @@ module.exports = {
                 .catch(e => reject(e));
         });
     },
-    byPlaylist: function (message, playlistName, data) {
+    byPlaylist: function (message, playlistName, data, index = 0) {
         return new Promise((resolve, reject) => {
             message.channel.send(chatFormat.response.music.getSong.playlist())
                 .then(msg => {
                     search(playlistName)
                         .then(songData => {
                             const playlists = songData.playlists;
-                            metaSearch_pl(playlists[0].listId)
-                                .then(pl => {
-                                    msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
-                                    const videos = pl.videos;
+                            if (index >= playlists.length)
+                                reject(null);
+                            else {
+                                metaSearch_pl(playlists[index].listId)
+                                    .then(pl => {
+                                        msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
+                                        const videos = pl.videos;
 
-                                    if (data.flags['s']) {
-                                        shuffle(videos)
-                                            .then(list => {   
-                                                let arr = [];
-                                                for (let i in list)
-                                                    arr.push(formatSongData(message, list[i], pl));
-                                                resolve(arr);
-                                            })
-                                            .catch(e => reject(e));
-                                    }
-                                    else {
-                                        let arr = [];
-                                        for (let i in videos)
-                                            arr.push(formatSongData(message, videos[i], pl));
-                                        resolve(arr);
-                                    }
-                                })
-                                .catch(e => reject(e));
+                                        if (data.flags['s']) {
+                                            shuffle(videos)
+                                                .then(list => {   
+                                                    let arr = [];
+                                                    for (let i in list)
+                                                        arr.push(formatSongData(message, list[i], pl));
+                                                    resolve(arr);
+                                                })
+                                                .catch(e => reject(e));
+                                        }
+                                        else {
+                                            let arr = [];
+                                            for (let i in videos)
+                                                arr.push(formatSongData(message, videos[i], pl));
+                                            resolve(arr);
+                                        }
+                                    })
+                                    .catch(e => {
+                                        msg.edit(chatFormat.response.music.getSong.playlist_undefined(playlists[index].listId));
+                                        this.byPlaylist(message, playlistName, data, index + 1)
+                                        .then(r => resolve(r))
+                                        .catch(e => reject(e));
+                                    });
+                                }
                         })
                         .catch(e => reject(e));
                 });

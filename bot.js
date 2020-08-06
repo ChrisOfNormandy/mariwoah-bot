@@ -13,7 +13,7 @@ client.on('ready', () => {
 });
 
 client.on('message', async message => {
-    if (!message.author.bot)
+    if (!message.author.bot || message.author.id == '735520890590068747')
         commandParser(client, message)
             .catch(e => {
                 if (e === null) {

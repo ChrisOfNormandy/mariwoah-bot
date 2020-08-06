@@ -15,7 +15,7 @@ function onDisconnect() {
         if (err) {
             console.log('Error connecting to database. Retrying in 10 seconds.');
             console.log(err);
-            setTimeout(onDisconnect(), 10000);
+            setTimeout(onDisconnect, 10000);
         }
         else
             console.log('Connected to the SQL server.');

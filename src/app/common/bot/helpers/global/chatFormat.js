@@ -64,7 +64,8 @@ module.exports = {
             },
             getSong: {
                 playlist: () => {return `> Please wait while I fetch all the songs in the playlist.`},
-                playlist_result: (playlist) => {return `> Found ${playlist.title} with ${playlist.videoCount} videos by ${playlist.author.name}.`}
+                playlist_result: (playlist) => {return `> Found ${playlist.title} with ${playlist.videoCount} videos by ${playlist.author.name}.`},
+                playlist_undefined: (id) => {return `> Failed to fetch the playlist from YouTube with the id ${id}.\n> Attempting to fetch a similar playlist...`}
             },
             playlist: {
                 no_data: () => {return `> There are no songs in the selected playlist.`}

@@ -1,4 +1,7 @@
-function query(con, str) {
+const connection = require('./connection');
+const con = connection.con;
+
+function query(str) {
     return new Promise((resolve, reject) => {
         con.query(str, (err, result) => {
             if (err)
@@ -9,7 +12,7 @@ function query(con, str) {
     });
 }
 
-function getStats(con, message, userID) {
+function getStats(message, userID) {
     return new Promise((resolve, reject) => {
         con.query(`select * from STATS where server_id = "${message.guild.id}" and user_id = "${userID}";`, (err, result) => {
             if (err)
@@ -20,7 +23,7 @@ function getStats(con, message, userID) {
                         if (err)
                             reject(null);
                         else
-                            resolve(getStats(con, message, userID));
+                            resolve(getStats(message, userID));
                     })
                 else
                     resolve(result[0]);
@@ -29,9 +32,9 @@ function getStats(con, message, userID) {
     });
 }
 
-function getStats_fishing(con, message, userID) {
+function getStats_fishing(message, userID) {
     return new Promise((resolve, reject) => {
-        getStats(con, message, userID)
+        getStats(message, userID)
             .then(user => {
                 con.query(`select * from STATS_FISHING where server_id = "${message.guild.id}" and user_id = "${userID}";`, (err, result) => {
                     if (err)
@@ -42,7 +45,7 @@ function getStats_fishing(con, message, userID) {
                                 if (err)
                                     reject(null);
                                 else
-                                    resolve(getStats_fishing(con, message, userID));
+                                    resolve(getStats_fishing(message, userID));
                             });
                         else
                             resolve(result[0]);
@@ -65,11 +68,11 @@ function levelUp(level, exp, change = false) {
     return obj;
 }
 
-function pay(con, message, userID, amount) {
+function pay(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats(con, message, userID)
+        getStats(message, userID)
             .then(user => {
-                query(con, `update STATS set balance = '${(user.balance + amount).toFixed(2)}' where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS set balance = '${(user.balance + amount).toFixed(2)}' where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -77,12 +80,12 @@ function pay(con, message, userID, amount) {
     });
 }
 
-function exp(con, message, userID, amount) {
+function exp(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats(con, message, userID)
+        getStats(message, userID)
             .then(user => {
                 let val = levelUp(user.level, user.experience + amount);
-                query(con, `update STATS set level = ${val.level}, experience = ${val.exp} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS set level = ${val.level}, experience = ${val.exp} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(val))
                     .catch(e => reject(e));
             })
@@ -90,12 +93,12 @@ function exp(con, message, userID, amount) {
     });
 }
 
-function exp_fishing(con, message, userID, amount) {
+function exp_fishing(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats_fishing(con, message, userID)
+        getStats_fishing(message, userID)
             .then(user => {
                 let val = levelUp(user.level, user.experience + amount);
-                query(con, `update STATS_FISHING set level = ${val.level}, experience = ${val.exp} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS_FISHING set level = ${val.level}, experience = ${val.exp} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(val))
                     .catch(e => reject(e));
             })
@@ -103,13 +106,13 @@ function exp_fishing(con, message, userID, amount) {
     });
 }
 
-function fishing_catch_fish(con, message, userID, amount) {
+function fishing_catch_fish(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats_fishing(con, message, userID)
+        getStats_fishing(message, userID)
             .then(user => {
                 let num = Math.floor(user.catches + amount);
                 console.log(user, amount);
-                query(con, `update STATS_FISHING set catches = ${num} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS_FISHING set catches = ${num} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -117,11 +120,11 @@ function fishing_catch_fish(con, message, userID, amount) {
     });
 }
 
-function fishing_catch_trash(con, message, userID, amount) {
+function fishing_catch_trash(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats_fishing(con, message, userID)
+        getStats_fishing(message, userID)
             .then(user => {
-                query(con, `update STATS_FISHING set trash = ${user.trash + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS_FISHING set trash = ${user.trash + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -129,11 +132,11 @@ function fishing_catch_trash(con, message, userID, amount) {
     });
 }
 
-function fishing_catch_item(con, message, userID, amount) {
+function fishing_catch_item(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats_fishing(con, message, userID)
+        getStats_fishing(message, userID)
             .then(user => {
-                query(con, `update STATS_FISHING set item = ${user.item + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS_FISHING set item = ${user.item + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -141,11 +144,11 @@ function fishing_catch_item(con, message, userID, amount) {
     });
 }
 
-function fishing_catch_none(con, message, userID, amount) {
+function fishing_catch_none(message, userID, amount) {
     return new Promise((resolve, reject) => {
-        getStats_fishing(con, message, userID)
+        getStats_fishing(message, userID)
             .then(user => {
-                query(con, `update STATS_FISHING set misses = ${user.misses + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
+                query(`update STATS_FISHING set misses = ${user.misses + amount} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -155,7 +158,7 @@ function fishing_catch_none(con, message, userID, amount) {
 
 // ITEMS
 
-function getItemList(con, tier) {
+function getItemList(tier) {
     return new Promise((resolve, reject) => {
         let str;
         if (tier == 0)
@@ -170,7 +173,7 @@ function getItemList(con, tier) {
     });
 }
 
-function getFishList(con, rarity) {
+function getFishList(rarity) {
     return new Promise((resolve, reject) => {
         let str = `select * from MINIGAME_DATA_ITEMS_FISH where rarity = ${rarity};`
 
@@ -186,7 +189,7 @@ function getFishList(con, rarity) {
 
 // INVENTORY
 
-function inventory_get(con, message) {
+function inventory_get(message) {
     return new Promise((resolve, reject) => {
         con.query(`select * from STATS_INVENTORIES where server_id = "${message.guild.id}" and user_id = "${message.author.id}";`, (err, result) => {
             if (err)
@@ -195,10 +198,10 @@ function inventory_get(con, message) {
                 if (result.length)
                     resolve(result[0]);
                 else {
-                    inventory_set(con, message, { "items": [] })
+                    inventory_set(message, { "items": [] })
                         .then(r => {
                             console.log(r);
-                            inventory_get(con, message)
+                            inventory_get(message)
                                 .then(r => resolve(r))
                                 .catch(e => reject(e));
                         })
@@ -209,7 +212,7 @@ function inventory_get(con, message) {
     })
 }
 
-function inventory_set(con, message, json) {
+function inventory_set(message, json) {
     return new Promise((resolve, reject) => {
         let list = JSON.stringify(json);
         con.query(`insert into STATS_INVENTORIES (server_id, user_id, list) values ("${message.guild.id}", "${message.author.id}", '${list}');`, (err, result) => {
@@ -221,7 +224,7 @@ function inventory_set(con, message, json) {
     });
 }
 
-function inventory_update(con, message, json) {
+function inventory_update(message, json) {
     return new Promise((resolve, reject) => {
         con.query(`update STATS_INVENTORIES set list = '${JSON.stringify(json)}' where server_id = "${message.guild.id}" and user_id = "${message.author.id}";`, (err, result) => {
             if (err)
@@ -232,10 +235,10 @@ function inventory_update(con, message, json) {
     });
 }
 
-function inventory_give(con, message, item, amount) {
+function inventory_give(message, item, amount) {
     console.log('INVENTORY GIVE', message.author.username, item, amount);
     return new Promise((resolve, reject) => {
-        inventory_get(con, message)
+        inventory_get(message)
             .then(data => {
                 console.log('data', data);
                 let json = JSON.parse(data.list);
@@ -246,7 +249,7 @@ function inventory_give(con, message, item, amount) {
                     count++;
                 }
 
-                inventory_update(con, message, json)
+                inventory_update(message, json)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
             })
@@ -254,9 +257,9 @@ function inventory_give(con, message, item, amount) {
     });
 }
 
-function inventory_find(con, message, data) {
+function inventory_find(message, data) {
     return new Promise((resolve, reject) => {
-        inventory_get(con, message)
+        inventory_get(message)
             .then(data => {
                 console.log(JSON.parse(data.list).items);
             })
@@ -271,17 +274,17 @@ module.exports = {
     getItemList,
     getFishList,
     inventory: {
-        get: (con, message) => { return inventory_get(con, message) },
-        set: (con, message, json) => { return inventory_set(con, message, json) },
-        give: (con, message, item, amount) => { return inventory_give(con, message, item, amount) },
-        find: (con, message, data) => {return inventory_find(con, message, data)}
+        get: (message) => { return inventory_get(message) },
+        set: (message, json) => { return inventory_set(message, json) },
+        give: (message, item, amount) => { return inventory_give(message, item, amount) },
+        find: (message, data) => {return inventory_find(message, data)}
     },
     fishing: {
-        get: (con, message, userID) => { return getStats_fishing(con, message, userID) },
-        catchFish: (con, message, userID, amount) => { return fishing_catch_fish(con, message, userID, amount) },
-        catchNone: (con, message, userID, amount) => { return fishing_catch_none(con, message, userID, amount) },
-        catchTrash: (con, message, userID, amount) => { return fishing_catch_trash(con, message, userID, amount) },
-        catchItem: (con, message, userID, amount) => { return fishing_catch_item(con, message, userID, amount) },
-        exp: (con, message, userID, amount) => { return exp_fishing(con, message, userID, amount) }
+        get: (message, userID) => { return getStats_fishing(message, userID) },
+        catchFish: (message, userID, amount) => { return fishing_catch_fish(message, userID, amount) },
+        catchNone: (message, userID, amount) => { return fishing_catch_none(message, userID, amount) },
+        catchTrash: (message, userID, amount) => { return fishing_catch_trash(message, userID, amount) },
+        catchItem: (message, userID, amount) => { return fishing_catch_item(message, userID, amount) },
+        exp: (message, userID, amount) => { return exp_fishing(message, userID, amount) }
     }
 }

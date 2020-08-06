@@ -78,6 +78,14 @@ create table MINIGAME_DATA_ITEMS_FISH (
     intercept decimal(10,5) not null,
     length decimal(10,5) not null,
     price_per_pound decimal(10,5) not null,
+    primary key (item_name, item_meta_id),
+    foreign key (item_name, item_meta_id) references MINIGAME_DATA_ITEMS (item_name, item_meta_id)
+);
+
+create table MINIGAME_DATA_ITEMS (
+    item_name varchar(64) not null,
+    item_meta_id int default 0,
+    image_url varchar(255),
     primary key (item_name, item_meta_id)
 );
 
@@ -86,7 +94,8 @@ create table MINIGAME_DATA_ITEMS_TRASH (
     item_meta_id int default 0,
     rarity int not null,
     price decimal not null,
-    primary key (item_name, item_meta_id)
+    primary key (item_name, item_meta_id),
+    foreign key (item_name, item_meta_id) references MINIGAME_DATA_ITEMS (item_name, item_meta_id)
 );
 
 create table STATS_FISHING (
