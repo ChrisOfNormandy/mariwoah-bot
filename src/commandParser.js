@@ -215,7 +215,7 @@ function parseCommand(client, message, data) {
                             break;
                         }
                         case 'timeout': {
-                            switch(data.arguments[0]) {
+                            switch (data.arguments[0]) {
                                 case 'roles': {
                                     value = adapter.sql.server.timeouts.toMessage(message);
                                     break;
@@ -540,114 +540,125 @@ function formatResponse(input) {
     });
 }
 
+function execute(message, prefix, part) {
+    let msgArray = part.split(' ');
+    let content = part.replace(commandRegex, '').trim();
+
+    let reg = `[${prefix.toString()}~](\\w|[?])+`;
+
+    let commandRegex = new RegExp(reg, 'g');
+    let flagRegex = /-[a-zA-Z]+\s*/g;
+    let boolParamRegex = /\?\w+:(t|f)/g;
+    let stringParamRegex = /\$\w+:".*?"/g;
+    let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
+    let intParamRegex = /\^\w+:-?\d+/g;
+    let doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+
+    if (!commandRegex.test(msgArray[0])) {
+        reject(null);
+    } else {
+        let flags = {};
+        const has_flags = content.match(flagRegex);
+        if (has_flags !== null) {
+            let flagArr = content.match(flagRegex)[0].slice(1).split('');
+            for (let i in flagArr) {
+                flags[flagArr[i]] = true;
+            }
+            content = content.replace(flagRegex, '');
+        }
+
+
+        let bools = content.match(boolParamRegex);
+        content = content.replace(boolParamRegex, '');
+
+        let strs = content.match(stringParamRegex);
+        content = content.replace(stringParamRegex, '');
+
+        let greps = content.match(grepParamRegex);
+        content = content.replace(grepParamRegex, '');
+
+        let ints = content.match(intParamRegex);
+        content = content.replace(intParamRegex, '');
+
+        let doubles = content.match(doubleParamRegex);
+        content = content.replace(doubleParamRegex, '');
+
+        let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+
+        if (!urls)
+            urls = [];
+
+        let params = {
+            "boolean": {},
+            "string": {},
+            "integer": {},
+            "double": {},
+            "regex": []
+        };
+
+        let arr;
+
+        for (let i in bools) {
+            arr = bools[i].slice(1).split(':');
+            if (arr.length)
+                params.boolean[arr[0]] = arr[1] === 't';
+        }
+        for (let i in strs) {
+            arr = strs[i].slice(1).split(':');
+            if (arr.length)
+                params.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
+        }
+        for (let i in ints) {
+            arr = ints[i].slice(1).split(':');
+            if (arr.length)
+                params.integer[arr[0]] = Number(arr[1]);
+        }
+        for (let i in doubles) {
+            arr = doubles[i].slice(1).split(':');
+            if (arr.length)
+                params.double[arr[0]] = Number(arr[1]);
+        }
+        for (let i in greps) {
+            arr = greps[i].slice(6).slice(0, -1);
+            params.regex.push(arr);
+        }
+
+        arr = content.split(' ');
+        let args = [];
+        for (let i in arr) {
+            if (arr[i] !== '')
+                args.push(arr[i])
+        }
+
+        return {
+            command: msgArray[0].slice(1),
+            arguments: args,
+            flags,
+            parameters: params,
+            urls,
+            mentions: {
+                members: message.mentions.members,
+                roles: message.mentions.roles
+            }
+        };
+    }
+}
+
 module.exports = function (client, message) {
     return new Promise((resolve, reject) => {
         adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
-                let msgArray = message.content.split(' ');
-                let content = msgArray.slice(1).join(' ').toString();
+                let commandParts = message.content.split(/\|:/g);
 
-                let reg = `[${prefix.toString()}](\\w|[?])+`;
+                let results = [];
+                for (let a in commandParts)
+                    results.push(parseCommand(client, message, execute(message, prefix, commandParts[a])));
 
-                let commandRegex = new RegExp(reg);
-                let flagRegex = /-[a-zA-Z]+\s*/g;
-                let boolParamRegex = /\?\w+:(t|f)/g;
-                let stringParamRegex = /\$\w+:".*?"/g;
-                let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
-                let intParamRegex = /\^\w+:-?\d+/g;
-                let doubleParamRegex = /%\w+:-?\d+\.\d+/g;
-
-                if (!commandRegex.test(msgArray[0])) {
-                    reject(null);
-                } else {
-                    let flags = {};
-                    const has_flags = content.match(flagRegex);
-                    if (has_flags !== null) {
-                        let flagArr = content.match(flagRegex)[0].slice(1).split('');
-                        for (let i in flagArr) {
-                            flags[flagArr[i]] = true;
-                        }
-                        content = content.replace(flagRegex, '');
-                    }
-
-
-                    let bools = content.match(boolParamRegex);
-                    content = content.replace(boolParamRegex, '');
-
-                    let strs = content.match(stringParamRegex);
-                    content = content.replace(stringParamRegex, '');
-
-                    let greps = content.match(grepParamRegex);
-                    content = content.replace(grepParamRegex, '');
-
-                    let ints = content.match(intParamRegex);
-                    content = content.replace(intParamRegex, '');
-
-                    let doubles = content.match(doubleParamRegex);
-                    content = content.replace(doubleParamRegex, '');
-
-                    let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-
-                    if (!urls)
-                        urls = [];
-
-                    let params = {
-                        "boolean": {},
-                        "string": {},
-                        "integer": {},
-                        "double": {},
-                        "regex": []
-                    };
-
-                    let arr;
-
-                    for (let i in bools) {
-                        arr = bools[i].slice(1).split(':');
-                        if (arr.length)
-                            params.boolean[arr[0]] = arr[1] === 't';
-                    }
-                    for (let i in strs) {
-                        arr = strs[i].slice(1).split(':');
-                        if (arr.length)
-                            params.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
-                    }
-                    for (let i in ints) {
-                        arr = ints[i].slice(1).split(':');
-                        if (arr.length)
-                            params.integer[arr[0]] = Number(arr[1]);
-                    }
-                    for (let i in doubles) {
-                        arr = doubles[i].slice(1).split(':');
-                        if (arr.length)
-                            params.double[arr[0]] = Number(arr[1]);
-                    }
-                    for (let i in greps) {
-                        arr = greps[i].slice(6).slice(0, -1);
-                        params.regex.push(arr);
-                    }
-
-                    arr = content.split(' ');
-                    let args = [];
-                    for (let i in arr) {
-                        if (arr[i] !== '')
-                            args.push(arr[i])
-                    }
-
-                    let data = {
-                        command: msgArray[0].slice(1),
-                        arguments: args,
-                        flags,
-                        parameters: params,
-                        urls,
-                        mentions: {
-                            members: message.mentions.members,
-                            roles: message.mentions.roles
-                        }
-                    };
-
-                    parseCommand(client, message, data)
-                        .then(returned => {
-                            // console.log(returned);
+                Promise.all(results)
+                    .then(values => {
+                        let returned = null;
+                        for (let i in values) {
+                            returned = values[i];
 
                             formatResponse(returned.value)
                                 .then(response => {
@@ -657,10 +668,10 @@ module.exports = function (client, message) {
                                         for (let i in response.array)
                                             if (response.array[i])
                                                 message.channel.send(response.array[i].value)
-                                                .then(msg => {
-                                                    if (response.options && response.options.clear)
-                                                        setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                                });
+                                                    .then(msg => {
+                                                        if (response.options && response.options.clear)
+                                                            setTimeout(() => msg.delete(), response.options.clear * 1000);
+                                                    });
                                     } else {
                                         message.channel.send(response.value)
                                             .then(msg => {
@@ -682,10 +693,10 @@ module.exports = function (client, message) {
                                     resolve(response);
                                 })
                                 .catch(e => reject(e));
-                        })
-                        .catch(e => reject(e));
-                }
+                        }
+                    })
+                    .catch(e => reject(e));
             })
-            .catch(e => reject(e));
+            .catch(e => reject(e));                
     });
 }
