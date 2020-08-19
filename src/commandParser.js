@@ -79,6 +79,7 @@ function parseCommand(client, message, data) {
         verify(message, properties, data)
             .then(result => {
                 let value = null;
+
                 if (result.permission.state) {
                     switch (result.data.command) {
                         case 'help': {
@@ -476,16 +477,16 @@ function parseCommand(client, message, data) {
                         // }
 
                         default: {
-                            value = null;
+                            value = [null];
                             break;
                         }
                     }
                 } else {
-                    value = result.permission.reason;
+                    value = [result.permission.reason];
                 }
                 // console.log(value);
                 resolve({
-                    value,
+                    values: [value],
                     result
                 });
             })
@@ -496,30 +497,18 @@ function parseCommand(client, message, data) {
 function formatResponse(input) {
     // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
-        if (input.value) {
-            switch (typeof input.value) {
-                case 'string': {
-                    resolve(input);
-                    break;
-                }
-                case 'undefined': {
-                    resolve(null);
-                    break;
-                }
-                default: {
-                    resolve(input);
-                    break;
-                }
-            }
-        } else if (input.values) {
+        if (input.values) {
             // console.log(input.values);
             let arr = [];
             for (let i in input.values) {
                 arr.push(formatResponse(input.values[i]))
             }
+
             Promise.all(arr)
                 .then(arr => resolve({
-                    array: arr
+                    values: arr,
+                    result: input.result,
+                    options: input.options
                 }))
                 .catch(e => reject(e));
         } else {
@@ -531,6 +520,7 @@ function formatResponse(input) {
                 if (input.embed)
                     resolve({
                         value: input.embed,
+                        result: input.result,
                         options: input.options
                     });
                 else
@@ -561,6 +551,7 @@ function execute(message, prefix, part) {
         } else {
             let flags = {};
             const has_flags = content.match(flagRegex);
+
             if (has_flags !== null) {
                 let flagArr = content.match(flagRegex)[0].slice(1).split('');
                 for (let i in flagArr) {
@@ -568,7 +559,6 @@ function execute(message, prefix, part) {
                 }
                 content = content.replace(flagRegex, '');
             }
-
 
             let bools = content.match(boolParamRegex);
             content = content.replace(boolParamRegex, '');
@@ -644,7 +634,7 @@ function execute(message, prefix, part) {
                 }
             }
 
-            console.log(data);
+            // console.log(data);
 
             resolve(data);
         }
@@ -655,12 +645,10 @@ module.exports = function (client, message) {
     return new Promise((resolve, reject) => {
         adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
-                let commandParts = message.content.split(/\|:/g);
+                let commandParts = message.content.split(/\|/g);
 
                 let results = [];
                 let data = [];
-
-                console.log('Command Parts\n', commandParts)
 
                 for (let a in commandParts)
                     data.push(execute(message, prefix, commandParts[a].trim()));
@@ -672,55 +660,45 @@ module.exports = function (client, message) {
 
                         Promise.all(results)
                             .then(values => {
-                                console.log("Values\n", values);
+                                // console.log("Values\n", values);
 
-                                let returned = [];
-                                let toReturn = [];
+                                let arr = [];
 
-                                let i = values.length - 1;
-                                while (i > 0) {
-                                    returned = values[i];
+                                for (let i in values)
+                                    arr.push(formatResponse(values[i]));
+                                
+                                Promise.all(arr)                                
+                                    .then(responses => {
+                                        // console.log('Responses\n', responses);
 
-                                    toReturn.push(formatResponse(returned.value)
-                                        .then(response => {
-                                            // console.log(response);
+                                        for (let i in responses) {
+                                            // console.log(i, responses[i]);
 
-                                            if (response.array) {
-                                                for (let i in response.array)
-                                                    if (response.array[i])
-                                                        message.channel.send(response.array[i].value)
-                                                            .then(msg => {
-                                                                if (response.options && response.options.clear)
-                                                                    setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                                            });
-                                            } else {
-                                                message.channel.send(response.value)
-                                                    .then(msg => {
-                                                        if (response.options && response.options.clear)
-                                                            setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                                    });
+                                            for (let x in responses[i].values) {
+                                                if (responses[i].values[x]) {
+                                                    message.channel.send(responses[i].values[x].value)
+                                                        .then(msg => {
+                                                            if (responses[i].options && responses[i].options.clear)
+                                                                setTimeout(() => msg.delete(), responses[i].options.clear * 1000);
+                                                        })
+                                                        .catch(e => reject(e));
+                                                }
                                             }
 
-                                            if (returned.result.data.parameters.boolean['debug'])
-                                                message.channel.send(adapter.common.debug(returned.result.data, false));
+                                            if (responses[i].result.data.parameters.boolean['debug'])
+                                                message.channel.send(adapter.common.debug(responses[i].result.data, false));
 
-                                            if (returned.result.properties.selfClear && !returned.result.data.flags['C']) {
-                                                if (response.options && response.options.clear_command && i == values.length && message)
-                                                    setTimeout(() => message.delete(), response.options.clear_command * 1000);
+                                            if (responses[i].result.properties.selfClear && !responses[i].result.data.flags['C']) {
+                                                if (responses[i].options && responses[i].options.clear_command)
+                                                    setTimeout(() => message.delete().catch(e => console.log('Message was already deleted.')), responses[i].options.clear_command * 1000);
                                                 else
                                                     message.delete();
                                             }
+                                        }
 
-                                            resolve(response);
-                                        })
-                                        .catch(e => reject(e))
-                                    );
-                                    
-                                    i--;
-                                }
-
-                                Promise.all(toReturn)
-                                    .then(results => resolve(results));
+                                        resolve(responses);
+                                    })
+                                    .catch(e => reject(e))
                             })
                             .catch(e => reject(e));
                     })
