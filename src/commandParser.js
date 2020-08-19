@@ -541,107 +541,114 @@ function formatResponse(input) {
 }
 
 function execute(message, prefix, part) {
-    let msgArray = part.split(' ');
-    let content = part.replace(commandRegex, '').trim();
+    return new Promise((resolve, reject) => {
+        let msgArray = part.split(' ');
 
-    let reg = `[${prefix.toString()}~](\\w|[?])+`;
+        let reg = `[${prefix.toString()}~](\\w|[?])+`;
+        let commandRegex = new RegExp(reg, 'g');
 
-    let commandRegex = new RegExp(reg, 'g');
-    let flagRegex = /-[a-zA-Z]+\s*/g;
-    let boolParamRegex = /\?\w+:(t|f)/g;
-    let stringParamRegex = /\$\w+:".*?"/g;
-    let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
-    let intParamRegex = /\^\w+:-?\d+/g;
-    let doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+        let content = part.replace(commandRegex, '').trim();
 
-    if (!commandRegex.test(msgArray[0])) {
-        reject(null);
-    } else {
-        let flags = {};
-        const has_flags = content.match(flagRegex);
-        if (has_flags !== null) {
-            let flagArr = content.match(flagRegex)[0].slice(1).split('');
-            for (let i in flagArr) {
-                flags[flagArr[i]] = true;
+        let flagRegex = /-[a-zA-Z]+\s*/g;
+        let boolParamRegex = /\?\w+:(t|f)/g;
+        let stringParamRegex = /\$\w+:".*?"/g;
+        let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
+        let intParamRegex = /\^\w+:-?\d+/g;
+        let doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+
+        if (!commandRegex.test(msgArray[0])) {
+            reject(null);
+        } else {
+            let flags = {};
+            const has_flags = content.match(flagRegex);
+            if (has_flags !== null) {
+                let flagArr = content.match(flagRegex)[0].slice(1).split('');
+                for (let i in flagArr) {
+                    flags[flagArr[i]] = true;
+                }
+                content = content.replace(flagRegex, '');
             }
-            content = content.replace(flagRegex, '');
-        }
 
 
-        let bools = content.match(boolParamRegex);
-        content = content.replace(boolParamRegex, '');
+            let bools = content.match(boolParamRegex);
+            content = content.replace(boolParamRegex, '');
 
-        let strs = content.match(stringParamRegex);
-        content = content.replace(stringParamRegex, '');
+            let strs = content.match(stringParamRegex);
+            content = content.replace(stringParamRegex, '');
 
-        let greps = content.match(grepParamRegex);
-        content = content.replace(grepParamRegex, '');
+            let greps = content.match(grepParamRegex);
+            content = content.replace(grepParamRegex, '');
 
-        let ints = content.match(intParamRegex);
-        content = content.replace(intParamRegex, '');
+            let ints = content.match(intParamRegex);
+            content = content.replace(intParamRegex, '');
 
-        let doubles = content.match(doubleParamRegex);
-        content = content.replace(doubleParamRegex, '');
+            let doubles = content.match(doubleParamRegex);
+            content = content.replace(doubleParamRegex, '');
 
-        let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
 
-        if (!urls)
-            urls = [];
+            if (!urls)
+                urls = [];
 
-        let params = {
-            "boolean": {},
-            "string": {},
-            "integer": {},
-            "double": {},
-            "regex": []
-        };
+            let params = {
+                "boolean": {},
+                "string": {},
+                "integer": {},
+                "double": {},
+                "regex": []
+            };
 
-        let arr;
+            let arr;
 
-        for (let i in bools) {
-            arr = bools[i].slice(1).split(':');
-            if (arr.length)
-                params.boolean[arr[0]] = arr[1] === 't';
-        }
-        for (let i in strs) {
-            arr = strs[i].slice(1).split(':');
-            if (arr.length)
-                params.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
-        }
-        for (let i in ints) {
-            arr = ints[i].slice(1).split(':');
-            if (arr.length)
-                params.integer[arr[0]] = Number(arr[1]);
-        }
-        for (let i in doubles) {
-            arr = doubles[i].slice(1).split(':');
-            if (arr.length)
-                params.double[arr[0]] = Number(arr[1]);
-        }
-        for (let i in greps) {
-            arr = greps[i].slice(6).slice(0, -1);
-            params.regex.push(arr);
-        }
-
-        arr = content.split(' ');
-        let args = [];
-        for (let i in arr) {
-            if (arr[i] !== '')
-                args.push(arr[i])
-        }
-
-        return {
-            command: msgArray[0].slice(1),
-            arguments: args,
-            flags,
-            parameters: params,
-            urls,
-            mentions: {
-                members: message.mentions.members,
-                roles: message.mentions.roles
+            for (let i in bools) {
+                arr = bools[i].slice(1).split(':');
+                if (arr.length)
+                    params.boolean[arr[0]] = arr[1] === 't';
             }
-        };
-    }
+            for (let i in strs) {
+                arr = strs[i].slice(1).split(':');
+                if (arr.length)
+                    params.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
+            }
+            for (let i in ints) {
+                arr = ints[i].slice(1).split(':');
+                if (arr.length)
+                    params.integer[arr[0]] = Number(arr[1]);
+            }
+            for (let i in doubles) {
+                arr = doubles[i].slice(1).split(':');
+                if (arr.length)
+                    params.double[arr[0]] = Number(arr[1]);
+            }
+            for (let i in greps) {
+                arr = greps[i].slice(6).slice(0, -1);
+                params.regex.push(arr);
+            }
+
+            arr = content.split(' ');
+            let args = [];
+            for (let i in arr) {
+                if (arr[i] !== '')
+                    args.push(arr[i])
+            }
+
+            const data = {
+                command: msgArray[0].slice(1),
+                arguments: args,
+                flags,
+                parameters: params,
+                urls,
+                mentions: {
+                    members: message.mentions.members,
+                    roles: message.mentions.roles
+                }
+            }
+
+            console.log(data);
+
+            resolve(data);
+        }
+    });
 }
 
 module.exports = function (client, message) {
@@ -651,52 +658,74 @@ module.exports = function (client, message) {
                 let commandParts = message.content.split(/\|:/g);
 
                 let results = [];
+                let data = [];
+
+                console.log('Command Parts\n', commandParts)
+
                 for (let a in commandParts)
-                    results.push(parseCommand(client, message, execute(message, prefix, commandParts[a])));
+                    data.push(execute(message, prefix, commandParts[a].trim()));
 
-                Promise.all(results)
-                    .then(values => {
-                        let returned = null;
-                        for (let i in values) {
-                            returned = values[i];
+                Promise.all(data)
+                    .then(data => {
+                        for (let a in data)
+                            results.push(parseCommand(client, message, data[a]));
 
-                            formatResponse(returned.value)
-                                .then(response => {
-                                    // console.log(response);
+                        Promise.all(results)
+                            .then(values => {
+                                console.log("Values\n", values);
 
-                                    if (response.array) {
-                                        for (let i in response.array)
-                                            if (response.array[i])
-                                                message.channel.send(response.array[i].value)
+                                let returned = [];
+                                let toReturn = [];
+
+                                let i = values.length - 1;
+                                while (i > 0) {
+                                    returned = values[i];
+
+                                    toReturn.push(formatResponse(returned.value)
+                                        .then(response => {
+                                            // console.log(response);
+
+                                            if (response.array) {
+                                                for (let i in response.array)
+                                                    if (response.array[i])
+                                                        message.channel.send(response.array[i].value)
+                                                            .then(msg => {
+                                                                if (response.options && response.options.clear)
+                                                                    setTimeout(() => msg.delete(), response.options.clear * 1000);
+                                                            });
+                                            } else {
+                                                message.channel.send(response.value)
                                                     .then(msg => {
                                                         if (response.options && response.options.clear)
                                                             setTimeout(() => msg.delete(), response.options.clear * 1000);
                                                     });
-                                    } else {
-                                        message.channel.send(response.value)
-                                            .then(msg => {
-                                                if (response.options && response.options.clear)
-                                                    setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                            });
-                                    }
+                                            }
 
-                                    if (data.parameters.boolean['debug'])
-                                        message.channel.send(adapter.common.debug(returned.result.data, false));
+                                            if (returned.result.data.parameters.boolean['debug'])
+                                                message.channel.send(adapter.common.debug(returned.result.data, false));
 
-                                    if (returned.result.properties.selfClear && !data.flags['C']) {
-                                        if (response.options && response.options.clear_command)
-                                            setTimeout(() => message.delete(), response.options.clear_command * 1000);
-                                        else
-                                            message.delete();
-                                    }
+                                            if (returned.result.properties.selfClear && !returned.result.data.flags['C']) {
+                                                if (response.options && response.options.clear_command && i == values.length && message)
+                                                    setTimeout(() => message.delete(), response.options.clear_command * 1000);
+                                                else
+                                                    message.delete();
+                                            }
 
-                                    resolve(response);
-                                })
-                                .catch(e => reject(e));
-                        }
+                                            resolve(response);
+                                        })
+                                        .catch(e => reject(e))
+                                    );
+                                    
+                                    i--;
+                                }
+
+                                Promise.all(toReturn)
+                                    .then(results => resolve(results));
+                            })
+                            .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
             })
-            .catch(e => reject(e));                
+            .catch(e => reject(e));
     });
 }
