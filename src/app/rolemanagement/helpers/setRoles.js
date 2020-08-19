@@ -1,7 +1,5 @@
 const sql = require('../../sql/adapter');
-const roles = require('../../sql/helpers/servers/roles');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
-const timeouts = require('../../sql/helpers/servers/timeout');
 
 function checkRole(message, name, id) {
     return new Promise((resolve, reject) => {
