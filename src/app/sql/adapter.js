@@ -5,13 +5,7 @@ const playlists = require('./helpers/playlists');
 const minigames = require('./helpers/minigames');
 
 module.exports = {
-    server: {
-        get: server.general.get,
-        general: server.general,
-        guilds: server.guilds,
-        roles: server.roles,
-        timeouts: server.timeout
-    },
+    server,
     user: {
         get: (serverID, userID) => {return users.getUser(serverID, userID)},
         setBotRole: (serverID, userID, roleName) => {return users.setBotRole(serverID, userID, roleName)},
@@ -21,7 +15,7 @@ module.exports = {
     },
     punishments: {
         getUser: (message, userID, type) => {return punishments.getUser(message, userID, type)},
-        setUser: (message, userID, type, reason = null, duration = -1, severity = 'normal') => {punishments.setUser(message, userID, type, reason, duration, severity)}
+        setUser: (message, userID, type, reason = null, duration = -1, severity = 'normal') => {return punishments.setUser(message, userID, type, reason, duration, severity)}
     },
     playlists: {
         create: (message, name) => {return playlists.create(message, name)},

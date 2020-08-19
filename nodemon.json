@@ -1,7 +1,8 @@
 {
     "ignore": [
         "*.md",
-        "*.json"
+        "*.json",
+        "*.sql"
     ],
     "watch": [
         "*.js"
