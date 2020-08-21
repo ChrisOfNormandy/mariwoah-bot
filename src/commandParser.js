@@ -1,14 +1,14 @@
 const adapter = require('./app/adapter');
 const commandList = adapter.common.bot.global.commandList;
 
-function verify(message, properties, data) {
+function verify(message, properties, data, command) {
     return new Promise((resolve, reject) => {
         if (!properties) {
             for (let c in commandList) {
                 for (let cmd in commandList[c].commands) {
                     for (let alt in commandList[c].commands[cmd].alternatives) {
-                        if (commandList[c].commands[cmd].alternatives[alt] == data.command) {
-                            data.command = cmd;
+                        if (commandList[c].commands[cmd].alternatives[alt] == command) {
+                            command = cmd;
                             properties = commandList[c].commands[cmd]
                             verify(message, properties, data)
                                 .then(r => resolve({
@@ -73,423 +73,440 @@ function getOther(name, subcommand) {
 }
 
 function parseCommand(client, message, data) {
-    let properties = getCommon(data.command) || getRoleManager(data.command) || getMusic(data.command) || getMinigames(data.command) || getMeme(data.command) || getOther(data.command, data.arguments[0]);
+    let returns = [];
 
     return new Promise((resolve, reject) => {
-        verify(message, properties, data)
-            .then(result => {
-                let value = null;
-                if (result.permission.state) {
-                    switch (result.data.command) {
-                        case 'help': {
-                            value = adapter.common.bot.features.listHelp(message, data.arguments);
-                            break;
-                        }
-                        case 'clean': {
-                            value = adapter.common.bot.features.cleanChat(message);
-                            break;
-                        }
-                        case 'ping': {
-                            value = adapter.common.bot.features.ping(message, client);
-                            break;
-                        }
-                        case 'roll': {
-                            value = adapter.common.bot.features.roll(data.arguments);
-                            break;
-                        }
-                        case 'shuffle': {
-                            value = new Promise((resolve, reject) => {
-                                adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                                    .then(arr => resolve({
-                                        value: arr.join(', ')
-                                    }))
-                                    .catch(e => reject(e));
-                            });
-                            break;
-                        }
-                        case 'whoami': {
-                            value = adapter.common.bot.features.whoAre.self(message);
-                            break;
-                        }
-                        case 'whoareyou': {
-                            value = adapter.common.bot.features.whoAre.member(message);
-                            break;
-                        }
-                        case 'setmotd': {
-                            if (data.flags['r'])
-                                value = adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/");
-                            else
-                                value = adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
-                            break;
-                        }
-                        case 'motd': {
-                            value = adapter.common.bot.features.motd.get(message, data);
-                            break;
-                        }
-                        case 'setprefix': {
-                            value = adapter.common.bot.features.prefix.set(message, data.arguments[0]);
-                            break;
-                        }
-                        case 'prefix': {
-                            value = adapter.common.bot.features.prefix.get(message);
-                            break;
-                        }
+        let properties = null;
+        for (let i in data.commands) {
+            properties = getCommon(data.commands[i]) || getRoleManager(data.commands[i]) || getMusic(data.commands[i]) || getMinigames(data.commands[i]) || getMeme(data.commands[i]) || getOther(data.commands[i], data.arguments[i][0])
+            returns[i] = {
+                properties,
+                result: verify(message, properties, data, data.commands[i]),
+                value: []
+            }
+        }
 
-                        // RoleManager
-
-                        case 'warn': {
-                            value = adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
-                            break;
-                        }
-                        case 'warnings': {
-                            value = adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
-                            break;
-                        }
-                        case 'kick': {
-                            value = adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-                            break;
-                        }
-                        case 'kicks': {
-                            value = adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
-                            break;
-                        }
-                        case 'ban': {
-                            value = adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-                            break;
-                        }
-                        case 'bans': {
-                            adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
-                            break;
-                        }
-                        case 'unban': {
-                            value = new Promise((resolve, reject) => {
-                                message.guild.members.unban(data.arguments[0])
-                                    .then(user => {
-                                        user.send(`You have been unbanned from ${message.guild.name}.`);
-                                        resolve({
-                                            value: `Unbanned ${user.username}.`
-                                        });
-                                    })
-                                    .catch(e => reject(`Cannot unban user.\n${e.message}`));
-                            });
-                            break;
-                        }
-                        case 'promote': {
-                            value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-                            break;
-                        }
-                        case 'demote': {
-                            value = adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-                            break;
-                        }
-                        case 'setbotadmin': {
-                            value = adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-                            break;
-                        }
-                        case 'setbotmod': {
-                            value = adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-                            break;
-                        }
-                        case 'setbothelper': {
-                            value = adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-                            break;
-                        }
-                        case 'refreshrole': {
-                            value = adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
-                            break;
-                        }
-                        case 'refreshroles': {
-                            value = adapter.rolemanagement.setRoles.refresh_guild(message);
-                            break;
-                        }
-                        case 'resetroles': {
-                            value = adapter.rolemanagement.setRoles.reset_guild(message);
-                            break;
-                        }
-                        case 'purgeroles': {
-                            value = adapter.rolemanagement.setRoles.purge(message);
-                            break;
-                        }
-                        case 'setrole': {
-                            value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
-                            break;
-                        }
-                        case 'timeout': {
-                            switch (data.arguments[0]) {
-                                case 'roles': {
-                                    value = adapter.sql.server.timeouts.toMessage(message);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-
-                        // Guilds
-
-                        case 'guild_admin': {
-                            switch (data.arguments[0]) {
-                                case 'refresh': {
-                                    value = adapter.rolemanagement.guilds.update(message, data);
-                                    break;
-                                }
-                                case 'other_join': {
-                                    value = adapter.rolemanagement.guilds.admin_join(message, data);
-                                    break;
-                                }
-                                case 'other_leave': {
-                                    value = adapter.rolemanagement.guilds.admin_leave(message, data);
-                                    break;
-                                }
-                                case 'disband': {
-                                    value = adapter.rolemanagement.guilds.admin_disband(message, data);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case 'guild': {
-                            switch (data.arguments[0]) {
-                                case 'create': {
-                                    value = adapter.rolemanagement.guilds.newCandidate(message, data);
-                                    break;
-                                }
-                                case 'seticon': {
-                                    value = adapter.rolemanagement.guilds.setIcon(message, data);
-                                    break;
-                                }
-                                case 'setcolor': {
-                                    value = adapter.rolemanagement.guilds.setColor(message, data);
-                                    break;
-                                }
-                                case 'setlore': {
-                                    value = adapter.rolemanagement.guilds.setLore(message, data);
-                                    break;
-                                }
-                                case 'setmotto': {
-                                    value = adapter.rolemanagement.guilds.setMotto(message, data);
-                                    break;
-                                }
-                                case 'lore': {
-                                    value = adapter.rolemanagement.guilds.getLore(message, data);
-                                    break;
-                                }
-                                case 'list': {
-                                    value = adapter.rolemanagement.guilds.list(message, data);
-                                    break;
-                                }
-                                case 'join': {
-                                    value = adapter.rolemanagement.guilds.join(message, data);
-                                    break;
-                                }
-                                case 'leave': {
-                                    value = adapter.rolemanagement.guilds.leave(message, data);
-                                    break;
-                                }
-                                case 'invite': {
-                                    value = adapter.rolemanagement.guilds.invite(message, data);
-                                    break;
-                                }
-                                case 'toggle': {
-                                    value = adapter.rolemanagement.guilds.toggleInvites(message, data);
-                                    break;
-                                }
-                                case 'invites': {
-                                    value = adapter.rolemanagement.guilds.getInvites(message, data);
-                                    break;
-                                }
-                                case 'deny': {
-                                    value = adapter.rolemanagement.guilds.deleteInvite(message, data);
-                                    break;
-                                }
-                                case 'setofficer': {
-                                    value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
-                                    break;
-                                }
-                                case 'setleader': {
-                                    value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
-                                    break;
-                                }
-                                case 'setmember': {
-                                    value = adapter.rolemanagement.guilds.promote(message, data, 'member');
-                                    break;
-                                }
-                                case 'exhile': {
-                                    value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
-                                    break;
-                                }
-                                case 'settitle': {
-                                    value = adapter.rolemanagement.guilds.setTitle(message, data);
-                                    break;
-                                }
-                                case 'help': {
-                                    value = adapter.rolemanagement.guilds.listHelp(message, data);
-                                    break;
-                                }
-                                default: {
-                                    value = adapter.rolemanagement.guilds.view(message, data);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-
-                        // Minigames
-
-                        case 'stats': {
-                            switch (data.arguments[0]) {
-                                case 'fishing': {
-                                    value = adapter.minigames.stats.fishing(message);
-                                    break;
-                                }
-                                default: {
-                                    value = adapter.minigames.stats.all(message);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case 'cast': {
-                            value = adapter.minigames.fishing.cast(message);
-                            break;
-                        }
-                        case 'inventory': {
-                            value = adapter.minigames.inventory.find(message, data);
-                            break;
-                        }
-
-                        // Music
-
-                        case 'play': {
-                            value = adapter.music.append.fetch(message, data);
-                            break;
-                        }
-                        case 'join': {
-                            value = adapter.music.join(message);
-                            break;
-                        }
-                        case 'leave': {
-                            value = adapter.music.leave(message);
-                            break;
-                        }
-                        case 'skip': {
-                            value = adapter.music.skip(message);
-                            break;
-                        }
-                        case 'stop': {
-                            value = adapter.music.stop(message);
-                            break;
-                        }
-                        case 'queue': {
-                            value = adapter.music.list(message, data);
-                            break;
-                        }
-                        case 'pause': {
-                            value = adapter.music.pause(message);
-                            break;
-                        }
-                        case 'resume': {
-                            value = adapter.music.resume(message);
-                            break;
-                        }
-                        case 'songinfo': {
-                            value = adapter.music.info(message, data);
-                            break;
-                        }
-
-                        case 'playlist': {
-                            value = adapter.music.playlistCommand(message, data);
-                            break;
-                        }
-
-                        // Memes
-
-                        case 'f': {
-                            value = adapter.memes.memeDispatch('f');
-                            break;
-                        }
-                        case 'fuck': {
-                            value = adapter.memes.memeDispatch('fuuu');
-                            break;
-                        }
-                        case 'yey': {
-                            value = adapter.memes.memeDispatch('yey');
-                            break;
-                        }
-                        case 'thowonk': {
-                            value = adapter.memes.memeDispatch('thowonk');
-                            break;
-                        }
-                        case 'penguin': {
-                            value = adapter.memes.memeDispatch('penguin');
-                            break;
-                        }
-                        case 'bird': {
-                            value = adapter.memes.memeDispatch('bird');
-                            break;
-                        }
-                        case 'clayhead': {
-                            value = adapter.memes.memeDispatch('clayhead');
-                            break;
-                        }
-                        case 'extrathicc': {
-                            value = adapter.memes.memeDispatch('extra_thicc');
-                            break;
-                        }
-                        case 'crabrave': {
-                            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
-                            break;
-                        }
-                        case 'theriddle': {
-                            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
-                            break;
-                        }
-
-                        // Dungeons
-
-                        // case 'dd_loaditems': {
-                        //     verify(message, getDungeons('dd_loaditems'))
-                        //         .then(() => resolve(adapter.dungeons.csvToMap()))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-                        // case 'dd_getitem': {
-                        //     verify(message, getDungeons('dd_getitem'))
-                        //         .then(() => resolve(adapter.dungeons.getItem(message, data.arguments.join(' '))))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-                        // case 'dd_getshop': {
-                        //     verify(message, getDungeons('dd_getshop'))
-                        //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(data.arguments[0]) ? data.arguments[0] : 10))))
-                        //         .catch(r => reject(r));
-                        // }
-                        // case 'dd_list': {
-                        //     verify(message, getDungeons('dd_list'))
-                        //         .then(() => resolve(adapter.dungeons.listItems(message, data.arguments.join(' '))))
-                        //         .catch(r => reject(r));
-                        //     break;
-                        // }
-
-                        // case 'isadmin': {
-                        //     adapter.rolemanagement.getRoles.admin(message, message.member);
-                        //     break;
-                        // }
-
-                        default: {
-                            value = null;
-                            break;
-                        }
-                    }
-                } else {
-                    value = result.permission.reason;
-                }
-                // console.log(value);
-                resolve({
-                    value,
-                    result
-                });
+        Promise.all(returns)
+            .then(returns => {
+                console.log(returns);
             })
-            .catch(r => reject(r));
+            .catch(e => reject(e));
+
+        // verify(message, properties, data)
+        //     .then(result => {
+        //         let value = null;
+
+        //         if (result.permission.state) {
+        //             switch (result.data.command) {
+        //                 case 'help': {
+        //                     value = adapter.common.bot.features.listHelp(message, data.arguments);
+        //                     break;
+        //                 }
+        //                 case 'clean': {
+        //                     value = adapter.common.bot.features.cleanChat(message);
+        //                     break;
+        //                 }
+        //                 case 'ping': {
+        //                     value = adapter.common.bot.features.ping(message, client);
+        //                     break;
+        //                 }
+        //                 case 'roll': {
+        //                     value = adapter.common.bot.features.roll(data.arguments);
+        //                     break;
+        //                 }
+        //                 case 'shuffle': {
+        //                     value = new Promise((resolve, reject) => {
+        //                         adapter.common.bot.global.shuffle(data.arguments[0].split(','))
+        //                             .then(arr => resolve({
+        //                                 value: arr.join(', ')
+        //                             }))
+        //                             .catch(e => reject(e));
+        //                     });
+        //                     break;
+        //                 }
+        //                 case 'whoami': {
+        //                     value = adapter.common.bot.features.whoAre.self(message);
+        //                     break;
+        //                 }
+        //                 case 'whoareyou': {
+        //                     value = adapter.common.bot.features.whoAre.member(message);
+        //                     break;
+        //                 }
+        //                 case 'setmotd': {
+        //                     if (data.flags['r'])
+        //                         value = adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/");
+        //                     else
+        //                         value = adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
+        //                     break;
+        //                 }
+        //                 case 'motd': {
+        //                     value = adapter.common.bot.features.motd.get(message, data);
+        //                     break;
+        //                 }
+        //                 case 'setprefix': {
+        //                     value = adapter.common.bot.features.prefix.set(message, data.arguments[0]);
+        //                     break;
+        //                 }
+        //                 case 'prefix': {
+        //                     value = adapter.common.bot.features.prefix.get(message);
+        //                     break;
+        //                 }
+
+        //                 // RoleManager
+
+        //                 case 'warn': {
+        //                     value = adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
+        //                     break;
+        //                 }
+        //                 case 'warnings': {
+        //                     value = adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
+        //                     break;
+        //                 }
+        //                 case 'kick': {
+        //                     value = adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+        //                     break;
+        //                 }
+        //                 case 'kicks': {
+        //                     value = adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
+        //                     break;
+        //                 }
+        //                 case 'ban': {
+        //                     value = adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+        //                     break;
+        //                 }
+        //                 case 'bans': {
+        //                     adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
+        //                     break;
+        //                 }
+        //                 case 'unban': {
+        //                     value = new Promise((resolve, reject) => {
+        //                         message.guild.members.unban(data.arguments[0])
+        //                             .then(user => {
+        //                                 user.send(`You have been unbanned from ${message.guild.name}.`);
+        //                                 resolve({
+        //                                     value: `Unbanned ${user.username}.`
+        //                                 });
+        //                             })
+        //                             .catch(e => reject(`Cannot unban user.\n${e.message}`));
+        //                     });
+        //                     break;
+        //                 }
+        //                 case 'promote': {
+        //                     value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+        //                     break;
+        //                 }
+        //                 case 'demote': {
+        //                     value = adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+        //                     break;
+        //                 }
+        //                 case 'setbotadmin': {
+        //                     value = adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        //                     break;
+        //                 }
+        //                 case 'setbotmod': {
+        //                     value = adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        //                     break;
+        //                 }
+        //                 case 'setbothelper': {
+        //                     value = adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        //                     break;
+        //                 }
+        //                 case 'refreshrole': {
+        //                     value = adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
+        //                     break;
+        //                 }
+        //                 case 'refreshroles': {
+        //                     value = adapter.rolemanagement.setRoles.refresh_guild(message);
+        //                     break;
+        //                 }
+        //                 case 'resetroles': {
+        //                     value = adapter.rolemanagement.setRoles.reset_guild(message);
+        //                     break;
+        //                 }
+        //                 case 'purgeroles': {
+        //                     value = adapter.rolemanagement.setRoles.purge(message);
+        //                     break;
+        //                 }
+        //                 case 'setrole': {
+        //                     value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
+        //                     break;
+        //                 }
+        //                 case 'timeout': {
+        //                     switch (data.arguments[0]) {
+        //                         case 'roles': {
+        //                             value = adapter.sql.server.timeouts.toMessage(message);
+        //                             break;
+        //                         }
+        //                     }
+        //                     break;
+        //                 }
+
+        //                 // Guilds
+
+        //                 case 'guild_admin': {
+        //                     switch (data.arguments[0]) {
+        //                         case 'refresh': {
+        //                             value = adapter.rolemanagement.guilds.update(message, data);
+        //                             break;
+        //                         }
+        //                         case 'other_join': {
+        //                             value = adapter.rolemanagement.guilds.admin_join(message, data);
+        //                             break;
+        //                         }
+        //                         case 'other_leave': {
+        //                             value = adapter.rolemanagement.guilds.admin_leave(message, data);
+        //                             break;
+        //                         }
+        //                         case 'disband': {
+        //                             value = adapter.rolemanagement.guilds.admin_disband(message, data);
+        //                             break;
+        //                         }
+        //                     }
+        //                     break;
+        //                 }
+        //                 case 'guild': {
+        //                     switch (data.arguments[0]) {
+        //                         case 'create': {
+        //                             value = adapter.rolemanagement.guilds.newCandidate(message, data);
+        //                             break;
+        //                         }
+        //                         case 'seticon': {
+        //                             value = adapter.rolemanagement.guilds.setIcon(message, data);
+        //                             break;
+        //                         }
+        //                         case 'setcolor': {
+        //                             value = adapter.rolemanagement.guilds.setColor(message, data);
+        //                             break;
+        //                         }
+        //                         case 'setlore': {
+        //                             value = adapter.rolemanagement.guilds.setLore(message, data);
+        //                             break;
+        //                         }
+        //                         case 'setmotto': {
+        //                             value = adapter.rolemanagement.guilds.setMotto(message, data);
+        //                             break;
+        //                         }
+        //                         case 'lore': {
+        //                             value = adapter.rolemanagement.guilds.getLore(message, data);
+        //                             break;
+        //                         }
+        //                         case 'list': {
+        //                             value = adapter.rolemanagement.guilds.list(message, data);
+        //                             break;
+        //                         }
+        //                         case 'join': {
+        //                             value = adapter.rolemanagement.guilds.join(message, data);
+        //                             break;
+        //                         }
+        //                         case 'leave': {
+        //                             value = adapter.rolemanagement.guilds.leave(message, data);
+        //                             break;
+        //                         }
+        //                         case 'invite': {
+        //                             value = adapter.rolemanagement.guilds.invite(message, data);
+        //                             break;
+        //                         }
+        //                         case 'toggle': {
+        //                             value = adapter.rolemanagement.guilds.toggleInvites(message, data);
+        //                             break;
+        //                         }
+        //                         case 'invites': {
+        //                             value = adapter.rolemanagement.guilds.getInvites(message, data);
+        //                             break;
+        //                         }
+        //                         case 'deny': {
+        //                             value = adapter.rolemanagement.guilds.deleteInvite(message, data);
+        //                             break;
+        //                         }
+        //                         case 'setofficer': {
+        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
+        //                             break;
+        //                         }
+        //                         case 'setleader': {
+        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
+        //                             break;
+        //                         }
+        //                         case 'setmember': {
+        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'member');
+        //                             break;
+        //                         }
+        //                         case 'exhile': {
+        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
+        //                             break;
+        //                         }
+        //                         case 'settitle': {
+        //                             value = adapter.rolemanagement.guilds.setTitle(message, data);
+        //                             break;
+        //                         }
+        //                         case 'help': {
+        //                             value = adapter.rolemanagement.guilds.listHelp(message, data);
+        //                             break;
+        //                         }
+        //                         default: {
+        //                             value = adapter.rolemanagement.guilds.view(message, data);
+        //                             break;
+        //                         }
+        //                     }
+        //                     break;
+        //                 }
+
+        //                 // Minigames
+
+        //                 case 'stats': {
+        //                     switch (data.arguments[0]) {
+        //                         case 'fishing': {
+        //                             value = adapter.minigames.stats.fishing(message);
+        //                             break;
+        //                         }
+        //                         default: {
+        //                             value = adapter.minigames.stats.all(message);
+        //                             break;
+        //                         }
+        //                     }
+        //                     break;
+        //                 }
+        //                 case 'cast': {
+        //                     value = adapter.minigames.fishing.cast(message);
+        //                     break;
+        //                 }
+        //                 case 'inventory': {
+        //                     value = adapter.minigames.inventory.find(message, data);
+        //                     break;
+        //                 }
+
+        //                 // Music
+
+        //                 case 'play': {
+        //                     value = adapter.music.append.fetch(message, data);
+        //                     break;
+        //                 }
+        //                 case 'join': {
+        //                     value = adapter.music.join(message);
+        //                     break;
+        //                 }
+        //                 case 'leave': {
+        //                     value = adapter.music.leave(message);
+        //                     break;
+        //                 }
+        //                 case 'skip': {
+        //                     value = adapter.music.skip(message);
+        //                     break;
+        //                 }
+        //                 case 'stop': {
+        //                     value = adapter.music.stop(message);
+        //                     break;
+        //                 }
+        //                 case 'queue': {
+        //                     value = adapter.music.list(message, data);
+        //                     break;
+        //                 }
+        //                 case 'pause': {
+        //                     value = adapter.music.pause(message);
+        //                     break;
+        //                 }
+        //                 case 'resume': {
+        //                     value = adapter.music.resume(message);
+        //                     break;
+        //                 }
+        //                 case 'songinfo': {
+        //                     value = adapter.music.info(message, data);
+        //                     break;
+        //                 }
+
+        //                 case 'playlist': {
+        //                     value = adapter.music.playlistCommand(message, data);
+        //                     break;
+        //                 }
+
+        //                 // Memes
+
+        //                 case 'f': {
+        //                     value = adapter.memes.memeDispatch('f');
+        //                     break;
+        //                 }
+        //                 case 'fuck': {
+        //                     value = adapter.memes.memeDispatch('fuuu');
+        //                     break;
+        //                 }
+        //                 case 'yey': {
+        //                     value = adapter.memes.memeDispatch('yey');
+        //                     break;
+        //                 }
+        //                 case 'thowonk': {
+        //                     value = adapter.memes.memeDispatch('thowonk');
+        //                     break;
+        //                 }
+        //                 case 'penguin': {
+        //                     value = adapter.memes.memeDispatch('penguin');
+        //                     break;
+        //                 }
+        //                 case 'bird': {
+        //                     value = adapter.memes.memeDispatch('bird');
+        //                     break;
+        //                 }
+        //                 case 'clayhead': {
+        //                     value = adapter.memes.memeDispatch('clayhead');
+        //                     break;
+        //                 }
+        //                 case 'extrathicc': {
+        //                     value = adapter.memes.memeDispatch('extra_thicc');
+        //                     break;
+        //                 }
+        //                 case 'crabrave': {
+        //                     value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
+        //                     break;
+        //                 }
+        //                 case 'theriddle': {
+        //                     value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
+        //                     break;
+        //                 }
+
+        //                 // Dungeons
+
+        //                 // case 'dd_loaditems': {
+        //                 //     verify(message, getDungeons('dd_loaditems'))
+        //                 //         .then(() => resolve(adapter.dungeons.csvToMap()))
+        //                 //         .catch(r => reject(r));
+        //                 //     break;
+        //                 // }
+        //                 // case 'dd_getitem': {
+        //                 //     verify(message, getDungeons('dd_getitem'))
+        //                 //         .then(() => resolve(adapter.dungeons.getItem(message, data.arguments.join(' '))))
+        //                 //         .catch(r => reject(r));
+        //                 //     break;
+        //                 // }
+        //                 // case 'dd_getshop': {
+        //                 //     verify(message, getDungeons('dd_getshop'))
+        //                 //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(data.arguments[0]) ? data.arguments[0] : 10))))
+        //                 //         .catch(r => reject(r));
+        //                 // }
+        //                 // case 'dd_list': {
+        //                 //     verify(message, getDungeons('dd_list'))
+        //                 //         .then(() => resolve(adapter.dungeons.listItems(message, data.arguments.join(' '))))
+        //                 //         .catch(r => reject(r));
+        //                 //     break;
+        //                 // }
+
+        //                 // case 'isadmin': {
+        //                 //     adapter.rolemanagement.getRoles.admin(message, message.member);
+        //                 //     break;
+        //                 // }
+
+        //                 default: {
+        //                     value = [null];
+        //                     break;
+        //                 }
+        //             }
+        //         } else {
+        //             value = [result.permission.reason];
+        //         }
+        //         // console.log(value);
+        //         resolve({
+        //             values: [value],
+        //             result
+        //         });
+            // })
+            // .catch(r => reject(r));
     });
 }
 
@@ -540,108 +557,169 @@ function formatResponse(input) {
     });
 }
 
-function execute(message, prefix, part) {
-    let msgArray = part.split(' ');
-    let content = part.replace(commandRegex, '').trim();
+function getData(message, prefix, part) {
+    return new Promise((resolve, reject) => {
+        let msgArray = part.split(' ');
 
-    let reg = `[${prefix.toString()}~](\\w|[?])+`;
+        const reg = `[${prefix.toString()}~][a-zA-Z?]+`;
+        const commandRegex = new RegExp(reg, 'g');
 
-    let commandRegex = new RegExp(reg, 'g');
-    let flagRegex = /-[a-zA-Z]+\s*/g;
-    let boolParamRegex = /\?\w+:(t|f)/g;
-    let stringParamRegex = /\$\w+:".*?"/g;
-    let grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
-    let intParamRegex = /\^\w+:-?\d+/g;
-    let doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+        const passThrough = `${reg}.*\\s>\\s([a-zA-Z])`;
+        const passThroughRegex = new RegExp(passThrough, '');
+        const outputVariables = {};
 
-    if (!commandRegex.test(msgArray[0])) {
-        reject(null);
-    } else {
-        let flags = {};
-        const has_flags = content.match(flagRegex);
-        if (has_flags !== null) {
-            let flagArr = content.match(flagRegex)[0].slice(1).split('');
-            for (let i in flagArr) {
-                flags[flagArr[i]] = true;
+        let commands = [];
+        let arguments = [];
+        let flags = [];
+        let parameters = [];
+        let urls = [];
+        let mentions = [];
+
+        const flagRegex = /-[a-zA-Z]+\s*/g;
+        const boolParamRegex = /\?\w+:(t|f)/g;
+        const stringParamRegex = /\$\w+:".*?"/g;
+        const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
+        const intParamRegex = /\^\w+:-?\d+/g;
+        const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+
+        const mentions_ = {
+            members: message.mentions.members,
+            roles: message.mentions.roles
+        }
+
+        if (!commandRegex.test(msgArray[0])) {
+            reject(null);
+        } else {
+            const passThrough_arr = part.split('=>');
+
+            let passTo_arr = [];
+            let non_passTo_arr = [];
+
+            for (let i in passThrough_arr) {
+                if (passThrough_arr[i].match(passThroughRegex) !== null)
+                    passTo_arr.push(passThrough_arr[i].match(passThroughRegex));
+                else
+                    non_passTo_arr.push(passThrough_arr[i]);
             }
             content = content.replace(flagRegex, '');
         }
 
+            let has_flags = false;
 
-        let bools = content.match(boolParamRegex);
-        content = content.replace(boolParamRegex, '');
+            let str = '';
+            let content = '';
 
-        let strs = content.match(stringParamRegex);
-        content = content.replace(stringParamRegex, '');
+            for (let i in passTo_arr) {
+                str = passTo_arr[i][0];
 
-        let greps = content.match(grepParamRegex);
-        content = content.replace(grepParamRegex, '');
+                outputVariables[passTo_arr[i][1]] = {
+                    index: i,
 
-        let ints = content.match(intParamRegex);
-        content = content.replace(intParamRegex, '');
+                    value: null
+                };
 
-        let doubles = content.match(doubleParamRegex);
-        content = content.replace(doubleParamRegex, '');
+                content = str.replace(new RegExp(reg + '\\s', 'g'), '');
+                str = content.replace(/\s>\s.*/g, '');
 
-        let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+                console.log(str, '\n', content);
 
-        if (!urls)
-            urls = [];
+                commands.push(passTo_arr[i][0].split(' >')[0]);
 
-        let params = {
-            "boolean": {},
-            "string": {},
-            "integer": {},
-            "double": {},
-            "regex": []
-        };
+                has_flags = content.match(flagRegex);
 
-        let arr;
+                parameters[i] = {
+                    'boolean': [],
+                    'string': [],
+                    'regex': [],
+                    'integer': [],
+                    'double': []
+                }
 
-        for (let i in bools) {
-            arr = bools[i].slice(1).split(':');
-            if (arr.length)
-                params.boolean[arr[0]] = arr[1] === 't';
-        }
-        for (let i in strs) {
-            arr = strs[i].slice(1).split(':');
-            if (arr.length)
-                params.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
-        }
-        for (let i in ints) {
-            arr = ints[i].slice(1).split(':');
-            if (arr.length)
-                params.integer[arr[0]] = Number(arr[1]);
-        }
-        for (let i in doubles) {
-            arr = doubles[i].slice(1).split(':');
-            if (arr.length)
-                params.double[arr[0]] = Number(arr[1]);
-        }
-        for (let i in greps) {
-            arr = greps[i].slice(6).slice(0, -1);
-            params.regex.push(arr);
-        }
+                parameters[i]['boolean'].push(content.match(boolParamRegex));
+                content = content.replace(boolParamRegex, '');
+                parameters[i]['string'].push(content.match(stringParamRegex));
+                content = content.replace(stringParamRegex, '');
+                parameters[i]['regex'].push(content.match(grepParamRegex));
+                content = content.replace(grepParamRegex, '');
+                parameters[i]['integer'].push(content.match(intParamRegex));
+                content = content.replace(intParamRegex, '');
+                parameters[i]['double'].push(content.match(doubleParamRegex));
+                content = content.replace(doubleParamRegex, '');
 
-        arr = content.split(' ');
-        let args = [];
-        for (let i in arr) {
-            if (arr[i] !== '')
-                args.push(arr[i])
-        }
+                urls[i] = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
 
-        return {
-            command: msgArray[0].slice(1),
-            arguments: args,
-            flags,
-            parameters: params,
-            urls,
-            mentions: {
-                members: message.mentions.members,
-                roles: message.mentions.roles
+                console.log(content);
+
+                if (!urls[i])
+                    urls[i] = [];
+
+                arguments[i] = str.split(' ');
+                if (!arguments[i])
+                    arguments[i] = [];
+
+                if (has_flags !== null) {
+                    flagArr = content.match(flagRegex)[0].slice(1).split('');
+                    for (let x in flagArr) {
+                        flags[i][flagArr[x]] = true;
+                    }
+                    content = content.replace(flagRegex, '');
+                }
+                else
+                    flags[i] = [];
+
+                for (let x in parameters[i].boolean) {
+                    if (parameters[i].boolean[x]) {
+                        arr = parameters[i].boolean[x].slice(1).split(':');
+                        if (arr.length)
+                            parameters[i].boolean[arr[0]] = arr[1] === 't';
+                    }
+                    else 
+                        parameters[i].boolean[x] = [];
+                }
+                for (let x in parameters[i].string) {
+                    if (parameters[i].string[x]) {
+                        arr = parameters[i].string[x].slice(1).split(':');
+                        if (arr.length)
+                            parameters[i].string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
+                    }
+                    else
+                        parameters[i].string[x] = [];
+                }
+                for (let x in parameters[i].integer) {
+                    if (parameters[i].integer[x]) {
+                        arr = parameters[i].integer[x].slice(1).split(':');
+                        if (arr.length)
+                            parameters[i].integer[arr[0]] = Number(arr[1]);
+                    }
+                    else
+                        parameters[i].integer[x] = [];
+                }
+                for (let x in parameters[i].double) {
+                    if (parameters[i].double[x]) {
+                        arr = parameters[i].double[x].slice(1).split(':');
+                        if (arr.length)
+                            parameters[i].double[arr[0]] = Number(arr[1]);
+                    }
+                    else
+                        parameters[i].double[x] = [];
+                }
             }
-        };
-    }
+
+            for (let i in non_passTo_arr)
+                commands.push(non_passTo_arr[i])
+
+            const data = {
+                commands,
+                arguments,
+                flags,
+                parameters,
+                urls,
+                mentions,
+                outputVariables
+            }
+
+            resolve(data);
+    });
 }
 
 module.exports = function (client, message) {
@@ -652,48 +730,57 @@ module.exports = function (client, message) {
 
                 let results = [];
                 for (let a in commandParts)
-                    results.push(parseCommand(client, message, execute(message, prefix, commandParts[a])));
+                    data.push(getData(message, prefix, commandParts[a].trim()));
 
-                Promise.all(results)
-                    .then(values => {
-                        let returned = null;
-                        for (let i in values) {
-                            returned = values[i];
+                Promise.all(data)
+                    .then(data => {
+                        console.log('Data\n', data)
+                        // for (let a in data)
+                        //     results.push(parseCommand(client, message, data[a]));
 
-                            formatResponse(returned.value)
-                                .then(response => {
-                                    // console.log(response);
+                        // Promise.all(results)
+                        //     .then(values => {
+                        //         console.log("Values\n", values);
 
-                                    if (response.array) {
-                                        for (let i in response.array)
-                                            if (response.array[i])
-                                                message.channel.send(response.array[i].value)
-                                                    .then(msg => {
-                                                        if (response.options && response.options.clear)
-                                                            setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                                    });
-                                    } else {
-                                        message.channel.send(response.value)
-                                            .then(msg => {
-                                                if (response.options && response.options.clear)
-                                                    setTimeout(() => msg.delete(), response.options.clear * 1000);
-                                            });
-                                    }
+                        //         let arr = [];
 
-                                    if (data.parameters.boolean['debug'])
-                                        message.channel.send(adapter.common.debug(returned.result.data, false));
+                        //         for (let i in values)
+                        //             arr.push(formatResponse(values[i]));
+                                
+                        //         Promise.all(arr)                                
+                        //             .then(responses => {
+                        //                 // console.log('Responses\n', responses);
 
-                                    if (returned.result.properties.selfClear && !data.flags['C']) {
-                                        if (response.options && response.options.clear_command)
-                                            setTimeout(() => message.delete(), response.options.clear_command * 1000);
-                                        else
-                                            message.delete();
-                                    }
+                        //                 for (let i in responses) {
+                        //                     // console.log(i, responses[i]);
 
-                                    resolve(response);
-                                })
-                                .catch(e => reject(e));
-                        }
+                        //                     for (let x in responses[i].values) {
+                        //                         if (responses[i].values[x]) {
+                        //                             message.channel.send(responses[i].values[x].value)
+                        //                                 .then(msg => {
+                        //                                     if (responses[i].options && responses[i].options.clear)
+                        //                                         setTimeout(() => msg.delete(), responses[i].options.clear * 1000);
+                        //                                 })
+                        //                                 .catch(e => reject(e));
+                        //                         }
+                        //                     }
+
+                        //                     if (responses[i].result.data.parameters.boolean['debug'])
+                        //                         message.channel.send(adapter.common.debug(responses[i].result.data, false));
+
+                        //                     if (responses[i].result.properties.selfClear && !responses[i].result.data.flags['C']) {
+                        //                         if (responses[i].options && responses[i].options.clear_command)
+                        //                             setTimeout(() => message.delete().catch(e => console.log('Message was already deleted.')), responses[i].options.clear_command * 1000);
+                        //                         else
+                        //                             message.delete();
+                        //                     }
+                        //                 }
+
+                        //                 resolve(responses);
+                        //             })
+                        //             .catch(e => reject(e))
+                        //     })
+                        //     .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
             })
