@@ -64,21 +64,22 @@ function getMeme(name) {
 // }
 function getOther(name, subcommand) {
     try {
-        return (subcommand)
-            ? commandList[name].subcommands[subcommand]
+        return (subcommand[0])
+            ? commandList[name].subcommands[subcommand[0]]
             : commandList[name].commands[name];
     } catch {
         return undefined;
     }
 }
 
-function parseCommand(client, message, data) {
+function parseCommands(client, message, data) {
     let returns = [];
 
     return new Promise((resolve, reject) => {
         let properties = null;
         for (let i in data.commands) {
-            properties = getCommon(data.commands[i]) || getRoleManager(data.commands[i]) || getMusic(data.commands[i]) || getMinigames(data.commands[i]) || getMeme(data.commands[i]) || getOther(data.commands[i], data.arguments[i][0])
+            console.log(data.commands[i])
+            properties = getCommon(data.commands[i]) || getRoleManager(data.commands[i]) || getMusic(data.commands[i]) || getMinigames(data.commands[i]) || getMeme(data.commands[i]) || getOther(data.commands[i], data.arguments[i])
             returns[i] = {
                 properties,
                 result: verify(message, properties, data, data.commands[i]),
@@ -110,10 +111,10 @@ function parseCommand(client, message, data) {
         //                     value = adapter.common.bot.features.ping(message, client);
         //                     break;
         //                 }
-        //                 case 'roll': {
-        //                     value = adapter.common.bot.features.roll(data.arguments);
-        //                     break;
-        //                 }
+                        // case 'roll': {
+                        //     value = adapter.common.bot.features.roll(data.arguments);
+                        //     break;
+                        // }
         //                 case 'shuffle': {
         //                     value = new Promise((resolve, reject) => {
         //                         adapter.common.bot.global.shuffle(data.arguments[0].split(','))
@@ -496,15 +497,15 @@ function parseCommand(client, message, data) {
         //                     value = [null];
         //                     break;
         //                 }
-        //             }
+                    // }
         //         } else {
         //             value = [result.permission.reason];
         //         }
         //         // console.log(value);
-        //         resolve({
-        //             values: [value],
-        //             result
-        //         });
+            //     resolve({
+            //         values: [value],
+            //         result
+            //     });
             // })
             // .catch(r => reject(r));
     });
@@ -547,40 +548,70 @@ function formatResponse(input) {
 }
 
 function getData(message, prefix, part) {
+    /*
+        Parts are split on the pipe |
+        There can be multiple commands per part, and everything
+        needs to be put into their own sections:
+
+        .roll 5 > x => .roll 3 {x} > y => .roll {x} {y}
+
+        A: .roll 5 > x
+        B: .roll 3 {x} > y
+        C: .roll {x} > {y}
+
+        A -> x          A => B
+        B -> y          B => C
+        C -> out        outputVariables: {
+                            cache: {
+                                x: A,
+                                y: B
+                            },
+                            out: [
+                                C
+                            ]
+                        }
+    */
+
     return new Promise((resolve, reject) => {
         let msgArray = part.split(' ');
 
         const reg = `[${prefix.toString()}~][a-zA-Z?]+`;
         const commandRegex = new RegExp(reg, 'g');
 
-        const passThrough = `${reg}.*\\s>\\s([a-zA-Z])`;
-        const passThroughRegex = new RegExp(passThrough, '');
-        const outputVariables = {};
-
-        let commands = [];
-        let arguments = [];
-        let flags = [];
-        let parameters = [];
-        let urls = [];
-        let mentions = [];
-
-        const flagRegex = /-[a-zA-Z]+\s*/g;
-        const boolParamRegex = /\?\w+:(t|f)/g;
-        const stringParamRegex = /\$\w+:".*?"/g;
-        const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
-        const intParamRegex = /\^\w+:-?\d+/g;
-        const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
-
-        const mentions_ = {
-            members: message.mentions.members,
-            roles: message.mentions.roles
-        }
-
         if (!commandRegex.test(msgArray[0])) {
             reject(null);
         } else {
+            
+            const passThrough = `${reg}.*\\s>\\s([a-zA-Z])`;
+            const passThroughRegex = new RegExp(passThrough, '');
+            const outputVariables = {
+                cache: {},
+                out: []
+            };
+
+            let commands = [];
+            let arguments = [];
+            let flags = [];
+            let parameters = [];
+            let urls = [];
+            let mentions = [];
+
+            const flagRegex = /-[a-zA-Z]+\s*/g;
+            const boolParamRegex = /\?\w+:(t|f)/g;
+            const stringParamRegex = /\$\w+:".*?"/g;
+            const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
+            const intParamRegex = /\^\w+:-?\d+/g;
+            const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+
+            const mentions_ = {
+                members: message.mentions.members,
+                roles: message.mentions.roles
+            }
+
             const passThrough_arr = part.split('=>');
 
+            let content = part;
+            
             let passTo_arr = [];
             let non_passTo_arr = [];
 
@@ -591,29 +622,24 @@ function getData(message, prefix, part) {
                     non_passTo_arr.push(passThrough_arr[i]);
             }
             content = content.replace(flagRegex, '');
-        }
 
             let has_flags = false;
 
             let str = '';
-            let content = '';
 
             for (let i in passTo_arr) {
                 str = passTo_arr[i][0];
 
-                outputVariables[passTo_arr[i][1]] = {
+                outputVariables.cache[passTo_arr[i][1]] = {
                     index: i,
-
                     value: null
                 };
 
                 content = str.replace(new RegExp(reg + '\\s', 'g'), '');
                 str = content.replace(/\s>\s.*/g, '');
-
-                console.log(str, '\n', content);
-
-                commands.push(passTo_arr[i][0].split(' >')[0]);
-
+                
+                commands.push(passTo_arr[i][0].split(' >')[0].match(commandRegex)[0]);
+                
                 has_flags = content.match(flagRegex);
 
                 parameters[i] = {
@@ -694,8 +720,16 @@ function getData(message, prefix, part) {
                 }
             }
 
-            for (let i in non_passTo_arr)
-                commands.push(non_passTo_arr[i])
+            for (let i in non_passTo_arr) {
+                content = non_passTo_arr[i].trim();
+                commands.push(content.match(commandRegex)[0])
+                let args = content.split(' ').slice(1);    
+                arguments.push(args);           
+            }
+
+            for (let c in commands) {
+                commands[c] = commands[c].slice(1);
+            }
 
             const data = {
                 commands,
@@ -707,7 +741,11 @@ function getData(message, prefix, part) {
                 outputVariables
             }
 
+            console.log(data);
+            console.log(arguments)
+
             resolve(data);
+        }
     });
 }
 
@@ -725,7 +763,13 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
-                        console.log('Data\n', data)
+                        console.log('Data\n', data);
+                        let commandReturns = [];
+                        for (let d in data) {
+                            commandReturns.push(parseCommands(client, message, data[d]));
+                        }
+
+                        console.log('Command returns: \n', commandReturns);
                         // for (let a in data)
                         //     results.push(parseCommand(client, message, data[a]));
 
