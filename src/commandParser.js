@@ -513,30 +513,18 @@ function parseCommand(client, message, data) {
 function formatResponse(input) {
     // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
-        if (input.value) {
-            switch (typeof input.value) {
-                case 'string': {
-                    resolve(input);
-                    break;
-                }
-                case 'undefined': {
-                    resolve(null);
-                    break;
-                }
-                default: {
-                    resolve(input);
-                    break;
-                }
-            }
-        } else if (input.values) {
+        if (input.values) {
             // console.log(input.values);
             let arr = [];
             for (let i in input.values) {
                 arr.push(formatResponse(input.values[i]))
             }
+
             Promise.all(arr)
                 .then(arr => resolve({
-                    array: arr
+                    values: arr,
+                    result: input.result,
+                    options: input.options
                 }))
                 .catch(e => reject(e));
         } else {
@@ -548,6 +536,7 @@ function formatResponse(input) {
                 if (input.embed)
                     resolve({
                         value: input.embed,
+                        result: input.result,
                         options: input.options
                     });
                 else
@@ -726,9 +715,11 @@ module.exports = function (client, message) {
     return new Promise((resolve, reject) => {
         adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
-                let commandParts = message.content.split(/\|:/g);
+                let commandParts = message.content.split(/\|/g);
 
                 let results = [];
+                let data = [];
+
                 for (let a in commandParts)
                     data.push(getData(message, prefix, commandParts[a].trim()));
 
@@ -784,6 +775,6 @@ module.exports = function (client, message) {
                     })
                     .catch(e => reject(e));
             })
-            .catch(e => reject(e));                
+            .catch(e => reject(e));
     });
 }
