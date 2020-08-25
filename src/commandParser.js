@@ -1,4 +1,5 @@
 const adapter = require('./app/adapter');
+const { format } = require('mysql');
 const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, properties, data, command) {
@@ -10,7 +11,7 @@ function verify(message, properties, data, command) {
                         if (commandList[c].commands[cmd].alternatives[alt] == command) {
                             command = cmd;
                             properties = commandList[c].commands[cmd]
-                            verify(message, properties, data)
+                            verify(message, properties, data, command)
                                 .then(r => resolve({
                                     permission: r.permission,
                                     properties,
@@ -72,478 +73,467 @@ function getOther(name, subcommand) {
     }
 }
 
+function execute_command(client, message, data, index) {
+
+    console.log(data.commands[index], data.arguments[index])
+
+    switch (data.commands[index]) {
+        case 'help': return adapter.common.bot.features.listHelp(message, data.arguments[index]);
+        case 'clean': return adapter.common.bot.features.cleanChat(message);
+        case 'ping': return adapter.common.bot.features.ping(message, client);
+        case 'roll': return adapter.common.bot.features.roll(data.arguments[index]);
+
+        case 'shuffle': {
+            value = new Promise((resolve, reject) => {
+                adapter.common.bot.global.shuffle(data.arguments[0].split(','))
+                    .then(arr => resolve({
+                        value: arr.join(', ')
+                    }))
+                    .catch(e => reject(e));
+            });
+            break;
+        }
+        case 'whoami': {
+            value = adapter.common.bot.features.whoAre.self(message);
+            break;
+        }
+        case 'whoareyou': {
+            value = adapter.common.bot.features.whoAre.member(message);
+            break;
+        }
+        case 'setmotd': {
+            if (data.flags['r'])
+                value = adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/");
+            else
+                value = adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
+            break;
+        }
+        case 'motd': {
+            value = adapter.common.bot.features.motd.get(message, data);
+            break;
+        }
+        case 'setprefix': {
+            value = adapter.common.bot.features.prefix.set(message, data.arguments[0]);
+            break;
+        }
+        case 'prefix': {
+            value = adapter.common.bot.features.prefix.get(message);
+            break;
+        }
+
+        // RoleManager
+
+        case 'warn': {
+            value = adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
+            break;
+        }
+        case 'warnings': {
+            value = adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
+            break;
+        }
+        case 'kick': {
+            value = adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+            break;
+        }
+        case 'kicks': {
+            value = adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
+            break;
+        }
+        case 'ban': {
+            value = adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+            break;
+        }
+        case 'bans': {
+            adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
+            break;
+        }
+        case 'unban': {
+            value = new Promise((resolve, reject) => {
+                message.guild.members.unban(data.arguments[0])
+                    .then(user => {
+                        user.send(`You have been unbanned from ${message.guild.name}.`);
+                        resolve({
+                            value: `Unbanned ${user.username}.`
+                        });
+                    })
+                    .catch(e => reject(`Cannot unban user.\n${e.message}`));
+            });
+            break;
+        }
+        case 'promote': {
+            value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+            break;
+        }
+        case 'demote': {
+            value = adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+            break;
+        }
+        case 'setbotadmin': {
+            value = adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+            break;
+        }
+        case 'setbotmod': {
+            value = adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+            break;
+        }
+        case 'setbothelper': {
+            value = adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+            break;
+        }
+        case 'refreshrole': {
+            value = adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
+            break;
+        }
+        case 'refreshroles': {
+            value = adapter.rolemanagement.setRoles.refresh_guild(message);
+            break;
+        }
+        case 'resetroles': {
+            value = adapter.rolemanagement.setRoles.reset_guild(message);
+            break;
+        }
+        case 'purgeroles': {
+            value = adapter.rolemanagement.setRoles.purge(message);
+            break;
+        }
+        case 'setrole': {
+            value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
+            break;
+        }
+        case 'timeout': {
+            switch (data.arguments[0]) {
+                case 'roles': {
+                    value = adapter.sql.server.timeouts.toMessage(message);
+                    break;
+                }
+            }
+            break;
+        }
+
+        // Guilds
+
+        case 'guild_admin': {
+            switch (data.arguments[0]) {
+                case 'refresh': {
+                    value = adapter.rolemanagement.guilds.update(message, data);
+                    break;
+                }
+                case 'other_join': {
+                    value = adapter.rolemanagement.guilds.admin_join(message, data);
+                    break;
+                }
+                case 'other_leave': {
+                    value = adapter.rolemanagement.guilds.admin_leave(message, data);
+                    break;
+                }
+                case 'disband': {
+                    value = adapter.rolemanagement.guilds.admin_disband(message, data);
+                    break;
+                }
+            }
+            break;
+        }
+        case 'guild': {
+            switch (data.arguments[0]) {
+                case 'create': {
+                    value = adapter.rolemanagement.guilds.newCandidate(message, data);
+                    break;
+                }
+                case 'seticon': {
+                    value = adapter.rolemanagement.guilds.setIcon(message, data);
+                    break;
+                }
+                case 'setcolor': {
+                    value = adapter.rolemanagement.guilds.setColor(message, data);
+                    break;
+                }
+                case 'setlore': {
+                    value = adapter.rolemanagement.guilds.setLore(message, data);
+                    break;
+                }
+                case 'setmotto': {
+                    value = adapter.rolemanagement.guilds.setMotto(message, data);
+                    break;
+                }
+                case 'lore': {
+                    value = adapter.rolemanagement.guilds.getLore(message, data);
+                    break;
+                }
+                case 'list': {
+                    value = adapter.rolemanagement.guilds.list(message, data);
+                    break;
+                }
+                case 'join': {
+                    value = adapter.rolemanagement.guilds.join(message, data);
+                    break;
+                }
+                case 'leave': {
+                    value = adapter.rolemanagement.guilds.leave(message, data);
+                    break;
+                }
+                case 'invite': {
+                    value = adapter.rolemanagement.guilds.invite(message, data);
+                    break;
+                }
+                case 'toggle': {
+                    value = adapter.rolemanagement.guilds.toggleInvites(message, data);
+                    break;
+                }
+                case 'invites': {
+                    value = adapter.rolemanagement.guilds.getInvites(message, data);
+                    break;
+                }
+                case 'deny': {
+                    value = adapter.rolemanagement.guilds.deleteInvite(message, data);
+                    break;
+                }
+                case 'setofficer': {
+                    value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
+                    break;
+                }
+                case 'setleader': {
+                    value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
+                    break;
+                }
+                case 'setmember': {
+                    value = adapter.rolemanagement.guilds.promote(message, data, 'member');
+                    break;
+                }
+                case 'exhile': {
+                    value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
+                    break;
+                }
+                case 'settitle': {
+                    value = adapter.rolemanagement.guilds.setTitle(message, data);
+                    break;
+                }
+                case 'help': {
+                    value = adapter.rolemanagement.guilds.listHelp(message, data);
+                    break;
+                }
+                default: {
+                    value = adapter.rolemanagement.guilds.view(message, data);
+                    break;
+                }
+            }
+            break;
+        }
+
+        // Minigames
+
+        case 'stats': {
+            switch (data.arguments[0]) {
+                case 'fishing': {
+                    value = adapter.minigames.stats.fishing(message);
+                    break;
+                }
+                default: {
+                    value = adapter.minigames.stats.all(message);
+                    break;
+                }
+            }
+            break;
+        }
+        case 'cast': {
+            value = adapter.minigames.fishing.cast(message);
+            break;
+        }
+        case 'inventory': {
+            value = adapter.minigames.inventory.find(message, data);
+            break;
+        }
+
+        // Music
+
+        case 'play': {
+            value = adapter.music.append.fetch(message, data);
+            break;
+        }
+        case 'join': {
+            value = adapter.music.join(message);
+            break;
+        }
+        case 'leave': {
+            value = adapter.music.leave(message);
+            break;
+        }
+        case 'skip': {
+            value = adapter.music.skip(message);
+            break;
+        }
+        case 'stop': {
+            value = adapter.music.stop(message);
+            break;
+        }
+        case 'queue': {
+            value = adapter.music.list(message, data);
+            break;
+        }
+        case 'pause': {
+            value = adapter.music.pause(message);
+            break;
+        }
+        case 'resume': {
+            value = adapter.music.resume(message);
+            break;
+        }
+        case 'songinfo': {
+            value = adapter.music.info(message, data);
+            break;
+        }
+
+        case 'playlist': {
+            value = adapter.music.playlistCommand(message, data);
+            break;
+        }
+
+        // Memes
+
+        case 'f': {
+            value = adapter.memes.memeDispatch('f');
+            break;
+        }
+        case 'fuck': {
+            value = adapter.memes.memeDispatch('fuuu');
+            break;
+        }
+        case 'yey': {
+            value = adapter.memes.memeDispatch('yey');
+            break;
+        }
+        case 'thowonk': {
+            value = adapter.memes.memeDispatch('thowonk');
+            break;
+        }
+        case 'penguin': {
+            value = adapter.memes.memeDispatch('penguin');
+            break;
+        }
+        case 'bird': {
+            value = adapter.memes.memeDispatch('bird');
+            break;
+        }
+        case 'clayhead': {
+            value = adapter.memes.memeDispatch('clayhead');
+            break;
+        }
+        case 'extrathicc': {
+            value = adapter.memes.memeDispatch('extra_thicc');
+            break;
+        }
+        case 'crabrave': {
+            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
+            break;
+        }
+        case 'theriddle': {
+            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
+            break;
+        }
+
+        // Dungeons
+
+        // case 'dd_loaditems': {
+        //     verify(message, getDungeons('dd_loaditems'))
+        //         .then(() => resolve(adapter.dungeons.csvToMap()))
+        //         .catch(r => reject(r));
+        //     break;
+        // }
+        // case 'dd_getitem': {
+        //     verify(message, getDungeons('dd_getitem'))
+        //         .then(() => resolve(adapter.dungeons.getItem(message, data.arguments.join(' '))))
+        //         .catch(r => reject(r));
+        //     break;
+        // }
+        // case 'dd_getshop': {
+        //     verify(message, getDungeons('dd_getshop'))
+        //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(data.arguments[0]) ? data.arguments[0] : 10))))
+        //         .catch(r => reject(r));
+        // }
+        // case 'dd_list': {
+        //     verify(message, getDungeons('dd_list'))
+        //         .then(() => resolve(adapter.dungeons.listItems(message, data.arguments.join(' '))))
+        //         .catch(r => reject(r));
+        //     break;
+        // }
+
+        // case 'isadmin': {
+        //     adapter.rolemanagement.getRoles.admin(message, message.member);
+        //     break;
+        // }
+
+        default: {
+            value = [null];
+            break;
+        }
+    }
+}
+
 function parseCommands(client, message, data) {
     let returns = [];
 
     return new Promise((resolve, reject) => {
         let properties = null;
+        let verifications = [];
+
         for (let i in data.commands) {
-            console.log(data.commands[i])
             properties = getCommon(data.commands[i]) || getRoleManager(data.commands[i]) || getMusic(data.commands[i]) || getMinigames(data.commands[i]) || getMeme(data.commands[i]) || getOther(data.commands[i], data.arguments[i])
             returns[i] = {
                 properties,
-                result: verify(message, properties, data, data.commands[i]),
+                verification: null,
                 value: []
             }
+            verifications.push(verify(message, properties, data, data.commands[i]));
         }
 
-        Promise.all(returns)
-            .then(returns => {
-                console.log(returns);
+        Promise.all(verifications)
+            .then(verifications_results => {
+                let output_returns = [];
+                for (let i in verifications_results) {
+                    returns[i].verification = verifications_results[i];
+
+                    // console.log(i, returns[i]);
+
+                    output_returns.push(execute_command(client, message, data, i));
+
+                    for (let val in data.outputVariables.cache) {
+                        if (data.outputVariables.cache[val].index == i) {
+                            data.outputVariables.cache[val].value = (output_returns[i].values.length > 1) ? output_returns[i].values : output_returns[i].values[0];
+                            for (let arg in data.arguments) {
+                                for (let ind in data.arguments[arg]) {
+                                    if (data.arguments[arg][ind] == `{${val}}`) {
+                                        data.arguments[arg][ind] = data.outputVariables.cache[val].value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // console.log(output_returns);
+                // console.log(data.outputVariables);
+
+                let message_array = [];
+                for (let out in output_returns) {
+                    message_array.push(formatResponse(output_returns[out]));
+                }
+
+                Promise.all(message_array)
+                    .then(arr => resolve({
+                        data,
+                        values: arr
+                    }))
+                    .catch(e => reject(e));
             })
             .catch(e => reject(e));
-
-        // verify(message, properties, data)
-        //     .then(result => {
-        //         let value = null;
-
-        //         if (result.permission.state) {
-        //             switch (result.data.command) {
-        //                 case 'help': {
-        //                     value = adapter.common.bot.features.listHelp(message, data.arguments);
-        //                     break;
-        //                 }
-        //                 case 'clean': {
-        //                     value = adapter.common.bot.features.cleanChat(message);
-        //                     break;
-        //                 }
-        //                 case 'ping': {
-        //                     value = adapter.common.bot.features.ping(message, client);
-        //                     break;
-        //                 }
-                        // case 'roll': {
-                        //     value = adapter.common.bot.features.roll(data.arguments);
-                        //     break;
-                        // }
-        //                 case 'shuffle': {
-        //                     value = new Promise((resolve, reject) => {
-        //                         adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-        //                             .then(arr => resolve({
-        //                                 value: arr.join(', ')
-        //                             }))
-        //                             .catch(e => reject(e));
-        //                     });
-        //                     break;
-        //                 }
-        //                 case 'whoami': {
-        //                     value = adapter.common.bot.features.whoAre.self(message);
-        //                     break;
-        //                 }
-        //                 case 'whoareyou': {
-        //                     value = adapter.common.bot.features.whoAre.member(message);
-        //                     break;
-        //                 }
-        //                 case 'setmotd': {
-        //                     if (data.flags['r'])
-        //                         value = adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/");
-        //                     else
-        //                         value = adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
-        //                     break;
-        //                 }
-        //                 case 'motd': {
-        //                     value = adapter.common.bot.features.motd.get(message, data);
-        //                     break;
-        //                 }
-        //                 case 'setprefix': {
-        //                     value = adapter.common.bot.features.prefix.set(message, data.arguments[0]);
-        //                     break;
-        //                 }
-        //                 case 'prefix': {
-        //                     value = adapter.common.bot.features.prefix.get(message);
-        //                     break;
-        //                 }
-
-        //                 // RoleManager
-
-        //                 case 'warn': {
-        //                     value = adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
-        //                     break;
-        //                 }
-        //                 case 'warnings': {
-        //                     value = adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
-        //                     break;
-        //                 }
-        //                 case 'kick': {
-        //                     value = adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-        //                     break;
-        //                 }
-        //                 case 'kicks': {
-        //                     value = adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
-        //                     break;
-        //                 }
-        //                 case 'ban': {
-        //                     value = adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-        //                     break;
-        //                 }
-        //                 case 'bans': {
-        //                     adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
-        //                     break;
-        //                 }
-        //                 case 'unban': {
-        //                     value = new Promise((resolve, reject) => {
-        //                         message.guild.members.unban(data.arguments[0])
-        //                             .then(user => {
-        //                                 user.send(`You have been unbanned from ${message.guild.name}.`);
-        //                                 resolve({
-        //                                     value: `Unbanned ${user.username}.`
-        //                                 });
-        //                             })
-        //                             .catch(e => reject(`Cannot unban user.\n${e.message}`));
-        //                     });
-        //                     break;
-        //                 }
-        //                 case 'promote': {
-        //                     value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-        //                     break;
-        //                 }
-        //                 case 'demote': {
-        //                     value = adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-        //                     break;
-        //                 }
-        //                 case 'setbotadmin': {
-        //                     value = adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        //                     break;
-        //                 }
-        //                 case 'setbotmod': {
-        //                     value = adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        //                     break;
-        //                 }
-        //                 case 'setbothelper': {
-        //                     value = adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        //                     break;
-        //                 }
-        //                 case 'refreshrole': {
-        //                     value = adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
-        //                     break;
-        //                 }
-        //                 case 'refreshroles': {
-        //                     value = adapter.rolemanagement.setRoles.refresh_guild(message);
-        //                     break;
-        //                 }
-        //                 case 'resetroles': {
-        //                     value = adapter.rolemanagement.setRoles.reset_guild(message);
-        //                     break;
-        //                 }
-        //                 case 'purgeroles': {
-        //                     value = adapter.rolemanagement.setRoles.purge(message);
-        //                     break;
-        //                 }
-        //                 case 'setrole': {
-        //                     value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
-        //                     break;
-        //                 }
-        //                 case 'timeout': {
-        //                     switch (data.arguments[0]) {
-        //                         case 'roles': {
-        //                             value = adapter.sql.server.timeouts.toMessage(message);
-        //                             break;
-        //                         }
-        //                     }
-        //                     break;
-        //                 }
-
-        //                 // Guilds
-
-        //                 case 'guild_admin': {
-        //                     switch (data.arguments[0]) {
-        //                         case 'refresh': {
-        //                             value = adapter.rolemanagement.guilds.update(message, data);
-        //                             break;
-        //                         }
-        //                         case 'other_join': {
-        //                             value = adapter.rolemanagement.guilds.admin_join(message, data);
-        //                             break;
-        //                         }
-        //                         case 'other_leave': {
-        //                             value = adapter.rolemanagement.guilds.admin_leave(message, data);
-        //                             break;
-        //                         }
-        //                         case 'disband': {
-        //                             value = adapter.rolemanagement.guilds.admin_disband(message, data);
-        //                             break;
-        //                         }
-        //                     }
-        //                     break;
-        //                 }
-        //                 case 'guild': {
-        //                     switch (data.arguments[0]) {
-        //                         case 'create': {
-        //                             value = adapter.rolemanagement.guilds.newCandidate(message, data);
-        //                             break;
-        //                         }
-        //                         case 'seticon': {
-        //                             value = adapter.rolemanagement.guilds.setIcon(message, data);
-        //                             break;
-        //                         }
-        //                         case 'setcolor': {
-        //                             value = adapter.rolemanagement.guilds.setColor(message, data);
-        //                             break;
-        //                         }
-        //                         case 'setlore': {
-        //                             value = adapter.rolemanagement.guilds.setLore(message, data);
-        //                             break;
-        //                         }
-        //                         case 'setmotto': {
-        //                             value = adapter.rolemanagement.guilds.setMotto(message, data);
-        //                             break;
-        //                         }
-        //                         case 'lore': {
-        //                             value = adapter.rolemanagement.guilds.getLore(message, data);
-        //                             break;
-        //                         }
-        //                         case 'list': {
-        //                             value = adapter.rolemanagement.guilds.list(message, data);
-        //                             break;
-        //                         }
-        //                         case 'join': {
-        //                             value = adapter.rolemanagement.guilds.join(message, data);
-        //                             break;
-        //                         }
-        //                         case 'leave': {
-        //                             value = adapter.rolemanagement.guilds.leave(message, data);
-        //                             break;
-        //                         }
-        //                         case 'invite': {
-        //                             value = adapter.rolemanagement.guilds.invite(message, data);
-        //                             break;
-        //                         }
-        //                         case 'toggle': {
-        //                             value = adapter.rolemanagement.guilds.toggleInvites(message, data);
-        //                             break;
-        //                         }
-        //                         case 'invites': {
-        //                             value = adapter.rolemanagement.guilds.getInvites(message, data);
-        //                             break;
-        //                         }
-        //                         case 'deny': {
-        //                             value = adapter.rolemanagement.guilds.deleteInvite(message, data);
-        //                             break;
-        //                         }
-        //                         case 'setofficer': {
-        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
-        //                             break;
-        //                         }
-        //                         case 'setleader': {
-        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
-        //                             break;
-        //                         }
-        //                         case 'setmember': {
-        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'member');
-        //                             break;
-        //                         }
-        //                         case 'exhile': {
-        //                             value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
-        //                             break;
-        //                         }
-        //                         case 'settitle': {
-        //                             value = adapter.rolemanagement.guilds.setTitle(message, data);
-        //                             break;
-        //                         }
-        //                         case 'help': {
-        //                             value = adapter.rolemanagement.guilds.listHelp(message, data);
-        //                             break;
-        //                         }
-        //                         default: {
-        //                             value = adapter.rolemanagement.guilds.view(message, data);
-        //                             break;
-        //                         }
-        //                     }
-        //                     break;
-        //                 }
-
-        //                 // Minigames
-
-        //                 case 'stats': {
-        //                     switch (data.arguments[0]) {
-        //                         case 'fishing': {
-        //                             value = adapter.minigames.stats.fishing(message);
-        //                             break;
-        //                         }
-        //                         default: {
-        //                             value = adapter.minigames.stats.all(message);
-        //                             break;
-        //                         }
-        //                     }
-        //                     break;
-        //                 }
-        //                 case 'cast': {
-        //                     value = adapter.minigames.fishing.cast(message);
-        //                     break;
-        //                 }
-        //                 case 'inventory': {
-        //                     value = adapter.minigames.inventory.find(message, data);
-        //                     break;
-        //                 }
-
-        //                 // Music
-
-        //                 case 'play': {
-        //                     value = adapter.music.append.fetch(message, data);
-        //                     break;
-        //                 }
-        //                 case 'join': {
-        //                     value = adapter.music.join(message);
-        //                     break;
-        //                 }
-        //                 case 'leave': {
-        //                     value = adapter.music.leave(message);
-        //                     break;
-        //                 }
-        //                 case 'skip': {
-        //                     value = adapter.music.skip(message);
-        //                     break;
-        //                 }
-        //                 case 'stop': {
-        //                     value = adapter.music.stop(message);
-        //                     break;
-        //                 }
-        //                 case 'queue': {
-        //                     value = adapter.music.list(message, data);
-        //                     break;
-        //                 }
-        //                 case 'pause': {
-        //                     value = adapter.music.pause(message);
-        //                     break;
-        //                 }
-        //                 case 'resume': {
-        //                     value = adapter.music.resume(message);
-        //                     break;
-        //                 }
-        //                 case 'songinfo': {
-        //                     value = adapter.music.info(message, data);
-        //                     break;
-        //                 }
-
-        //                 case 'playlist': {
-        //                     value = adapter.music.playlistCommand(message, data);
-        //                     break;
-        //                 }
-
-        //                 // Memes
-
-        //                 case 'f': {
-        //                     value = adapter.memes.memeDispatch('f');
-        //                     break;
-        //                 }
-        //                 case 'fuck': {
-        //                     value = adapter.memes.memeDispatch('fuuu');
-        //                     break;
-        //                 }
-        //                 case 'yey': {
-        //                     value = adapter.memes.memeDispatch('yey');
-        //                     break;
-        //                 }
-        //                 case 'thowonk': {
-        //                     value = adapter.memes.memeDispatch('thowonk');
-        //                     break;
-        //                 }
-        //                 case 'penguin': {
-        //                     value = adapter.memes.memeDispatch('penguin');
-        //                     break;
-        //                 }
-        //                 case 'bird': {
-        //                     value = adapter.memes.memeDispatch('bird');
-        //                     break;
-        //                 }
-        //                 case 'clayhead': {
-        //                     value = adapter.memes.memeDispatch('clayhead');
-        //                     break;
-        //                 }
-        //                 case 'extrathicc': {
-        //                     value = adapter.memes.memeDispatch('extra_thicc');
-        //                     break;
-        //                 }
-        //                 case 'crabrave': {
-        //                     value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
-        //                     break;
-        //                 }
-        //                 case 'theriddle': {
-        //                     value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
-        //                     break;
-        //                 }
-
-        //                 // Dungeons
-
-        //                 // case 'dd_loaditems': {
-        //                 //     verify(message, getDungeons('dd_loaditems'))
-        //                 //         .then(() => resolve(adapter.dungeons.csvToMap()))
-        //                 //         .catch(r => reject(r));
-        //                 //     break;
-        //                 // }
-        //                 // case 'dd_getitem': {
-        //                 //     verify(message, getDungeons('dd_getitem'))
-        //                 //         .then(() => resolve(adapter.dungeons.getItem(message, data.arguments.join(' '))))
-        //                 //         .catch(r => reject(r));
-        //                 //     break;
-        //                 // }
-        //                 // case 'dd_getshop': {
-        //                 //     verify(message, getDungeons('dd_getshop'))
-        //                 //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(data.arguments[0]) ? data.arguments[0] : 10))))
-        //                 //         .catch(r => reject(r));
-        //                 // }
-        //                 // case 'dd_list': {
-        //                 //     verify(message, getDungeons('dd_list'))
-        //                 //         .then(() => resolve(adapter.dungeons.listItems(message, data.arguments.join(' '))))
-        //                 //         .catch(r => reject(r));
-        //                 //     break;
-        //                 // }
-
-        //                 // case 'isadmin': {
-        //                 //     adapter.rolemanagement.getRoles.admin(message, message.member);
-        //                 //     break;
-        //                 // }
-
-        //                 default: {
-        //                     value = [null];
-        //                     break;
-        //                 }
-                    // }
-        //         } else {
-        //             value = [result.permission.reason];
-        //         }
-        //         // console.log(value);
-            //     resolve({
-            //         values: [value],
-            //         result
-            //     });
-            // })
-            // .catch(r => reject(r));
     });
 }
 
 function formatResponse(input) {
     // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
-        if (input.values) {
-            // console.log(input.values);
-            let arr = [];
-            for (let i in input.values) {
-                arr.push(formatResponse(input.values[i]))
-            }
-
-            Promise.all(arr)
-                .then(arr => resolve({
-                    values: arr,
-                    result: input.result,
-                    options: input.options
-                }))
-                .catch(e => reject(e));
-        } else {
-            try {
-                input
-                    .then(val => resolve(formatResponse(val)))
-                    .catch(e => reject(e));
-            } catch {
-                if (input.embed)
-                    resolve({
-                        value: input.embed,
-                        result: input.result,
-                        options: input.options
-                    });
-                else
-                    resolve(input);
-            }
-        }
+        Promise.all(input.content)
+            .then(arr => resolve(arr))
+            .catch(e => reject(e));
     });
 }
 
@@ -763,13 +753,24 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
-                        console.log('Data\n', data);
+                        // console.log('Data\n', data);
                         let commandReturns = [];
                         for (let d in data) {
                             commandReturns.push(parseCommands(client, message, data[d]));
                         }
+                        
+                        Promise.all(commandReturns)
+                            .then(returns => {
+                                console.log('Returns:\n', returns);
 
-                        console.log('Command returns: \n', commandReturns);
+                                for (let i in returns) {
+                                    for (let x in returns[i].values) {
+                                        for (let l in returns[i].values[x])
+                                            message.channel.send(returns[i].values[x][l])
+                                    }
+                                }
+                            })
+
                         // for (let a in data)
                         //     results.push(parseCommand(client, message, data[a]));
 
