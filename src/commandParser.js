@@ -1,5 +1,4 @@
 const adapter = require('./app/adapter');
-const { format } = require('mysql');
 const commandList = adapter.common.bot.global.commandList;
 
 function verify(message, properties, data, command) {
@@ -13,6 +12,7 @@ function verify(message, properties, data, command) {
                             properties = commandList[c].commands[cmd]
                             verify(message, properties, data, command)
                                 .then(r => resolve({
+                                    command: cmd,
                                     permission: r.permission,
                                     properties,
                                     data
@@ -26,6 +26,7 @@ function verify(message, properties, data, command) {
             adapter.rolemanagement.verifyPermission(message, message.author.id, properties.permissionLevel)
                 .then(r => {
                     resolve({
+                        command,
                         permission: r,
                         properties,
                         data
@@ -73,82 +74,49 @@ function getOther(name, subcommand) {
     }
 }
 
-function execute_command(client, message, data, index) {
+function execute_command(client, message, data) {
 
-    console.log(data.commands[index], data.arguments[index])
+    // console.log('COMMAND > ', data.commands[index], data.arguments[index])
+    
+    /*
+        Commands should return:
+        {
+            values: [],
+            content: [],
+            *options: {}
+        }
+    */
 
-    switch (data.commands[index]) {
-        case 'help': return adapter.common.bot.features.listHelp(message, data.arguments[index]);
+    switch (data.command) {
+        case 'help': return adapter.common.bot.features.listHelp(message, data.arguments);
         case 'clean': return adapter.common.bot.features.cleanChat(message);
         case 'ping': return adapter.common.bot.features.ping(message, client);
-        case 'roll': return adapter.common.bot.features.roll(data.arguments[index]);
-
+        case 'roll': return adapter.common.bot.features.roll(data.arguments);
         case 'shuffle': {
-            value = new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                    .then(arr => resolve({
-                        value: arr.join(', ')
-                    }))
-                    .catch(e => reject(e));
+                    .then(arr => resolve({values: arr, content: [arr.join(', ')]}))
+                    .catch(e => reject({rejections: [e], content: []}));
             });
-            break;
         }
-        case 'whoami': {
-            value = adapter.common.bot.features.whoAre.self(message);
-            break;
-        }
-        case 'whoareyou': {
-            value = adapter.common.bot.features.whoAre.member(message);
-            break;
-        }
-        case 'setmotd': {
-            if (data.flags['r'])
-                value = adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/");
-            else
-                value = adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
-            break;
-        }
-        case 'motd': {
-            value = adapter.common.bot.features.motd.get(message, data);
-            break;
-        }
-        case 'setprefix': {
-            value = adapter.common.bot.features.prefix.set(message, data.arguments[0]);
-            break;
-        }
-        case 'prefix': {
-            value = adapter.common.bot.features.prefix.get(message);
-            break;
-        }
+        case 'whoami': return adapter.common.bot.features.whoAre.self(message);
+        case 'whoareyou': return adapter.common.bot.features.whoAre.member(message);
+        case 'setmotd': return (data.flags['r'])
+                ? adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/")
+                : adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
+        case 'motd': return adapter.common.bot.features.motd.get(message, data.parameters);
+        case 'setprefix': return adapter.common.bot.features.prefix.set(message, data.arguments[0]);
+        case 'prefix': return adapter.common.bot.features.prefix.get(message);
 
         // RoleManager
 
-        case 'warn': {
-            value = adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
-            break;
-        }
-        case 'warnings': {
-            value = adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
-            break;
-        }
-        case 'kick': {
-            value = adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-            break;
-        }
-        case 'kicks': {
-            value = adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
-            break;
-        }
-        case 'ban': {
-            value = adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-            break;
-        }
-        case 'bans': {
-            adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
-            break;
-        }
-        case 'unban': {
-            value = new Promise((resolve, reject) => {
+        case 'warn': return adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
+        case 'warnings': return adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
+        case 'kick': return adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+        case 'kicks': return adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
+        case 'ban': return adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
+        case 'bans': return adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
+        case 'unban': return new Promise((resolve, reject) => {
                 message.guild.members.unban(data.arguments[0])
                     .then(user => {
                         user.send(`You have been unbanned from ${message.guild.name}.`);
@@ -158,48 +126,16 @@ function execute_command(client, message, data, index) {
                     })
                     .catch(e => reject(`Cannot unban user.\n${e.message}`));
             });
-            break;
-        }
-        case 'promote': {
-            value = adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-            break;
-        }
-        case 'demote': {
-            value = adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-            break;
-        }
-        case 'setbotadmin': {
-            value = adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-            break;
-        }
-        case 'setbotmod': {
-            value = adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-            break;
-        }
-        case 'setbothelper': {
-            value = adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-            break;
-        }
-        case 'refreshrole': {
-            value = adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
-            break;
-        }
-        case 'refreshroles': {
-            value = adapter.rolemanagement.setRoles.refresh_guild(message);
-            break;
-        }
-        case 'resetroles': {
-            value = adapter.rolemanagement.setRoles.reset_guild(message);
-            break;
-        }
-        case 'purgeroles': {
-            value = adapter.rolemanagement.setRoles.purge(message);
-            break;
-        }
-        case 'setrole': {
-            value = adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
-            break;
-        }
+        case 'promote': return adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+        case 'demote': return adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
+        case 'setbotadmin': return adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        case 'setbotmod': return adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        case 'setbothelper': return adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+        case 'refreshrole': return adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
+        case 'refreshroles': return adapter.rolemanagement.setRoles.refresh_guild(message);
+        case 'resetroles': return adapter.rolemanagement.setRoles.reset_guild(message);
+        case 'purgeroles': return adapter.rolemanagement.setRoles.purge(message);
+        case 'setrole': return adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
         case 'timeout': {
             switch (data.arguments[0]) {
                 case 'roles': {
@@ -214,221 +150,75 @@ function execute_command(client, message, data, index) {
 
         case 'guild_admin': {
             switch (data.arguments[0]) {
-                case 'refresh': {
-                    value = adapter.rolemanagement.guilds.update(message, data);
-                    break;
-                }
-                case 'other_join': {
-                    value = adapter.rolemanagement.guilds.admin_join(message, data);
-                    break;
-                }
-                case 'other_leave': {
-                    value = adapter.rolemanagement.guilds.admin_leave(message, data);
-                    break;
-                }
-                case 'disband': {
-                    value = adapter.rolemanagement.guilds.admin_disband(message, data);
-                    break;
-                }
+                case 'refresh': return adapter.rolemanagement.guilds.update(message, data);
+                case 'other_join': return adapter.rolemanagement.guilds.admin_join(message, data);
+                case 'other_leave': return adapter.rolemanagement.guilds.admin_leave(message, data);
+                case 'disband': return adapter.rolemanagement.guilds.admin_disband(message, data);
             }
             break;
         }
         case 'guild': {
             switch (data.arguments[0]) {
-                case 'create': {
-                    value = adapter.rolemanagement.guilds.newCandidate(message, data);
-                    break;
-                }
-                case 'seticon': {
-                    value = adapter.rolemanagement.guilds.setIcon(message, data);
-                    break;
-                }
-                case 'setcolor': {
-                    value = adapter.rolemanagement.guilds.setColor(message, data);
-                    break;
-                }
-                case 'setlore': {
-                    value = adapter.rolemanagement.guilds.setLore(message, data);
-                    break;
-                }
-                case 'setmotto': {
-                    value = adapter.rolemanagement.guilds.setMotto(message, data);
-                    break;
-                }
-                case 'lore': {
-                    value = adapter.rolemanagement.guilds.getLore(message, data);
-                    break;
-                }
-                case 'list': {
-                    value = adapter.rolemanagement.guilds.list(message, data);
-                    break;
-                }
-                case 'join': {
-                    value = adapter.rolemanagement.guilds.join(message, data);
-                    break;
-                }
-                case 'leave': {
-                    value = adapter.rolemanagement.guilds.leave(message, data);
-                    break;
-                }
-                case 'invite': {
-                    value = adapter.rolemanagement.guilds.invite(message, data);
-                    break;
-                }
-                case 'toggle': {
-                    value = adapter.rolemanagement.guilds.toggleInvites(message, data);
-                    break;
-                }
-                case 'invites': {
-                    value = adapter.rolemanagement.guilds.getInvites(message, data);
-                    break;
-                }
-                case 'deny': {
-                    value = adapter.rolemanagement.guilds.deleteInvite(message, data);
-                    break;
-                }
-                case 'setofficer': {
-                    value = adapter.rolemanagement.guilds.promote(message, data, 'officer');
-                    break;
-                }
-                case 'setleader': {
-                    value = adapter.rolemanagement.guilds.promote(message, data, 'leader');
-                    break;
-                }
-                case 'setmember': {
-                    value = adapter.rolemanagement.guilds.promote(message, data, 'member');
-                    break;
-                }
-                case 'exhile': {
-                    value = adapter.rolemanagement.guilds.promote(message, data, 'exhiled');
-                    break;
-                }
-                case 'settitle': {
-                    value = adapter.rolemanagement.guilds.setTitle(message, data);
-                    break;
-                }
-                case 'help': {
-                    value = adapter.rolemanagement.guilds.listHelp(message, data);
-                    break;
-                }
-                default: {
-                    value = adapter.rolemanagement.guilds.view(message, data);
-                    break;
-                }
+                case 'create': return adapter.rolemanagement.guilds.newCandidate(message, data);
+                case 'seticon': return adapter.rolemanagement.guilds.setIcon(message, data);
+                case 'setcolor': return adapter.rolemanagement.guilds.setColor(message, data);
+                case 'setlore': return adapter.rolemanagement.guilds.setLore(message, data);
+                case 'setmotto': return adapter.rolemanagement.guilds.setMotto(message, data);
+                case 'lore': return adapter.rolemanagement.guilds.getLore(message, data);
+                case 'list': return adapter.rolemanagement.guilds.list(message, data);
+                case 'join': return adapter.rolemanagement.guilds.join(message, data);
+                case 'leave': return adapter.rolemanagement.guilds.leave(message, data);
+                case 'invite': return adapter.rolemanagement.guilds.invite(message, data);  
+                case 'toggle': return adapter.rolemanagement.guilds.toggleInvites(message, data);            
+                case 'invites': return adapter.rolemanagement.guilds.getInvites(message, data);              
+                case 'deny': return adapter.rolemanagement.guilds.deleteInvite(message, data);                
+                case 'setofficer': return adapter.rolemanagement.guilds.promote(message, data, 'officer');        
+                case 'setleader': return adapter.rolemanagement.guilds.promote(message, data, 'leader');            
+                case 'setmember': return adapter.rolemanagement.guilds.promote(message, data, 'member');             
+                case 'exhile': return adapter.rolemanagement.guilds.promote(message, data, 'exhiled');                
+                case 'settitle': return adapter.rolemanagement.guilds.setTitle(message, data);               
+                case 'help': return adapter.rolemanagement.guilds.listHelp(message, data);               
+                default: return adapter.rolemanagement.guilds.view(message, data);                 
             }
-            break;
         }
 
         // Minigames
 
         case 'stats': {
             switch (data.arguments[0]) {
-                case 'fishing': {
-                    value = adapter.minigames.stats.fishing(message);
-                    break;
-                }
-                default: {
-                    value = adapter.minigames.stats.all(message);
-                    break;
-                }
+                case 'fishing': return adapter.minigames.stats.fishing(message);
+                default: return adapter.minigames.stats.all(message);
             }
-            break;
         }
-        case 'cast': {
-            value = adapter.minigames.fishing.cast(message);
-            break;
-        }
-        case 'inventory': {
-            value = adapter.minigames.inventory.find(message, data);
-            break;
-        }
+        case 'cast': return adapter.minigames.fishing.cast(message);
+        case 'inventory': return adapter.minigames.inventory.find(message, data);
 
         // Music
 
-        case 'play': {
-            value = adapter.music.append.fetch(message, data);
-            break;
-        }
-        case 'join': {
-            value = adapter.music.join(message);
-            break;
-        }
-        case 'leave': {
-            value = adapter.music.leave(message);
-            break;
-        }
-        case 'skip': {
-            value = adapter.music.skip(message);
-            break;
-        }
-        case 'stop': {
-            value = adapter.music.stop(message);
-            break;
-        }
-        case 'queue': {
-            value = adapter.music.list(message, data);
-            break;
-        }
-        case 'pause': {
-            value = adapter.music.pause(message);
-            break;
-        }
-        case 'resume': {
-            value = adapter.music.resume(message);
-            break;
-        }
-        case 'songinfo': {
-            value = adapter.music.info(message, data);
-            break;
-        }
+        case 'play': return adapter.music.append.fetch(message, data);
+        case 'join': return adapter.music.join(message);
+        case 'leave': return adapter.music.leave(message);
+        case 'skip': return adapter.music.skip(message);
+        case 'stop': return adapter.music.stop(message);
+        case 'queue': return adapter.music.list(message, data);
+        case 'pause': return adapter.music.pause(message);
+        case 'resume': return adapter.music.resume(message);
+        case 'songinfo': return adapter.music.info(message, data);
 
-        case 'playlist': {
-            value = adapter.music.playlistCommand(message, data);
-            break;
-        }
+        case 'playlist': return adapter.music.playlistCommand(message, data);
 
         // Memes
 
-        case 'f': {
-            value = adapter.memes.memeDispatch('f');
-            break;
-        }
-        case 'fuck': {
-            value = adapter.memes.memeDispatch('fuuu');
-            break;
-        }
-        case 'yey': {
-            value = adapter.memes.memeDispatch('yey');
-            break;
-        }
-        case 'thowonk': {
-            value = adapter.memes.memeDispatch('thowonk');
-            break;
-        }
-        case 'penguin': {
-            value = adapter.memes.memeDispatch('penguin');
-            break;
-        }
-        case 'bird': {
-            value = adapter.memes.memeDispatch('bird');
-            break;
-        }
-        case 'clayhead': {
-            value = adapter.memes.memeDispatch('clayhead');
-            break;
-        }
-        case 'extrathicc': {
-            value = adapter.memes.memeDispatch('extra_thicc');
-            break;
-        }
-        case 'crabrave': {
-            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
-            break;
-        }
-        case 'theriddle': {
-            value = adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
-            break;
-        }
+        case 'f': return adapter.memes.memeDispatch('f');
+        case 'fuck': return adapter.memes.memeDispatch('fuuu');
+        case 'yey': return adapter.memes.memeDispatch('yey');
+        case 'thowonk': return adapter.memes.memeDispatch('thowonk');
+        case 'penguin': return adapter.memes.memeDispatch('penguin');
+        case 'bird': return adapter.memes.memeDispatch('bird');
+        case 'clayhead': return adapter.memes.memeDispatch('clayhead');
+        case 'extrathicc': return adapter.memes.memeDispatch('extra_thicc');
+        case 'crabrave': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
+        case 'theriddle': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
 
         // Dungeons
 
@@ -461,67 +251,97 @@ function execute_command(client, message, data, index) {
         //     break;
         // }
 
-        default: {
-            value = [null];
-            break;
-        }
+        default: return {values: [], content: []}
     }
 }
 
-function parseCommands(client, message, data) {
+function parseCommands(client, message, dataObject) {
+    // console.log(data_array);
     let returns = [];
+
+    const data_array = dataObject.data_array;
+    const outputVariables = dataObject.outputVariables;
 
     return new Promise((resolve, reject) => {
         let properties = null;
         let verifications = [];
 
-        for (let i in data.commands) {
-            properties = getCommon(data.commands[i]) || getRoleManager(data.commands[i]) || getMusic(data.commands[i]) || getMinigames(data.commands[i]) || getMeme(data.commands[i]) || getOther(data.commands[i], data.arguments[i])
+        for (let i in data_array) {
+            properties = getCommon(data_array[i].command)
+            || getRoleManager(data_array[i].command)
+            || getMusic(data_array[i].command)
+            || getMinigames(data_array[i].command)
+            || getMeme(data_array[i].command)
+            || getOther(data_array[i].command, data_array[i].arguments);
+
             returns[i] = {
                 properties,
-                verification: null,
+                hasPermission: false,
                 value: []
-            }
-            verifications.push(verify(message, properties, data, data.commands[i]));
+            };
+
+            verifications.push(verify(message, properties, data_array[i], data_array[i].command));
         }
 
         Promise.all(verifications)
             .then(verifications_results => {
                 let output_returns = [];
-                for (let i in verifications_results) {
-                    returns[i].verification = verifications_results[i];
 
+                for (let i in verifications_results) {
+                    const data = data_array[i];
+                    // console.log(data);
+
+                    data.command = verifications_results[i].command;
+                    returns[i].properties = verifications_results[i].properties;
+                    returns[i].hasPermission = verifications_results[i].permission.state;
+                    
                     // console.log(i, returns[i]);
 
-                    output_returns.push(execute_command(client, message, data, i));
+                    if (returns[i].hasPermission) {
+                        output_returns.push(execute_command(client, message, data));
 
-                    for (let val in data.outputVariables.cache) {
-                        if (data.outputVariables.cache[val].index == i) {
-                            data.outputVariables.cache[val].value = (output_returns[i].values.length > 1) ? output_returns[i].values : output_returns[i].values[0];
-                            for (let arg in data.arguments) {
-                                for (let ind in data.arguments[arg]) {
-                                    if (data.arguments[arg][ind] == `{${val}}`) {
-                                        data.arguments[arg][ind] = data.outputVariables.cache[val].value;
+                        for (let val in outputVariables.cache) {
+                            if (outputVariables.cache[val].index == i) {
+                                outputVariables.cache[val].value = output_returns[i].values;
+                                for (let arg in data.arguments) {
+                                    for (let ind in data.arguments[arg]) {
+                                        let reg_ind = data.arguments[arg][ind].toString().match(new RegExp(`{${val}(:\\d+)?}`));
+                                        let arg_ind = 0;
+                                        if (reg_ind && reg_ind[1]) {
+                                            arg_ind = reg_ind[1].slice(1);
+                                            arg_ind = (arg_ind >= data[i].outputVariables.cache[val].value.length) ? 0 : Number(arg_ind);
+                                            // console.log('ARG_IND: ', arg_ind)
+                                        }
+                                        if (new RegExp(`{${val}(:\\d+)?}`).test(data.arguments[arg][ind])) {
+                                            // console.log('VALUE: ', data.outputVariables.cache[val].value, data.outputVariables.cache[val].value[arg_ind]);
+                                            data.arguments[arg][ind] = data.outputVariables.cache[val].value[arg_ind];
+                                        }
                                     }
                                 }
                             }
                         }
+                    }
+                    else {
+                        // No perms
                     }
                 }
 
                 // console.log(output_returns);
                 // console.log(data.outputVariables);
 
-                let message_array = [];
-                for (let out in output_returns) {
-                    message_array.push(formatResponse(output_returns[out]));
-                }
-
-                Promise.all(message_array)
-                    .then(arr => resolve({
-                        data,
-                        values: arr
-                    }))
+                Promise.all(output_returns)
+                    .then(outputs => {
+                        let message_array = [];
+                        for (let out in outputs)
+                            message_array.push(formatResponse(outputs[out]));
+        
+                        Promise.all(message_array)
+                            .then(arr => resolve({
+                                dataObject,
+                                values: arr
+                            }))
+                            .catch(e => reject(e));
+                    })
                     .catch(e => reject(e));
             })
             .catch(e => reject(e));
@@ -535,6 +355,105 @@ function formatResponse(input) {
             .then(arr => resolve(arr))
             .catch(e => reject(e));
     });
+}
+
+function pullRegex(content) {
+    // console.log(content);
+    
+    let flags = [];
+    let urls = [];
+    let mentions = [];
+
+    const flagRegex = /-[a-zA-Z]+\s*/g;
+    const boolParamRegex = /\?\w+:(t|f)/g;
+    const stringParamRegex = /\$\w+:".*?"/g;
+    const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
+    const intParamRegex = /\^\w+:-?\d+/g;
+    const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+
+    let params = {
+        'boolean': [],
+        'string': [],
+        'regex': [],
+        'integer': [],
+        'double': []
+    }
+    let parameters = {
+        'boolean': {},
+        'string': {},
+        'regex': {},
+        'integer': {},
+        'double': {}
+    }
+
+    urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+
+    params.boolean = content.match(boolParamRegex);
+    content = content.replace(boolParamRegex, '');
+    params.string = content.match(stringParamRegex);
+    content = content.replace(stringParamRegex, '');
+    params.regex = content.match(grepParamRegex);
+    content = content.replace(grepParamRegex, '');
+    params.integer = content.match(intParamRegex);
+    content = content.replace(intParamRegex, '');
+    params.double = content.match(doubleParamRegex);
+    content = content.replace(doubleParamRegex, '');
+
+    content = content.replace(/>\s\w/g, '').trim();
+
+    if (!urls)
+        urls = [];
+
+    if (flagRegex.test(content)) {
+        let flagArr = content.match(flagRegex)[0].slice(1).split('');
+        for (let x in flagArr) {
+            flags[flagArr[x]] = true;
+        }
+        content = content.replace(flagRegex, '');
+    }
+
+    for (let x in params.boolean) {
+        if (params.boolean[x]) {
+            arr = params.boolean[x].slice(1).split(':');
+            if (arr.length)
+                parameters.boolean[arr[0]] = arr[1] === 't';
+        }
+    }
+    for (let x in params.string) {
+        if (params.string[x]) {
+            arr = params.string[x].slice(1).split(':');
+            if (arr.length)
+                parameters.string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
+        }
+    }
+    for (let x in params.integer) {
+        if (params.integer[x]) {
+            arr = params.integer[x].slice(1).split(':');
+            if (arr.length)
+                parameters.integer[arr[0]] = Number(arr[1]);
+        }
+    }
+    for (let x in params.double) {
+        if (params.double[x]) {
+            arr = params.double[x].slice(1).split(':');
+            if (arr.length)
+                parameters.double[arr[0]] = Number(arr[1]);
+        }
+    }
+
+    let arguments = (content) ? content.split(' ') : [];
+    if (!arguments)
+        arguments = [];
+
+    let val = {
+        flags,
+        parameters,
+        urls,
+        mentions,
+        arguments
+    }
+
+    return val;
 }
 
 function getData(message, prefix, part) {
@@ -571,7 +490,7 @@ function getData(message, prefix, part) {
         if (!commandRegex.test(msgArray[0])) {
             reject(null);
         } else {
-            
+            let regex_arr = [];
             const passThrough = `${reg}.*\\s>\\s([a-zA-Z])`;
             const passThroughRegex = new RegExp(passThrough, '');
             const outputVariables = {
@@ -580,27 +499,8 @@ function getData(message, prefix, part) {
             };
 
             let commands = [];
-            let arguments = [];
-            let flags = [];
-            let parameters = [];
-            let urls = [];
-            let mentions = [];
-
-            const flagRegex = /-[a-zA-Z]+\s*/g;
-            const boolParamRegex = /\?\w+:(t|f)/g;
-            const stringParamRegex = /\$\w+:".*?"/g;
-            const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
-            const intParamRegex = /\^\w+:-?\d+/g;
-            const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
-
-            const mentions_ = {
-                members: message.mentions.members,
-                roles: message.mentions.roles
-            }
 
             const passThrough_arr = part.split('=>');
-
-            let content = part;
             
             let passTo_arr = [];
             let non_passTo_arr = [];
@@ -611,130 +511,51 @@ function getData(message, prefix, part) {
                 else
                     non_passTo_arr.push(passThrough_arr[i]);
             }
-            content = content.replace(flagRegex, '');
-
-            let has_flags = false;
-
-            let str = '';
 
             for (let i in passTo_arr) {
-                str = passTo_arr[i][0];
+                // console.log(passTo_arr[i]);
+                let reg_values = pullRegex(passTo_arr[i][0].replace(new RegExp(`${reg}\\s`, 'g'), ''));
+                // console.log(reg_values);
 
                 outputVariables.cache[passTo_arr[i][1]] = {
                     index: i,
                     value: null
                 };
-
-                content = str.replace(new RegExp(reg + '\\s', 'g'), '');
-                str = content.replace(/\s>\s.*/g, '');
                 
-                commands.push(passTo_arr[i][0].split(' >')[0].match(commandRegex)[0]);
-                
-                has_flags = content.match(flagRegex);
-
-                parameters[i] = {
-                    'boolean': [],
-                    'string': [],
-                    'regex': [],
-                    'integer': [],
-                    'double': []
-                }
-
-                parameters[i]['boolean'].push(content.match(boolParamRegex));
-                content = content.replace(boolParamRegex, '');
-                parameters[i]['string'].push(content.match(stringParamRegex));
-                content = content.replace(stringParamRegex, '');
-                parameters[i]['regex'].push(content.match(grepParamRegex));
-                content = content.replace(grepParamRegex, '');
-                parameters[i]['integer'].push(content.match(intParamRegex));
-                content = content.replace(intParamRegex, '');
-                parameters[i]['double'].push(content.match(doubleParamRegex));
-                content = content.replace(doubleParamRegex, '');
-
-                urls[i] = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-
-                console.log(content);
-
-                if (!urls[i])
-                    urls[i] = [];
-
-                arguments[i] = str.split(' ');
-                if (!arguments[i])
-                    arguments[i] = [];
-
-                if (has_flags !== null) {
-                    flagArr = content.match(flagRegex)[0].slice(1).split('');
-                    for (let x in flagArr) {
-                        flags[i][flagArr[x]] = true;
-                    }
-                    content = content.replace(flagRegex, '');
-                }
-                else
-                    flags[i] = [];
-
-                for (let x in parameters[i].boolean) {
-                    if (parameters[i].boolean[x]) {
-                        arr = parameters[i].boolean[x].slice(1).split(':');
-                        if (arr.length)
-                            parameters[i].boolean[arr[0]] = arr[1] === 't';
-                    }
-                    else 
-                        parameters[i].boolean[x] = [];
-                }
-                for (let x in parameters[i].string) {
-                    if (parameters[i].string[x]) {
-                        arr = parameters[i].string[x].slice(1).split(':');
-                        if (arr.length)
-                            parameters[i].string[arr[0]] = arr[1].replace(/'/g, ``).replace(/"/g, ``);
-                    }
-                    else
-                        parameters[i].string[x] = [];
-                }
-                for (let x in parameters[i].integer) {
-                    if (parameters[i].integer[x]) {
-                        arr = parameters[i].integer[x].slice(1).split(':');
-                        if (arr.length)
-                            parameters[i].integer[arr[0]] = Number(arr[1]);
-                    }
-                    else
-                        parameters[i].integer[x] = [];
-                }
-                for (let x in parameters[i].double) {
-                    if (parameters[i].double[x]) {
-                        arr = parameters[i].double[x].slice(1).split(':');
-                        if (arr.length)
-                            parameters[i].double[arr[0]] = Number(arr[1]);
-                    }
-                    else
-                        parameters[i].double[x] = [];
-                }
+                commands.push(passTo_arr[i][0].split(' >')[0].match(commandRegex)[0]);   
+                regex_arr.push(reg_values);            
             }
 
             for (let i in non_passTo_arr) {
                 content = non_passTo_arr[i].trim();
-                commands.push(content.match(commandRegex)[0])
-                let args = content.split(' ').slice(1);    
-                arguments.push(args);           
+                commands.push(content.match(commandRegex)[0]);
+                content = content.replace(commandRegex, '').trim();
+                let reg_values = pullRegex(content);
+                regex_arr.push(reg_values);
             }
 
             for (let c in commands) {
                 commands[c] = commands[c].slice(1);
             }
 
-            const data = {
-                commands,
-                arguments,
-                flags,
-                parameters,
-                urls,
-                mentions,
-                outputVariables
+            let data_array = [];
+            for (let i in commands) {
+                data_array.push({
+                    command: commands[i],
+                    arguments: regex_arr[i].arguments,
+                    parameters: regex_arr[i].parameters,
+                    flags: regex_arr[i].flags,
+                    urls: regex_arr[i].urls
+                });
             }
 
-            console.log(data);
-            console.log(arguments)
+            // console.log(data_array);
+            // console.log(arguments)
 
-            resolve(data);
+            resolve({
+                data_array,
+                outputVariables
+            });
         }
     });
 }
@@ -745,7 +566,6 @@ module.exports = function (client, message) {
             .then(prefix => {
                 let commandParts = message.content.split(/\|/g);
 
-                let results = [];
                 let data = [];
 
                 for (let a in commandParts)
@@ -755,68 +575,22 @@ module.exports = function (client, message) {
                     .then(data => {
                         // console.log('Data\n', data);
                         let commandReturns = [];
-                        for (let d in data) {
-                            commandReturns.push(parseCommands(client, message, data[d]));
-                        }
+                        for (let i in data)
+                            commandReturns.push(parseCommands(client, message, data[i]));
                         
                         Promise.all(commandReturns)
                             .then(returns => {
-                                console.log('Returns:\n', returns);
+                                // console.log('Returns:\n', returns);
 
                                 for (let i in returns) {
+                                    console.log(returns[i]);
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x])
-                                            message.channel.send(returns[i].values[x][l])
+                                            message.channel.send(returns[i].values[x][l]);
                                     }
                                 }
                             })
-
-                        // for (let a in data)
-                        //     results.push(parseCommand(client, message, data[a]));
-
-                        // Promise.all(results)
-                        //     .then(values => {
-                        //         console.log("Values\n", values);
-
-                        //         let arr = [];
-
-                        //         for (let i in values)
-                        //             arr.push(formatResponse(values[i]));
-                                
-                        //         Promise.all(arr)                                
-                        //             .then(responses => {
-                        //                 // console.log('Responses\n', responses);
-
-                        //                 for (let i in responses) {
-                        //                     // console.log(i, responses[i]);
-
-                        //                     for (let x in responses[i].values) {
-                        //                         if (responses[i].values[x]) {
-                        //                             message.channel.send(responses[i].values[x].value)
-                        //                                 .then(msg => {
-                        //                                     if (responses[i].options && responses[i].options.clear)
-                        //                                         setTimeout(() => msg.delete(), responses[i].options.clear * 1000);
-                        //                                 })
-                        //                                 .catch(e => reject(e));
-                        //                         }
-                        //                     }
-
-                        //                     if (responses[i].result.data.parameters.boolean['debug'])
-                        //                         message.channel.send(adapter.common.debug(responses[i].result.data, false));
-
-                        //                     if (responses[i].result.properties.selfClear && !responses[i].result.data.flags['C']) {
-                        //                         if (responses[i].options && responses[i].options.clear_command)
-                        //                             setTimeout(() => message.delete().catch(e => console.log('Message was already deleted.')), responses[i].options.clear_command * 1000);
-                        //                         else
-                        //                             message.delete();
-                        //                     }
-                        //                 }
-
-                        //                 resolve(responses);
-                        //             })
-                        //             .catch(e => reject(e))
-                        //     })
-                        //     .catch(e => reject(e));
+                            .catch(e => reject(e));
                     })
                     .catch(e => reject(e));
             })
