@@ -7,7 +7,7 @@ const minigames = require('./helpers/minigames');
 module.exports = {
     server,
     user: {
-        get: (serverID, userID) => {return users.getUser(serverID, userID)},
+        get: (serverID, userID) => {return users.get(serverID, userID)},
         setBotRole: (serverID, userID, roleName) => {return users.setBotRole(serverID, userID, roleName)},
         setPermissionLevel: (serverID, userID, level) => {return users.setPermissionLevel(serverID, userID, level)},
         getBotRole: (serverID, userID) => {return users.getBotRole(serverID, userID)},
