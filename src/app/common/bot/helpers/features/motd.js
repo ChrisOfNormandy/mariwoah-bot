@@ -1,5 +1,5 @@
+const commandFormat = require('../global/commandFormat');
 const sql = require('../../../../sql/adapter');
-const Discord = require('discord.js')
 
 function defaultMotd(message) {
     return {
@@ -20,44 +20,34 @@ function defaultMotd(message) {
     };
 }
 
-function get(message, data) {
+function get(message, parameters) {
     return new Promise((resolve, reject) => {
         sql.server.general.getMotd(message.guild.id)
             .then(motd => {
                 let embed = JSON.parse(motd);
                 if (!embed)
                     embed = defaultMotd(message);
-                    
-                if (data.parameters.boolean['json'])
-                    resolve({
-                        value: JSON.stringify(embed)
-                    });
-                else
-                    resolve({
-                        value: {
-                            embed
-                        }
-                    });
+                console.log(parameters)
+                resolve(parameters.boolean['json']
+                    ? commandFormat.valid([motd], [motd])
+                    : commandFormat.valid([motd], [embed])
+                );
             })
-            .catch(e => reject(e));
+            .catch(e => reject(commandFormat.error([e], [])));
     });
 }
 
 function set(message, json_string) {
-    console.log(json_string);
     return new Promise((resolve, reject) => {
-
         let json;
         if (json_string == 'reset')
             json = null;
         else
             json = JSON.parse(json_string) || null;
-        console.log(json);
+
         sql.server.general.setMotd(message.guild.id, json)
-            .then(r => resolve({
-                value: 'Changed server MOTD.'
-            }))
-            .catch(e => reject(e));
+            .then(r => resolve(commandFormat.valid([json], ['Changed server MOTD.'])))
+            .catch(e => reject(commandFormat.error([e], [])));
     });
 }
 

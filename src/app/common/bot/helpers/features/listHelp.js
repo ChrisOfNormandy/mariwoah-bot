@@ -1,9 +1,10 @@
-const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
+
+const chatFormat = require('../global/chatFormat');
+const commandFormat = require('../global/commandFormat');
 const help = require('../global/commandList');
 
 module.exports = function (message, args) {
-    console.log(args);
     return new Promise((resolve, reject) => {
         // Convert the args to a single string for easier regex checking.
         let str = args.join(' ');
@@ -16,7 +17,7 @@ module.exports = function (message, args) {
 
         // Search the string for all words. 0 = command category, 1 = subcommand
         let category = str.match(/[a-z]+/g) || ['main'];
-        console.log(category);
+
         if (pageNumber < 0)
             pageNumber = 0;
 
@@ -165,6 +166,6 @@ module.exports = function (message, args) {
             embed.setFooter(`Page 1 of 1\n\nThis message will self destruct in 30 seconds...`);
         }
             
-        resolve({embed, options: {clear: 30}});
+        resolve(commandFormat.valid([pageNumber], [embed], {clear: 30}));
     });
 }

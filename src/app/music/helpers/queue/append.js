@@ -1,4 +1,5 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const queue = require('./map');
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 const play = require('../functions/play');
@@ -10,7 +11,7 @@ module.exports = function (message, songs, flags = {}) {
         let startFlag = false;
 
         if (!voiceChannel)
-            reject(chatFormat.response.music.no_vc());
+            reject(commandFormat.error([], [chatFormat.response.music.no_vc()]));
         else {
             if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
                 let activeQueue = {
@@ -34,26 +35,20 @@ module.exports = function (message, songs, flags = {}) {
             for (let i in songs)
                 queue.get(message.guild.id).songs.push(songs[i]);
 
-            if (flags['n']) {
-                resolve({ value: null, result: play(message, queue.get(message.guild.id).songs[0]) });
-            }
+            if (flags['n'])
+                resolve(commandFormat.valid([play(message, queue.get(message.guild.id).songs[0])], []));
             else {
                 let fromPlaylist = !!queue.get(message.guild.id).songs[0].playlist.title;
                 
                 if (startFlag) {
                     getEmbed.single('Now playing...', queue.get(message.guild.id), 0, fromPlaylist)
-                        .then(embed => resolve(
-                            {
-                                embed,
-                                result: play(message, queue.get(message.guild.id).songs[0]), options: { clear: queue.get(message.guild.id).songs[0].duration.seconds }
-                            }
-                        ))
-                        .catch(e => reject(e));
+                        .then(embed => resolve(commandFormat.valid([play(message, queue.get(message.guild.id).songs[0])], [embed], { clear: queue.get(message.guild.id).songs[0].duration.seconds })))
+                        .catch(e => reject(commandFormat.error([e], [])));
                 }
                 else {
                     getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1, fromPlaylist)
-                        .then(embed => resolve({ embed, result: null }))
-                        .catch(e => reject(e));
+                        .then(embed => resolve(commandFormat.valid([queue.get(message.guild.id).songs], [embed])))
+                        .catch(e => reject(commandFormat.error([e], [])));
                 }
             }
         }

@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const queue = require('./map');
 
 function field(song, useLink = false) {
@@ -15,7 +16,7 @@ function field(song, useLink = false) {
 
 module.exports = function (message, data) {
     if (!queue.has(message.guild.id))
-        return { value: chatFormat.response.music.queue.no_data() };
+        return commandFormat.valid([], [chatFormat.response.music.queue.no_data()]);
 
     let q = queue.get(message.guild.id);
     let songs = q.songs;
@@ -44,5 +45,5 @@ module.exports = function (message, data) {
     if (songs.length > chatFormat.response.music.queue.list_length)
         embed.setFooter(`... and ${songs.length - count} others.`);
 
-    return { embed, options: { clear: 30 } };
+    return commandFormat.valid([embed], [embed], { clear: 30 } );
 }

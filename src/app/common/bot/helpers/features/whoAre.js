@@ -1,8 +1,10 @@
-const chatFormat = require('../global/chatFormat');
 const Discord = require('discord.js');
-const sql = require('../../../../sql/adapter')
 
-function formatResponse(name, joinDate, roleList, member, data) {
+const chatFormat = require('../global/chatFormat');
+const commandFormat = require('../global/commandFormat');
+const sql = require('../../../../sql/adapter');
+
+function formatEmbed(name, joinDate, roleList, member, data) {
     const user = member.user;
 
     if (user.bot)
@@ -49,13 +51,10 @@ module.exports = {
         return new Promise((resolve, reject) => {
             sql.user.get(message.guild.id, user.id)
                 .then(data => {
-                    let embed = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve({embed});
+                    let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve(commandFormat.valid([data], [embed]));
                 })
-                .catch(e => {
-                    console.log(e);
-                    resolve({value: chatFormat.response.whoAre.self_reject()});
-                });
+                .catch(e => reject(commandFormat.error([e], [chatFormat.response.whoAre.self_reject()])));
         });
     },
 
@@ -69,13 +68,10 @@ module.exports = {
         return new Promise((resolve, reject) => {
             sql.user.get(message.guild.id, user.id)
                 .then(data => {
-                    let embed = formatResponse(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve({embed});
+                    let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
+                    resolve(commandFormat.valid([data], [embed]));
                 })
-                .catch(e => {
-                    console.log(e);
-                    resolve({value: chatFormat.response.whoAre.member_reject()});
-                });
+                .catch(e => reject([e], [chatFormat.response.whoAre.member_reject()]));
         });
     }
 }

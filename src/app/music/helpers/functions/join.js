@@ -1,4 +1,5 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const getVC = require('../../../common/bot/helpers/global/getVoiceChannel');
 
 module.exports = function (message) {
@@ -8,10 +9,7 @@ module.exports = function (message) {
             resolve(chatFormat.response.music.join.no_vc());
         else
             vc.join()
-                .then(r => resolve(r))
-                .catch(e => {
-                    console.log(e);
-                    reject(chatFormat.response.music.join.join_error())
-                });
+                .then(r => resolve(commandFormat.valid([r], [])))
+                .catch(e => reject([e], [chatFormat.response.music.join.join_error()]));
     });
 }

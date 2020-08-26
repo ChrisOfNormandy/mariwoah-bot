@@ -1,3 +1,5 @@
+const commandFormat = require('../global/commandFormat');
+
 module.exports = function (args) {
     let count = 1;
     let sides = 6;
@@ -5,18 +7,12 @@ module.exports = function (args) {
     if (!isNaN(args[0]) && args[0] > 1)
         sides = args[0];
     else if (args[0] == 1)
-        return {
-            values: [null],
-            content: ["Cannot roll a d1."]
-        };
+        return commandFormat.valid([null], ["Cannot roll a d1."]);
 
     if (!isNaN(args[1]) && args[1] >= 1 && args[1] <= 50)
         count = args[1];
     else if (args[1] > 50)
-        return {
-            values: [null],
-            content: ["Cannot roll more than 50 times at once."]
-        };
+        return commandFormat.valid([null], ["Cannot roll more than 50 times at once."]);
 
     let rolls = [];
     let roll;
@@ -49,8 +45,6 @@ module.exports = function (args) {
             ? `Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`
             : `Flipped: ${rolls.join(", ")}\n\nHeads: ${sum}\nTails: ${rolls.length - sum}`;
     }
-    return {
-        values: rolls,
-        content: [value]
-    }
+
+    return commandFormat.valid(rolls, [value]);
 }

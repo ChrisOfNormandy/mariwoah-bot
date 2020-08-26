@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
+
 const chatFormat = require('../global/chatFormat');
+const commandFormat = require('../global/commandFormat');
 
 module.exports = function (message, client) {
     return new Promise((resolve, reject) => {
@@ -11,7 +13,8 @@ module.exports = function (message, client) {
             .then(msg => {
                 embed.addField('Message latency', `${msg.createdTimestamp - message.createdTimestamp}ms.`);
                 msg.delete();
-                resolve({embed, options: {clear: 10}});
-            });
+                resolve(commandFormat.valid([msg.createdTimestamp - message.createdTimestamp], [embed], {clear: 10}));
+            })
+            .catch(e => commandFormat.error([e], []));
     });
 }

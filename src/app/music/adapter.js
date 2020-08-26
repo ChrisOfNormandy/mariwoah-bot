@@ -2,6 +2,7 @@ const commandList = require('../common/bot/helpers/global/commandList');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../rolemanagement/adapter');
 const chatFormat = require('../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../common/bot/helpers/global/commandFormat');
 
 const getEmbedSongInfo = require('./helpers/getEmbedSongInfo');
 
@@ -29,11 +30,8 @@ function verify(message, permissionLevel) {
 function info(message, data) {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
-            .then(embed => resolve({ embed }))
-            .catch(e => {
-                console.log(e);
-                resolve({ value: chatFormat.response.music.info.error() });
-            });
+            .then(embed => resolve(commandFormat.valid([embed], embed)))
+            .catch(e => reject(commandFormat.error([e], [chatFormat.response.music.info.error()])));
     });
 }
 

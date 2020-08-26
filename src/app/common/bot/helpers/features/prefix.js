@@ -1,10 +1,11 @@
+const commandFormat = require('../global/commandFormat');
 const sql = require('../../../../sql/adapter');
 
 function get(message) {
     return new Promise((resolve, reject) => {
         sql.server.general.getPrefix(message.guild.id)
-            .then(prefix => resolve({value: `Server prefix: ${prefix}`}))
-            .catch(e => reject(e));
+            .then(prefix => resolve(commandFormat.valid([prefix], [`Server prefix: ${prefix}`])))
+            .catch(e => reject(commandFormat.error([e], [])));
     })
 }
 

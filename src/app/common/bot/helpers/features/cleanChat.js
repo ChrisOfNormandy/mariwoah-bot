@@ -1,5 +1,6 @@
-const sql = require('../../../../sql/adapter');
 const chatFormat = require('../global/chatFormat');
+const commandFormat = require('../global/commandFormat');
+const sql = require('../../../../sql/adapter');
 
 // Converts Discord timestamp to a nice date-time format
 function timestampToDate(timestamp) {
@@ -33,7 +34,7 @@ module.exports = async function (message) {
 
                         channel.bulkDelete(userMessages);
 
-                        resolve({value: chatFormat.response.cleanChat.user(user, userMessagesDeleted), options: {clear: 10}});
+                        resolve(commandFormat.valid([userMessagesDeleted], [chatFormat.response.cleanChat.user(user, userMessagesDeleted)], {clear: 10}));
                     });
                 }
                 else {
@@ -53,11 +54,11 @@ module.exports = async function (message) {
                             channel.bulkDelete(botMessages);
                             channel.bulkDelete(cmdMessages);
 
-                            resolve({value: chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted), options: {clear: 10}});
+                            resolve(commandFormat.valid([botMessagesDeleted, cmdMessagesDeleted], [chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted)], {clear: 10}));
                         })
-                        .catch(e => reject(e));
+                        .catch(e => reject(commandFormat.error([e], [])));
                 }
             })
-            .catch(e => reject(e));
+            .catch(e => reject(commandFormat.error([e], [])));
     });
 }
