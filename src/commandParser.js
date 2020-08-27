@@ -76,7 +76,7 @@ function getOther(name, subcommand) {
 
 function execute_command(client, message, data) {
 
-    // console.log('COMMAND > ', data.commands[index], data.arguments[index])
+    console.log('COMMAND > ', data.command, data.arguments)
     
     /*
         Commands should return:
@@ -256,7 +256,7 @@ function execute_command(client, message, data) {
 }
 
 function parseCommands(client, message, dataObject) {
-    // console.log(data_array);
+    console.log(dataObject);
     let returns = [];
 
     const data_array = dataObject.data_array;
@@ -295,26 +295,35 @@ function parseCommands(client, message, dataObject) {
                     returns[i].properties = verifications_results[i].properties;
                     returns[i].hasPermission = verifications_results[i].permission.state;
                     
-                    // console.log(i, returns[i]);
+                    console.log(i, returns[i]);
 
                     if (returns[i].hasPermission) {
                         output_returns.push(execute_command(client, message, data));
 
                         for (let val in outputVariables.cache) {
+                            console.log(val, outputVariables.cache[val]);
+
                             if (outputVariables.cache[val].index == i) {
                                 outputVariables.cache[val].value = output_returns[i].values;
-                                for (let arg in data.arguments) {
-                                    for (let ind in data.arguments[arg]) {
-                                        let reg_ind = data.arguments[arg][ind].toString().match(new RegExp(`{${val}(:\\d+)?}`));
+                                console.log(val, outputVariables.cache[val]);
+
+                                for (let ind in data_array) {
+                                    for (let arg in data_array[ind].arguments) {
+                                        console.log(data_array[ind].arguments, arg, data_array[ind].arguments[arg]);
+
+                                        let reg_ind = data_array[ind].arguments[arg].toString().match(new RegExp(`{${val}(:\\d+)?}`));
                                         let arg_ind = 0;
+
+                                        console.log(reg_ind);
+
                                         if (reg_ind && reg_ind[1]) {
                                             arg_ind = reg_ind[1].slice(1);
-                                            arg_ind = (arg_ind >= data[i].outputVariables.cache[val].value.length) ? 0 : Number(arg_ind);
-                                            // console.log('ARG_IND: ', arg_ind)
+                                            arg_ind = (arg_ind >= outputVariables.cache[val].value.length) ? 0 : Number(arg_ind);
+                                            console.log('ARG_IND: ', arg_ind)
                                         }
-                                        if (new RegExp(`{${val}(:\\d+)?}`).test(data.arguments[arg][ind])) {
-                                            // console.log('VALUE: ', data.outputVariables.cache[val].value, data.outputVariables.cache[val].value[arg_ind]);
-                                            data.arguments[arg][ind] = data.outputVariables.cache[val].value[arg_ind];
+                                        if (new RegExp(`{${val}(:\\d+)?}`).test(data_array[ind].arguments[arg])) {
+                                            console.log('VALUE: ', outputVariables.cache[val].value, outputVariables.cache[val].value[arg_ind]);
+                                            data_array[ind].arguments[arg] = outputVariables.cache[val].value[arg_ind].toString();
                                         }
                                     }
                                 }
