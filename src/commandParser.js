@@ -1,5 +1,6 @@
 const adapter = require('./app/adapter');
 const commandList = adapter.common.bot.global.commandList;
+const getOptions = require('./app/common/bot/helpers/global/dataToOptionObject');
 
 function verify(message, properties, data, command) {
     return new Promise((resolve, reject) => {
@@ -76,7 +77,7 @@ function getOther(name, subcommand) {
 
 function execute_command(client, message, data) {
 
-    console.log('COMMAND > ', data.command, data.arguments)
+    // console.log('COMMAND > ', data.command, data.arguments)
     
     /*
         Commands should return:
@@ -256,7 +257,7 @@ function execute_command(client, message, data) {
 }
 
 function parseCommands(client, message, dataObject) {
-    console.log(dataObject);
+    // console.log(dataObject);
     let returns = [];
 
     const data_array = dataObject.data_array;
@@ -295,34 +296,34 @@ function parseCommands(client, message, dataObject) {
                     returns[i].properties = verifications_results[i].properties;
                     returns[i].hasPermission = verifications_results[i].permission.state;
                     
-                    console.log(i, returns[i]);
+                    // console.log(i, returns[i]);
 
                     if (returns[i].hasPermission) {
                         output_returns.push(execute_command(client, message, data));
 
                         for (let val in outputVariables.cache) {
-                            console.log(val, outputVariables.cache[val]);
+                            // console.log(val, outputVariables.cache[val]);
 
                             if (outputVariables.cache[val].index == i) {
                                 outputVariables.cache[val].value = output_returns[i].values;
-                                console.log(val, outputVariables.cache[val]);
+                                // console.log(val, outputVariables.cache[val]);
 
                                 for (let ind in data_array) {
                                     for (let arg in data_array[ind].arguments) {
-                                        console.log(data_array[ind].arguments, arg, data_array[ind].arguments[arg]);
+                                        // console.log(data_array[ind].arguments, arg, data_array[ind].arguments[arg]);
 
                                         let reg_ind = data_array[ind].arguments[arg].toString().match(new RegExp(`{${val}(:\\d+)?}`));
                                         let arg_ind = 0;
 
-                                        console.log(reg_ind);
+                                        // console.log(reg_ind);
 
                                         if (reg_ind && reg_ind[1]) {
                                             arg_ind = reg_ind[1].slice(1);
                                             arg_ind = (arg_ind >= outputVariables.cache[val].value.length) ? 0 : Number(arg_ind);
-                                            console.log('ARG_IND: ', arg_ind)
+                                            // console.log('ARG_IND: ', arg_ind)
                                         }
                                         if (new RegExp(`{${val}(:\\d+)?}`).test(data_array[ind].arguments[arg])) {
-                                            console.log('VALUE: ', outputVariables.cache[val].value, outputVariables.cache[val].value[arg_ind]);
+                                            // console.log('VALUE: ', outputVariables.cache[val].value, outputVariables.cache[val].value[arg_ind]);
                                             data_array[ind].arguments[arg] = outputVariables.cache[val].value[arg_ind].toString();
                                         }
                                     }
@@ -361,7 +362,7 @@ function formatResponse(input) {
     // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
         Promise.all(input.content)
-            .then(arr => resolve(arr))
+            .then(arr => resolve({content: arr, input}))
             .catch(e => reject(e));
     });
 }
@@ -369,7 +370,7 @@ function formatResponse(input) {
 function pullRegex(content) {
     // console.log(content);
     
-    let flags = [];
+    let flags = {};
     let urls = [];
     let mentions = [];
 
@@ -592,10 +593,19 @@ module.exports = function (client, message) {
                                 // console.log('Returns:\n', returns);
 
                                 for (let i in returns) {
-                                    console.log(returns[i]);
+                                    // console.log(`Return ${i}: `, returns[i]);
                                     for (let x in returns[i].values) {
-                                        for (let l in returns[i].values[x])
-                                            message.channel.send(returns[i].values[x][l]);
+                                        for (let l in returns[i].values[x].content) {
+                                            // console.log(returns[i].values[x].input);
+                                            // console.log(returns[i].dataObject.data_array[x])
+                                            message.channel.send(returns[i].values[x].content[l])
+                                                .then(msg => {
+                                                    let options = getOptions(returns[i].dataObject.data_array[x], returns[i].values[x].input.options)
+                                                    if (options.selfClear)
+                                                        msg.delete();
+                                                })
+                                                .catch(e => reject(e));
+                                        }
                                     }
                                 }
                             })
