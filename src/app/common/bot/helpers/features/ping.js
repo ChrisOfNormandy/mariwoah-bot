@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const chatFormat = require('../global/chatFormat');
 const commandFormat = require('../global/commandFormat');
 
-module.exports = function (message, client) {
+module.exports = function (message) {
     return new Promise((resolve, reject) => {
         let embed = new Discord.MessageEmbed()
             .setTitle('Ping')

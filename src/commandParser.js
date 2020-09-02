@@ -1,4 +1,5 @@
 const adapter = require('./app/adapter');
+const commands = require('./commands');
 const commandList = adapter.common.bot.global.commandList;
 const getOptions = require('./app/common/bot/helpers/global/dataToOptionObject');
 
@@ -88,172 +89,9 @@ function execute_command(client, message, data) {
         }
     */
 
-    switch (data.command) {
-        case 'help': return adapter.common.bot.features.listHelp(message, data.arguments);
-        case 'clean': return adapter.common.bot.features.cleanChat(message);
-        case 'ping': return adapter.common.bot.features.ping(message, client);
-        case 'roll': return adapter.common.bot.features.roll(data.arguments);
-        case 'shuffle': {
-            return new Promise((resolve, reject) => {
-                adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                    .then(arr => resolve({values: arr, content: [arr.join(', ')]}))
-                    .catch(e => reject({rejections: [e], content: []}));
-            });
-        }
-        case 'whoami': return adapter.common.bot.features.whoAre.self(message);
-        case 'whoareyou': return adapter.common.bot.features.whoAre.member(message);
-        case 'setmotd': return (data.flags['r'])
-                ? adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/")
-                : adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
-        case 'motd': return adapter.common.bot.features.motd.get(message, data.parameters);
-        case 'setprefix': return adapter.common.bot.features.prefix.set(message, data.arguments[0]);
-        case 'prefix': return adapter.common.bot.features.prefix.get(message);
-
-        // RoleManager
-
-        case 'warn': return adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
-        case 'warnings': return adapter.punishments.warn.printAll(message, data.mentions.members.first().id);
-        case 'kick': return adapter.punishments.kick.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-        case 'kicks': return adapter.punishments.kick.printAll(message, data.mentions.members.first().id);
-        case 'ban': return adapter.punishments.ban.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data.arguments.slice(1).join(' '));
-        case 'bans': return adapter.punishments.ban.printAll(message, data.mentions.members.first().id);
-        case 'unban': return new Promise((resolve, reject) => {
-                message.guild.members.unban(data.arguments[0])
-                    .then(user => {
-                        user.send(`You have been unbanned from ${message.guild.name}.`);
-                        resolve({
-                            value: `Unbanned ${user.username}.`
-                        });
-                    })
-                    .catch(e => reject(`Cannot unban user.\n${e.message}`));
-            });
-        case 'promote': return adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-        case 'demote': return adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-        case 'setbotadmin': return adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        case 'setbotmod': return adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        case 'setbothelper': return adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-        case 'refreshrole': return adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
-        case 'refreshroles': return adapter.rolemanagement.setRoles.refresh_guild(message);
-        case 'resetroles': return adapter.rolemanagement.setRoles.reset_guild(message);
-        case 'purgeroles': return adapter.rolemanagement.setRoles.purge(message);
-        case 'setrole': return adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
-        case 'timeout': {
-            switch (data.arguments[0]) {
-                case 'roles': {
-                    value = adapter.sql.server.timeouts.toMessage(message);
-                    break;
-                }
-            }
-            break;
-        }
-
-        // Guilds
-
-        case 'guild_admin': {
-            switch (data.arguments[0]) {
-                case 'refresh': return adapter.rolemanagement.guilds.update(message, data);
-                case 'other_join': return adapter.rolemanagement.guilds.admin_join(message, data);
-                case 'other_leave': return adapter.rolemanagement.guilds.admin_leave(message, data);
-                case 'disband': return adapter.rolemanagement.guilds.admin_disband(message, data);
-            }
-            break;
-        }
-        case 'guild': {
-            switch (data.arguments[0]) {
-                case 'create': return adapter.rolemanagement.guilds.newCandidate(message, data);
-                case 'seticon': return adapter.rolemanagement.guilds.setIcon(message, data);
-                case 'setcolor': return adapter.rolemanagement.guilds.setColor(message, data);
-                case 'setlore': return adapter.rolemanagement.guilds.setLore(message, data);
-                case 'setmotto': return adapter.rolemanagement.guilds.setMotto(message, data);
-                case 'lore': return adapter.rolemanagement.guilds.getLore(message, data);
-                case 'list': return adapter.rolemanagement.guilds.list(message, data);
-                case 'join': return adapter.rolemanagement.guilds.join(message, data);
-                case 'leave': return adapter.rolemanagement.guilds.leave(message, data);
-                case 'invite': return adapter.rolemanagement.guilds.invite(message, data);  
-                case 'toggle': return adapter.rolemanagement.guilds.toggleInvites(message, data);            
-                case 'invites': return adapter.rolemanagement.guilds.getInvites(message, data);              
-                case 'deny': return adapter.rolemanagement.guilds.deleteInvite(message, data);                
-                case 'setofficer': return adapter.rolemanagement.guilds.promote(message, data, 'officer');        
-                case 'setleader': return adapter.rolemanagement.guilds.promote(message, data, 'leader');            
-                case 'setmember': return adapter.rolemanagement.guilds.promote(message, data, 'member');             
-                case 'exhile': return adapter.rolemanagement.guilds.promote(message, data, 'exhiled');                
-                case 'settitle': return adapter.rolemanagement.guilds.setTitle(message, data);               
-                case 'help': return adapter.rolemanagement.guilds.listHelp(message, data);               
-                default: return adapter.rolemanagement.guilds.view(message, data);                 
-            }
-        }
-
-        // Minigames
-
-        case 'stats': {
-            switch (data.arguments[0]) {
-                case 'fishing': return adapter.minigames.stats.fishing(message);
-                default: return adapter.minigames.stats.all(message);
-            }
-        }
-        case 'cast': return adapter.minigames.fishing.cast(message);
-        case 'inventory': return adapter.minigames.inventory.find(message, data);
-
-        // Music
-
-        case 'play': return adapter.music.append.fetch(message, data);
-        case 'join': return adapter.music.join(message);
-        case 'leave': return adapter.music.leave(message);
-        case 'skip': return adapter.music.skip(message);
-        case 'stop': return adapter.music.stop(message);
-        case 'queue': return adapter.music.list(message, data);
-        case 'pause': return adapter.music.pause(message);
-        case 'resume': return adapter.music.resume(message);
-        case 'songinfo': return adapter.music.info(message, data);
-
-        case 'playlist': return adapter.music.playlistCommand(message, data);
-
-        // Memes
-
-        case 'f': return adapter.memes.memeDispatch('f');
-        case 'fuck': return adapter.memes.memeDispatch('fuuu');
-        case 'yey': return adapter.memes.memeDispatch('yey');
-        case 'thowonk': return adapter.memes.memeDispatch('thowonk');
-        case 'penguin': return adapter.memes.memeDispatch('penguin');
-        case 'bird': return adapter.memes.memeDispatch('bird');
-        case 'clayhead': return adapter.memes.memeDispatch('clayhead');
-        case 'extrathicc': return adapter.memes.memeDispatch('extra_thicc');
-        case 'crabrave': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
-        case 'theriddle': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
-
-        // Dungeons
-
-        // case 'dd_loaditems': {
-        //     verify(message, getDungeons('dd_loaditems'))
-        //         .then(() => resolve(adapter.dungeons.csvToMap()))
-        //         .catch(r => reject(r));
-        //     break;
-        // }
-        // case 'dd_getitem': {
-        //     verify(message, getDungeons('dd_getitem'))
-        //         .then(() => resolve(adapter.dungeons.getItem(message, data.arguments.join(' '))))
-        //         .catch(r => reject(r));
-        //     break;
-        // }
-        // case 'dd_getshop': {
-        //     verify(message, getDungeons('dd_getshop'))
-        //         .then(() => resolve(adapter.dungeons.getShop(message, (!isNaN(data.arguments[0]) ? data.arguments[0] : 10))))
-        //         .catch(r => reject(r));
-        // }
-        // case 'dd_list': {
-        //     verify(message, getDungeons('dd_list'))
-        //         .then(() => resolve(adapter.dungeons.listItems(message, data.arguments.join(' '))))
-        //         .catch(r => reject(r));
-        //     break;
-        // }
-
-        // case 'isadmin': {
-        //     adapter.rolemanagement.getRoles.admin(message, message.member);
-        //     break;
-        // }
-
-        default: return {values: [], content: []}
-    }
+    return (commands[data.command])
+        ? commands[data.command].run(message, data)
+        : {values: [], content: [], options: {}}
 }
 
 function parseCommands(client, message, dataObject) {
@@ -608,6 +446,8 @@ module.exports = function (client, message) {
                                         }
                                     }
                                 }
+
+                                resolve(returns);
                             })
                             .catch(e => reject(e));
                     })
