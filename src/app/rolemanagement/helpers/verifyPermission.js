@@ -6,7 +6,7 @@ module.exports = function (message, userID, permLevel) {
         sql.users.getPermissionLevel(message.channel.guild.id, userID)
             .then(userLevel => {
                 if (userLevel < 4 && message.member.hasPermission("ADMINISTRATOR")) {
-                    sql.user.setPermissionLevel(message.guild.id, userID, 4)
+                    sql.users.setPermissionLevel(message.guild.id, userID, 4)
                         .then(r => {
                             resolve({state: true, reason: 'Admin'});
                         })
