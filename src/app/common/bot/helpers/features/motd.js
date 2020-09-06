@@ -29,8 +29,10 @@ function get(message, parameters) {
                     embed = defaultMotd(message);
                 // console.log(parameters)
                 resolve(parameters.boolean['json']
-                    ? commandFormat.valid([motd], [motd])
-                    : commandFormat.valid([motd], [embed])
+                    ? motd
+                        ? commandFormat.valid([motd], [motd])
+                        : commandFormat.valid([motd], [JSON.stringify(embed)])
+                    : commandFormat.valid([motd], [{embed}])
                 );
             })
             .catch(e => reject(commandFormat.error([e], [])));

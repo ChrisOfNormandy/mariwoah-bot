@@ -457,8 +457,8 @@ module.exports = function (client, message) {
                                     // console.log(`Return ${i}: `, returns[i]);
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x].content) {
-                                            // console.log(returns[i].values[x].input);
-                                            // console.log(returns[i].dataObject.data_array[x])
+                                            console.log(returns[i].values[x].input);
+                                            console.log(returns[i].dataObject.data_array[x])
                                             message.channel.send(returns[i].values[x].content[l])
                                                 .then(msg => {
                                                     let options = getOptions(returns[i].dataObject.data_array[x], returns[i].values[x].input.options)
