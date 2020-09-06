@@ -128,6 +128,12 @@ function parseCommands(client, message, dataObject) {
 
                 for (let i in verifications_results) {
                     const data = data_array[i];
+                    data.mentions.members.forEach((v, k, m) => {
+                        data.mentions.members.set(k, message.guild.members.cache.get(k));
+                    });
+                    data.mentions.roles.forEach((v, k, m) => {
+                        data.mentions.roles.set(k, message.guild.roles.cache.get(k));
+                    });
                     // console.log(data);
 
                     data.command = verifications_results[i].command;
@@ -206,11 +212,14 @@ function formatResponse(input) {
 }
 
 function pullRegex(content) {
-    // console.log(content);
+    // console.log('Content: ', content);
     
     let flags = {};
     let urls = [];
-    let mentions = [];
+    let mentions = {
+        members: new Map(),
+        roles: new Map()
+    };
 
     const flagRegex = /-[a-zA-Z]+\s*/g;
     const boolParamRegex = /\?\w+:(t|f)/g;
@@ -218,6 +227,8 @@ function pullRegex(content) {
     const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
     const intParamRegex = /\^\w+:-?\d+/g;
     const doubleParamRegex = /%\w+:-?\d+\.\d+/g;
+    const memberRegex = /<@!\d{18}>/g;
+    const roleRegex = /<@&\d{18}>/g;
 
     let params = {
         'boolean': [],
@@ -246,6 +257,16 @@ function pullRegex(content) {
     content = content.replace(intParamRegex, '');
     params.double = content.match(doubleParamRegex);
     content = content.replace(doubleParamRegex, '');
+
+    const members = content.match(memberRegex);
+    content = content.replace(memberRegex, '');
+    for (let i in members)
+        mentions.members.set(members[i].replace('<@!', '').replace('>', ''), true);
+
+    const roles = content.match(roleRegex);
+    content = content.replace(roleRegex, '');
+    for (let i in roles)
+        mentions.roles.set(roles[i].replace('<@&', '').replace('>', ''), true);
 
     content = content.replace(/>\s\w/g, '').trim();
 
@@ -298,7 +319,8 @@ function pullRegex(content) {
         parameters,
         urls,
         mentions,
-        arguments
+        arguments,
+        mentions
     }
 
     return val;
@@ -393,7 +415,8 @@ function getData(message, prefix, part) {
                     arguments: regex_arr[i].arguments,
                     parameters: regex_arr[i].parameters,
                     flags: regex_arr[i].flags,
-                    urls: regex_arr[i].urls
+                    urls: regex_arr[i].urls,
+                    mentions: regex_arr[i].mentions
                 });
             }
 

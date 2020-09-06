@@ -1,4 +1,4 @@
-const connection = require('../../../../sql/helpers/connection');
+const connection = require('../../../../sql/connection');
 const Discord = require('discord.js');
 const config = require('../../../../../../private/config');
 

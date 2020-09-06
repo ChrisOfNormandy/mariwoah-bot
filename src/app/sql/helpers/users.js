@@ -1,4 +1,4 @@
-const connection = require('../helpers/connection');
+const connection = require('../connection');
 const con = connection.con;
 
 function get(server_id, user_id) {
@@ -22,27 +22,6 @@ function get(server_id, user_id) {
     });
 }
 
-function setBotRole(server_id, user_id, roleName) {
-    return new Promise((resolve, reject) => {
-        get(server_id, user_id)
-            .then(user => {
-                con.query(`update USERS set bot_role = "${roleName}" where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
-                    if (err)
-                        reject(err);
-                    else
-                        con.query(`select * from USERS where server_id = "${server_id}" and user_id = "${user_id}";`, (err, result) => {
-                            if (err)
-                                reject(err);
-                            else
-                                resolve(result);
-                        });
-                });
-            })
-            .catch(e => reject(e));
-    })
-
-}
-
 function setPermissionLevel(server_id, user_id, level) {
     return new Promise((resolve, reject) => {
         get(server_id, user_id)
@@ -63,16 +42,6 @@ function setPermissionLevel(server_id, user_id, level) {
     });
 }
 
-function getBotRole(server_id, user_id) {
-    return new Promise(function (resolve, reject) {
-        get(server_id, user_id)
-            .then(user => {
-                resolve(user.bot_role);
-            })
-            .catch(e => reject(e));
-    });
-}
-
 function getPermissionLevel(server_id, user_id) {
     return new Promise(function (resolve, reject) {
         get(server_id, user_id)
@@ -85,8 +54,6 @@ function getPermissionLevel(server_id, user_id) {
 
 module.exports = {
     get,
-    setBotRole,
     setPermissionLevel,
-    getBotRole,
     getPermissionLevel
 }

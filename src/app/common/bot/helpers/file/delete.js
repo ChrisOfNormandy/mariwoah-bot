@@ -6,7 +6,7 @@ module.exports = function (path) {
             if (err)
                 reject(err);
             else {
-                console.log('File deleted: ', path);
+                // console.log('File deleted: ', path);
                 resolve(true);
             }
         });

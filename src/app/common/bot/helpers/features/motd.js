@@ -27,7 +27,7 @@ function get(message, parameters) {
                 let embed = JSON.parse(motd);
                 if (!embed)
                     embed = defaultMotd(message);
-                console.log(parameters)
+                // console.log(parameters)
                 resolve(parameters.boolean['json']
                     ? commandFormat.valid([motd], [motd])
                     : commandFormat.valid([motd], [embed])
