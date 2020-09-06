@@ -1,4 +1,4 @@
-const connection = require('./connection');
+const connection = require('../connection');
 const con = connection.con;
 
 function query(str) {
@@ -111,7 +111,7 @@ function fishing_catch_fish(message, userID, amount) {
         getStats_fishing(message, userID)
             .then(user => {
                 let num = Math.floor(user.catches + amount);
-                console.log(user, amount);
+                // console.log(user, amount);
                 query(`update STATS_FISHING set catches = ${num} where server_id = "${message.guild.id}" and user_id = "${userID}";`)
                     .then(r => resolve(r))
                     .catch(e => reject(e));
@@ -200,7 +200,7 @@ function inventory_get(message) {
                 else {
                     inventory_set(message, { "items": [] })
                         .then(r => {
-                            console.log(r);
+                            // console.log(r);
                             inventory_get(message)
                                 .then(r => resolve(r))
                                 .catch(e => reject(e));
@@ -236,11 +236,11 @@ function inventory_update(message, json) {
 }
 
 function inventory_give(message, item, amount) {
-    console.log('INVENTORY GIVE', message.author.username, item, amount);
+    // console.log('INVENTORY GIVE', message.author.username, item, amount);
     return new Promise((resolve, reject) => {
         inventory_get(message)
             .then(data => {
-                console.log('data', data);
+                // console.log('data', data);
                 let json = JSON.parse(data.list);
 
                 let count = 0;
@@ -261,7 +261,7 @@ function inventory_find(message, data) {
     return new Promise((resolve, reject) => {
         inventory_get(message)
             .then(data => {
-                console.log(JSON.parse(data.list).items);
+                // console.log(JSON.parse(data.list).items);
             })
             .catch(e => reject(e));
     });

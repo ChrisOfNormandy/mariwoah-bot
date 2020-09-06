@@ -64,16 +64,19 @@ module.exports = {
     //             })
     //             .catch(e => reject(`Cannot unban user.\n${e.message}`));
     //     });
-    // case 'promote': return adapter.rolemanagement.setPermission.promote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-    // case 'demote': return adapter.rolemanagement.setPermission.demote(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0], data.arguments[1]);
-    // case 'setbotadmin': return adapter.rolemanagement.setRank.admin(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-    // case 'setbotmod': return adapter.rolemanagement.setRank.moderator(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
-    // case 'setbothelper': return adapter.rolemanagement.setRank.helper(message, (data.mentions.members.first()) ? data.mentions.members.first().id : data.arguments[0]);
+    "promote": {
+        run: (message, data) => adapter.rolemanagement.setPermission.promote(message, data)
+    },
+    "demote": {
+        run: (message, data) => adapter.rolemanagement.setPermission.demote(message, data)
+    },
     // case 'refreshrole': return adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
     // case 'refreshroles': return adapter.rolemanagement.setRoles.refresh_guild(message);
     // case 'resetroles': return adapter.rolemanagement.setRoles.reset_guild(message);
     // case 'purgeroles': return adapter.rolemanagement.setRoles.purge(message);
-    // case 'setrole': return adapter.rolemanagement.setRoles.setRole(message, data.arguments[0], message.mentions.roles.first());
+    "setrole": {
+        run: (message, data) => adapter.rolemanagement.setRoles.setRole(message, data)
+    },
     // case 'timeout': {
     //     switch (data.arguments[0]) {
     //         case 'roles': {
@@ -162,18 +165,30 @@ module.exports = {
     },
     "playlist": {
         run: (message, data) => adapter.music.playlistCommand(message, data)
-    }
+    },
 
     // // Memes
 
-    // case 'f': return adapter.memes.memeDispatch('f');
+    "f": {
+        run: (message, data) => adapter.memes.memeDispatch('f')
+    },
     // case 'fuck': return adapter.memes.memeDispatch('fuuu');
     // case 'yey': return adapter.memes.memeDispatch('yey');
-    // case 'thowonk': return adapter.memes.memeDispatch('thowonk');
-    // case 'penguin': return adapter.memes.memeDispatch('penguin');
-    // case 'bird': return adapter.memes.memeDispatch('bird');
-    // case 'clayhead': return adapter.memes.memeDispatch('clayhead');
-    // case 'extrathicc': return adapter.memes.memeDispatch('extra_thicc');
+    "thowonk": {
+        run: (message, data) => adapter.memes.memeDispatch('thowonk')
+    },
+    "penguin": {
+        run: (message, data) => adapter.memes.memeDispatch('penguin')
+    },
+    "bird": {
+        run: (message, data) => adapter.memes.memeDispatch('bird')
+    },
+    "clayhead": {
+        run: (message, data) => adapter.memes.memeDispatch('clayhead')
+    },
+    "extrathicc": {
+        run: (message, data) => adapter.memes.memeDispatch('extra_thicc')
+    }
     // case 'crabrave': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
     // case 'theriddle': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
 }

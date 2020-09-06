@@ -34,7 +34,7 @@ function generate(message, user) {
 
             gameInstance.returnType = 'fish';
 
-            console.log('Max tier', tierMax, 'tier', tier);
+            // console.log('Max tier', tierMax, 'tier', tier);
 
             generateFishObject(user.level, tier)
                 .then(fish => {

@@ -49,7 +49,7 @@ module.exports = {
         let roles = getRoles(member, message);
 
         return new Promise((resolve, reject) => {
-            sql.user.get(message.guild.id, user.id)
+            sql.users.get(message.guild.id, user.id)
                 .then(data => {
                     let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
                     resolve(commandFormat.valid([data], [embed]));
@@ -66,7 +66,7 @@ module.exports = {
         let roles = getRoles(member, message);
 
         return new Promise((resolve, reject) => {
-            sql.user.get(message.guild.id, user.id)
+            sql.users.get(message.guild.id, user.id)
                 .then(data => {
                     let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
                     resolve(commandFormat.valid([data], [embed]));

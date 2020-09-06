@@ -1,6 +1,5 @@
-const connection = require('../connection');
+const connection = require('../../connection');
 const con = connection.con;
-
 const getAge = require('../../../common/bot/helpers/global/getAge');
 
 function roleAge(message) {
@@ -20,7 +19,7 @@ function roleAge(message) {
                         current: value.value
                     });
                 } else {
-                    console.log(`Made new entry for timeouts - ROLES - for server ${message.guild.name} : ${message.guild.id}`)
+                    // console.log(`Made new entry for timeouts - ROLES - for server ${message.guild.name} : ${message.guild.id}`)
                     con.query(`insert into TIMEOUTS (name, server_id, timestamp, trigger_value) values ('role', '${message.guild.id}', '${message.createdTimestamp}', 50);`, (err, result) => {
                         if (err)
                             reject(err)

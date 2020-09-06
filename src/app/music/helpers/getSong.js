@@ -38,7 +38,7 @@ function search(name, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    console.log('getSong search timeout');
+                    // console.log('getSong search timeout');
                     reject(chatFormat.response.music.timeout(name));
                 }
                 else {
@@ -59,7 +59,7 @@ function metaSearch_pl(listId, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    console.log('getSong metaSearch_pl timeout');
+                    // console.log('getSong metaSearch_pl timeout');
                     reject(chatFormat.response.music.timeout('playlist id ' + metadata));
                 }
                 else {
@@ -80,7 +80,7 @@ function metaSearch(metadata, timeOut = 0) {
                 reject(err)
             else {
                 if (timeOut > 10) {
-                    console.log('getSong metaSearch timeout');
+                    // console.log('getSong metaSearch timeout');
                     reject(chatFormat.response.music.timeout('song id ' + metadata));
                 }
                 else {

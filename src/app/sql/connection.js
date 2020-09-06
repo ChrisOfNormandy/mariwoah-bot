@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const config = require('../../../../private/config');
+const config = require('../../../private/config');
 
 const db_config = {
     host: "localhost",
@@ -34,7 +34,7 @@ function onDisconnect() {
     return con;
 }
 
-let con = startup();
+const con = startup();
 
 function startup() {
     return onDisconnect();

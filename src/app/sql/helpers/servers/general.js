@@ -1,7 +1,8 @@
-const sql = require('../connection');
-const con = sql.con;
+const connection = require('../../connection');
+const con = connection.con;
 
 function get(server_id) {
+    // console.log('Grabbing server ', server_id);
     return new Promise((resolve, reject) => {
         con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
             if (err)
@@ -24,7 +25,6 @@ function get(server_id) {
 
 function setMotd(server_id, json) {
     let string = JSON.stringify(json);
-    console.log(string);
     return new Promise((resolve, reject) => {
         get(server_id)
             .then(server => {

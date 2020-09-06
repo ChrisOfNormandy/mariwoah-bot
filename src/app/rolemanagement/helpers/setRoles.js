@@ -1,5 +1,6 @@
 const sql = require('../../sql/adapter');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../../common/bot/helpers/global/commandFormat');
 
 function checkRole(message, name, id) {
     return new Promise((resolve, reject) => {
@@ -17,7 +18,7 @@ function checkRole(message, name, id) {
 
 function refresh(message, member, roleMap, strip = false) {
     return new Promise((resolve, reject) => {
-        sql.user.getPermissionLevel(message.guild.id, member.id)
+        sql.users.getPermissionLevel(message.guild.id, member.id)
             .then(level => {
                 let admin, mod, helper, vip, bot = false;
 
@@ -118,7 +119,7 @@ function refresh(message, member, roleMap, strip = false) {
 
 function refresh_user(message, member) {
     return new Promise((resolve, reject) => {
-        roles.get(message.guild.id)
+        sql.server.roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -136,17 +137,17 @@ function refresh_user(message, member) {
                         }, {});
 
                         refresh(message, member, roles)
-                            .then(r => resolve({value: (r) ? chatFormat.response.roles.refresh_user_yes() : chatFormat.response.roles.refresh_user_no()}))
+                            .then(r => resolve(commandFormat.valid([r] [r ? chatFormat.response.roles.refresh_user_yes() : chatFormat.response.roles.refresh_user_no()])))
                     })
-                    .catch((err) => reject(err));
+                    .catch((err) => reject(commandFormat.error([err], [])));
             })
-            .catch(e => reject(e));
+            .catch(e => reject(commandFormat.error([e], [])));
     });
 }
 
 function refresh_guild(message, strip = false) {
     return new Promise((resolve, reject) => {
-        roles.get(message.guild.id)
+        sql.server.roles.get(message.guild.id)
             .then(sql_roles => {
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
@@ -171,11 +172,11 @@ function refresh_guild(message, strip = false) {
                         Promise.all(toResolve)
                             .then(results => {
                                 let val = results.filter(v => v == true).length;
-                                resolve({value: chatFormat.response.roles.refresh_guild(val, results.length)})
+                                resolve(commandFormat.valid([results], [chatFormat.response.roles.refresh_guild(val, results.length)]))
                             })
-                            .catch(e => reject(e));
+                            .catch(e => reject(commandFormat.error([e], [])));
                     })
-                    .catch((err) => reject(err));
+                    .catch((err) => reject(commandFormat.error([err], [])));
             });
     });
 }
@@ -219,27 +220,22 @@ function getRole(message, id) {
     });
 }
 
-function setRole(message, name, role) {
+function setRole(message, data) {
     return new Promise((resolve, reject) => {
+        const role = data.mentions.roles.entries().next().value[1];
         if (role) {
-            sql.server.roles.set(message.guild.id, name, role.id)
-                .then(r => resolve({value: chatFormat.response.roles.setRole(name, role), r}))
-                .catch(e => reject(e));
+            sql.server.roles.set(message.guild.id, role.name, role.id)
+                .then(r => resolve(commandFormat.valid([r, role], [chatFormat.response.roles.setRole(data.arguments[0], role)])))
+                .catch(e => reject(commandFormat.error([e], [])));
         }
         else {
-            reject(role);
+            reject(commandFormat.error([], [`No role.`]));
         }
     });
 }
 
-function createByData(message, data) {
-    return new Promise((resolve, reject) => {
-        
-    })
-}
-
 function create(message, name, color, reason = 'Automated creation') {
-    console.log('Creating a new role: ', name)
+    // console.log('Creating a new role: ', name)
     let role = null;
 
     message.guild.roles.cache.forEach((v, k, m) => {
@@ -260,7 +256,7 @@ function create(message, name, color, reason = 'Automated creation') {
                             role = 'FAKE';
                         }
                     }
-                    console.log('Role is not reserved.')
+                    // console.log('Role is not reserved.')
 
                     if (role !== 'FAKE') {
                         message.guild.roles.fetch(role.id)
@@ -274,7 +270,7 @@ function create(message, name, color, reason = 'Automated creation') {
 
                 timeouts.checkRole_upTick(message)
                     .then(valid => {
-                        console.log(valid);
+                        // console.log(valid);
                         if (valid) {
                             let role_name = (role === 'FAKE')
                                 ? `FAKE - ${name}`
@@ -331,7 +327,6 @@ module.exports = {
     reset_guild: (message) => refresh_guild(message, true),
     refresh_user,
     create,
-    createByData,
     add,
     remove,
     purge,

@@ -1,3 +1,6 @@
+const connection = require('../connection');
+const con = connection.con;
+
 function getDuration(data) {
     let list = JSON.parse(data.list);
     if (list === null)
@@ -6,12 +9,12 @@ function getDuration(data) {
         let dur = 0;
         for (let i in list)
             dur += Number(list[i].duration.totalSeconds);
-        console.log(dur);
+        // console.log(dur);
         return dur;
     }
 }
 
-function get(con, message, name) {
+function get(message, name) {
     return new Promise((resolve, reject) => {
         con.query(`select * from PLAYLISTS where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
@@ -26,7 +29,7 @@ function get(con, message, name) {
     });
 }
 
-function create(con, message, name) {
+function create(message, name) {
     return new Promise((resolve, reject) => {
         con.query(`insert into PLAYLISTS (creator_id, list, name, server_id) values ("${message.author.id}", '${['null']}', "${name}", "${message.guild.id}");`, (err, result) => {
             if (err)
@@ -37,7 +40,7 @@ function create(con, message, name) {
     });
 }
 
-function remove(con, message, name) {
+function remove(message, name) {
     return new Promise((resolve, reject) => {
         con.query(`delete from PLAYLISTS where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
             if (err)
@@ -48,9 +51,9 @@ function remove(con, message, name) {
     })
 }
 
-function removeSong(con, message, name, songURL) {
+function removeSong(message, name, songURL) {
     return new Promise((resolve, reject) => {
-        get(con, message, name)
+        get(message, name)
             .then(data => {
                 let list;
 
@@ -58,7 +61,7 @@ function removeSong(con, message, name, songURL) {
                     reject(null);
                 else
                     list = JSON.parse(data.list);
-                console.log(songURL)
+                // console.log(songURL)
                 let newList = [];
                 let duration = 0;
                 for (let i in list) {
@@ -72,15 +75,16 @@ function removeSong(con, message, name, songURL) {
                     if (err)
                         return console.log(err);
                     else {
-                        get(con, message, name)
+                        get(message, name)
                             .then(data => {
                                 let time = getDuration(data);
 
                                 con.query(`update PLAYLISTS set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
                                     if (err)
                                         console.log(err);
-                                    else
-                                        console.log(result);
+                                    else {
+                                        // console.log(result);
+                                    }
                                 });
                             })
                             .catch(e => console.log(e));
@@ -92,11 +96,11 @@ function removeSong(con, message, name, songURL) {
     })
 }
 
-function append(con, message, name, song) {
+function append(message, name, song) {
     song.title = song.title.replace("'", "''");
     
     return new Promise((resolve, reject) => {
-        get(con, message, name)
+        get(message, name)
             .then(data => {
                 let list = [];
                 let flag = true;
@@ -122,7 +126,7 @@ function append(con, message, name, song) {
                         if (err)
                             reject(err);
                         else {
-                            get(con, message, name)
+                            get(message, name)
                                 .then(data => {
                                     let time = getDuration(data);
                                     con.query(`update PLAYLISTS set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
@@ -141,9 +145,9 @@ function append(con, message, name, song) {
     });
 }
 
-function getList(con, message, name) {
+function getList(message, name) {
     return new Promise((resolve, reject) => {
-        get(con, message, name)
+        get(message, name)
             .then(data => {
                 let list = JSON.parse(data.list);
                 resolve(list);
@@ -156,7 +160,7 @@ function getList(con, message, name) {
     });
 }
 
-function getAll(con, message) {
+function getAll(message) {
     return new Promise((resolve, reject) => {
         con.query(`select * from PLAYLISTS where server_id = ${message.guild.id}`, (err, result) => {
             if (err)

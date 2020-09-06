@@ -3,7 +3,7 @@ const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 module.exports = function (message, userID, permLevel) {
     return new Promise((resolve, reject) => {
-        sql.user.getPermissionLevel(message.channel.guild.id, userID)
+        sql.users.getPermissionLevel(message.channel.guild.id, userID)
             .then(userLevel => {
                 if (userLevel < 4 && message.member.hasPermission("ADMINISTRATOR")) {
                     sql.user.setPermissionLevel(message.guild.id, userID, 4)
