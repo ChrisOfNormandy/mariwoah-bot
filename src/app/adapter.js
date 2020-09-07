@@ -1,6 +1,7 @@
 module.exports = {
     common: require('./common/adapter'),
     dungeons: require('./dungeons/adapter'),
+    google: require('./google/adapter'),
     memes: require('./memes/adapter'),
     minigames: require('./minigames/adapter'),
     music: require('./music/adapter'),

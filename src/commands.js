@@ -49,6 +49,11 @@ module.exports = {
         run: (message, data) => adapter.common.bot.features.prefix.get(message)
     },
 
+    // Google Search
+    "find": {
+        run: (message, data) => adapter.google.post(data)
+    },
+
     // RoleManager
 
     // case 'warn': return adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
