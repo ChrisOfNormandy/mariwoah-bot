@@ -8,6 +8,9 @@ module.exports = {
     "clean": {
         run: (message, data) => adapter.common.bot.features.cleanChat(message)
     },
+    "fetchemoji": {
+        run: (message, data) => adapter.common.bot.features.fetchEmoji(message, data)
+    },
     "ping": {
         run: (message, data) => adapter.common.bot.features.ping(message)
     },

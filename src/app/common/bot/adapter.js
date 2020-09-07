@@ -1,6 +1,7 @@
 module.exports = {
     features: {
         cleanChat: require('./helpers/features/cleanChat'),
+        fetchEmoji: require('./helpers/features/fetchEmoji'),
         listHelp: require('./helpers/features/listHelp'),
         motd: require('./helpers/features/motd'),
         ping: require('./helpers/features/ping'),
