@@ -11,6 +11,9 @@ module.exports = {
     "fetchemoji": {
         run: (message, data) => adapter.common.bot.features.fetchEmoji(message, data)
     },
+    "imgur": {
+        run: (message, data) => adapter.imgur.search(data)
+    },
     "ping": {
         run: (message, data) => adapter.common.bot.features.ping(message)
     },

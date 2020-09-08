@@ -1,3 +1,4 @@
+const config = require('../private/config');
 const adapter = require('./app/adapter');
 const commands = require('./commands');
 const commandList = adapter.common.bot.global.commandList;
@@ -356,7 +357,7 @@ function getData(message, prefix, part) {
     return new Promise((resolve, reject) => {
         let msgArray = part.split(' ');
 
-        const reg = `[${prefix.toString()}~][a-zA-Z?]+`;
+        const reg = `[${prefix.toString()}${config.settings.prefix}][a-zA-Z?]+`;
         const commandRegex = new RegExp(reg, 'g');
 
         if (!commandRegex.test(msgArray[0])) {
@@ -474,7 +475,11 @@ module.exports = function (client, message) {
 
                                 resolve(returns);
                             })
-                            .catch(e => reject(e));
+                            .catch(e => {
+                                for (let i in e.content) {
+                                    message.channel.send(e.content[i])
+                                }
+                            });
                     })
                     .catch(e => reject(e));
             })
