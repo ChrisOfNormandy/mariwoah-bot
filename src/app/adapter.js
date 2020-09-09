@@ -1,4 +1,5 @@
 module.exports = {
+    bing: require('./bing/adapter'),
     common: require('./common/adapter'),
     dungeons: require('./dungeons/adapter'),
     imgur: require('./imgur/adapter'),

@@ -3,3 +3,4 @@
 /src/app/common/roleManager/servers
 /private
 .gitignore
+package-lock.json

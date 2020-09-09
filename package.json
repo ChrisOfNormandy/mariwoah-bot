@@ -7,6 +7,8 @@
     "dependencies": {
         "@discordjs/opus": "^0.3.2",
         "abort-controller": "^3.0.0",
+        "bing-image-scraper": "0.0.1",
+        "cheerio": "^1.0.0-rc.3",
         "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
         "discord.js": "^12.3.1",
         "discord.js-commando": "^0.10.0",

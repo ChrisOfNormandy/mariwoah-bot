@@ -56,7 +56,9 @@ module.exports = {
     "find": {
         run: (message, data) => adapter.google.post(data)
     },
-
+    "bing": {
+        run: (message, data) => adapter.bing.search(data)
+    },
     // RoleManager
 
     // case 'warn': return adapter.punishments.warn.set(message, (data.mentions.members.first() !== null) ? data.mentions.members.first().id : data.arguments[0], data);
