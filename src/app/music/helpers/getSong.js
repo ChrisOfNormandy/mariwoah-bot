@@ -96,20 +96,27 @@ function metaSearch(metadata, timeOut = 0) {
 
 module.exports = {
     byURL: async function (message, songURL) {
+        // console.log('byURL: ', songURL, songURL.match(/\?v=([a-zA-Z0-9\-_]+)/)[1]);
         return new Promise((resolve, reject) => {
-            metaSearch(songURL.match(/\?v=([a-zA-Z0-9]+)/)[1])
-                .then(songData => resolve(formatSongData(message, songData)))
+            metaSearch(songURL.match(/\?v=([a-zA-Z0-9\-_]+)/)[1])
+                .then(songData => {
+                    // console.log(songData);
+                    resolve(formatSongData(message, songData));
+                })
                 .catch(e => reject(e));
         });
     },
     byURLArray: function (message, urlArray) {
         return new Promise((resolve, reject) => {
             let arr = [];
-            for (let i in urlArray) {
-                arr.push(func(message, urlArray[i]))
-            }
+            for (let i in urlArray)
+                arr.push(this.byURL(message, urlArray[i]));
+
             Promise.all(arr)
-                .then(songs => resolve(songs))
+                .then(songs => {
+                    // console.log(songs);
+                    resolve(songs);
+                })
                 .catch(e => reject(e));
         });
     },

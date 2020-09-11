@@ -82,6 +82,7 @@ function byURL(message, songURL) {
 }
 
 function byURLArray(message, data) {
+    console.log(data.urls);
     return new Promise((resolve, reject) => {
         getSong.byURLArray(message, data.urls)
             .then(arr => {

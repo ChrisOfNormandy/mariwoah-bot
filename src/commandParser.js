@@ -215,10 +215,9 @@ function formatResponse(input) {
 }
 
 function pullRegex(content) {
-    // console.log('Content: ', content);
+    console.log('Content: ', content);
     
     let flags = {};
-    let urls = [];
     let mentions = {
         members: new Map(),
         roles: new Map()
@@ -248,7 +247,8 @@ function pullRegex(content) {
         'double': {}
     }
 
-    urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+    let urls = content.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+    content = content.replace(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g, '');
 
     params.boolean = content.match(boolParamRegex);
     content = content.replace(boolParamRegex, '');
@@ -326,10 +326,12 @@ function pullRegex(content) {
         mentions
     }
 
+    console.log(val);
+
     return val;
 }
 
-function getData(message, prefix, part) {
+function getData(prefix, part) {
     /*
         Parts are split on the pipe |
         There can be multiple commands per part, and everything
@@ -384,6 +386,8 @@ function getData(message, prefix, part) {
                 else
                     non_passTo_arr.push(passThrough_arr[i]);
             }
+
+            console.log(passTo_arr, '\n', non_passTo_arr)
 
             for (let i in passTo_arr) {
                 // console.log(passTo_arr[i]);
@@ -443,7 +447,7 @@ module.exports = function (client, message) {
                 let data = [];
 
                 for (let a in commandParts)
-                    data.push(getData(message, prefix, commandParts[a].trim()));
+                    data.push(getData(prefix, commandParts[a].trim()));
 
                 Promise.all(data)
                     .then(data => {
