@@ -118,7 +118,7 @@ module.exports = {
                             }
                             case 'pardon': {
                                 let date = new Date();
-                                console.log(args);
+                                // console.log(args);
                                 if (args.index - 1 < 0 || !user.data[args.punishment] || !user.data[args.punishment][args.index - 1])
                                     resolve({ status: false, args: { operation: 'pardon', result: null }, user: user });
                                 else {

@@ -9,10 +9,14 @@ function _promote(message, userID, toLevel) {
         sql.users.getPermissionLevel(message.guild.id, userID)
             .then(level => {
                 // console.log(level);
+                let data = {mentions: {
+                    members: new Map().set(userID, message.guild.members.cache.get(userID))
+                }};
                 if (toLevel && toLevel >= 0 && toLevel <= 4) {
                     sql.users.setPermissionLevel(message.guild.id, userID, toLevel)
                         .then(r => {
-                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            
+                            setRoles.refresh_user(message, data);
                             resolve({value: toLevel, content: chatFormat.response.roles.promote(message.guild.members.cache.get(userID), toLevel)});
                         })
                         .catch(e => reject(e));
@@ -20,7 +24,7 @@ function _promote(message, userID, toLevel) {
                 else if (level < 4) {
                     sql.users.setPermissionLevel(message.guild.id, userID, level + 1)
                         .then(r => {
-                            setRoles.refresh_user(message, message.guild.members.cache.get(userID));
+                            setRoles.refresh_user(message, data);
                             resolve({value: level + 1, content: chatFormat.response.roles.promote(message.guild.members.cache.get(userID), level + 1)});
                         })
                         .catch(e => reject(e));

@@ -39,13 +39,14 @@ function get(message, parameters) {
     });
 }
 
-function set(message, json_string) {
+function set(message, data) {
+    console.log(data);
     return new Promise((resolve, reject) => {
         let json;
         if (json_string == 'reset')
             json = null;
         else
-            json = JSON.parse(json_string) || null;
+            json = JSON.parse(data.arguments.join(' ')) || null;
 
         sql.server.general.setMotd(message.guild.id, json)
             .then(r => resolve(commandFormat.valid([json], ['Changed server MOTD.'])))

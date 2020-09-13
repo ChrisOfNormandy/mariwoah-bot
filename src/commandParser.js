@@ -215,7 +215,7 @@ function formatResponse(input) {
 }
 
 function pullRegex(content) {
-    console.log('Content: ', content);
+    // console.log('Content: ', content);
     
     let flags = {};
     let mentions = {
@@ -223,7 +223,7 @@ function pullRegex(content) {
         roles: new Map()
     };
 
-    const flagRegex = /-[a-zA-Z]+\s*/g;
+    const flagRegex = /\s-[a-zA-Z]+\s*/g;
     const boolParamRegex = /\?\w+:(t|f)/g;
     const stringParamRegex = /\$\w+:".*?"/g;
     const grepParamRegex = /grep:'\/.+?\/[gimsuy]?'/g;
@@ -326,7 +326,7 @@ function pullRegex(content) {
         mentions
     }
 
-    console.log(val);
+    // console.log(val);
 
     return val;
 }
@@ -387,7 +387,7 @@ function getData(prefix, part) {
                     non_passTo_arr.push(passThrough_arr[i]);
             }
 
-            console.log(passTo_arr, '\n', non_passTo_arr)
+            // console.log(passTo_arr, '\n', non_passTo_arr)
 
             for (let i in passTo_arr) {
                 // console.log(passTo_arr[i]);

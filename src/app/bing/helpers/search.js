@@ -5,14 +5,14 @@ const Discord = require('discord.js');
 
 function search(data) {
     let query = data.arguments.join(' ').replace(/[?&:\\/]/g, '');
-    console.log(`Searching Bing for ${query}`);
+    // console.log(`Searching Bing for ${query}`);
     // console.log(data);
     return new Promise((resolve, reject) => {
         let searchResults = 10;
         if (data.parameters.integer['results'])
             searchResults = data.parameters.integer['results'];
 
-        console.log(searchResults);
+        // console.log(searchResults);
         bing.list({
             keyword: query,
             num: searchResults,
@@ -49,7 +49,7 @@ function search(data) {
                 count++;
             }
 
-            console.log(result_arr)
+            // console.log(result_arr)
 
             resolve(commandFormat.valid([res], [{files: result_arr}]))
         })

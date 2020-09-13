@@ -36,11 +36,7 @@ module.exports = {
         run: (message, data) => adapter.common.bot.features.whoAre.member(message)
     },
     "setmotd": {
-        run: (message, data) => {
-            return (data.flags['r'])
-                ? adapter.common.bot.features.motd.set(message, "First Title&tSome message.\\nA new line|Second Title&tSome message.<l>http://google.com/")
-                : adapter.common.bot.features.motd.set(message, data.arguments.join(' '));
-        }
+        run: (message, data) => adapter.common.bot.features.motd.set(message, data)
     },
     "motd": {
         run: (message, data) => adapter.common.bot.features.motd.get(message, data.parameters)
@@ -83,8 +79,12 @@ module.exports = {
     "demote": {
         run: (message, data) => adapter.rolemanagement.setPermission.demote(message, data)
     },
-    // case 'refreshrole': return adapter.rolemanagement.setRoles.refresh_user(message, message.mentions.members.first() || message.member);
-    // case 'refreshroles': return adapter.rolemanagement.setRoles.refresh_guild(message);
+    "refreshrole": {
+        run: (message, data) => adapter.rolemanagement.setRoles.refresh_user(message, data)
+    },
+    "refreshroles": {
+        run: (message, data) => adapter.rolemanagement.setRoles.refresh_guild(message)
+    },
     // case 'resetroles': return adapter.rolemanagement.setRoles.reset_guild(message);
     // case 'purgeroles': return adapter.rolemanagement.setRoles.purge(message);
     "setrole": {

@@ -35,23 +35,26 @@ function refresh(message, member, roleMap, strip = false) {
                         bot = true;
                 });
 
+                const memberID = member.id;
+
                 if (strip) {
-                    if (admin) remove(message, member, roleMap.admin)
-                    if (mod) remove(message, member, roleMap.mod);
-                    if (helper) remove(message, member, roleMap.helper);
-                    if (vip) remove(message, member, roleMap.vip);
-                    if (bot) remove(message, member, roleMap.bot);
+                    if (admin) remove(message, memberID, roleMap.admin)
+                    if (mod) remove(message, memberID, roleMap.mod);
+                    if (helper) remove(message, memberID, roleMap.helper);
+                    if (vip) remove(message, memberID, roleMap.vip);
+                    if (bot) remove(message, memberID, roleMap.bot);
                     resolve(true);
                 }
                 else {
+
                     if (member.user.bot) {
-                        if (admin) remove(message, member, roleMap.admin)
-                        if (mod) remove(message, member, roleMap.mod);
-                        if (helper) remove(message, member, roleMap.helper);
-                        if (vip) remove(message, member, roleMap.vip);
+                        if (admin) remove(message, memberID, roleMap.admin)
+                        if (mod) remove(message, memberID, roleMap.mod);
+                        if (helper) remove(message, memberID, roleMap.helper);
+                        if (vip) remove(message, memberID, roleMap.vip);
 
                         if (!bot)
-                            add(message, member, roleMap.bot)
+                            add(message, memberID, roleMap.bot)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         else
@@ -59,52 +62,52 @@ function refresh(message, member, roleMap, strip = false) {
                     }
                     else {
                         if (!admin && member.hasPermission("ADMINISTRATOR")) {
-                            if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
-                            if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
-                            add(message, member, roleMap.admin)
+                            if (mod) remove(message, memberID, roleMap.mod).catch(e => console.log(e));
+                            if (helper) remove(message, memberID, roleMap.helper).catch(e => console.log(e));
+                            if (vip) remove(message, memberID, roleMap.vip).catch(e => console.log(e));
+                            add(message, memberID, roleMap.admin)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
                         else if (level == 0) {
-                            if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
-                            if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
-                            if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
+                            if (admin) remove(message, memberID, roleMap.admin).catch(e => console.log(e));
+                            if (mod) remove(message, memberID, roleMap.mod).catch(e => console.log(e));
+                            if (helper) remove(message, memberID, roleMap.helper).catch(e => console.log(e));
+                            if (vip) remove(message, memberID, roleMap.vip).catch(e => console.log(e));
                             if (admin || mod || helper || vip)
                                 resolve(true);
                             else
                                 resolve(null);
                         }
                         else if (!vip && level == 1) {
-                            if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
-                            if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
-                            if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            add(message, member, roleMap.vip)
+                            if (admin) remove(message, memberID, roleMap.admin).catch(e => console.log(e));
+                            if (mod) remove(message, memberID, roleMap.mod).catch(e => console.log(e));
+                            if (helper) remove(message, memberID, roleMap.helper).catch(e => console.log(e));
+                            add(message, memberID, roleMap.vip)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
                         else if (!helper && level == 2) {
-                            if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
-                            if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
-                            add(message, member, roleMap.helper)
+                            if (admin) remove(message, memberID, roleMap.admin).catch(e => console.log(e));
+                            if (mod) remove(message, memberID, roleMap.mod).catch(e => console.log(e));
+                            if (vip) remove(message, memberID, roleMap.vip).catch(e => console.log(e));
+                            add(message, memberID, roleMap.helper)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
                         else if (!mod && level == 3) {
-                            if (admin) remove(message, member, roleMap.admin).catch(e => console.log(e));
-                            if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
-                            add(message, member, roleMap.mod)
+                            if (admin) remove(message, memberID, roleMap.admin).catch(e => console.log(e));
+                            if (helper) remove(message, memberID, roleMap.helper).catch(e => console.log(e));
+                            if (vip) remove(message, memberID, roleMap.vip).catch(e => console.log(e));
+                            add(message, memberID, roleMap.mod)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
                         else if (!admin && level == 4) {
-                            if (mod) remove(message, member, roleMap.mod).catch(e => console.log(e));
-                            if (helper) remove(message, member, roleMap.helper).catch(e => console.log(e));
-                            if (vip) remove(message, member, roleMap.vip).catch(e => console.log(e));
-                            add(message, member, roleMap.admin)
+                            if (mod) remove(message, memberID, roleMap.mod).catch(e => console.log(e));
+                            if (helper) remove(message, memberID, roleMap.helper).catch(e => console.log(e));
+                            if (vip) remove(message, memberID, roleMap.vip).catch(e => console.log(e));
+                            add(message, memberID, roleMap.admin)
                                 .then(r => resolve(true))
                                 .catch(e => reject(e));
                         }
@@ -117,10 +120,11 @@ function refresh(message, member, roleMap, strip = false) {
     });
 }
 
-function refresh_user(message, member) {
+function refresh_user(message, data) {
     return new Promise((resolve, reject) => {
         sql.server.roles.get(message.guild.id)
             .then(sql_roles => {
+
                 let roleArr = [
                     checkRole(message, 'admin', sql_roles.admin),
                     checkRole(message, 'mod', sql_roles.mod),
@@ -136,8 +140,14 @@ function refresh_user(message, member) {
                             return map;
                         }, {});
 
-                        refresh(message, member, roles)
+                        let promises = [];
+                        data.mentions.members.forEach((member, k, m) => {
+                            promises.push(refresh(message, member, roles));
+                        });
+                        
+                        Promise.all(promises)
                             .then(r => resolve(commandFormat.valid([r] [r ? chatFormat.response.roles.refresh_user_yes() : chatFormat.response.roles.refresh_user_no()])))
+                            .catch(e => reject(commandFormat.error([e], [chatFormat.response.roles.refresh_user_no()])));
                     })
                     .catch((err) => reject(commandFormat.error([err], [])));
             })
@@ -224,13 +234,12 @@ function setRole(message, data) {
     return new Promise((resolve, reject) => {
         const role = data.mentions.roles.entries().next().value[1];
         if (role) {
-            sql.server.roles.set(message.guild.id, role.name, role.id)
+            sql.server.roles.set(message.guild.id, data.arguments[0], role.id)
                 .then(r => resolve(commandFormat.valid([r, role], [chatFormat.response.roles.setRole(data.arguments[0], role)])))
                 .catch(e => reject(commandFormat.error([e], [])));
         }
-        else {
+        else
             reject(commandFormat.error([], [`No role.`]));
-        }
     });
 }
 
@@ -323,7 +332,7 @@ function purge(message) {
 }
 
 module.exports = {
-    refresh_guild: (message) => refresh_guild(message),
+    refresh_guild,
     reset_guild: (message) => refresh_guild(message, true),
     refresh_user,
     create,

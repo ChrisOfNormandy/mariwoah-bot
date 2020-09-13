@@ -19,11 +19,11 @@ function get(server_id) {
     });
 }
 
-function set(server_id, role, id) {
+function set(server_id, roleName, id) {
     return new Promise((resolve, reject) => {
         general.get(server_id)
             .then(server => {
-                let column = `${role}_role`;
+                let column = `${roleName}_role`;
                 con.query(`update SERVERS set ${column} = '${id}' where id = '${server_id}';`, (err, result) => {
                     if (err)
                         reject(err);
