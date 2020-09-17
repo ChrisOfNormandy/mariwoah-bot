@@ -359,10 +359,12 @@ function getData(prefix, part) {
     return new Promise((resolve, reject) => {
         let msgArray = part.split(' ');
 
-        const reg = `[${prefix.toString()}${config.settings.prefix}][a-zA-Z?]+`;
+        const prefixes = [prefix, config.settings.prefix];
+
+        const reg = `[${prefixes.join('')}][a-zA-Z?]+`;
         const commandRegex = new RegExp(reg, 'g');
 
-        if (!commandRegex.test(msgArray[0])) {
+        if (!commandRegex.test(msgArray[0]) && !prefixes.join('').includes(msgArray[0][0])) {
             reject(null);
         } else {
             let regex_arr = [];
