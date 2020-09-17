@@ -12,8 +12,6 @@ function search(data) {
         if (data.parameters.boolean['nsfw'])
             options['safeSearch'] = 'off';
 
-        // console.log(options);
-
         let promiseArr = [];
 
         let page = 1;

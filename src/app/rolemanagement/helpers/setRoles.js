@@ -244,7 +244,6 @@ function setRole(message, data) {
 }
 
 function create(message, name, color, reason = 'Automated creation') {
-    // console.log('Creating a new role: ', name)
     let role = null;
 
     message.guild.roles.cache.forEach((v, k, m) => {
@@ -265,7 +264,6 @@ function create(message, name, color, reason = 'Automated creation') {
                             role = 'FAKE';
                         }
                     }
-                    // console.log('Role is not reserved.')
 
                     if (role !== 'FAKE') {
                         message.guild.roles.fetch(role.id)
@@ -279,7 +277,6 @@ function create(message, name, color, reason = 'Automated creation') {
 
                 timeouts.checkRole_upTick(message)
                     .then(valid => {
-                        // console.log(valid);
                         if (valid) {
                             let role_name = (role === 'FAKE')
                                 ? `FAKE - ${name}`

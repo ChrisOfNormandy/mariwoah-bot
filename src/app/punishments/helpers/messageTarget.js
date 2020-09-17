@@ -1,5 +1,4 @@
 module.exports = function(member, staffMember, servername, data, args = {}) {
-    // console.log(data);
     let latest = data[data.length - 1];
     member.send(`This is an automated message. Replying doesn't do anything.\n\n` +
     `> You have been issued a ${latest.type} by ${staffMember.user.username} in the guild ${servername}.\n` +

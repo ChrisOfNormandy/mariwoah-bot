@@ -4,11 +4,9 @@ const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../common/bot/helpers/global/commandFormat');
 
 function _promote(message, userID, toLevel) {
-    // console.log(userID, toLevel);
     return new Promise((resolve, reject) => {
         sql.users.getPermissionLevel(message.guild.id, userID)
             .then(level => {
-                // console.log(level);
                 let data = {mentions: {
                     members: new Map().set(userID, message.guild.members.cache.get(userID))
                 }};

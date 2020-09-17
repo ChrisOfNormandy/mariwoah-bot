@@ -27,7 +27,7 @@ function get(message, parameters) {
                 let embed = JSON.parse(motd);
                 if (!embed)
                     embed = defaultMotd(message);
-                // console.log(parameters)
+
                 resolve(parameters.boolean['json']
                     ? motd
                         ? commandFormat.valid([motd], [motd])
@@ -40,7 +40,6 @@ function get(message, parameters) {
 }
 
 function set(message, data) {
-    console.log(data);
     return new Promise((resolve, reject) => {
         let json;
         if (json_string == 'reset')

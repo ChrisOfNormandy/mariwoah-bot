@@ -2,7 +2,6 @@ const connection = require('../../connection');
 const con = connection.con;
 
 function get(server_id) {
-    // console.log('Grabbing server ', server_id);
     return new Promise((resolve, reject) => {
         con.query(`select * from SERVERS where id = "${server_id}";`, (err, result) => {
             if (err)

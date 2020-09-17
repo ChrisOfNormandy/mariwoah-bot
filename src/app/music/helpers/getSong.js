@@ -38,7 +38,6 @@ function search(name, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    // console.log('getSong search timeout');
                     reject(chatFormat.response.music.timeout(name));
                 }
                 else {
@@ -59,7 +58,6 @@ function metaSearch_pl(listId, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    // console.log('getSong metaSearch_pl timeout');
                     reject(chatFormat.response.music.timeout('playlist id ' + metadata));
                 }
                 else {
@@ -80,7 +78,6 @@ function metaSearch(metadata, timeOut = 0) {
                 reject(err)
             else {
                 if (timeOut > 10) {
-                    // console.log('getSong metaSearch timeout');
                     reject(chatFormat.response.music.timeout('song id ' + metadata));
                 }
                 else {
@@ -96,11 +93,9 @@ function metaSearch(metadata, timeOut = 0) {
 
 module.exports = {
     byURL: async function (message, songURL) {
-        // console.log('byURL: ', songURL, songURL.match(/\?v=([a-zA-Z0-9\-_]+)/)[1]);
         return new Promise((resolve, reject) => {
             metaSearch(songURL.match(/\?v=([a-zA-Z0-9\-_]+)/)[1])
                 .then(songData => {
-                    // console.log(songData);
                     resolve(formatSongData(message, songData));
                 })
                 .catch(e => reject(e));
@@ -113,10 +108,7 @@ module.exports = {
                 arr.push(this.byURL(message, urlArray[i]));
 
             Promise.all(arr)
-                .then(songs => {
-                    // console.log(songs);
-                    resolve(songs);
-                })
+                .then(songs => resolve(songs))
                 .catch(e => reject(e));
         });
     },

@@ -3,7 +3,6 @@ const con = connection.con;
 const general = require('./general');
 
 function get(server_id) {
-    // console.log('Getting roles for server ', server_id);
     return new Promise((resolve, reject) => {
         general.get(server_id)
             .then(server => {

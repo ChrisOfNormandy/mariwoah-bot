@@ -78,9 +78,7 @@ function getOther(name, subcommand) {
 }
 
 function execute_command(client, message, data) {
-
-    // console.log('COMMAND > ', data.command, data.arguments)
-    
+   
     /*
         Commands should return:
         {
@@ -96,7 +94,6 @@ function execute_command(client, message, data) {
 }
 
 function parseCommands(client, message, dataObject) {
-    // console.log(dataObject);
     let returns = [];
 
     const data_array = dataObject.data_array;
@@ -137,40 +134,31 @@ function parseCommands(client, message, dataObject) {
                     data.mentions.roles.forEach((v, k, m) => {
                         data.mentions.roles.set(k, message.guild.roles.cache.get(k));
                     });
-                    // console.log(data);
 
                     data.command = verifications_results[i].command;
                     returns[i].properties = verifications_results[i].properties;
                     returns[i].hasPermission = verifications_results[i].permission.state;
                     
-                    // console.log(i, returns[i]);
 
                     if (returns[i].hasPermission) {
                         output_returns.push(execute_command(client, message, data));
 
                         for (let val in outputVariables.cache) {
-                            // console.log(val, outputVariables.cache[val]);
 
                             if (outputVariables.cache[val].index == i) {
                                 outputVariables.cache[val].value = output_returns[i].values;
-                                // console.log(val, outputVariables.cache[val]);
 
                                 for (let ind in data_array) {
                                     for (let arg in data_array[ind].arguments) {
-                                        // console.log(data_array[ind].arguments, arg, data_array[ind].arguments[arg]);
 
                                         let reg_ind = data_array[ind].arguments[arg].toString().match(new RegExp(`{${val}(:\\d+)?}`));
                                         let arg_ind = 0;
 
-                                        // console.log(reg_ind);
-
                                         if (reg_ind && reg_ind[1]) {
                                             arg_ind = reg_ind[1].slice(1);
                                             arg_ind = (arg_ind >= outputVariables.cache[val].value.length) ? 0 : Number(arg_ind);
-                                            // console.log('ARG_IND: ', arg_ind)
                                         }
                                         if (new RegExp(`{${val}(:\\d+)?}`).test(data_array[ind].arguments[arg])) {
-                                            // console.log('VALUE: ', outputVariables.cache[val].value, outputVariables.cache[val].value[arg_ind]);
                                             data_array[ind].arguments[arg] = outputVariables.cache[val].value[arg_ind].toString();
                                         }
                                     }
@@ -182,9 +170,6 @@ function parseCommands(client, message, dataObject) {
                         // No perms
                     }
                 }
-
-                // console.log(output_returns);
-                // console.log(data.outputVariables);
 
                 Promise.all(output_returns)
                     .then(outputs => {
@@ -206,7 +191,6 @@ function parseCommands(client, message, dataObject) {
 }
 
 function formatResponse(input) {
-    // console.log('INPUT: ', input);
     return new Promise((resolve, reject) => {
         Promise.all(input.content)
             .then(arr => resolve({content: arr, input}))
@@ -214,9 +198,7 @@ function formatResponse(input) {
     });
 }
 
-function pullRegex(content) {
-    // console.log('Content: ', content);
-    
+function pullRegex(content) {   
     let flags = {};
     let mentions = {
         members: new Map(),
@@ -326,8 +308,6 @@ function pullRegex(content) {
         mentions
     }
 
-    // console.log(val);
-
     return val;
 }
 
@@ -389,12 +369,8 @@ function getData(prefix, part) {
                     non_passTo_arr.push(passThrough_arr[i]);
             }
 
-            // console.log(passTo_arr, '\n', non_passTo_arr)
-
             for (let i in passTo_arr) {
-                // console.log(passTo_arr[i]);
                 let reg_values = pullRegex(passTo_arr[i][0].replace(new RegExp(`${reg}\\s`, 'g'), ''));
-                // console.log(reg_values);
 
                 outputVariables.cache[passTo_arr[i][1]] = {
                     index: i,
@@ -429,9 +405,6 @@ function getData(prefix, part) {
                 });
             }
 
-            // console.log(data_array);
-            // console.log(arguments)
-
             resolve({
                 data_array,
                 outputVariables
@@ -453,21 +426,16 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
-                        // console.log('Data\n', data);
                         let commandReturns = [];
                         for (let i in data)
                             commandReturns.push(parseCommands(client, message, data[i]));
                         
                         Promise.all(commandReturns)
                             .then(returns => {
-                                // console.log('Returns:\n', returns);
 
                                 for (let i in returns) {
-                                    // console.log(`Return ${i}: `, returns[i]);
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x].content) {
-                                            // console.log(returns[i].values[x].input);
-                                            // console.log(returns[i].dataObject.data_array[x])
                                             message.channel.send(returns[i].values[x].content[l])
                                                 .then(msg => {
                                                     let options = getOptions(returns[i].dataObject.data_array[x], returns[i].values[x].input.options)

@@ -25,7 +25,7 @@ function setUser(message, userID, type, reason = null, duration = -1, severity =
         .then(user => {
             const date = new Date(message.createdTimestamp);
             const datetime = `${date.toISOString().slice(0, 19).replace('T', ' ')}`;
-            // console.log(datetime);
+
             if (reason == null)
                 con.query(`insert into PUNISHMENTS (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime) values (` +
                     `"${message.guild.id}", 
@@ -40,9 +40,6 @@ function setUser(message, userID, type, reason = null, duration = -1, severity =
                     (err, result) => {
                         if (err)
                             console.log(err);
-                        else {
-                            // console.log(result);
-                        }
                 });
             else
                 con.query(`insert into PUNISHMENTS (server_id, user_id, type, duration, severity, ticket_id, staff_id, username, datetime, reason) values (` +
@@ -59,9 +56,6 @@ function setUser(message, userID, type, reason = null, duration = -1, severity =
                     (err, result) => {
                         if (err)
                             console.log(err);
-                        else {
-                            // console.log(result);
-                        }
                 });
         });
 }

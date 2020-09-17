@@ -5,10 +5,8 @@ module.exports = function (path) {
         fs.unlink(path, function (err) {
             if (err)
                 reject(err);
-            else {
-                // console.log('File deleted: ', path);
+            else
                 resolve(true);
-            }
         });
     });
 }

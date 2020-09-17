@@ -12,15 +12,11 @@ function search(data) {
     return new Promise((resolve, reject) => {
         imgur.search(query, optionalParams)
             .then(json => {
-                // console.log(json);
                 let imagesArr = [];
 
                 let rng = Math.round(Math.random() * (json.data.length - 1));
 
-                // console.log(json.data, json.data.length);
-
                 const image = json.data[rng];
-                // console.log('Image:', image, rng);
 
                 if (image.images) {
                     if (data.flags['a']) {

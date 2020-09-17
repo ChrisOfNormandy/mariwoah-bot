@@ -18,5 +18,5 @@ function getDateString() {
 
 module.exports = function (string) {
     let str = `${getDateString()} "${string}"`;
-    // console.log(str);
+    console.log(str);
 }

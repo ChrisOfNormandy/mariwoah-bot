@@ -3,18 +3,16 @@ const con = connection.con;
 const servers = require('./servers');
 
 function setMotd(serverID, string) {
-    // console.log(string);
     if (string.length > 255)
         return;
+        
     servers.get(serverID)
         .then(server => {
             con.query(`update server set motd = "${string}" where id = "${serverID}";`, (err, result) => {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {
-                        // console.log(result);
-                    });
+                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {});
             });
         })
 }
@@ -26,15 +24,13 @@ function setPrefix(serverID, prefix) {
                 if (err)
                     console.log(err);
                 else
-                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {
-                        // console.log(result);
-                    });
+                    con.query(`select * from server where id = "${serverID}";`, (err, result) => {});
             });
         })
 }
 
 function getMotd(serverID) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         servers.get(serverID)
             .then(server => {
                 resolve(server.motd);
@@ -44,7 +40,7 @@ function getMotd(serverID) {
 }
 
 function getPrefix(serverID) {
-    return new Promise((resolve, reject) =>  {
+    return new Promise((resolve, reject) => {
         servers.get(serverID)
             .then(server => {
                 resolve(server.prefix);

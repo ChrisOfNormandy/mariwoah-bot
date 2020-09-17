@@ -172,7 +172,6 @@ function guildEmbed(message, guild) {
                 embed.setDescription('"' + (JSON.parse(guild.text_assets).motto || 'Do you know, the muffin man?') + '"');
 
                 embed.setThumbnail(guild.icon.toString());
-                // console.log(embed);
                 resolve({
                     embed
                 });
@@ -383,7 +382,6 @@ function getLore(message, data) {
 }
 
 function list(message, data) {
-    // console.log(data);
     return new Promise((resolve, reject) => {
         sql.server.guilds.list(message)
             .then(list => {
@@ -431,7 +429,6 @@ function join(message, data) {
                                 if (invites.length)
                                     sql.server.guilds.addMember(message, guild_name, message.author.id)
                                         .then(result => {
-                                            // console.log(result);
                                             if (result.status === true)
                                                 resolve({
                                                     value: chatFormat.response.guilds.join.success(message.author, guild_name)
@@ -474,7 +471,6 @@ function admin_join(message, data) {
                 .then(results => {
                     let values = [];
                     for (let i in results) {
-                        // console.log(results[i])
                         if (results[i].status === true) {
                             values.push({
                                 value: chatFormat.response.guilds.join.success(members[i], data.parameters.string.name)
@@ -554,7 +550,6 @@ function leave(message, data) {
 
                     sql.server.guilds.removeMember(message, guild.name, message.author.id)
                         .then(result => {
-                            // console.log(result);
                             if (result.status === false)
                                 resolve({
                                     value: chatFormat.response.guilds.leave.success(message.author, guild.name)
@@ -731,10 +726,7 @@ function update(message, data) {
                         arr.push(sql.server.guilds.updateMembers(message, guilds[i].name, null, true));
                     
                     Promise.all(arr)
-                        .then(results => {
-                            // console.log(results);
-                            resolve({values: results});
-                        })
+                        .then(results => resolve({values: results}))
                         .catch(e => reject(e));
                 })
                 .catch(e => reject(e));

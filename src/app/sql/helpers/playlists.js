@@ -9,7 +9,7 @@ function getDuration(data) {
         let dur = 0;
         for (let i in list)
             dur += Number(list[i].duration.totalSeconds);
-        // console.log(dur);
+
         return dur;
     }
 }
@@ -61,7 +61,7 @@ function removeSong(message, name, songURL) {
                     reject(null);
                 else
                     list = JSON.parse(data.list);
-                // console.log(songURL)
+
                 let newList = [];
                 let duration = 0;
                 for (let i in list) {
@@ -82,9 +82,6 @@ function removeSong(message, name, songURL) {
                                 con.query(`update PLAYLISTS set duration = ${time} where server_id = "${message.guild.id}" and name = "${name}";`, (err, result) => {
                                     if (err)
                                         console.log(err);
-                                    else {
-                                        // console.log(result);
-                                    }
                                 });
                             })
                             .catch(e => console.log(e));
