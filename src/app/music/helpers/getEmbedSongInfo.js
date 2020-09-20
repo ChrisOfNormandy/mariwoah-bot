@@ -64,20 +64,17 @@ module.exports = {
                     .catch(e => reject(e));
             }
             else {
-                if (data.arguments.join(' ') === 'this') {
+                if (data.arguments.join(' ').trim() === 'this') {
                     if (queue.has(message.guild.id)) {
                         let songs = queue.get(message.guild.id).songs;
-                        resolve(embedSongInfo(songs[0]));
+                        resolve(embedSongInfo(songs[0]))
                     }
-                    else {
+                    else
                         resolve(chatFormat.response.music.queue.no_active());
-                    }
                 }
                 else {
                     getSong.byName(message, data.arguments.join(' '))
-                        .then((song) => {
-                            resolve(embedSongInfo(song));
-                        })
+                        .then((song) => resolve(embedSongInfo(song)))
                         .catch(e => reject(e));
                 }
             }

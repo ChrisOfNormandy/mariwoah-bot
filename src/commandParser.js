@@ -1,7 +1,7 @@
 const config = require('../private/config');
 const adapter = require('./app/adapter');
 const commands = require('./commands');
-const commandList = adapter.common.bot.global.commandList;
+const commandList = require('./commandList');
 const getOptions = require('./app/common/bot/helpers/global/dataToOptionObject');
 
 function verify(message, properties, data, command) {
@@ -426,13 +426,14 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
+                        console.log(data[0].data_array)
                         let commandReturns = [];
                         for (let i in data)
                             commandReturns.push(parseCommands(client, message, data[i]));
                         
                         Promise.all(commandReturns)
                             .then(returns => {
-
+                                console.log(returns);
                                 for (let i in returns) {
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x].content) {

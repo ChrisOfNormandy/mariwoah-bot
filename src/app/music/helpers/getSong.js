@@ -112,7 +112,7 @@ module.exports = {
                 .catch(e => reject(e));
         });
     },
-    byName: function (message, songName, data) {
+    byName: function (message, songName) {
         return new Promise((resolve, reject) => {
             search(songName)
                 .then(songData => {

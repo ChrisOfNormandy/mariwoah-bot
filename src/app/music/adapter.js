@@ -1,4 +1,4 @@
-const commandList = require('../common/bot/helpers/global/commandList');
+const commandList = require('../../commandList');
 const playlist = require('./playlists/adapter');
 const roleManager = require('../rolemanagement/adapter');
 const chatFormat = require('../common/bot/helpers/global/chatFormat');
@@ -14,6 +14,7 @@ const stop = require('./helpers/functions/stop');
 const pause = require('./helpers/functions/pause');
 const join = require('./helpers/functions/join');
 const leave = require('./helpers/functions/leave');
+const download = require('./helpers/functions/download');
 
 const shuffle = require('../common/bot/helpers/global/shuffle');
 
@@ -30,7 +31,7 @@ function verify(message, permissionLevel) {
 function info(message, data) {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
-            .then(embed => resolve(commandFormat.valid([embed], embed)))
+            .then(embed => resolve(commandFormat.valid([embed], [embed])))
             .catch(e => reject(commandFormat.error([e], [chatFormat.response.music.info.error()])));
     });
 }
@@ -121,6 +122,7 @@ module.exports = {
     pause: (message) => { return pause.pause(message) },
     resume: (message) => { return pause.resume(message) },
     info,
+    download,
 
     pl_append,
     pl_create,

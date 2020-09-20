@@ -176,6 +176,9 @@ module.exports = {
     "songinfo": {
         run: (message, data) => adapter.music.info(message, data)
     },
+    "ytdl": {
+        run: (message, data) => adapter.music.download(data)
+    },
     "playlist": {
         run: (message, data) => adapter.music.playlistCommand(message, data)
     },
