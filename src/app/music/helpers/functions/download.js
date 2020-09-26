@@ -38,7 +38,7 @@ function download(data) {
         
         return new Promise((resolve, reject) => {
             Promise.all(arr)
-                .then(results => resolve(commandFormat.valid(results, [`Your upload will be here shortly!`, {files: results}])))
+                .then(results => resolve(commandFormat.valid(results, [`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`, {files: results}])))
                 .catch(e => reject(commandFormat.error([e], [])));
             });
     }       
@@ -47,7 +47,7 @@ function download(data) {
         getSong.byName({author: null}, data.arguments.join(' '))
             .then(song => {
                 get(song.url)
-                    .then(result => resolve(commandFormat.valid([result], [`Your upload will be here shortly!`, {files: [result]}])))
+                    .then(result => resolve(commandFormat.valid([result], [`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`, {files: [result]}])))
                     .catch(e => reject(commandFormat.error([e], [])));
             })
             .catch(e => reject(commandFormat.error([e], [])));
