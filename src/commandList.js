@@ -91,6 +91,11 @@ module.exports = {
                 permissionLevel: 0,
                 selfClear: true
             },
+            'ff': {
+                description: 'Oh god... Fifty-Fifty!',
+                permissionLevel: 0,
+                selfClear: true
+            },
             'roll': {
                 description: 'Gets a number between 1 and a provided value (default 6) a given amount of times (default once).',
                 permissionLevel: 0,

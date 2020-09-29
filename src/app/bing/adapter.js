@@ -1,3 +1,4 @@
 module.exports = {
-    search: require('./helpers/search')
+    search: require('./helpers/search'),
+    fiftyfifty: require('./helpers/fifty-fifty')
 }
