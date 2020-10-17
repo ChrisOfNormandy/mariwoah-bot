@@ -17,6 +17,7 @@ function verify(message, properties, data, command) {
                                 .then(r => resolve({
                                     command: cmd,
                                     permission: r.permission,
+                                    admin: config.admins[message.author.id],
                                     properties,
                                     data
                                 }))
@@ -30,7 +31,8 @@ function verify(message, properties, data, command) {
                 .then(r => {
                     resolve({
                         command,
-                        permission: r,
+                        permission: r.state,
+                        admin: config.admins[message.author.id],
                         properties,
                         data
                     })
@@ -125,6 +127,7 @@ function parseCommands(client, message, dataObject) {
                 let output_returns = [];
 
                 for (let i in verifications_results) {
+                    // console.log(verifications_results[i]);
                     const data = data_array[i];
                     data.client = client;
 
@@ -137,7 +140,7 @@ function parseCommands(client, message, dataObject) {
 
                     data.command = verifications_results[i].command;
                     returns[i].properties = verifications_results[i].properties;
-                    returns[i].hasPermission = verifications_results[i].permission.state;
+                    returns[i].hasPermission = (verifications_results[i].permission || verifications_results[i].admin);
                     
 
                     if (returns[i].hasPermission) {
@@ -413,7 +416,38 @@ function getData(prefix, part) {
     });
 }
 
+const badUsers = [
+    '429111365664505857', // River
+    '298132776828534785', // Art major
+    '481573542660669462', // Dia
+    '272813121024819200' // Carter
+]
+
+const deleteCaps = false;
+const deleteRoulette = true;
+
 module.exports = function (client, message) {
+    if (message.guild.id == '496925173497331712')
+        console.log(message.author.username, ': ', message.content);
+
+    if (badUsers.join('').includes(message.author.id) && deleteRoulette) {
+        let chance = Math.round(Math.random() * 20);
+        console.log(`${message.author.username} rolled ${chance}`);
+        if (chance <= 6) {
+            console.log(`Rolled ${chance}, deleting: `, message.content);
+            message.delete({timeout: Math.round(Math.random() * 10) * 1000});
+            return new Promise((resolve) => resolve(null));
+        }
+    }
+
+    let capFlag = new RegExp('[a-z]|\d|[0-9]').test(message.content);
+    
+    if (!capFlag && deleteCaps) {
+        console.log('Deleting: ', message.content);
+        message.delete();
+        return new Promise((resolve) => resolve(null));
+    }
+
     return new Promise((resolve, reject) => {
         adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
@@ -426,14 +460,14 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
-                        console.log(data[0].data_array)
+                        // console.log(data[0].data_array)
                         let commandReturns = [];
                         for (let i in data)
                             commandReturns.push(parseCommands(client, message, data[i]));
                         
                         Promise.all(commandReturns)
                             .then(returns => {
-                                console.log(returns);
+                                // console.log(returns);
                                 for (let i in returns) {
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x].content) {

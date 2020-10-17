@@ -401,6 +401,18 @@ module.exports = {
                 ],
                 selfClear: true
             },
+            'getroles': {
+                description: 'Get roles.',
+                permissionLevel: 0,
+            },
+            'gimme': {
+                description: 'Get roles.',
+                permissionLevel: 0,
+            },
+            'createrole': {
+                description: 'Get roles.',
+                permissionLevel: 0,
+            },
             page: [
                 [
                     'warn',
