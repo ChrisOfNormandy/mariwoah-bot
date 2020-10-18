@@ -77,10 +77,22 @@ function addSong(guild_id, user_id, playlistName, url, song) {
     });
 }
 
+function setVisibility(guild_id, name, value) {
+    return new Promise((resolve, reject) => {
+        con.query(`update PLAYLISTS set public = ${value} where server_id = "${guild_id}" and name = "${name}";`, (err, result) => {
+            if (err)
+                reject(err);
+            else
+                resolve(result);
+        })
+    });
+}
+
 module.exports = {
     get,
     list,
     create,
     remove,
-    addSong
+    addSong,
+    setVisibility
 }

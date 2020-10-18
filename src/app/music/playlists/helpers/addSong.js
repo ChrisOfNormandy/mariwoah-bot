@@ -14,20 +14,19 @@ function byName(message, playlistName, songName) {
 }
 
 function byURLs(message, playlistName, urls) {
+    let promiseArray = [];
+    for (let i in urls)
+        promiseArray.push(getSongObject.byUrl(message, urls[i]));
 
-    let arr = [];
-    for (let i in urls) {
-        arr.push(getSongObject.byUrl(message, urls[i]));
-    }
     return new Promise((resolve, reject) => {
-        Promise.all(arr)
-            .then(results => {
-                let arr_
-                for (let i in results) {
-                    arr_.push(sql.playlists.addSong(message, playlistName, results[i]))
-                }
-                Promise.all(arr_)
-                    .then(r => resolve(results))
+        Promise.all(promiseArray)
+            .then(songs => {
+                let addSongPromiseArray = [];
+                for (let i in songs)
+                    addSongPromiseArray.push(sql.playlists.addSong(message.guild.id, message,author.id, playlistName, songs[i].url, songs[i]));
+
+                Promise.all(addSongPromiseArray)
+                    .then(r => resolve(r))
                     .catch(e => reject(e));
             })
             .catch(e => reject(e));
@@ -35,8 +34,9 @@ function byURLs(message, playlistName, urls) {
 }
 
 function bySong(message, playlistName, song) {
+    console.log(song);
     return new Promise((resolve, reject) => {
-        sql.playlists.append(message, playlistName, song)
+        sql.playlists.addSong(message.guild.id, message.author.id, playlistName, song.url, song)
             .then(r => resolve(song))
             .catch(e => reject(e));
     });

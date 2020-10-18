@@ -88,11 +88,17 @@ module.exports = {
 
         switch (command) {
             case 'play': return playlist.play(message, data);
-            case 'list': return playlist.list(message.guild.id, data.arguments[0]);
+            case 'list': return playlist.list(
+                (!!data.parameters.string['guild'])
+                    ? data.parameters.string['guild']
+                    : message.guild.id
+                , data.arguments[0]
+            );
             case 'create':  return playlist.create(message, data.arguments[0]);
             case 'add': return playlist.addSong(message, data);
             case 'delete': return playlist.delete(message, data.arguments[0]);
             case 'remove': return playlist.remove(message, data.arguments[0], data.urls[0]);
+            case 'access': return playlist.setVisibility(message.guild.id, data.arguments[0], !!data.flags['p']);
         }
     }
 }

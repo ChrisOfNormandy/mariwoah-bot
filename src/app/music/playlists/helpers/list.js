@@ -44,7 +44,7 @@ function all(guild_id) {
                     .then(list => {
                         for (let i in playlists) {
                             let index = Number(i) + 1;
-                            embed.addField(`${index}. ${playlists[i].name}`, `${list[i].length} song${list[i].length != 1 ? 's' : ''}.`);
+                            embed.addField(`${index}. ${playlists[i].name}`, `${list[i].length} song${list[i].length != 1 ? 's' : ''} | Created by: <@${playlists[i].user_id}>`);
                         }
 
                         resolve(commandFormat.valid([playlists, list], [embed]));

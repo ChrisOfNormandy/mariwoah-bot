@@ -6,7 +6,11 @@ module.exports = function (message, data) {
     return new Promise((resolve, reject) => {
         let name = data.arguments[0];
 
-        sql.playlists.get(message.guild.id, name)
+        const guild_id = (!!data.parameters.string['guild'])
+            ? data.parameters.string['guild']
+            : message.guild.id;
+
+        sql.playlists.get(guild_id, name)
             .then(list => {
                 if (list === null)
                     reject(commondFormat.error([], [`Could not find a playlist named ${name}.`]));

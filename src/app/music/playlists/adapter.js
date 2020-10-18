@@ -15,13 +15,14 @@ module.exports = {
             let playlistName = data.arguments[0];
 
             if (data.urls.length) {
-                resolve(append.byURLs(message, playlistName, data.urls));
+                resolve(addSong.byURLs(message, playlistName, data.urls));
             }
             else {
                 let songName = data.arguments.slice(1).join(' ');
                 if (songName == 'this') {
                     if (queue.has(message.guild.id)) {
-                        append.bySong(message, playlistName, queue.get(message.guild.id).songs[0].song)
+                        console.log(queue.get(message.guild.id).songs)
+                        addSong.bySong(message, playlistName, queue.get(message.guild.id).songs[0])
                             .then(song => {
                                 let embed = new Discord.MessageEmbed()
                                     .setTitle(`${song.title}`)
@@ -29,13 +30,12 @@ module.exports = {
                                     .setThumbnail(song.thumbnail.url)
                                     .setURL(song.url)
                                     .addField(':writing_hand: Success!', `Added song to the playlist.`);
-                                resolve({embed});
+                                resolve(commandFormat.valid([song], [embed]));
                             })
-                            .catch(e => reject(e));
+                            .catch(e => reject(commandFormat.error([e], [])));
                     }
-                    else {
-                        resolve({value: chatFormat.response.music.queue.no_active()});
-                    }
+                    else
+                        reject(commandFormat.error([], [chatFormat.response.music.queue.no_active()]));
                 }
                 else {
                     addSong.byName(message, playlistName, songName)
@@ -56,9 +56,10 @@ module.exports = {
                                 resolve(commandFormat.valid([], [embed]));
                             }
                         })
-                        .catch(e => reject(e));
+                        .catch(e => reject(commandFormat.error([e], [])));
                 }
             }
         });
-    }
+    },
+    setVisibility: require('./helpers/setVisibility')
 }
