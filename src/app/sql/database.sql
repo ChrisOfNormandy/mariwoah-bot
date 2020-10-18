@@ -53,6 +53,7 @@ create table PLAYLISTS (
     server_id varchar(18) not null,
     user_id varchar(18) not null,
     name varchar(32) not null,
+    public bool default false,
     primary key (server_id, name),
     foreign key (server_id, user_id) references USERS(server_id, user_id)
 );
