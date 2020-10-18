@@ -153,37 +153,37 @@ module.exports = {
     // Music
 
     "play": {
-        run: (message, data) => adapter.music.append.fetch(message, data)
+        run: (message, data) => adapter.music.queue.addSong(message, data)
     },
     "join": {
-        run: (message, data) => adapter.music.join(message)
+        run: (message, data) => adapter.music.voiceChannel.join(message)
     },
     "leave": {
-        run: (message, data) => adapter.music.leave(message)
+        run: (message, data) => adapter.music.voiceChannel.leave(message)
     },
     "skip": {
-        run: (message, data) => adapter.music.skip(message)
+        run: (message, data) => adapter.music.queue.skip(message)
     },
     "stop": {
-        run: (message, data) => adapter.music.stop(message)
+        run: (message, data) => adapter.music.queue.stop(message)
     },
     "queue": {
-        run: (message, data) => adapter.music.list(message, data)
+        run: (message, data) => adapter.music.queue.list(message, data)
     },
     "pause": {
-        run: (message, data) => adapter.music.pause(message)
+        run: (message, data) => adapter.music.queue.pause(message)
     },
     "resume": {
-        run: (message, data) => adapter.music.resume(message)
+        run: (message, data) => adapter.music.queue.resume(message)
     },
     "songinfo": {
-        run: (message, data) => adapter.music.info(message, data)
+        run: (message, data) => adapter.music.song.info(message, data)
     },
     "ytdl": {
-        run: (message, data) => adapter.music.download(data)
+        run: (message, data) => adapter.music.song.download(data)
     },
     "playlist": {
-        run: (message, data) => adapter.music.playlistCommand(message, data)
+        run: (message, data) => adapter.music.playlist(message, data)
     },
 
     // // Memes

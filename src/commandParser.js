@@ -426,7 +426,6 @@ module.exports = function (client, message) {
 
                 Promise.all(data)
                     .then(data => {
-                        console.log(data[0].data_array)
                         let commandReturns = [];
                         for (let i in data)
                             commandReturns.push(parseCommands(client, message, data[i]));
@@ -451,6 +450,7 @@ module.exports = function (client, message) {
                                 resolve(returns);
                             })
                             .catch(e => {
+                                console.log(e);
                                 for (let i in e.content) {
                                     message.channel.send(e.content[i])
                                 }

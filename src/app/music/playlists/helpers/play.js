@@ -1,33 +1,26 @@
-const shuffle = require('../../../common/bot/helpers/global/shuffle');
 const sql = require('../../../sql/adapter');
 const append = require('../../helpers/queue/append');
-const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const commondFormat = require('../../../common/bot/helpers/global/commandFormat');
 
 module.exports = function (message, data) {
     return new Promise((resolve, reject) => {
-        let name = data.arguments[1];
+        let name = data.arguments[0];
 
-        sql.playlists.get(message, name)
-            .then(db_data => {
-                let list;
-                if (db_data.list != 'null') 
-                    list = JSON.parse(db_data.list)
-                else {
-                    list = [];
-                }
-
-                if (!list.length)
-                    reject(chatFormat.response.music.playlist.no_data());
-                else {
-
-                    if (data.flags['s']) {
-                        shuffle(list)
-                            .then(array => resolve(append(message, null, array, data.flags)))
-                            .catch(e => reject(e));
+        sql.playlists.get(message.guild.id, name)
+            .then(list => {
+                if (list === null)
+                    reject(commondFormat.error([], [`Could not find a playlist named ${name}.`]));
+                else {                    
+                    let song;
+                    let songs = [];
+                    for (let i in list) {
+                        song = JSON.parse(list[i].song);
+                        songs.push(song);
                     }
-                    else {
-                        resolve(append(message, null, list, data.flags));
-                    }
+
+                    append(message, songs, data.flags)
+                        .then(res => resolve(res))
+                        .catch(e => reject(e));
                 }
             })
             .catch(e => reject(e));
