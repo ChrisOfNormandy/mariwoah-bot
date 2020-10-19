@@ -1,80 +1,36 @@
 const config = require('../private/config');
 const adapter = require('./app/adapter');
 const commands = require('./commands');
-const commandList = require('./commandList');
 const getOptions = require('./app/common/bot/helpers/global/dataToOptionObject');
 
 function verify(message, properties, data, command) {
     return new Promise((resolve, reject) => {
-        if (!properties) {
-            for (let c in commandList) {
-                for (let cmd in commandList[c].commands) {
-                    for (let alt in commandList[c].commands[cmd].alternatives) {
-                        if (commandList[c].commands[cmd].alternatives[alt] == command) {
-                            command = cmd;
-                            properties = commandList[c].commands[cmd]
-                            verify(message, properties, data, command)
-                                .then(r => resolve({
-                                    command: cmd,
-                                    permission: r.permission,
-                                    properties,
-                                    data
-                                }))
-                                .catch(e => reject(e));
-                        }
-                    }
-                }
-            }
-        } else {
-            adapter.rolemanagement.verifyPermission(message, message.author.id, properties.permissionLevel)
-                .then(r => {
-                    resolve({
-                        command,
-                        permission: r,
-                        properties,
-                        data
-                    })
+        adapter.rolemanagement.verifyPermission(message, message.author.id, properties.permissionLevel)
+            .then(r => {
+                resolve({
+                    command,
+                    permission: r,
+                    properties,
+                    data
                 })
-                .catch(e => {
-                    message.channel.send(e);
-                    reject(e);
-                });
-        }
+            })
+            .catch(e => {
+                message.channel.send(e);
+                reject(e);
+            });
     });
 }
 
-function getCommon(name) {
-    return commandList.common.commands[name];
-}
-
-function getRoleManager(name) {
-    return commandList.rolemanager.commands[name];
-}
-
-function getMusic(name) {
-    return commandList.music.commands[name];
-}
-
-function getMinigames(name, section = null) {
-    return (section == null) ?
-        commandList.minigames.commands[name] :
-        commandList.minigames.subcommands[section].commands;
-}
-
-function getMeme(name) {
-    return commandList.memes.commands[name];
-}
-// function getDungeons(name) {
-//     return commandList.dungeons.commands[name];
-// }
-function getOther(name, subcommand) {
-    try {
-        return (subcommand[0])
-            ? commandList[name].subcommands[subcommand[0]]
-            : commandList[name].commands[name];
-    } catch {
-        return undefined;
+function getProperties(command) {
+    if (commands[command])
+        return commands[command];
+    
+    for (let i in commands) {
+        if (commands[i].alternatives.contains[command])
+            return commands[i];
     }
+
+    return null;
 }
 
 function execute_command(client, message, data) {
@@ -104,12 +60,9 @@ function parseCommands(client, message, dataObject) {
         let verifications = [];
 
         for (let i in data_array) {
-            properties = getCommon(data_array[i].command)
-            || getRoleManager(data_array[i].command)
-            || getMusic(data_array[i].command)
-            || getMinigames(data_array[i].command)
-            || getMeme(data_array[i].command)
-            || getOther(data_array[i].command, data_array[i].arguments);
+            properties = getProperties(data_array[i].command);
+            if (properties === null || !properties.enabled)
+                continue;
 
             returns[i] = {
                 properties,
@@ -441,6 +394,13 @@ module.exports = function (client, message) {
                                                     let options = getOptions(returns[i].dataObject.data_array[x], returns[i].values[x].input.options)
                                                     if (options.selfClear)
                                                         msg.delete();
+                                                    let settings = commands[returns[i].dataObject.data_array[x].command].settings;
+
+                                                    if (settings.commandClear)
+                                                        message.delete({timeout: settings.commandClear.delay * 1000})
+                                                    if (settings.responseClear)
+                                                        msg.delete({timeout: settings.responseClear.delay * 1000});
+                                                    
                                                 })
                                                 .catch(e => reject(e));
                                         }
