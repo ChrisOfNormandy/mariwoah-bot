@@ -22,18 +22,13 @@ function verify(message, properties, data, command) {
 }
 
 function getProperties(command) {
-    if (commands[command])
-        return commands[command];
-    
-    for (let i in commands) {
-        if (commands[i].alternatives.contains[command])
-            return commands[i];
-    }
-
-    return null;
+    let filter = commands.filter((obj) => {return obj.commands.includes(command)});
+    return (filter.length)
+        ? filter[0]
+        : null;
 }
 
-function execute_command(client, message, data) {
+function execute_command(message, data) {
    
     /*
         Commands should return:
@@ -44,9 +39,7 @@ function execute_command(client, message, data) {
         }
     */
 
-    return (commands[data.command])
-        ? commands[data.command].run(message, data)
-        : {values: [], content: [], options: {}}
+    return data.properties.run(message, data);
 }
 
 function parseCommands(client, message, dataObject) {
@@ -81,6 +74,8 @@ function parseCommands(client, message, dataObject) {
                     const data = data_array[i];
                     data.client = client;
 
+                    data.properties = verifications_results[i].properties;
+
                     data.mentions.members.forEach((v, k, m) => {
                         data.mentions.members.set(k, message.guild.members.cache.get(k));
                     });
@@ -88,13 +83,11 @@ function parseCommands(client, message, dataObject) {
                         data.mentions.roles.set(k, message.guild.roles.cache.get(k));
                     });
 
-                    data.command = verifications_results[i].command;
                     returns[i].properties = verifications_results[i].properties;
                     returns[i].hasPermission = verifications_results[i].permission.state;
                     
-
                     if (returns[i].hasPermission) {
-                        output_returns.push(execute_command(client, message, data));
+                        output_returns.push(execute_command(message, data));
 
                         for (let val in outputVariables.cache) {
 
@@ -385,7 +378,6 @@ module.exports = function (client, message) {
                         
                         Promise.all(commandReturns)
                             .then(returns => {
-                                console.log(returns);
                                 for (let i in returns) {
                                     for (let x in returns[i].values) {
                                         for (let l in returns[i].values[x].content) {
