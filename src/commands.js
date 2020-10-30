@@ -372,6 +372,45 @@ module.exports = [
         enabled: true,
         run: (message, data) => adapter.rolemanagement.setRoles.setRole(message, data)
     },
+    "getroles": {
+        run: (message, data) => {
+            let str = '';
+            message.guild.roles.cache.forEach((v, k, m) => {
+                str += `ID: ${k} | Name: ${v.name}\n`;
+            });
+            console.log(str);
+        }
+    },
+    "gimme": {
+        run: (message, data) => {
+            // console.log('ROLE', data.mentions.roles.entries().next().value[0])
+            return new Promise((resolve, reject) => {
+                message.guild.roles.fetch(data.mentions.roles.entries().next().value[0])
+                    .then(role => {
+                        message.guild.members.cache.get(message.author.id).roles.add(message.guild.roles.resolve(role))
+                            .then(r => resolve(null))
+                            .catch(e => reject(e));
+                    })
+                    .catch(e => reject(e));
+            });
+        }
+    },
+    "createrole": {
+        run: (message, data) => {
+            return new Promise((resolve, reject) => {
+                message.guild.roles.create({
+                    data: {
+                        name: data.arguments[0]
+                    }
+                })
+                .then(r => {
+                    console.log(r);
+                    resolve(null);
+                })
+                .catch(e => reject(e));
+            });
+        }
+    },
     // case 'timeout': {
     //     switch (data.arguments[0]) {
     //         case 'roles': {
