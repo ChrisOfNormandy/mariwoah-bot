@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const commandFormat = require('../../common/bot/helpers/global/commandFormat');
+const noise = require('../../common/bot/helpers/global/noise');
 const search = require('./search');
 const queries = require('../../../../private/fifty-fifty_config.json');
 
@@ -34,9 +35,9 @@ function launch(message, data) {
         let newData = data;
         newData.arguments = [];
         newData.arguments.push(query.value);
-        newData.parameters.integer['results'] = 30;
-        if (query.type == 1)
-            newData.flags['n'] = true;
+        newData.parameters.integer['results'] = 50;
+
+        newData.flags['n'] = (query.type == 1);
 
         search(newData)
             .then(res => {

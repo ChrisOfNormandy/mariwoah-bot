@@ -17,20 +17,26 @@ function search(data) {
             nsfw: !!data.flags['n'],
             gif: !!data.flags['g']
         })
-        .then((res) => {
+        .then(res => {
+            let resImages = [];
+            for (let i in res.length)
+                if (!!res)
+                    resImages.push(res[i]);
+
+
             let results = data.parameters.integer['post'] || 1;
-            if (results > res.length)
-                results = res.length;
+            if (results > resImages.length)
+                results = resImages.length;
 
             let count = 0;
             let rng = 0;
             let result_arr = [];
-            let images = res;
+            let images = resImages;
 
             let timeout = 0;
 
             while (count < results && timeout < 20) {
-                rng = Math.round(Math.random() * res.length) - 1;
+                rng = Math.round(Math.random() * resImages.length) - 1;
                 if (images[rng] == null) {
                     timeout++;
                     continue;

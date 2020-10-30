@@ -25,6 +25,7 @@ module.exports = {
         getVoiceChannel: require('./helpers/global/getVoiceChannel'),
         intToTimeString: require('./helpers/global/intToTimeString'),
         mapToJson: require('./helpers/global/mapToJson'),
+        noise: require('./helpers/global/noise'),
         shuffle: require('./helpers/global/shuffle'),
         startup: require('./helpers/global/startup')
     }

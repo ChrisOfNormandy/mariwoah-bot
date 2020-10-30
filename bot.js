@@ -1,6 +1,7 @@
 const adapter = require('./src/app/adapter');
 const commandParser = require('./src/commandParser');
 // const commandLine = require('./private/commandLine');
+const debug = require('./debug');
 
 const client = adapter.common.bot.global.startup.run();
 
@@ -10,6 +11,8 @@ client.on('ready', () => {
     // commandLine.query();
 
     client.user.setActivity(`${client.users.cache.size} epic gamers.`, {type: 'WATCHING'});
+
+    debug.run();
 });
 
 client.on('message', async message => {
