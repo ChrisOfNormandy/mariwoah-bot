@@ -7,7 +7,7 @@ function pause(message) {
     if (!activeQueue || !activeQueue.dispatcher)
         return commandFormat.error([], [chatFormat.response.music.pause.no_stream()]);
 
-    dispatcher.pause();
+    activeQueue.dispatcher.pause();
     return commandFormat.valid([], [chatFormat.response.music.pause.yes()]);
 }
 
@@ -16,7 +16,7 @@ function resume(message) {
     if (!activeQueue || !activeQueue.dispatcher)
         return commandFormat.error([], [chatFormat.response.music.pause.no_stream()]);
 
-    dispatcher.resume();
+    activeQueue.dispatcher.resume();
     return commandFormat.valid([], [chatFormat.response.music.pause.no()]);
 }
 

@@ -1,6 +1,4 @@
-const commandList = require('../../commandList');
 const playlist = require('./playlists/adapter');
-const roleManager = require('../rolemanagement/adapter');
 const chatFormat = require('../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../common/bot/helpers/global/commandFormat');
 
@@ -18,16 +16,6 @@ const download = require('./helpers/functions/download');
 
 const shuffle = require('../common/bot/helpers/global/shuffle');
 
-const pl = commandList.music.commands.playlist.subcommands;
-
-function verify(message, permissionLevel) {
-    return new Promise((resolve, reject) => {
-        roleManager.verifyPermission(message, message.author.id, permissionLevel)
-            .then(r => resolve(r))
-            .catch(e => reject(e));
-    });
-}
-
 function info(message, data) {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
@@ -36,29 +24,7 @@ function info(message, data) {
     });
 }
 
-function pl_append(message, data) {
-    return playlist.append(message, data)
-}
-function pl_create(message, playlistName) {
-    return playlist.create(message, playlistName)
-}
-function pl_delete(message, playlistName) {
-    return playlist.delete(message, playlistName)
-}
-function pl_listAll(message) {
-    return playlist.listAll(message)
-}
-function pl_list(message, playlistName) {
-    return playlist.list(message, playlistName)
-}
-function pl_remove(message, playlistName, songURL) {
-    return playlist.remove(message, playlistName, songURL)
-}
-function pl_play(message, data) {
-    return playlist.play(message, data)
-}
-
-function fetch(message, data) {
+function addSong(message, data) {
     if (data.urls.length)
         return byURLArray(message, data);
     return (data.flags['p'])
@@ -71,14 +37,6 @@ function byName(message, data) {
         getSong.byName(message, data.arguments.join(' '), data)
             .then(song => resolve(append(message, [song])))
             .catch(e => reject(e));
-    });
-}
-
-function byURL(message, songURL) {
-    return new Promise((resolve, reject) => {
-        getSong.byURL(message, songURL)
-            .then(song => resolve(append(message, [song])))
-            .catch(e => reject(e))
     });
 }
 
@@ -107,72 +65,40 @@ function byPlaylist(message, data) {
 }
 
 module.exports = {
-    append: {
-        fetch,
-        byName,
-        byURL,
-        byURLArray,
-        byPlaylist
+    voiceChannel: {
+        join,
+        leave
     },
-    skip,
-    list,
-    stop,
-    join,
-    leave,
-    pause: (message) => { return pause.pause(message) },
-    resume: (message) => { return pause.resume(message) },
-    info,
-    download,
-
-    pl_append,
-    pl_create,
-    pl_delete,
-    pl_listAll,
-    pl_list,
-    pl_remove,
-    pl_play,
-
-    playlistCommand: (message, data) => {
+    queue: {
+        skip,
+        list,
+        stop,
+        pause: (message) => { return pause.pause(message) },
+        resume: (message) => { return pause.resume(message) },
+        addSong
+    },
+    song: {
+        info,
+        download,
+    },
+    playlist: (message, data) => {
         const command = (data.arguments.length) ? data.arguments[0] : '';
 
-        return new Promise((resolve, reject) => {
-            if (!pl[command].permissionLevel)
-                reject(null);
-            else {
-                verify(message, pl[command].permissionLevel)
-                switch (command) {
-                    case 'play': {
-                        resolve(pl_play(message, data))
-                        break;
-                    }
-                    case 'list': {
-                        if (!data.arguments[1])
-                            resolve(pl_listAll(message));
-                        else
-                            resolve(pl_list(message, data.arguments[1]));
-                        break;
-                    }
-                    case 'create': {
-                        resolve(pl_create(message, data.arguments[1]));
-                        break;
-                    }
-                    case 'add': {
-                        resolve(pl_append(message, data));
-                        break;
-                    }
-                    case 'delete': {
-                        resolve(pl_delete(message, data.arguments[1]))
-                        break;
-                    }
-                    case 'remove': {
-                        resolve(pl_remove(message, data.arguments[1], data.urls[0]))
-                    }
-                    default: {
-                        reject(null);
-                        break;
-                    }
-                }
-            }
-        });
+        data.arguments = data.arguments.slice(1);
+
+        switch (command) {
+            case 'play': return playlist.play(message, data);
+            case 'list': return playlist.list(
+                (!!data.parameters.string['guild'])
+                    ? data.parameters.string['guild']
+                    : message.guild.id
+                , data.arguments[0]
+            );
+            case 'create':  return playlist.create(message, data.arguments[0]);
+            case 'add': return playlist.addSong(message, data);
+            case 'delete': return playlist.delete(message, data.arguments[0]);
+            case 'remove': return playlist.remove(message, data.arguments[0], data.urls[0]);
+            case 'access': return playlist.setVisibility(message.guild.id, data.arguments[0], !!data.flags['p']);
+        }
     }
 }

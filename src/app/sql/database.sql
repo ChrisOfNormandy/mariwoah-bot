@@ -51,12 +51,23 @@ create table PUNISHMENTS (
 
 create table PLAYLISTS (
     server_id varchar(18) not null,
+    user_id varchar(18) not null,
     name varchar(32) not null,
-    list json,
-    duration int default 0,
-    creator_id varchar(18),
+    public bool default false,
     primary key (server_id, name),
-    foreign key (server_id, creator_id) references USERS(server_id, user_id)
+    foreign key (server_id, user_id) references USERS(server_id, user_id)
+);
+
+create table PLAYLIST_SONGS (
+    server_id varchar(18) not null,
+    user_id varchar(18) not null,
+    playlist varchar(32) not null,
+    url varchar(255),
+    list_index int,
+    song json,
+    primary key (server_id, playlist, url),
+    foreign key (server_id, user_id) references USERS(server_id, user_id),
+    foreign key (server_id, playlist) references PLAYLISTS(server_id, name)
 );
 
 create table MINIGAME_FISHING (
