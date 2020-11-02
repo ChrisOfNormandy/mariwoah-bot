@@ -1,4 +1,5 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
+const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const Discord = require('discord.js');
 const sql = require('../../../sql/adapter');
 
@@ -11,7 +12,7 @@ module.exports = function (message, playlistName) {
                     .setTitle('Created new playlist')
                     .setColor(chatFormat.colors.byName.green)
                     .addField('Successfully created playlist:', playlistName);
-                resolve({ embed });
+                resolve(commandFormat.valid([res], [embed]));
             })
             .catch(e => {
                 console.log(e);
@@ -19,7 +20,7 @@ module.exports = function (message, playlistName) {
                     .setTitle('Error')
                     .setColor(chatFormat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
-                resolve({ embed });
+                reject(commandFormat.error([e], [embed]));
             });
     });
 }

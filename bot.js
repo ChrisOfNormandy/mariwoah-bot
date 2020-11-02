@@ -9,7 +9,8 @@ client.on('ready', () => {
 
     // commandLine.query();
 
-    client.user.setActivity(`${client.users.cache.size} epic gamers.`, {type: 'WATCHING'});
+    // client.user.setActivity(`${client.users.cache.size} epic gamers.`, {type: 'WATCHING'});
+    client.user.setActivity(`only voice channels, apparently.`, {type: 'WATCHING'});
 });
 
 client.on('message', async message => {
