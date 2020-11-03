@@ -430,7 +430,6 @@ module.exports = [
     // case 'inventory': return adapter.minigames.inventory.find(message, data);
 
     // Music
-
     {
         commands: ["play", "p"],
         context: "music",
@@ -583,9 +582,7 @@ module.exports = [
         enabled: true,
         run: (message, data) => adapter.music.playlist(message, data)
     },
-
-    // // Memes
-
+    // Memes
     {
         commands: ["f"],
         context: "",
@@ -599,8 +596,32 @@ module.exports = [
         enabled: true,
         run: (message, data) => adapter.memes.memeDispatch('f')
     },
-    // case 'fuck': return adapter.memes.memeDispatch('fuuu');
-    // case 'yey': return adapter.memes.memeDispatch('yey');
+    {
+        commands: ["fuck", "fuuu"],
+        context: "",
+        description: "",
+        syntax: "",
+        permissionLevel: 0,
+        arguments: [],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.memes.memeDispatch('fuuu')
+    },
+    {
+        commands: ["yey"],
+        context: "",
+        description: "",
+        syntax: "",
+        permissionLevel: 0,
+        arguments: [],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.memes.memeDispatch('yey')
+    },
     {
         commands: ["thowonk"],
         context: "",
@@ -665,7 +686,31 @@ module.exports = [
         settings: {},
         enabled: true,
         run: (message, data) => adapter.memes.memeDispatch('extra_thicc')
+    },
+    {
+        commands: ["crabrave", "cr"],
+        context: "",
+        description: "",
+        syntax: "",
+        permissionLevel: 0,
+        arguments: [],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.music.queue.addSong(message, {urls: ['https://www.youtube.com/watch?v=LDU_Txk06tM'], flags: {}})
+    },
+    {
+        commands: ["theriddle", "tr"],
+        context: "",
+        description: "",
+        syntax: "",
+        permissionLevel: 0,
+        arguments: [],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.music.queue.addSong(message, {urls: ['https://www.youtube.com/watch?v=9DXMDzqA-UI'], flags: {}})
     }
-    // case 'crabrave': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=LDU_Txk06tM');
-    // case 'theriddle': return adapter.music.append.byURL(message, 'https://www.youtube.com/watch?v=9DXMDzqA-UI');
 ]
