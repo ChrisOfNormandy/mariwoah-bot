@@ -297,6 +297,38 @@ module.exports = [
     //             .catch(e => reject(`Cannot unban user.\n${e.message}`));
     //     });
     {
+        commands: ["addrole"],
+        context: "server",
+        description: "Add a role to a user.",
+        syntax: "{c} {0} {1}",
+        permissionLevel: 3,
+        arguments: [
+            {"@User(s)": "Pinged user(s)."},
+            {"@Role(s):": "Pinged role(s)."}
+        ],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.rolemanagement.setRoles_server.add(message, data)
+    },
+    {
+        commands: ["removerole"],
+        context: "server",
+        description: "Remove a role from a user.",
+        syntax: "{c} {0} {1}",
+        permissionLevel: 3,
+        arguments: [
+            {"@User(s)": "Pinged user(s)."},
+            {"@Role(s):": "Pinged role(s)."}
+        ],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.rolemanagement.setRoles_server.remove(message, data)
+    },
+    {
         commands: ["promote"],
         context: "server",
         description: "Promotes a user one level, or to the specified level. Min 0, max 4.",

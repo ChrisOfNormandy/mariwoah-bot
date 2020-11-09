@@ -359,7 +359,7 @@ function getData(prefix, part) {
     });
 }
 
-module.exports = function (client, message) {
+module.exports = (client, message) => {
     return new Promise((resolve, reject) => {
         adapter.sql.server.general.getPrefix(message.guild.id)
             .then(prefix => {
@@ -406,6 +406,8 @@ module.exports = function (client, message) {
                                 for (let i in e.content) {
                                     message.channel.send(e.content[i])
                                 }
+
+                                reject(e);
                             });
                     })
                     .catch(e => reject(e));
