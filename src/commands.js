@@ -28,7 +28,7 @@ module.exports = [
         syntax: "{c} {*0}",
         permissionLevel: 3,
         arguments: [
-            {"*@User(s)": "User ping(s)."}
+            { "*@User(s)": "User ping(s)." }
         ],
         properties: [],
         flags: [],
@@ -47,7 +47,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 0,
         arguments: [
-            {"emoji": "The name of the emoji, such as 'trash'."}
+            { "emoji": "The name of the emoji, such as 'trash'." }
         ],
         properties: [],
         flags: [],
@@ -62,7 +62,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 0,
         arguments: [
-            {"tag": "The tag to search for on Imgur."}
+            { "tag": "The tag to search for on Imgur." }
         ],
         properties: [],
         flags: [],
@@ -98,8 +98,8 @@ module.exports = [
         syntax: "{c} {*0} {+1}",
         permissionLevel: 0,
         arguments: [
-            {"*Sides": "The number to roll to, default being 6."},
-            {"*Count": "How many rolls should be made. Requires sides declairation. Max 50."}
+            { "*Sides": "The number to roll to, default being 6." },
+            { "*Count": "How many rolls should be made. Requires sides declairation. Max 50." }
         ],
         properties: [],
         flags: [],
@@ -114,7 +114,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 0,
         arguments: [
-            {"List": "Comma separated values list - ex: 1,2,3,4,5"}
+            { "List": "Comma separated values list - ex: 1,2,3,4,5" }
         ],
         properties: [],
         flags: [],
@@ -123,8 +123,8 @@ module.exports = [
         run: (message, data) => {
             return new Promise((resolve, reject) => {
                 adapter.common.bot.global.shuffle(data.arguments[0].split(','))
-                    .then(arr => resolve({values: arr, content: [arr.join(', ')]}))
-                    .catch(e => reject({rejections: [e], content: []}));
+                    .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
+                    .catch(e => reject({ rejections: [e], content: [] }));
             });
         }
     },
@@ -155,7 +155,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 1,
         arguments: [
-            {"@User": "User ping."}
+            { "@User": "User ping." }
         ],
         properties: [],
         flags: [],
@@ -177,7 +177,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 4,
         arguments: [
-            {"MOTD": "A stringified JSON Discord.MessageEmbed object. See: https://discordjs.guide/popular-topics/embeds.html"}
+            { "MOTD": "A stringified JSON Discord.MessageEmbed object. See: https://discordjs.guide/popular-topics/embeds.html" }
         ],
         properties: [],
         flags: [],
@@ -206,7 +206,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 4,
         arguments: [
-            {"Prefix": "Any standard keyboard character / symbol."}
+            { "Prefix": "Any standard keyboard character / symbol." }
         ],
         properties: [],
         flags: [],
@@ -247,15 +247,15 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 1,
         arguments: [
-            {"Query": "Search string, so whatever you would type in the search bar."}
+            { "Query": "Search string, so whatever you would type in the search bar." }
         ],
         properties: [
-            {"^results": "How many images to pick from."},
-            {"^post": "How many images to return."}
+            { "^results": "How many images to pick from." },
+            { "^post": "How many images to return." }
         ],
         flags: [
-            {"n": "safeSearch = off"},
-            {"g": "search for animated images (gifs) only."}
+            { "n": "safeSearch = off" },
+            { "g": "search for animated images (gifs) only." }
         ],
         settings: {},
         enabled: true,
@@ -303,8 +303,8 @@ module.exports = [
         syntax: "{c} {0} {1}",
         permissionLevel: 3,
         arguments: [
-            {"@User(s)": "Pinged user(s)."},
-            {"@Role(s):": "Pinged role(s)."}
+            { "@User(s)": "Pinged user(s)." },
+            { "@Role(s):": "Pinged role(s)." }
         ],
         properties: [],
         flags: [],
@@ -319,8 +319,8 @@ module.exports = [
         syntax: "{c} {0} {1}",
         permissionLevel: 3,
         arguments: [
-            {"@User(s)": "Pinged user(s)."},
-            {"@Role(s):": "Pinged role(s)."}
+            { "@User(s)": "Pinged user(s)." },
+            { "@Role(s):": "Pinged role(s)." }
         ],
         properties: [],
         flags: [],
@@ -329,14 +329,27 @@ module.exports = [
         run: (message, data) => adapter.rolemanagement.setRoles_server.remove(message, data)
     },
     {
+        commands: ["reactrole"],
+        context: "server",
+        description: "Role reactions.",
+        syntax: "{c} {0}",
+        permissionLevel: 4,
+        arguments: [],
+        properties: [],
+        flags: [],
+        settings: {},
+        enabled: true,
+        run: (message, data) => adapter.rolemanagement.reactRole.send(message, data)
+    },
+    {
         commands: ["promote"],
         context: "server",
         description: "Promotes a user one level, or to the specified level. Min 0, max 4.",
         syntax: "{c} {0} {*1}",
         permissionLevel: 3,
         arguments: [
-            {"@User(s)": "Pinged user(s)."},
-            {"*Level": "Permission level. Max 0, min 4."}
+            { "@User(s)": "Pinged user(s)." },
+            { "*Level": "Permission level. Max 0, min 4." }
         ],
         properties: [],
         flags: [],
@@ -351,8 +364,8 @@ module.exports = [
         syntax: "{c} {0} {*1}",
         permissionLevel: 3,
         arguments: [
-            {"@User(s)": "Pinged user(s)."},
-            {"*Level": "Permission level. Max 0, min 4."}
+            { "@User(s)": "Pinged user(s)." },
+            { "*Level": "Permission level. Max 0, min 4." }
         ],
         properties: [],
         flags: [],
@@ -395,8 +408,8 @@ module.exports = [
         syntax: "{c} {0} {1}",
         permissionLevel: 4,
         arguments: [
-            {"Role": "bot | vip | helper | mod | admin"},
-            {"@Role": "Pinged role."}
+            { "Role": "bot | vip | helper | mod | admin" },
+            { "@Role": "Pinged role." }
         ],
         properties: [],
         flags: [],
@@ -469,7 +482,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 0,
         arguments: [
-            {"Song": "Video title | YouTube URL(s)"}
+            { "Song": "Video title | YouTube URL(s)" }
         ],
         properties: [],
         flags: [],
@@ -575,7 +588,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 0,
         arguments: [
-            {"Song": "Video title | YouTube URL"}
+            { "Song": "Video title | YouTube URL" }
         ],
         properties: [],
         flags: [],
@@ -590,7 +603,7 @@ module.exports = [
         syntax: "{c} {0}",
         permissionLevel: 1,
         arguments: [
-            {"Song": "Video title | YouTube URL"}
+            { "Song": "Video title | YouTube URL" }
         ],
         properties: [],
         flags: [],
@@ -605,8 +618,8 @@ module.exports = [
         syntax: "{c} {0} {1}",
         permissionLevel: 1,
         arguments: [
-            {"Subcommand": "play | list | create | add | delete | remove | access"},
-            {"Arguments": "Subcommand arguments."}
+            { "Subcommand": "play | list | create | add | delete | remove | access" },
+            { "Arguments": "Subcommand arguments." }
         ],
         properties: [],
         flags: [],
@@ -730,7 +743,7 @@ module.exports = [
         flags: [],
         settings: {},
         enabled: true,
-        run: (message, data) => adapter.music.queue.addSong(message, {urls: ['https://www.youtube.com/watch?v=LDU_Txk06tM'], flags: {}})
+        run: (message, data) => adapter.music.queue.addSong(message, { urls: ['https://www.youtube.com/watch?v=LDU_Txk06tM'], flags: {} })
     },
     {
         commands: ["theriddle", "tr"],
@@ -743,6 +756,6 @@ module.exports = [
         flags: [],
         settings: {},
         enabled: true,
-        run: (message, data) => adapter.music.queue.addSong(message, {urls: ['https://www.youtube.com/watch?v=9DXMDzqA-UI'], flags: {}})
+        run: (message, data) => adapter.music.queue.addSong(message, { urls: ['https://www.youtube.com/watch?v=9DXMDzqA-UI'], flags: {} })
     }
 ]

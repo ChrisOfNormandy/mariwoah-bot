@@ -28,3 +28,13 @@ client.on('message', async message => {
                     console.log(e);
             });
 });
+
+client.on('messageReactionAdd', (reaction, user) => {
+    if (!user.bot) {
+        if (reaction.message.author.bot) {
+            adapter.rolemanagement.reactRole.onEvent(reaction, user)
+                .then(r => console.log(r))
+                .catch(e => console.log(e));
+        }
+    }
+});
