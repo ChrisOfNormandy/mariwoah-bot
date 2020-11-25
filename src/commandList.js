@@ -76,11 +76,6 @@ module.exports = {
                 permissionLevel: 0,
                 selfClear: true
             },
-            'find': {
-                description: 'Searches Google.',
-                permissionLevel: 0,
-                selfClear: true
-            },
             'imgur': {
                 description: 'Searches Imgur.',
                 permissionLevel: 0,

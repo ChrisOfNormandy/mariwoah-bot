@@ -228,19 +228,6 @@ module.exports = [
         run: (message, data) => adapter.common.bot.features.prefix.get(message)
     },
     {
-        commands: ["find"],
-        context: "vanity",
-        description: "",
-        syntax: "",
-        permissionLevel: 1,
-        arguments: [],
-        properties: [],
-        flags: [],
-        settings: {},
-        enabled: false,
-        run: (message, data) => adapter.google.post(data)
-    },
-    {
         commands: ["bing"],
         context: "vanity",
         description: "Search Bing images for some image results. Will return a random image from the fetched results.",
