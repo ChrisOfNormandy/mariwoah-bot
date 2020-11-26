@@ -1,3 +1,4 @@
+const config = require('../../private/config');
 const adapter = require('../app/adapter');
 const commands = require('./commands');
 const getOptions = require('../app/common/bot/helpers/global/dataToOptionObject');
@@ -5,6 +6,7 @@ const getOptions = require('../app/common/bot/helpers/global/dataToOptionObject'
 const Permission = require('./permission');
 const Properties = require('./properties');
 const Data = require('./data');
+const Regex = require('./regex');
 
 function execute_command(message, data) {
     let value = data.properties.run(message, data);
@@ -130,69 +132,59 @@ function getPrefix(guild_id) {
     });
 }
 
-const regex = {
-    new_line: /\n/g,
-    then: /\.then\((\w(\s,\s\w)*\s=>\s.+)\)/g
-};
+const _ = require('./functions');
+function execute(str) {
+    console.log('EXECUTING: ', str);
+    const groups = str.match(Regex.functions._);
 
-module.exports = (client, message) => {
-    return new Promise((resolve, reject) => {
-        getPrefix(message.guild.id)
-            .then(prefix => {
-                if (message.content[0] != prefix)
-                    reject(null);
-                else {
-                    let lines = message.content.split(regex.new_line);
-                    console.log(lines);
-                    let data_promises = [];
+    const func = groups[1];
+    const sub_func = groups[2] ? groups[3] : null;
+    let args = groups[4];
 
-                    for (let line in lines) {
-                        let thens = lines[line].match(regex.then);
-                        let cmd = lines[line].replace(regex.then, '');
+    console.log('args: ', args);
+    let s = args.match(Regex.functions[func + '_']);
+    while (s !== null) {
+        args = args.replace(s[0], execute(s[0]));
+        s = args.match(Regex.functions[func + '_']);
+    }
 
-                        console.log('Command: ', cmd);
-                        console.log('Thens: ', thens);
+    console.log('new args: ', args);
 
-                        data_promises.push(Data.get(prefix, lines[line].trim()));
-                    }
+    return sub_func
+        ? _[func][sub_func](args)
+        : _[func](args);
+}
 
-                    Promise.all(data_promises)
-                        .then(data_array => {
-                            let cmd_promises = [];
+module.exports = {
+    chat: (client, message) => {
+        return new Promise((resolve, reject) => {
+            getPrefix(message.guild.id)
+                .then(prefix => {
+                    if (message.content[0] == prefix || message.content[0] == config.settings.prefix) {
+                        let lines = message.content.split(Regex.new_line);
+                        console.log(lines);
+
+                        for (let line in lines) {
+                            console.log('Line: ', lines[line]);
                             
-                            for (let index in data_array) {
-                                cmd_promises.push(parseCommands(client, message, data_array[index]));
+                            let str = lines[line];
+                            while(Regex.functions._.test(str)) {
+                                const groups = str.match(Regex.functions._);
+                                let val = execute(str);
+                                message.channel.send(val);
+                                str = '';
                             }
-
-                            Promise.all(cmd_promises)
-                                .then(cmd_returns => {
-                                    for (let ret_index in cmd_returns) {
-                                        for (let val_index in cmd_returns[ret_index].values) {
-                                            for (let content_index in cmd_returns[ret_index].values[val_index].content) {
-                                                message.channel.send(cmd_returns[ret_index].values[val_index].content[content_index])
-                                                    .then(msg => {
-                                                        let options = getOptions(cmd_returns[ret_index].dataObject.data_array[val_index], cmd_returns[ret_index].values[val_index].input.options)
-                                                        if (options.selfClear)
-                                                            msg.delete();
-                                                        let settings = commands[cmd_returns[ret_index].dataObject.data_array[val_index].command].settings;
-
-                                                        if (settings.commandClear)
-                                                            message.delete({timeout: settings.commandClear.delay * 1000})
-                                                        if (settings.responseClear)
-                                                            msg.delete({timeout: settings.responseClear.delay * 1000});
-                                                    })
-                                                    .catch(e => reject(e));
-                                            }
-                                        }
-                                    }
-
-                                    resolve(cmd_returns);
-                                })
-                                .catch(e => reject(e));
-                        })
-                        .catch(e => reject(e));
+                        }
                     }
+                    else
+                        reject(null);
                 })
                 .catch(err => reject(err));
-    });
+        });
+    },
+    console: (string) => {
+        return new Promise((resolve, reject) => {
+            resolve(string);
+        });
+    }
 }

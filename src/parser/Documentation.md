@@ -161,7 +161,7 @@ Operations:
 Order:
 > Parentheses, factorial, modulo, powers, multiplication, division, addition, subtraction
 5 % 2 ^ 2 -> (5 % 2) ^ 2 -> 2 ^ 2 -> 4
-!5 % 2 ^ 2 -> ((!5) % 2) ^ 2 -> (120 % 2) ^ 2 -> 0 ^ 2 -> 0
+5! % 2 ^ 2 -> ((5!) % 2) ^ 2 -> (120 % 2) ^ 2 -> 0 ^ 2 -> 0
 
 CONDITIONALS
 
