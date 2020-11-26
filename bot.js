@@ -1,5 +1,5 @@
 const adapter = require('./src/app/adapter');
-const commandParser = require('./src/commandParser');
+const commandParser = require('./src/parser/main');
 // const commandLine = require('./private/commandLine');
 
 const client = adapter.common.bot.global.startup.run();
@@ -21,10 +21,7 @@ client.on('message', async message => {
     if (!message.author.bot)
         commandParser(client, message)
             .catch(e => {
-                if (e === null) {
-                    // No response available. All is good :)
-                }
-                else 
+                if (e !== null)
                     console.log(e);
             });
 });

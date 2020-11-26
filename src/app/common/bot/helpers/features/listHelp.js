@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 
 const chatFormat = require('../global/chatFormat');
 const commandFormat = require('../global/commandFormat');
-const help = require('../../../../../commandList');
+// const help = require('../../../../../parser/commands');
 
 module.exports = function (message, args) {
     return new Promise((resolve, reject) => {

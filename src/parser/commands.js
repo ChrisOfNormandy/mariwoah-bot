@@ -1,4 +1,4 @@
-const adapter = require('./app/adapter');
+const adapter = require('../app/adapter');
 
 module.exports = [
     {
