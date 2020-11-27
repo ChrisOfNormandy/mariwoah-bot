@@ -1,10 +1,11 @@
+const Discord = require('discord.js');
+
 const config = require('../../private/config');
 const adapter = require('../app/adapter');
 const commands = require('./commands');
 const getOptions = require('../app/common/bot/helpers/global/dataToOptionObject');
 
 const Permission = require('./permission');
-const Properties = require('./properties');
 const Data = require('./data');
 const Regex = require('./regex');
 
@@ -132,49 +133,188 @@ function getPrefix(guild_id) {
     });
 }
 
-const _ = require('./functions');
-function execute(str) {
-    console.log('EXECUTING: ', str);
-    const groups = str.match(Regex.functions._);
+const _f = require('./functions');
+const _v = require('./variables');
+const _c = require('./conditions');
 
+function setVars(str) {
+    const groups = str.match(Regex.variables._);
+    return groups[3]
+        ? _v['_' + groups[1]][groups[3]]
+        : _v['_' + groups[1]];
+    // groups[1] = "class"
+    // groups[3] = "property"
+}
+
+async function execute(str, options) {
+    const groups = str.match(Regex.functions._);
     const func = groups[1];
+
     const sub_func = groups[2] ? groups[3] : null;
     let args = groups[4];
 
-    console.log('args: ', args);
-    let s = args.match(Regex.functions[func + '_']);
-    while (s !== null) {
-        args = args.replace(s[0], execute(s[0]));
-        s = args.match(Regex.functions[func + '_']);
+    args = _c(args);
+
+    // Run through nested functions
+    while (Regex.functions._.test(args)) {
+        const s = args.match(Regex.functions._);
+        args = args.replace(s[0], await execute(s[0], options));
     }
 
-    console.log('new args: ', args);
+    // Replace variables with values
+    while(Regex.variables._.test(args))
+        args = args.replace(args.match(Regex.variables._)[0], setVars(args));
 
-    return sub_func
-        ? _[func][sub_func](args)
-        : _[func](args);
+    // Separate arguments by commas into an array
+    args = args.split(Regex.csv);
+
+    // Run function.sub_function(...[args])
+    if(!!_f[func])
+        return !!sub_func
+            ? _f[func][sub_func].apply(null, args)
+            : _f[func]._.apply(null, args);
+    
+    // console.log(func, sub_func, args);
+
+    const data = {
+        client: options.client,
+        message: options.message,
+        arguments: args
+    }
+
+    let arr = commands.filter((o) => {return o.commands.includes(sub_func)});
+
+    if (arr.length)
+        return await arr[0].run(options.message, data);
+    else
+        return undefined;
+}
+
+async function run(str, options, skip = false) {
+    let res = {
+        value: str,
+        embedded: []
+    }
+
+    if (Regex.special_operations._.test(res.value)) {
+        let g = res.value.match(Regex.special_operations._);
+        return {value: res.value.replace(g[1], _c(g[1]))};
+    }
+    else if (skip)
+        return;
+
+    // console.log('Running', res)
+
+    // Execute functions
+    while(Regex.functions._.test(res.value)) {
+        let v = await execute(res.value, options);
+        res.value = res.value.replace(res.value.match(Regex.functions._)[0], v.values);
+        res.embedded.push(v.content);
+    }
+
+    // console.log('After functions: ', res);
+
+    // Set variables
+    while(Regex.variables._.test(res.value))
+        res.value = res.value.replace(res.value.match(Regex.variables._)[0], setVars(res.value));
+
+    // console.log('After variables: ', res);
+
+    // Check for parentheses and evaluate their bodies
+    while(Regex.parentheses.test(res.value))
+        res.value = res.value.replace(res.value.match(Regex.parentheses)[0], run(res.value.match(Regex.parentheses)[1]));
+
+    // console.log('After parentheses:', res);
+
+    // Evaluate conditionals - a == b, etc
+    res.value = _c(res.value);
+
+    // console.log('After conditions: ', res);
+
+    return res
 }
 
 module.exports = {
     chat: (client, message) => {
         return new Promise((resolve, reject) => {
             getPrefix(message.guild.id)
-                .then(prefix => {
+                .then(async (prefix) => {
                     if (message.content[0] == prefix || message.content[0] == config.settings.prefix) {
-                        let lines = message.content.split(Regex.new_line);
-                        console.log(lines);
+                        let lines = message.content.slice(1).split(Regex.new_line);
 
-                        for (let line in lines) {
-                            console.log('Line: ', lines[line]);
-                            
+                        let embed = new Discord.MessageEmbed().setTitle('Returned:');
+
+                        let values = [];
+                        let objects = [];
+
+                        let startTimes = [];
+                        let endTimes = [];
+                        let ellapsed = 0;
+
+                        let ops = {
+                            line: 0,
+                            skip: false,
+                            level: 0
+                        };
+
+                        const options = {
+                            client,
+                            message
+                        };
+
+                        for (let line = 0; line < lines.length; line++) {
+                            ops.line = line;
                             let str = lines[line];
-                            while(Regex.functions._.test(str)) {
-                                const groups = str.match(Regex.functions._);
-                                let val = execute(str);
-                                message.channel.send(val);
-                                str = '';
+
+                            startTimes[line] = Date.now();
+
+                            const l = await run(str, options, ops.skip);
+
+                            endTimes[line] = Date.now();
+                            ellapsed += endTimes[line] - startTimes[line];
+
+                            if (!l)
+                                continue;
+
+                            let flag = l.value.match(Regex.special_operations._);
+
+                            if (flag !== null) {
+                                if (flag[1] == `0` || flag[1] == `1`)
+                                    ops.level++;
+                                else if (flag[1] == `end`) {
+                                    ops.level--;
+                                    ops.skip = false;
+                                }
+
+                                if (flag[1] == `0` || (flag[1] == `else` && !ops.skip)) {
+                                    ops.skip = true;
+                                }
+                                else if (flag[1] == `1` || (flag[1] == `else` && ops.skip)) {
+                                    ops.skip = false;
+                                }
+                            }
+                            else {
+                                if (!ops.skip) {
+                                    values[line] = l.value;
+                                    objects[line] = l.embedded.length ? l.objects : [];
+                                }
                             }
                         }
+
+                        let field = '';
+                        
+                        for (let i = 0; i < values.length; i++)
+                            if (!!values[i])
+                                field += `**${i}** | _${endTimes[i] - startTimes[i]} ms_ | ${values[i]}\n`;
+
+                        embed.addField('#Start', field)
+                        embed.setFooter(`> Ellapsed: ${ellapsed} ms.`);
+
+                        message.channel.send(embed);
+
+                        for (let i in objects)
+                            for (let c in objects[i])
+                                message.channel.send(objects[i][c]);
                     }
                     else
                         reject(null);

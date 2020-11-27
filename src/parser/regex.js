@@ -1,41 +1,41 @@
 module.exports = {
     operations: {
         declare: /(\w+)\s?=\s?(\w+)/,
-        add: /(\w+)\s?\+=\s?(\w+)/,
-        subtract: /(\w+)\s?-=\s?(\w+)/,
-        multiply: /(\w+)\s?\*=\s?(\w+)/,
-        divide: /(\w+)\s?\/=\s?(\w+)/,
-        modulo: /(\w+)\s?%=\s?(\w+)/,
-        power: /(\w+)\s?\^=\s?(\w+)/,
+        add: /(-?\d+(\.\d+)?)\s?\+=\s?(-?\d+(\.\d+)?)/,
+        subtract: /(-?\d+(\.\d+)?)\s?-=\s?(-?\d+(\.\d+)?)/,
+        multiply: /(-?\d+(\.\d+)?)\s?\*=\s?(-?\d+(\.\d+)?)/,
+        divide: /(-?\d+(\.\d+)?)\s?\/=\s?(-?\d+(\.\d+)?)/,
+        modulo: /(-?\d+(\.\d+)?)\s?%=\s?(-?\d+(\.\d+)?)/,
+        power: /(-?\d+(\.\d+)?)\s?\^=\s?(-?\d+(\.\d+)?)/,
         negate: /(!+)(\w+)/,
         math: {
             parentheses: /\((.*)\)/,
-            addition: /(-?\w+(\.\w+)?)\s?\+\s?(-?\w+(\.\w+)?)/,
-            subtraction: /(-?\w+(\.\w+)?)\s?-\s?(-?\w+(\.\w+)?)/,
-            multiplication: /(-?\w+(\.\w+)?)\s?\*\s?(-?\w+(\.\w+)?)/,
-            division: /(-?\w+(\.\w+)?)\s?\/\s?(-?\w+(\.\w+)?)/,
-            modulo: /(-?\w+(\.\w+)?)\s?%\s?(-?\w+(\.\w+)?)/,
-            factorial: /(-?\w+(\.\w+)?)!/,
-            power: /(-?\w+(\.\w+)?)\^(-?\w+(\.\w+)?)/
+            addition: /(-?\d+(\.\d+)?)\s?\+\s?(-?\d+(\.\d+)?)/,
+            subtraction: /(-?\d+(\.\d+)?)\s?-\s?(-?\d+(\.\d+)?)/,
+            multiplication: /(-?\d+(\.\d+)?)\s?\*\s?(-?\d+(\.\d+)?)/,
+            division: /(-?\d+(\.\d+)?)\s?\/\s?(-?\d+(\.\d+)?)/,
+            modulo: /(-?\d+(\.\d+)?)\s?%\s?(-?\d+(\.\d+)?)/,
+            factorial: /(-?\d+(\.\d+)?)!/,
+            power: /(-?\d+(\.\d+)?)\^(-?\d+(\.\d+)?)/
         }
     },
     conditions: {
-        equates: /(\w+)\s?==\s?(\w+)/,
-        n_equates: /(\w+)\s?!=\s?(\w+)/,
-        greater: /(\w+)\s?>\s?(\w+)/,
-        greater_eq: /(\w+)\s?>=\s?(\w+)/,
-        lesser: /(\w+)\s?<\s?(\w+)/,
-        lesser_eq: /(\w+)\s?<=\s?(\w+)/,
-        and: /(\w+)\s?&&\s?(\w+)/,
-        or: /(\w+)\s?\|\|\s?(\w+)/,
-        nand: /(\w+)\s?!&\s?(\w+)/,
-        nor: /(\w+)\s?!\|\s?(\w+)/,
-        xand: /(\w+)\s?x&\s?(\w+)/,
-        xnor: /(\w+)\s?x!\|\s?(\w+)/,
-        xor: /(\w+)\s?x\|\s?(\w+)/,
-        xnand: /(\w+)\s?x!&\s?(\w+)/,
-        divisible: /(\w+)\s?\/%\s?(\w+)/,
-        n_divisible: /(\w+)\s?!\/%\s?(\w+)/,
+        equates: /([\w\s.]+)\s?==\s?([\w\s.]+)/,
+        n_equates: /([\w\s.]+)\s?!=\s?([\w\s.]+)/,
+        greater: /(-?\d+(\.\d+)?)\s?>\s?(-?\d+(\.\d+)?)/,
+        greater_eq: /(-?\d+(\.\d+)?)\s?>=\s?(-?\d+(\.\d+)?)/,
+        lesser: /(-?\d+(\.\d+)?)\s?<\s?(-?\d+(\.\d+)?)/,
+        lesser_eq: /(-?\d+(\.\d+)?)\s?<=\s?(-?\d+(\.\d+)?)/,
+        and: /(0|1)\s?&&\s?(0|1)/,
+        or: /(0|1)\s?\|\|\s?(0|1)/,
+        nand: /(0|1)\s?!&\s?(0|1)/,
+        nor: /(0|1)\s?!\|\s?(0|1)/,
+        xand: /(0|1)\s?x&\s?(0|1)/,
+        xnor: /(0|1)\s?x!\|\s?(0|1)/,
+        xor: /(0|1)\s?x\|\s?(0|1)/,
+        xnand: /(0|1)\s?x!&\s?(0|1)/,
+        divisible: /(-?\d+(\.\d+)?)\s?\/%\s?(-?\d+(\.\d+)?)/,
+        n_divisible: /(-?\d+(\.\d+)?)\s?!\/%\s?(-?\d+(\.\d+)?)/,
     },
     types: {
         number: /\d+(\.(\d+))?/,
@@ -47,13 +47,15 @@ module.exports = {
         }
     },
     functions: {
-        _: /:(\w+)(\.(\w+))?\((.*)\)/,
-        then: /\.then\((\w(\s,\s\w)*\s=>\s.+)\)/,
-        math: /:math(\.(\w+))?\((.+)\)/,
-        math_: /:math(\.(\w+))?\(([\w\s+\-*/%\^!]+)\)/
+        _: /:(\w+)(\.(\w+))?\((.*)\)/
+    },
+    variables: {
+        _: /:(\w+)(\.(\w+))?/
     },
     special_operations: {
-
+        _: /\$(\w+)/
     },
-    new_line: /\n/
+    new_line: /\n/,
+    csv: /(?<!["']\w*),\s*(?!\w*["'])/,
+    parentheses: /\((.*)\)/
 }

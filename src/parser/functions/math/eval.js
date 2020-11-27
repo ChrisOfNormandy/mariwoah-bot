@@ -3,9 +3,8 @@ const order = require('./processOrder');
 const evals = [
     (arr) => {
         let f = arr[1];
-        for (let i in order) {
+        for (let i in order)
             f = recur_eval(f, i);
-        }
         return f;
     },
     (arr) => {
@@ -38,7 +37,6 @@ const evals = [
         return Number(a / b);
     },
     (arr) => {
-        console.log(arr);
         let a = Number(arr[1]);
         let b = Number(arr[3]);
         return Number(a + b);
@@ -53,8 +51,7 @@ const evals = [
 function recur_eval(expression, index) {
     let f = expression;
 
-    let s = f.match(order[index]);
-    console.log(s);
+    let s = f.toString().match(order[index]);
     while (s !== null) {
         let val = evals[index](s);
 
@@ -67,9 +64,7 @@ function recur_eval(expression, index) {
 
 module.exports = (expression) => {
     let f = expression;
-    console.log('Evaluating: ', f);
-    for (let i in order) {
+    for (let i in order)
         f = recur_eval(f, i);
-    }
-    return f;
+    return Number(f);
 }

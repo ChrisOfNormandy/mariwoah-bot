@@ -110,31 +110,31 @@ Catches an error from the previous function.
 
 # Prebuilt Functions
 
-Prefixed with @
+Prefixed with :
 
 MATH
 
-@math[function]([args])
+:math[function]([args])
 > Performs the operation under 'Math' using the function with the provided arguments.
 
-@math[round](number, *places)
+:math[round](number, *places)
 > number: a number value
 > places: default 0 (value -> integer)
 > A negative value for a place will round a number past the decimal. Example: 134 rounded -1 = 130. 1565 rounded -2 = 1600.
 > A positive value for a place will round a number to that many decimals. Example: 140.345 rounded 2 = 140.35.
 
-@math[floor](number, *places)
+:math[floor](number, *places)
 > number: a number value
 > places: default 0 (value -> integer)
 > A negative value for a place will floor a number past the decimal. Example: 134 floored -1 = 130. 1565 floored -2 = 1500.
 > A positive value for a place will round a number to that many decimals. Example: 140.345 floored 2 = 140.34.
 
-@math[random](*[min, max])
+:math[random](*min, *max)
 > min: default 0
 > max: default 1
 > Returns a random number between the minimum value and maximum value.
 
-@math[eval](equation)
+:math[eval](equation)
 > equation: a mathematical equation
 Explained:
 (1 + 1) -> (2) -> 2
@@ -165,26 +165,26 @@ Order:
 
 CONDITIONALS
 
-@if([statement]) {...}
-@elif([statement]) {...}
-@else {...}
+:if([statement]) {...}
+:elif([statement]) {...}
+:else {...}
 
 
 
 LOOPS
 
-@for([value] in [map]|[value]) {...}
+:for([value] in [map]|[value]) {...}
 
-@while([statement]) {...}
+:while([statement]) {...}
 
 
 
 SYSTEM
 
-@print([value])
-> Can print multiple values - @print(a, b, c) -> "{a}\n{b}\n{c}" where a, b and c are on their own lines in one print.
+:print([value])
+> Can print multiple values - :print(a, b, c) -> "{a}\n{b}\n{c}" where a, b and c are on their own lines in one print.
 
-@hash([value])
+:hash([value])
 > Hashes a provided value.
 
 # Special Operations
