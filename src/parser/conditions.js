@@ -39,9 +39,7 @@ const f = [
 
 function _(str, index) {
     const g = str.match(c[index]);
-    return g.length == 6
-        ? f[index](g[1], g[2]) ? 1 : 0
-        : f[index](g[1], g[3]) ? 1 : 0;
+    return f[index](Number(g[1]), Number(g[3])) ? 1 : 0;
 }
 
 module.exports = (str) => {

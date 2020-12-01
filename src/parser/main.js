@@ -149,16 +149,19 @@ function setVars(str) {
 async function execute(str, options) {
     const groups = str.match(Regex.functions._);
     const func = groups[1];
-
     const sub_func = groups[2] ? groups[3] : null;
-    let args = groups[4];
+    const flags = groups[4] ? groups[5] : [];
+    let args = groups[6];
+
+    // console.log(groups);
 
     args = _c(args);
 
     // Run through nested functions
     while (Regex.functions._.test(args)) {
         const s = args.match(Regex.functions._);
-        args = args.replace(s[0], await execute(s[0], options));
+        let v = await execute(s[0], options);
+        args = args.replace(s[0], v.value || v);
     }
 
     // Replace variables with values
@@ -179,15 +182,18 @@ async function execute(str, options) {
     const data = {
         client: options.client,
         message: options.message,
-        arguments: args
+        arguments: args,
+        flags
     }
 
     let arr = commands.filter((o) => {return o.commands.includes(sub_func)});
 
-    if (arr.length)
-        return await arr[0].run(options.message, data);
+    if (arr.length) {
+        let v = await arr[0].run(options.message, data);
+        return v.values;
+    }
     else
-        return undefined;
+        return `"${groups[0].slice(1)}"`;
 }
 
 async function run(str, options, skip = false) {
@@ -195,21 +201,13 @@ async function run(str, options, skip = false) {
         value: str,
         embedded: []
     }
-
-    if (Regex.special_operations._.test(res.value)) {
-        let g = res.value.match(Regex.special_operations._);
-        return {value: res.value.replace(g[1], _c(g[1]))};
-    }
-    else if (skip)
+    if (skip && !Regex.special_operations._.test(res.value))
         return;
-
-    // console.log('Running', res)
 
     // Execute functions
     while(Regex.functions._.test(res.value)) {
         let v = await execute(res.value, options);
-        res.value = res.value.replace(res.value.match(Regex.functions._)[0], v.values);
-        res.embedded.push(v.content);
+        res.value = res.value.replace(res.value.match(Regex.functions._)[0], v);
     }
 
     // console.log('After functions: ', res);
@@ -220,9 +218,16 @@ async function run(str, options, skip = false) {
 
     // console.log('After variables: ', res);
 
-    // Check for parentheses and evaluate their bodies
-    while(Regex.parentheses.test(res.value))
-        res.value = res.value.replace(res.value.match(Regex.parentheses)[0], run(res.value.match(Regex.parentheses)[1]));
+    while(Regex.parentheses.test(res.value) && !Regex.parentheses_bool.test(res.value)) {
+        const g = res.value.match(Regex.parentheses);
+        // console.log(g);
+        const r = await run(g[1]);
+        const v = r.value;
+        // console.log(v);
+        res.value = v == 0 || v == 1
+            ? res.value.replace(g[1], v)
+            : res.value.replace(g[0], v);
+    }
 
     // console.log('After parentheses:', res);
 
@@ -254,7 +259,11 @@ module.exports = {
                         let ops = {
                             line: 0,
                             skip: false,
-                            level: 0
+                            level: 0,
+                            cond: false,
+                            loop: null,
+                            loop_overflow: 0,
+                            vars: new Map()
                         };
 
                         const options = {
@@ -279,26 +288,63 @@ module.exports = {
                             let flag = l.value.match(Regex.special_operations._);
 
                             if (flag !== null) {
-                                if (flag[1] == `0` || flag[1] == `1`)
-                                    ops.level++;
-                                else if (flag[1] == `end`) {
-                                    ops.level--;
-                                    ops.skip = false;
+                                // console.log(flag);
+                                switch(flag[1]) {
+                                    case 'if': {
+                                        ops.skip = flag[3] == 0;
+                                        ops.level++;
+                                        ops.cond = true;
+                                        break;
+                                    }
+                                    case 'else': {
+                                        ops.skip = flag[3] === undefined
+                                            ? false
+                                            : flag[3] == 0;
+                                        ops.cond = true;
+                                        break;
+                                    }
+                                    case 'while': {
+                                        // console.log('LOOP')
+                                        if (flag[3] == 1) {
+                                            if (ops.loop_overflow > 10000) {
+                                                values[line] = ops.loop_overflow;
+                                                ops.loop = null;
+                                            }
+                                            else {
+                                                ops.loop = line - 1;
+                                            }
+                                        }
+                                        else {
+                                            values[line] = ops.loop_overflow || "0";
+                                            ops.loop = null;
+                                            ops.skip = true;
+                                        }
+                                        break;
+                                    }
+                                    case 'end': {
+                                        if (ops.cond)
+                                            ops.cond = false;
+                                        if (ops.loop !== null) {
+                                            line = ops.loop;
+                                            ops.loop_overflow++;
+                                            break;
+                                        }
+                                        ops.skip = false;
+                                        ops.level--;
+                                        break;
+                                    }
                                 }
-
-                                if (flag[1] == `0` || (flag[1] == `else` && !ops.skip)) {
-                                    ops.skip = true;
-                                }
-                                else if (flag[1] == `1` || (flag[1] == `else` && ops.skip)) {
-                                    ops.skip = false;
-                                }
+                                // console.log(lines[line], l.value);
+                                // console.log(ops);
                             }
                             else {
                                 if (!ops.skip) {
                                     values[line] = l.value;
-                                    objects[line] = l.embedded.length ? l.objects : [];
+                                    objects[line] = l.embedded.length ? l.embedded : [];
+                                    lines[line] = l.value;
                                 }
                             }
+                            // console.log(line, lines[line], l.value);
                         }
 
                         let field = '';

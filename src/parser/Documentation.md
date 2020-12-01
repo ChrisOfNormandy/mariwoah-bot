@@ -165,17 +165,17 @@ Order:
 
 CONDITIONALS
 
-:if([statement]) {...}
-:elif([statement]) {...}
-:else {...}
-
+$if([statement]) {...}
+$else.if([statement]) {...}
+$else {...}
+$end
 
 
 LOOPS
 
-:for([value] in [map]|[value]) {...}
+$for([value] in [map]|[value]) {...}
 
-:while([statement]) {...}
+$while([statement]) {...}
 
 
 
@@ -189,8 +189,8 @@ SYSTEM
 
 # Special Operations
 
-!{[value]}
+:!{[value]}
 > Converts a JSON string to a usable object.
 
-${[value]}
+:${[value]}
 > Converts an object to a stringified JSON.
