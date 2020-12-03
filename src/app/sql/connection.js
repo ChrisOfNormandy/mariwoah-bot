@@ -1,9 +1,9 @@
 const mysql = require('mysql');
-const config = require('../../../private/config');
+const config = require('../../../private/config.json');
 
 const db_config = {
-    host: "localhost",
-    user: config.sql.username,
+    host: config.sql.host,
+    user: config.sql.user,
     password: config.sql.password,
     database: config.sql.database
 };

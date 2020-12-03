@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const config = require('../../private/config');
+const config = require('../../private/config.json');
 const adapter = require('../app/adapter');
 const commands = require('./commands');
 const getOptions = require('../app/common/bot/helpers/global/dataToOptionObject');
@@ -136,6 +136,7 @@ function getPrefix(guild_id) {
 const _f = require('./functions');
 const _v = require('./variables');
 const _c = require('./conditions');
+const _i = require('./instantiations');
 
 function setVars(str) {
     const groups = str.match(Regex.variables._);
@@ -196,7 +197,7 @@ async function execute(str, options) {
         return `"${groups[0].slice(1)}"`;
 }
 
-async function run(str, options, skip = false) {
+async function run(str, ops, options, skip = false) {
     let res = {
         value: str,
         embedded: []
@@ -210,18 +211,21 @@ async function run(str, options, skip = false) {
         res.value = res.value.replace(res.value.match(Regex.functions._)[0], v);
     }
 
-    // console.log('After functions: ', res);
+    console.log('After functions: ', res);
 
     // Set variables
-    while(Regex.variables._.test(res.value))
-        res.value = res.value.replace(res.value.match(Regex.variables._)[0], setVars(res.value));
+    while(Regex.variables._.test(res.value)) {
+        const g = res.value.match(Regex.variables._);
+        const v = setVars(res.value);
+        res.value = res.value.replace(g[0], v);
+    }
 
     // console.log('After variables: ', res);
 
     while(Regex.parentheses.test(res.value) && !Regex.parentheses_bool.test(res.value)) {
         const g = res.value.match(Regex.parentheses);
         // console.log(g);
-        const r = await run(g[1]);
+        const r = await run(g[1], ops, options);
         const v = r.value;
         // console.log(v);
         res.value = v == 0 || v == 1
@@ -234,7 +238,11 @@ async function run(str, options, skip = false) {
     // Evaluate conditionals - a == b, etc
     res.value = _c(res.value);
 
-    // console.log('After conditions: ', res);
+    const v = _i(res.value, ops);
+    res.value = v.value;
+    console.log(v.vars);
+
+    console.log('After conditions: ', res);
 
     return res
 }
@@ -263,7 +271,7 @@ module.exports = {
                             cond: false,
                             loop: null,
                             loop_overflow: 0,
-                            vars: new Map()
+                            variables: new Map()
                         };
 
                         const options = {
@@ -277,7 +285,10 @@ module.exports = {
 
                             startTimes[line] = Date.now();
 
-                            const l = await run(str, options, ops.skip);
+                            const l = await run(str, ops, options, ops.skip);
+
+                            console.log(l.value);
+                            console.log(l.variables);
 
                             endTimes[line] = Date.now();
                             ellapsed += endTimes[line] - startTimes[line];

@@ -3,7 +3,7 @@ const config = require('../../../../private/config');
 const commandFormat = require('../../common/bot/helpers/global/commandFormat');
 const Discord = require('discord.js');
 
-imgur.setClientId(config.imgur.clientId);
+// imgur.setClientId(config.imgur.clientId);
 
 function search(data) {
     const query = data.arguments.join(' ');

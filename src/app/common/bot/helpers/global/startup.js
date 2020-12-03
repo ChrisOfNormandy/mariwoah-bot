@@ -1,6 +1,6 @@
 const connection = require('../../../../sql/connection');
 const Discord = require('discord.js');
-const config = require('../../../../../../private/config');
+const config = require('../../../../../../private/config.json');
 
 let client = new Discord.Client();
 
