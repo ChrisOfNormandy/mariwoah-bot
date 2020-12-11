@@ -56,25 +56,6 @@ module.exports = [
         run: (message, data) => adapter.common.bot.features.fetchEmoji(message, data)
     },
     {
-        commands: ["imgur"],
-        context: "vanity",
-        description: "Searches Imgur for a specified tag image.",
-        syntax: "{c} {0}",
-        permissionLevel: 0,
-        arguments: [
-            {"tag": "The tag to search for on Imgur."}
-        ],
-        properties: [],
-        flags: [],
-        settings: {
-            "commandClear": {
-                delay: 0
-            }
-        },
-        enabled: true,
-        run: (message, data) => adapter.imgur.search(data)
-    },
-    {
         commands: ["ping"],
         context: "common",
         description: "Gauge Discord's message latency.",
@@ -226,19 +207,6 @@ module.exports = [
         settings: {},
         enabled: true,
         run: (message, data) => adapter.common.bot.features.prefix.get(message)
-    },
-    {
-        commands: ["find"],
-        context: "vanity",
-        description: "",
-        syntax: "",
-        permissionLevel: 1,
-        arguments: [],
-        properties: [],
-        flags: [],
-        settings: {},
-        enabled: false,
-        run: (message, data) => adapter.google.post(data)
     },
     {
         commands: ["bing"],
