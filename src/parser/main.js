@@ -247,132 +247,134 @@ async function run(str, ops, options, skip = false) {
     return res
 }
 
+function newVar()
+
+async function script(client, message) {
+    let lines = message.content.slice(1).split(Regex.end_line);
+
+    let embed = new Discord.MessageEmbed().setTitle('Returned:');
+
+    let startTimes = [];
+    let endTimes = [];
+    let ellapsed = 0;
+
+    // Operations
+    let ops = {
+        line: 0,        // Current execution
+        skip: false,    // Is the next line to be omitted
+        cond: false,    // Is this line a conditional
+        loop: null,     // Is this line a loop
+        lpof: 0,        // Is this loop overflowing
+        vars: new Map() // Saved variables
+    };
+
+    const options = {
+        client,
+        message
+    };
+
+    for (let line = 0; line < lines.length; line++) {
+        ops.line = line;
+        let str = lines[line];
+
+        startTimes[line] = Date.now();
+
+        const l = await run(str, ops, options, ops.skip);
+
+        console.log(l.value);
+        console.log(l.variables);
+
+        endTimes[line] = Date.now();
+        ellapsed += endTimes[line] - startTimes[line];
+
+        if (!l)
+            continue;
+
+        let flag = l.value.match(Regex.special_operations._);
+
+        if (flag !== null) {
+            // console.log(flag);
+            switch(flag[1]) {
+                case 'if': {
+                    ops.skip = flag[3] == 0;
+                    ops.level++;
+                    ops.cond = true;
+                    break;
+                }
+                case 'else': {
+                    ops.skip = flag[3] === undefined
+                        ? false
+                        : flag[3] == 0;
+                    ops.cond = true;
+                    break;
+                }
+                case 'while': {
+                    // console.log('LOOP')
+                    if (flag[3] == 1) {
+                        if (ops.loop_overflow > 10000) {
+                            values[line] = ops.loop_overflow;
+                            ops.loop = null;
+                        }
+                        else {
+                            ops.loop = line - 1;
+                        }
+                    }
+                    else {
+                        values[line] = ops.loop_overflow || "0";
+                        ops.loop = null;
+                        ops.skip = true;
+                    }
+                    break;
+                }
+                case 'end': {
+                    if (ops.cond)
+                        ops.cond = false;
+                    if (ops.loop !== null) {
+                        line = ops.loop;
+                        ops.loop_overflow++;
+                        break;
+                    }
+                    ops.skip = false;
+                    ops.level--;
+                    break;
+                }
+            }
+            // console.log(lines[line], l.value);
+            // console.log(ops);
+        }
+        else {
+            if (!ops.skip) {
+                values[line] = l.value;
+                objects[line] = l.embedded.length ? l.embedded : [];
+                lines[line] = l.value;
+            }
+        }
+        // console.log(line, lines[line], l.value);
+    }
+
+    let field = '';
+    
+    for (let i = 0; i < values.length; i++)
+        if (!!values[i])
+            field += `**${i}** | _${endTimes[i] - startTimes[i]} ms_ | ${values[i]}\n`;
+
+    embed.addField('#Start', field)
+    embed.setFooter(`> Ellapsed: ${ellapsed} ms.`);
+
+    message.channel.send(embed);
+
+    for (let i in objects)
+        for (let c in objects[i])
+            message.channel.send(objects[i][c]);
+}
+
 module.exports = {
     chat: (client, message) => {
         return new Promise((resolve, reject) => {
             getPrefix(message.guild.id)
                 .then(async (prefix) => {
-                    if (message.content[0] == prefix || message.content[0] == config.settings.prefix) {
-                        let lines = message.content.slice(1).split(Regex.new_line);
-
-                        let embed = new Discord.MessageEmbed().setTitle('Returned:');
-
-                        let values = [];
-                        let objects = [];
-
-                        let startTimes = [];
-                        let endTimes = [];
-                        let ellapsed = 0;
-
-                        let ops = {
-                            line: 0,
-                            skip: false,
-                            level: 0,
-                            cond: false,
-                            loop: null,
-                            loop_overflow: 0,
-                            variables: new Map()
-                        };
-
-                        const options = {
-                            client,
-                            message
-                        };
-
-                        for (let line = 0; line < lines.length; line++) {
-                            ops.line = line;
-                            let str = lines[line];
-
-                            startTimes[line] = Date.now();
-
-                            const l = await run(str, ops, options, ops.skip);
-
-                            console.log(l.value);
-                            console.log(l.variables);
-
-                            endTimes[line] = Date.now();
-                            ellapsed += endTimes[line] - startTimes[line];
-
-                            if (!l)
-                                continue;
-
-                            let flag = l.value.match(Regex.special_operations._);
-
-                            if (flag !== null) {
-                                // console.log(flag);
-                                switch(flag[1]) {
-                                    case 'if': {
-                                        ops.skip = flag[3] == 0;
-                                        ops.level++;
-                                        ops.cond = true;
-                                        break;
-                                    }
-                                    case 'else': {
-                                        ops.skip = flag[3] === undefined
-                                            ? false
-                                            : flag[3] == 0;
-                                        ops.cond = true;
-                                        break;
-                                    }
-                                    case 'while': {
-                                        // console.log('LOOP')
-                                        if (flag[3] == 1) {
-                                            if (ops.loop_overflow > 10000) {
-                                                values[line] = ops.loop_overflow;
-                                                ops.loop = null;
-                                            }
-                                            else {
-                                                ops.loop = line - 1;
-                                            }
-                                        }
-                                        else {
-                                            values[line] = ops.loop_overflow || "0";
-                                            ops.loop = null;
-                                            ops.skip = true;
-                                        }
-                                        break;
-                                    }
-                                    case 'end': {
-                                        if (ops.cond)
-                                            ops.cond = false;
-                                        if (ops.loop !== null) {
-                                            line = ops.loop;
-                                            ops.loop_overflow++;
-                                            break;
-                                        }
-                                        ops.skip = false;
-                                        ops.level--;
-                                        break;
-                                    }
-                                }
-                                // console.log(lines[line], l.value);
-                                // console.log(ops);
-                            }
-                            else {
-                                if (!ops.skip) {
-                                    values[line] = l.value;
-                                    objects[line] = l.embedded.length ? l.embedded : [];
-                                    lines[line] = l.value;
-                                }
-                            }
-                            // console.log(line, lines[line], l.value);
-                        }
-
-                        let field = '';
-                        
-                        for (let i = 0; i < values.length; i++)
-                            if (!!values[i])
-                                field += `**${i}** | _${endTimes[i] - startTimes[i]} ms_ | ${values[i]}\n`;
-
-                        embed.addField('#Start', field)
-                        embed.setFooter(`> Ellapsed: ${ellapsed} ms.`);
-
-                        message.channel.send(embed);
-
-                        for (let i in objects)
-                            for (let c in objects[i])
-                                message.channel.send(objects[i][c]);
-                    }
+                    if (message.content[0] == prefix || message.content[0] == config.settings.prefix)
+                        resolve(await script(client, message));
                     else
                         reject(null);
                 })
