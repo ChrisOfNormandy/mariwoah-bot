@@ -1,4 +1,4 @@
-const sql = require('../../../sql/adapter');
+// const sql = require('../../../sql/adapter');
 const getSongObject = require('../../helpers/getSong');
 
 function byName(message, playlistName, songName) {

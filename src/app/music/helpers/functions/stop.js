@@ -6,13 +6,13 @@ const queue = require('../queue/map');
 module.exports = function (message, reason = null) {
     const vc = getVC(message);
     if (!vc)
-        return commandFormat.error([], [chatFormat.response.music.no_vc()]);
+        return Promise.reject(commandFormat.error([], [chatFormat.response.music.no_vc()]));
 
     if (!queue.has(message.guild.id))
-        return commandFormat.error([], [chatFormat.response.music.stop.no_queue()]);
+        return Promise.reject(commandFormat.error([], [chatFormat.response.music.stop.no_queue()]));
 
     queue.delete(message.guild.id);
     getVC(message).leave();
 
-    return commandFormat.valid([reason], [(reason) ? reason : chatFormat.response.music.stop.plain()]);
+    return Promise.resolve(commandFormat.valid([reason], [(reason) ? reason : chatFormat.response.music.stop.plain()]));
 }

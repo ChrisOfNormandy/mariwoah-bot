@@ -3,21 +3,22 @@ const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 
 function pause(message) {
+    return Promise.reject(commandFormat.error([], ['This command works, but resuming does not with the current Node version.']));
     let activeQueue = queue.get(message.guild.id);
     if (!activeQueue || !activeQueue.dispatcher)
-        return commandFormat.error([], [chatFormat.response.music.pause.no_stream()]);
+        return Promise.reject(commandFormat.error([], [chatFormat.response.music.pause.no_stream()]));
 
-    activeQueue.dispatcher.pause();
-    return commandFormat.valid([], [chatFormat.response.music.pause.yes()]);
+    activeQueue.dispatcher.pause(true);
+    return Promise.resolve(commandFormat.valid([], [chatFormat.response.music.pause.yes()]));
 }
 
 function resume(message) {
     let activeQueue = queue.get(message.guild.id);
     if (!activeQueue || !activeQueue.dispatcher)
-        return commandFormat.error([], [chatFormat.response.music.pause.no_stream()]);
+        return Promise.reject(commandFormat.error([], [chatFormat.response.music.pause.no_stream()]));
 
     activeQueue.dispatcher.resume();
-    return commandFormat.valid([], [chatFormat.response.music.pause.no()]);
+    return Promise.resolve(commandFormat.valid([], [chatFormat.response.music.pause.no()]));
 }
 
 module.exports = {

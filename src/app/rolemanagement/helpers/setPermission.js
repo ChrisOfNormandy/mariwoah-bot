@@ -1,4 +1,4 @@
-const sql = require('../../sql/adapter');
+// const sql = require('../../sql/adapter');
 const setRoles = require('./setRoles');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../common/bot/helpers/global/commandFormat');

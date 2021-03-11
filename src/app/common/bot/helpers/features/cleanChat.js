@@ -1,6 +1,5 @@
 const chatFormat = require('../global/chatFormat');
 const commandFormat = require('../global/commandFormat');
-const sql = require('../../../../sql/adapter');
 
 // Converts Discord timestamp to a nice date-time format
 function timestampToDate(timestamp) {
@@ -18,7 +17,7 @@ function getAge(a, b) {
     return r;
 }
 
-module.exports = async function (message) {
+module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         let channel = message.channel;
 
@@ -39,24 +38,21 @@ module.exports = async function (message) {
                 }
                 else {
                     // Fetch the server prefix from the discordbot.SERVERS database table
-                    sql.server.general.getPrefix(message.guild.id)
-                        .then(prefix => {
-                            const botMessages = messages.filter(msg => (msg.author.bot &&
-                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                            ));
-                            const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
-                                getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
-                            ));
+                    const prefix = data.prefix;
+                    const botMessages = messages.filter(msg => (msg.author.bot &&
+                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                    ));
+                    const cmdMessages = messages.filter(msg => (prefix == msg.content.charAt(0) &&
+                        getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14
+                    ));
 
-                            const botMessagesDeleted = botMessages.array().length;
-                            const cmdMessagesDeleted = cmdMessages.array().length;
+                    const botMessagesDeleted = botMessages.array().length;
+                    const cmdMessagesDeleted = cmdMessages.array().length;
 
-                            channel.bulkDelete(botMessages);
-                            channel.bulkDelete(cmdMessages);
+                    channel.bulkDelete(botMessages);
+                    channel.bulkDelete(cmdMessages);
 
-                            resolve(commandFormat.valid([botMessagesDeleted, cmdMessagesDeleted], [chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted)], {clear: 10}));
-                        })
-                        .catch(e => reject(commandFormat.error([e], [])));
+                    resolve(commandFormat.valid([botMessagesDeleted, cmdMessagesDeleted], [chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted)], {clear: 10}));
                 }
             })
             .catch(e => reject(commandFormat.error([e], [])));

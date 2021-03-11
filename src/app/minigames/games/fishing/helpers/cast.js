@@ -1,5 +1,5 @@
 const chatFormat = require('../../../../common/bot/helpers/global/chatFormat');
-const sql = require('../../../../sql/adapter');
+// const sql = require('../../../../sql/adapter');
 const instance = require('./instance');
 const Discord = require('discord.js');
 

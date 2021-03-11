@@ -1,7 +1,7 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const Discord = require('discord.js');
-const sql = require('../../../sql/adapter');
+// const sql = require('../../../sql/adapter');
 
 function byName(guild_id, name) {
     return new Promise((resolve, reject) => {

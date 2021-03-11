@@ -1,4 +1,4 @@
-const sql = require('../../../../../sql/adapter');
+// const sql = require('../../../../../sql/adapter');
 
 module.exports = function (level, tier) {
     return new Promise((resolve, reject) => {

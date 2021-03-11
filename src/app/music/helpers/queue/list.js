@@ -16,7 +16,7 @@ function field(song, useLink = false) {
 
 module.exports = function (message, data) {
     if (!queue.has(message.guild.id))
-        return commandFormat.error([], [chatFormat.response.music.queue.no_data()]);
+        return Promise.reject(commandFormat.error([], [chatFormat.response.music.queue.no_data()]));
 
     let q = queue.get(message.guild.id);
 
@@ -49,5 +49,5 @@ module.exports = function (message, data) {
     if (q.songs.length > chatFormat.response.music.queue.list_length)
         embed.setFooter(`... and ${q.songs.length - count} others.`);
 
-    return commandFormat.valid(q.songs, [embed], { clear: 30 } );
+    return Promise.resolve(commandFormat.valid(q.songs, [embed], { clear: 30 } ));
 }

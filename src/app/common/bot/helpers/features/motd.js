@@ -1,5 +1,5 @@
 const commandFormat = require('../global/commandFormat');
-const sql = require('../../../../sql/adapter');
+// const sql = require('../../../../sql/adapter');
 
 function defaultMotd(message) {
     return {

@@ -1,4 +1,4 @@
-const sql = require('../../sql/adapter');
+// const sql = require('../../sql/adapter');
 const embedListing = require('./embedListing');
 const messageTarget = require('./messageTarget');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');

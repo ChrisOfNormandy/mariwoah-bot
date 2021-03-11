@@ -1,4 +1,4 @@
-const sql = require('../../sql/adapter');
+// const sql = require('../../sql/adapter');
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 
 function setRank(message, userID, rank) {

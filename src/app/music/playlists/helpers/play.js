@@ -1,4 +1,4 @@
-const sql = require('../../../sql/adapter');
+// const sql = require('../../../sql/adapter');
 const append = require('../../helpers/queue/append');
 const commondFormat = require('../../../common/bot/helpers/global/commandFormat');
 

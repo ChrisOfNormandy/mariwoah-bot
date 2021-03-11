@@ -1,7 +1,7 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const Discord = require('discord.js');
-const sql = require('../../../sql/adapter');
+// const sql = require('../../../sql/adapter');
 
 module.exports = function (message, playlistName) {
     console.log(message.guild.id, message.author.id, playlistName)

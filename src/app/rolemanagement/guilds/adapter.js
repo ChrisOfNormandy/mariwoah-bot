@@ -1,6 +1,6 @@
 const chatFormat = require('../../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
-const sql = require('../../sql/adapter');
+// const sql = require('../../sql/adapter');
 
 function listHelp(message, data) {
     
@@ -807,8 +807,8 @@ function setTitle(message, data) {
 }
 
 module.exports = {
-    create: sql.server.guilds.create,
-    get: sql.server.guilds.get,
+    // create: sql.server.guilds.create,
+    // get: sql.server.guilds.get,
     view: formatListing,
 
     listHelp,

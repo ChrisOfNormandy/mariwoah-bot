@@ -2,6 +2,7 @@
 /src/app/common/playlists
 /src/app/common/roleManager/servers
 /private
+/config
 .gitignore
 package-lock.json
 /temp

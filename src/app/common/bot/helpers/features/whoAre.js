@@ -2,9 +2,9 @@ const Discord = require('discord.js');
 
 const chatFormat = require('../global/chatFormat');
 const commandFormat = require('../global/commandFormat');
-const sql = require('../../../../sql/adapter');
+// const sql = require('../../../../sql/adapter');
 
-function formatEmbed(name, joinDate, roleList, member, data) {
+function formatEmbed(name, joinDate, roleList, member) {
     const user = member.user;
 
     if (user.bot)
@@ -15,9 +15,9 @@ function formatEmbed(name, joinDate, roleList, member, data) {
         .addField("Join date", joinDate)
         .addField("Roles", roleList, true)
         .addField("Admin", member.hasPermission("ADMINISTRATOR") ? "Yes" : "No", true)
-        .addField("User ID", data.user_id)
-        .addField("Permission level", data.permission_level, true)
-        .addField("Bot role", (data.bot_role === null) ? "None" : data.bot_role, true);
+        // .addField("User ID", data.user_id)
+        // .addField("Permission level", data.permission_level, true)
+        // .addField("Bot role", (data.bot_role === null) ? "None" : data.bot_role, true);
 
     return embed;
 }
@@ -49,12 +49,8 @@ module.exports = {
         let roles = getRoles(member, message);
 
         return new Promise((resolve, reject) => {
-            sql.users.get(message.guild.id, user.id)
-                .then(data => {
-                    let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve(commandFormat.valid([data], [embed]));
-                })
-                .catch(e => reject(commandFormat.error([e], [chatFormat.response.whoAre.self_reject()])));
+            let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
+            resolve(commandFormat.valid([user], [embed]));
         });
     },
 
@@ -66,12 +62,8 @@ module.exports = {
         let roles = getRoles(member, message);
 
         return new Promise((resolve, reject) => {
-            sql.users.get(message.guild.id, user.id)
-                .then(data => {
-                    let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member, data);
-                    resolve(commandFormat.valid([data], [embed]));
-                })
-                .catch(e => reject([e], [chatFormat.response.whoAre.member_reject()]));
+            let embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
+            resolve(commandFormat.valid([user], [embed]));
         });
     }
 }

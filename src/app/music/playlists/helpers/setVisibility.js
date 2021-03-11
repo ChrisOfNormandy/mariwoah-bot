@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
-const sql = require('../../../sql/adapter');
+// const sql = require('../../../sql/adapter');
 
 module.exports = function(guild_id, name, value) {
     return new Promise((resolve, reject) => {

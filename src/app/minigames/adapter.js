@@ -1,4 +1,4 @@
-const sql = require('../sql/adapter');
+// const sql = require('../sql/adapter');
 const chatFormat = require('../common/bot/helpers/global/chatFormat');
 const Discord = require('discord.js');
 const fishing = require('./games/fishing/adapter');

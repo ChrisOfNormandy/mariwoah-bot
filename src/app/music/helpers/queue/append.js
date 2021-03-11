@@ -30,7 +30,7 @@ function f(message, songs, flags, startFlag) {
     });
 }
 
-module.exports = function (message, songs, flags = {}) {
+module.exports = (message, songs, flags = {}) => {
     return new Promise(async (resolve, reject) => {
         if (!songs.length)
             reject(commandFormat.error([], ['Tried to add 0 songs to the active queue.']));

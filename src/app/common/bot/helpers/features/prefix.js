@@ -1,5 +1,5 @@
 const commandFormat = require('../global/commandFormat');
-const sql = require('../../../../sql/adapter');
+// const sql = require('../../../../sql/adapter');
 
 function get(message) {
     return new Promise((resolve, reject) => {

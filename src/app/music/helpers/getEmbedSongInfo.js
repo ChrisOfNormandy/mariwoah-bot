@@ -59,7 +59,7 @@ module.exports = {
     songInfo: function (message, data) {
         return new Promise((resolve, reject) => {
             if (data.urls.length) {
-                getSong.byUrl(message, data.urls[0])
+                getSong.byURL(message, data.urls[0])
                     .then(video => resolve(embedSongInfo(video)))
                     .catch(e => reject(e));
             }
