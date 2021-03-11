@@ -197,13 +197,29 @@ async function execute(str, options) {
         return `"${groups[0].slice(1)}"`;
 }
 
-async function run(str, ops, options, skip = false) {
-    let res = {
-        value: str,
-        embedded: []
+const reserved = {
+    if: (body) => {
+        return body == 1;
+    },
+    else: (body = 1) => {
+        return body == 1;
+    },
+    let: null,
+    const: null,
+    for: null,
+    while: null
+}
+
+async function run(str, ops, options) {
+    let s = str;
+
+    // Reserved keywords
+    if (!!reserved[s.split(' ')[0]]) {
+
     }
-    if (skip && !Regex.special_operations._.test(res.value))
-        return;
+    else {
+
+    }
 
     // Execute functions
     while(Regex.functions._.test(res.value)) {
@@ -247,8 +263,6 @@ async function run(str, ops, options, skip = false) {
     return res
 }
 
-function newVar()
-
 async function script(client, message) {
     let lines = message.content.slice(1).split(Regex.end_line);
 
@@ -280,9 +294,6 @@ async function script(client, message) {
         startTimes[line] = Date.now();
 
         const l = await run(str, ops, options, ops.skip);
-
-        console.log(l.value);
-        console.log(l.variables);
 
         endTimes[line] = Date.now();
         ellapsed += endTimes[line] - startTimes[line];

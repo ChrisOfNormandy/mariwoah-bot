@@ -49,8 +49,7 @@ module.exports = {
     },
     variables: {
         _: /:(\w+)(\.(\w+))?/,
-        user: /%(\w+)%/,
-        user_g: /%(\w+)%/g
+        let: /let (\w+)\s?=\s?(.+)/
     },
     special_operations: {
         _: /\$(\w+)(\((.+)\))?/
