@@ -281,5 +281,88 @@ module.exports = [
         adminOnly: false,
         enabled: true,
         run: (message, data) => adapter.music.song.download(data)
+    },
+    { // Playlist commands that have 1 subcommand.
+        group: 'music',
+        regex: {
+            command: /(playlist)|(pl)/,
+            arguments: /\s(\w+)(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
+            subcommand: /(play)|(delete)/,
+            argumentIndexes: [3],
+            subcommandIndexes: [1]
+        },
+        run: (message, data) => adapter.music.playlist(message, data)
+    },
+    { // Playlist commands that have 2 subcommands.
+        group: 'music',
+        regex: {
+            command: /(playlist)|(pl)/,
+            arguments: /\s(\w+)\s(\w+)(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
+            subcommand: /(add)|(remove)/,
+            argumentIndexes: [2, 4],
+            subcommandIndexes: [1]
+        },
+        run: (message, data) => adapter.music.playlist(message, data)
+    },
+    { // Playlist commands that have 1 subcommand and optional arguments.
+        group: 'music',
+        regex: {
+            command: /(playlist)|(pl)/,
+            arguments: /\s(\w+)?(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
+            subcommand: /(list)/,
+            argumentIndexes: [3],
+            subcommandIndexes: [1],
+            argsOptional: true
+        },
+        run: (message, data) => adapter.music.playlist(message, data)
+    },
+    {
+        group: 'test',
+        regex: {
+            command: /(s3put)/,
+            arguments: null,
+            argumentIndexes: []
+        },
+        description: {
+            command: ""
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => {
+            const s3 = require('./aws/helpers/s3/index');
+            const fs = require('fs');
+
+            return new Promise((resolve, reject) => {
+                fs.writeFile('./temp/test.json', JSON.stringify('{"key": 1}'), (err) => {
+                    if (err) reject({ rejections: [err], content: [err.message] });
+                    else
+                        s3.object.put('mariwoah', 'user-data', './temp/test.json')
+                            .then(r => resolve({values: [], content: [r]}))
+                            .catch(err => reject({rejections: [err], content: [err.message]}));
+                    });
+            })
+        }
+    },
+    {
+        group: 'test',
+        regex: {
+            command: /(s3get)/,
+            arguments: null,
+            argumentIndexes: []
+        },
+        description: {
+            command: ""
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => {
+            const s3 = require('./aws/helpers/s3/index');
+
+            return new Promise((resolve, reject) => {
+                s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/test.json`)
+                    .then(r => resolve({values: [], content: [r.Body.toString()]}))
+                    .catch(err => reject({rejections: [err], content: [err.message]}));
+            })
+        }
     }
 ]

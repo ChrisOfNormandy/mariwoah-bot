@@ -1,61 +1,74 @@
 const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
 const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
 const Discord = require('discord.js');
-// const sql = require('../../../sql/adapter');
+const { s3 } = require('../../../../aws/helpers/adapter');
+
+function getList(guild_id) {
+    return new Promise((resolve, reject) => {
+        s3.object.list('mariwoah', `guilds/${guild_id}/playlists`)
+            .then(list => resolve(list))
+            .catch(err => reject(err));
+    });
+}
 
 function byName(guild_id, name) {
     return new Promise((resolve, reject) => {
-        sql.playlists.get(guild_id, name)
+        getList(guild_id)
             .then(list => {
+                const l = list.filter((file) => { return file.Key == `guilds/${guild_id}/playlists/${name}.json` });
+
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Songs in the playlist: ${name}`)
                     .setColor(chatFormat.colors.information);
 
-                if (!list.length)
+                if (!l.length) {
                     embed.addField(`Nothing found.`, `You can add songs using:\n> playlist add ${name} {song title / youtube url(s)}`);
-                else {
-                    let song, index;
-                    for (let i in list) {
-                        index = Number(i) + 1;
-                        song = JSON.parse(list[i].song);
-                        embed.addField(`${index}. ${song.title}`,`${song.author} | Duration: ${song.duration.timestamp}\n${song.url}`);
-                    }
+                    resolve(commandFormat.valid(l, [embed]));
                 }
-                
-                resolve(commandFormat.valid(list, [embed]));
+                else {
+                    s3.object.get('mariwoah', `guilds/${guild_id}/playlists/${name}.json`)
+                        .then(obj => {
+                            let list = JSON.parse(obj.Body.toString());
+
+                            let index = 1;
+                            for (let s in list) {
+                                const song = list[s];
+                                embed.addField(`${index}. ${song.title}`, `${song.author} | Duration: ${song.duration.timestamp}\n${song.url}`);
+                                index++;
+                            }
+
+                            resolve(commandFormat.valid([list], [embed]));
+                        })
+                        .catch(err => reject(commandFormat.error([err], [err.message])));
+                }
             })
-            .catch(e => reject(commandFormat.error[e], []));
+            .catch(err => reject(commandFormat.error([err], [err.message])));
     });
 }
 
 function all(guild_id) {
     return new Promise((resolve, reject) => {
-        sql.playlists.list(guild_id)
-            .then(playlists => {
+        getList(guild_id)
+            .then(list => {
+                const path = require('path');
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Available Playlists`)
                     .setColor(chatFormat.colors.information);
-                
-                let promiseArr = [];
-                for (let i in playlists)
-                    promiseArr.push(sql.playlists.get(guild_id, playlists[i].name));
-                
-                Promise.all(promiseArr)
-                    .then(list => {
-                        for (let i in playlists) {
-                            let index = Number(i) + 1;
-                            embed.addField(`${index}. ${playlists[i].name}`, `${list[i].length} song${list[i].length != 1 ? 's' : ''} | Created by: <@${playlists[i].user_id}>`);
-                        }
 
-                        resolve(commandFormat.valid([playlists, list], [embed]));
-                    })
-                    .catch(e => reject(commandFormat.error([e], [])));
+                let i = 0;
+                list.forEach((file) => {
+                    let index = i + 1;
+                    embed.addField(`${index}. ${path.basename(file.Key).replace('.json', '')}`, `<Details will go here :)>`);
+                    i++;
+                });
+
+                resolve(commandFormat.valid([list], [embed]));
             })
-            .catch(e => reject(commandFormat.error[e], []));
+            .catch(err => reject(commandFormat.error([err], ["Bad list."])));
     });
 }
 
-module.exports = function (guild_id, name = null) {
+module.exports = (guild_id, name = null) => {
     if (!name)
         return all(guild_id);
     return byName(guild_id, name);

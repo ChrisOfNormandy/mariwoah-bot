@@ -1,32 +1,25 @@
-// const sql = require('../../../sql/adapter');
 const append = require('../../helpers/queue/append');
 const commondFormat = require('../../../common/bot/helpers/global/commandFormat');
+const {s3} = require('../../../../aws/helpers/adapter');
 
-module.exports = function (message, data) {
+module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         let name = data.arguments[0];
 
-        const guild_id = (!!data.parameters.string['guild'])
-            ? data.parameters.string['guild']
-            : message.guild.id;
-
-        sql.playlists.get(guild_id, name)
-            .then(list => {
-                if (list === null)
-                    reject(commondFormat.error([], [`Could not find a playlist named ${name}.`]));
-                else {                    
-                    let song;
-                    let songs = [];
-                    for (let i in list) {
-                        song = JSON.parse(list[i].song);
-                        songs.push(song);
-                    }
-
-                    append(message, songs, data.flags)
-                        .then(res => resolve(res))
-                        .catch(e => reject(e));
+        s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/${name}.json`)
+            .then(obj => {
+                let list = JSON.parse(obj.Body.toString());
+                
+                let songs = [];
+                for (let s in list) {
+                    const song = list[s];
+                    songs.push(song);
                 }
+
+                append(message, songs, data.flags)
+                    .then(res => resolve(res))
+                    .catch(err => reject(err));
             })
-            .catch(e => reject(e));
+            .catch(err => reject(err));
     });
 }
