@@ -1,4 +1,4 @@
-const adapter = require('./app/adapter');
+const groups = require('./app/groups');
 
 module.exports = [
     {
@@ -21,7 +21,7 @@ module.exports = [
             }
         },
         enabled: true,
-        run: (message, data) => adapter.common.bot.features.cleanChat(message, data)
+        run: (message, data) => groups.utility.clean(message, data)
     },
     {
         group: 'general',
@@ -41,7 +41,7 @@ module.exports = [
             }
         },
         enabled: true,
-        run: (message, data) => adapter.common.bot.features.ping(message)
+        run: (message, data) => groups.general.ping(message)
     },
     {
         group: 'utility',
@@ -59,31 +59,31 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.common.bot.features.roll(data.arguments)
+        run: (message, data) => groups.utility.roll(data.arguments)
     },
-    { // Arguments only accepts 3 values for some reason...
-        group: 'utility',
-        regex: {
-            command: /(shuffle)/,
-            arguments: /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/,
-            argumentIndexes: [0]
-        },
-        description: {
-            command: "Shuffles a set of csv values.",
-            arguments: [
-                { "List": "Comma separated values list - ex: 1,2,3,4,5" }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
-            return new Promise((resolve, reject) => {
-                adapter.common.bot.global.shuffle(data.arguments[0].split(/,\s*/))
-                    .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
-                    .catch(e => reject({ rejections: [e], content: [] }));
-            });
-        }
-    },
+    // { // Arguments only accepts 3 values for some reason...
+    //     group: 'utility',
+    //     regex: {
+    //         command: /(shuffle)/,
+    //         arguments: /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/,
+    //         argumentIndexes: [0]
+    //     },
+    //     description: {
+    //         command: "Shuffles a set of csv values.",
+    //         arguments: [
+    //             { "List": "Comma separated values list - ex: 1,2,3,4,5" }
+    //         ]
+    //     },
+    //     adminOnly: false,
+    //     enabled: true,
+    //     run: (message, data) => {
+    //         return new Promise((resolve, reject) => {
+    //             groups.common.bot.global.shuffle(data.arguments[0].split(/,\s*/))
+    //                 .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
+    //                 .catch(e => reject({ rejections: [e], content: [] }));
+    //         });
+    //     }
+    // },
     {
         group: 'general',
         regex: {
@@ -105,7 +105,7 @@ module.exports = [
             }
         },
         enabled: true,
-        run: (message, data) => adapter.common.bot.features.whoAre.self(message)
+        run: (message, data) => groups.general.whois.self(message)
     },
     {
         group: 'general',
@@ -130,7 +130,7 @@ module.exports = [
             }
         },
         enabled: true,
-        run: (message, data) => adapter.common.bot.features.whoAre.member(message)
+        run: (message, data) => groups.general.whois.member(message)
     },
     {
         group: 'music',
@@ -147,7 +147,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.addSong(message, data)
+        run: (message, data) => groups.music.queue.add(message, data)
     },
     {
         group: 'music',
@@ -161,7 +161,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.voiceChannel.join(message)
+        run: (message, data) => groups.music.voiceChannel.join(message)
     },
     {
         group: 'music',
@@ -175,7 +175,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.voiceChannel.leave(message)
+        run: (message, data) => groups.music.voiceChannel.leave(message)
     },
     {
         group: 'music',
@@ -189,7 +189,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.skip(message)
+        run: (message, data) => groups.music.queue.skip(message)
     },
     {
         group: 'music',
@@ -203,7 +203,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.stop(message)
+        run: (message, data) => groups.music.queue.stop(message)
     },
     {
         group: 'music',
@@ -217,7 +217,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.list(message, data)
+        run: (message, data) => groups.music.queue.list(message, data)
     },
     {
 
@@ -232,7 +232,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.pause(message)
+        run: (message, data) => groups.music.queue.pause(message)
     },
     {
         group: 'music',
@@ -246,7 +246,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.queue.resume(message)
+        run: (message, data) => groups.music.queue.resume(message)
     },
     {
         group: 'music',
@@ -263,7 +263,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.song.info(message, data)
+        run: (message, data) => groups.music.song.info(message, data)
     },
     {
         group: 'music',
@@ -280,7 +280,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => adapter.music.song.download(data)
+        run: (message, data) => groups.music.song.download(data)
     },
     { // Playlist commands that have 1 subcommand.
         group: 'music',
@@ -291,7 +291,7 @@ module.exports = [
             argumentIndexes: [3],
             subcommandIndexes: [1]
         },
-        run: (message, data) => adapter.music.playlist(message, data)
+        run: (message, data) => groups.music.playlist(message, data)
     },
     { // Playlist commands that have 2 subcommands.
         group: 'music',
@@ -302,7 +302,7 @@ module.exports = [
             argumentIndexes: [2, 4],
             subcommandIndexes: [1]
         },
-        run: (message, data) => adapter.music.playlist(message, data)
+        run: (message, data) => groups.music.playlist(message, data)
     },
     { // Playlist commands that have 1 subcommand and optional arguments.
         group: 'music',
@@ -314,55 +314,6 @@ module.exports = [
             subcommandIndexes: [1],
             argsOptional: true
         },
-        run: (message, data) => adapter.music.playlist(message, data)
-    },
-    {
-        group: 'test',
-        regex: {
-            command: /(s3put)/,
-            arguments: null,
-            argumentIndexes: []
-        },
-        description: {
-            command: ""
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
-            const s3 = require('./aws/helpers/s3/index');
-            const fs = require('fs');
-
-            return new Promise((resolve, reject) => {
-                fs.writeFile('./temp/test.json', JSON.stringify('{"key": 1}'), (err) => {
-                    if (err) reject({ rejections: [err], content: [err.message] });
-                    else
-                        s3.object.put('mariwoah', 'user-data', './temp/test.json')
-                            .then(r => resolve({values: [], content: [r]}))
-                            .catch(err => reject({rejections: [err], content: [err.message]}));
-                    });
-            })
-        }
-    },
-    {
-        group: 'test',
-        regex: {
-            command: /(s3get)/,
-            arguments: null,
-            argumentIndexes: []
-        },
-        description: {
-            command: ""
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
-            const s3 = require('./aws/helpers/s3/index');
-
-            return new Promise((resolve, reject) => {
-                s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/test.json`)
-                    .then(r => resolve({values: [], content: [r.Body.toString()]}))
-                    .catch(err => reject({rejections: [err], content: [err.message]}));
-            })
-        }
+        run: (message, data) => groups.music.playlist(message, data)
     }
 ]
