@@ -1,6 +1,35 @@
 const groups = require('./app/groups');
 
-module.exports = [
+const list = [
+    {
+        group: 'general',
+        regex: {
+            command: /(\?)|(help)/,
+            arguments: /\s?([\w\?]+)?/,
+            argumentIndexes: [1]
+        },
+        description: {
+            command: "Displays a list of commands and syntaxes.",
+            arguments: [
+                {
+                    _: "Command",
+                    d: "A command string.",
+                    optional: true
+                }
+            ]
+        },
+        adminOnly: false,
+        settings: {
+            "responseClear": {
+                delay: 30
+            },
+            "commandClear": {
+                delay: 0
+            }
+        },
+        enabled: true,
+        run: (message, data) => groups.general.help(message, data, list)
+    },
     {
         group: 'utility',
         regex: {
@@ -11,7 +40,11 @@ module.exports = [
         description: {
             command: "Cleans chat of bot messages and commands. Can be used to clean specific user messages.",
             arguments: [
-                { "*@User(s)": "User ping(s)." }
+                {
+                    _: '@User | @Users',
+                    d: 'Ping of one ore more users.',
+                    optional: true
+                }
             ]
         },
         adminOnly: true,
@@ -47,43 +80,55 @@ module.exports = [
         group: 'utility',
         regex: {
             command: /(roll)|(r)|(d)/,
-            arguments: /\s?([1-9][0-9]*)(\s([1-9][0-9]*))?/,
+            arguments: /\s?([1-9][0-9]*)?(\s([1-9][0-9]*))?/,
             argumentIndexes: [1, 3]
         },
         description: {
-            command: "Rolls a number between 1 and a given value, default 6. Can be done multiple times.",
+            command: "Rolls a number between 1 and a given value.",
             arguments: [
-                { "*Sides": "The number to roll to, default being 6." },
-                { "*Count": "How many rolls should be made. Requires sides declairation. Max 50." }
+                {
+                    _: 'Sides',
+                    d: 'Any integer between 1 and 2^53-1. Defaults to 6.',
+                    optional: true
+                },
+                {
+                    _: 'Count',
+                    d: 'Any integer between 1 and 50.',
+                    optional: true
+                }
             ]
         },
         adminOnly: false,
         enabled: true,
         run: (message, data) => groups.utility.roll(data.arguments)
     },
-    // { // Arguments only accepts 3 values for some reason...
-    //     group: 'utility',
-    //     regex: {
-    //         command: /(shuffle)/,
-    //         arguments: /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/,
-    //         argumentIndexes: [0]
-    //     },
-    //     description: {
-    //         command: "Shuffles a set of csv values.",
-    //         arguments: [
-    //             { "List": "Comma separated values list - ex: 1,2,3,4,5" }
-    //         ]
-    //     },
-    //     adminOnly: false,
-    //     enabled: true,
-    //     run: (message, data) => {
-    //         return new Promise((resolve, reject) => {
-    //             groups.common.bot.global.shuffle(data.arguments[0].split(/,\s*/))
-    //                 .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
-    //                 .catch(e => reject({ rejections: [e], content: [] }));
-    //         });
-    //     }
-    // },
+    {
+        group: 'utility',
+        regex: {
+            command: /(shuffle)/,
+            arguments: /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/,
+            argumentIndexes: [0]
+        },
+        description: {
+            command: "Shuffles a set of comma-separated values.",
+            arguments: [
+                {
+                    _: 'List',
+                    d: 'A list of comma-separated values: Ex: 1, 2, 3, 4',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => {
+            return new Promise((resolve, reject) => {
+                require('./app/helpers/shuffle')(data.arguments[0].split(/,\s*/))
+                    .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
+                    .catch(e => reject({ rejections: [e], content: [] }));
+            });
+        }
+    },
     {
         group: 'general',
         regex: {
@@ -117,7 +162,11 @@ module.exports = [
         description: {
             command: "Gathers and displays information about another user.",
             arguments: [
-                { "@User": "User ping." }
+                {
+                    _: '@User',
+                    d: 'A pinged user.',
+                    optional: true
+                }
             ]
         },
         adminOnly: false,
@@ -142,7 +191,11 @@ module.exports = [
         description: {
             command: "Plays a song in the voice channel.",
             arguments: [
-                { "Song": "Video title | YouTube URL(s)" }
+                {
+                    _: 'URL | Title',
+                    d: 'A YouTube URL or the title of a video, playlist, channel.',
+                    optional: false
+                }
             ],
         },
         adminOnly: false,
@@ -157,7 +210,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Puts the bot into the requested voice channel."
+            command: "Puts the bot into the requested voice channel.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -171,7 +225,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Removes the bot from the voice channel."
+            command: "Removes the bot from the voice channel.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -185,7 +240,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Skips the current song in the active queue."
+            command: "Skips the current song in the active queue.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -199,7 +255,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Stops the active queue."
+            command: "Stops the active queue.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -213,7 +270,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Lists the songs in the active queue."
+            command: "Lists the songs in the active queue.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -228,7 +286,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Pauses the active queue."
+            command: "Pauses the active queue.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -242,7 +301,8 @@ module.exports = [
             argumentIndexes: []
         },
         description: {
-            command: "Resumes the paused, active queue."
+            command: "Resumes the paused, active queue.",
+            arguments: []
         },
         adminOnly: false,
         enabled: true,
@@ -258,7 +318,11 @@ module.exports = [
         description: {
             command: "Gathers information about a song.",
             arguments: [
-                {"Song": "Video title | YouTube URL"}
+                {
+                    _: 'URL | Title',
+                    d: 'YouTube url or the title of a video, playlist, channel.',
+                    optional: false
+                }
             ],
         },
         adminOnly: false,
@@ -275,7 +339,11 @@ module.exports = [
         description: {
             command: "Downloads an MP4 audio file.",
             arguments: [
-                {"Song": "Video title | YouTube URL"}
+                {
+                    _: 'URL | Title',
+                    d: 'YouTube url or the title of a video, playlist, channel.',
+                    optional: false
+                }
             ],
         },
         adminOnly: false,
@@ -291,6 +359,18 @@ module.exports = [
             argumentIndexes: [3],
             subcommandIndexes: [1]
         },
+        description: {
+            command: "Playlist commands using one subcommand.",
+            arguments: [
+                {
+                    _: '...',
+                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                    optional: true
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
         run: (message, data) => groups.music.playlist(message, data)
     },
     { // Playlist commands that have 2 subcommands.
@@ -302,6 +382,18 @@ module.exports = [
             argumentIndexes: [2, 4],
             subcommandIndexes: [1]
         },
+        description: {
+            command: "Playlist commands using two subcommands.",
+            arguments: [
+                {
+                    _: '...',
+                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                    optional: true
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
         run: (message, data) => groups.music.playlist(message, data)
     },
     { // Playlist commands that have 1 subcommand and optional arguments.
@@ -314,6 +406,20 @@ module.exports = [
             subcommandIndexes: [1],
             argsOptional: true
         },
+        description: {
+            command: "Playlist commands using one subcommand with optional arguments.",
+            arguments: [
+                {
+                    _: '...',
+                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                    optional: true
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
         run: (message, data) => groups.music.playlist(message, data)
     }
-]
+];
+
+module.exports = list;

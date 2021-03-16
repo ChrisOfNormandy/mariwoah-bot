@@ -63,8 +63,6 @@ module.exports = (client, message) => {
 
             while (!finished && cmdIndex < f.length) {
                 const regex = f[cmdIndex].regex;
-                console.log('##### TESTING #####');
-                console.log(regex);
 
                 let r = `${prefix}(${regex.command.source})`;
                 if (!!regex.subcommand)
@@ -73,14 +71,10 @@ module.exports = (client, message) => {
                     r += `(${regex.arguments.source})`;
                 if (!!regex.argsOptional)
                     r += '?';
-                
+
                 let rx = new RegExp(r);
 
-                console.log('RegExp:', rx);
-                console.log('Testing:', data.content);
-
                 if (!rx.test(data.content)) {
-                    console.log('Test failed. Moving on...');
                     cmdIndex++;
                     continue;
                 }
@@ -94,14 +88,11 @@ module.exports = (client, message) => {
                         ? str.match(regex.arguments)
                         : [];
 
-                    console.log('Argument match array:', a);
-
                     data['command'] = c[0];
                     data['arguments'] = [];
                     data['subcommand'] = null;
 
                     if (!!regex.subcommand) {
-                        console.log('Testing subcommands.');
                         let count = 0;
 
                         while (count < regex.subcommandIndexes.length && data['subcommand'] === null) {
@@ -117,12 +108,8 @@ module.exports = (client, message) => {
                         }
                     }
 
-                    a.forEach((v, i) => {
-                        if (regex.argumentIndexes.includes(i) && v !== undefined)
-                            data['arguments'].push(v.trim());
-                    });
-
-                    console.log('>', data.content, '\n', data.subcommand, '\n', data.arguments, '\n', data.flags, '\n', data.urls);
+                    for (let i in regex.argumentIndexes)
+                        data['arguments'].push(a[regex.argumentIndexes[i]]);
 
                     finished = true;
 
@@ -132,7 +119,19 @@ module.exports = (client, message) => {
                                 message.channel.send(msg)
                                     .then(msg => {
                                         if (!!response.options && !!response.options.clear)
-                                            setTimeout(() => {msg.delete()}, response.options.clear * 1000);
+                                            setTimeout(() => { msg.delete() }, response.options.clear * 1000);
+                                        if (!!f[cmdIndex].settings.responseClear)
+                                            setTimeout(() => { msg.delete() }, f[cmdIndex].settings.responseClear.delay * 1000);
+                                        if (!!f[cmdIndex].settings.commandClear) {
+                                            setTimeout(() => {
+                                                message.delete()
+                                                    .catch(() => {
+                                                        message.channel.send('Could not clear command automatically - missing permissions.')
+                                                            .then(msg => setTimeout(() => msg.delete(), 10 * 1000))
+                                                            .catch(err => reject(err))
+                                                        });
+                                            }, f[cmdIndex].settings.commandClear.delay * 1000);
+                                        }
                                     })
                                     .catch(err => reject(err));
                             });
@@ -147,7 +146,7 @@ module.exports = (client, message) => {
 
                             reject(err.rejections[0]);
                         });
-                    }
+                }
             }
             if (!finished)
                 reject(finErr);

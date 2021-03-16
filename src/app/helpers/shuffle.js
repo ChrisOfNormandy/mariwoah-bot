@@ -1,4 +1,4 @@
-module.exports = async function (array) {
+module.exports = (array) => {
     return new Promise((resolve, reject) =>  {
         if (!array.length)
             reject(array);
