@@ -7,7 +7,7 @@ module.exports = (message, data, list) => {
 
     let groups = {};
 
-    if (data.arguments.length) {
+    if (data.arguments[0] !== undefined) {
         let arg = data.arguments[0];
         if (/[\?]/.test(arg))
             arg = `\\${arg}`;
@@ -41,12 +41,23 @@ module.exports = (message, data, list) => {
                 for (let i in cmd.description.arguments) {
                     if (/\\s\??/.test(cmd.regex.arguments.source))
                         syntax += ' ';
-                    syntax += `< ${cmd.description.arguments[i].optional ? '_' : ''}${cmd.description.arguments[i]._}${cmd.description.arguments[i].optional ? '_' : ''} >`;
+                    syntax += `${cmd.description.arguments[i].optional ? '_' : ''}<${cmd.description.arguments[i]._}>${cmd.description.arguments[i].optional ? '_' : ''}`;
                 }
+
                 embed.addField(cmd.description.command, msg);
                 embed.addField('Syntax', syntax);
 
+                if (!!cmd.description.flags) {
+                    let flags = '';
+                    for (let i in cmd.description.flags) {
+                        flags += `${cmd.description.flags[i]._} : ${cmd.description.flags[i].d}`;
+                        if (i < cmd.description.flags.length)
+                            flags += '\n';
+                    }
+                    embed.addField('Flags', flags);
+                }
             });
+            embed.setFooter('Arguments in italics are optional.');
         }
         else
             embed.addField('Oops!', `Could not find a command matching "${arg}".`);
@@ -74,11 +85,9 @@ module.exports = (message, data, list) => {
                 if (i < groups[g].length - 1)
                     msg += '\n'
             }
-            embed.addField(g, msg);
+            embed.addField(g, msg, true);
         }
     }
-
-    embed.setFooter('Arguments in italics are optional.');
 
     return Promise.resolve(output.valid([list], [embed]));
 }

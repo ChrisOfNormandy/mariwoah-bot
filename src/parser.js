@@ -119,18 +119,20 @@ module.exports = (client, message) => {
                                 message.channel.send(msg)
                                     .then(msg => {
                                         if (!!response.options && !!response.options.clear)
-                                            setTimeout(() => { msg.delete() }, response.options.clear * 1000);
-                                        if (!!f[cmdIndex].settings.responseClear)
-                                            setTimeout(() => { msg.delete() }, f[cmdIndex].settings.responseClear.delay * 1000);
-                                        if (!!f[cmdIndex].settings.commandClear) {
-                                            setTimeout(() => {
-                                                message.delete()
-                                                    .catch(() => {
-                                                        message.channel.send('Could not clear command automatically - missing permissions.')
-                                                            .then(msg => setTimeout(() => msg.delete(), 10 * 1000))
-                                                            .catch(err => reject(err))
-                                                        });
-                                            }, f[cmdIndex].settings.commandClear.delay * 1000);
+                                            setTimeout(() => { msg.delete().catch(err => reject(err)) }, response.options.clear * 1000);
+                                        if (!!f[cmdIndex].settings) {
+                                            if (!!f[cmdIndex].settings.responseClear)
+                                                setTimeout(() => { msg.delete().catch(err => reject(err)) }, f[cmdIndex].settings.responseClear.delay * 1000);
+                                            if (!!f[cmdIndex].settings.commandClear) {
+                                                setTimeout(() => {
+                                                    message.delete()
+                                                        .catch(() => {
+                                                            message.channel.send('Could not clear command automatically - missing permissions.')
+                                                                .then(msg => setTimeout(() => msg.delete().catch(err => reject(err)), 10 * 1000))
+                                                                .catch(err => reject(err))
+                                                            });
+                                                }, f[cmdIndex].settings.commandClear.delay * 1000);
+                                            }
                                         }
                                     })
                                     .catch(err => reject(err));
