@@ -1,28 +1,31 @@
-const adapter = require('./src/app/adapter');
-const commandParser = require('./src/commandParser');
-// const commandLine = require('./private/commandLine');
-const debug = require('./debug');
+const parser = require('./src/parser');
+const aws = require('./src/aws/aws-link');
 
-const client = adapter.common.bot.global.startup.run();
+function startup() {
+    const Discord = require('discord.js');
+    const client = new Discord.Client();
+    client.login(require('./config/config.json').auth.token);
 
-client.on('ready', () => {
-    console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
+    client.on('ready', () => {
+        console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
+        client.user.setActivity(`${client.guilds.cache.size} guilds.`, {type: 'WATCHING'});
 
-    // commandLine.query();
+        aws.login();
+    });
+    
+    client.on('message', (message) => {
+        if (!message.author.bot)
+            parser(client, message)
+                .catch(err => {
+                    if (err !== null) {
+                        console.error('ERROR:', err);
+                    }
+                });
+    });
 
-    client.user.setActivity(`${client.users.cache.size} epic gamers.`, {type: 'WATCHING'});
+    return client
+}
 
-    debug.run();
-});
+const client = startup();
 
-client.on('message', async message => {
-    if (!message.author.bot)
-        commandParser(client, message)
-            .catch(e => {
-                if (e === null) {
-                    // No response available. All is good :)
-                }
-                else 
-                    console.log(e);
-            });
-});
+module.exports = client;
