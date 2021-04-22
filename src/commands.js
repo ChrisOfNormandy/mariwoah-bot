@@ -34,8 +34,9 @@ const list = [
         group: 'utility',
         regex: {
             command: /(clean)/,
-            arguments: null,
-            argumentIndexes: []
+            arguments: /\s@(.+)/,
+            argumentIndexes: [1],
+            argsOptional: true
         },
         description: {
             command: "Cleans chat of bot messages and commands. Can be used to clean specific user messages.",

@@ -1,9 +1,16 @@
 function getData(input) {
+    console.log(input);
     let str = input;
 
     const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
     const flagRegex = /\s\-[a-zA-Z]+/g;
+    const userMentionsRegex = /<@!\d{18}>/g;
 
+    const mentions = input.match(userMentionsRegex);
+    if (mentions !== null)
+        for (let u in mentions)
+            str = str.replace(mentions[u], `<USER:${u}>`);
+            
     const urls = input.match(urlRegex);
     if (urls !== null)
         for (let url in urls)
@@ -36,7 +43,8 @@ function getData(input) {
         content: str,
         urls: urls === null ? [] : urls,
         flags: flags === null ? [] : flags,
-        parameters
+        parameters,
+        mentions
     }
 }
 
@@ -117,7 +125,7 @@ module.exports = (client, message) => {
                             data['arguments'].push(a[regex.argumentIndexes[i]]);
 
                     finished = true;
-
+                    
                     f[cmdIndex].run(message, data)
                         .then(response => {
                             response.content.forEach(msg => {
