@@ -108,8 +108,13 @@ module.exports = (client, message) => {
                         }
                     }
 
-                    for (let i in regex.argumentIndexes)
-                        data['arguments'].push(a[regex.argumentIndexes[i]]);
+                    if (a === null) {
+                        if (!(regex.argsOptional && regex.argsOptional !== undefined))
+                            message.channel.send('No argument provided.');
+                    }
+                    else
+                        for (let i in regex.argumentIndexes)
+                            data['arguments'].push(a[regex.argumentIndexes[i]]);
 
                     finished = true;
 

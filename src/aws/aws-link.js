@@ -1,14 +1,20 @@
 const AWS = require("aws-sdk");
 const config = require('../../config/config.json');
 
+/**
+ * Login handler for AWS communication using credentials provided in the system config.
+ * @returns {Promise<{credentials: AWS.Credentials, aws: AWS}>} AWS credentials JSON.
+ */
 function login() {
-  AWS.config.loadFromPath(config.auth.aws);
+  return new Promise((resolve, reject) => {
+    AWS.config.loadFromPath(config.auth.aws);
 
-  AWS.config.getCredentials((err) => {
-    if (err)
-      console.error(err);
-    else
-      console.log("Logged in to AWS using access key:", AWS.config.credentials.accessKeyId);
+    AWS.config.getCredentials((err) => {
+      if (err)
+        reject(err);
+      else
+        resolve({credentials: AWS.config.credentials, aws: AWS});
+    });
   });
 }
 

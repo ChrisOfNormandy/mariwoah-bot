@@ -197,5 +197,8 @@ module.exports = {
         syntax: {
             error: (str = null) => {return `> Check syntax ${str !== null ? `: ${str}` : '.'}`}
         }
+    },
+    capFormat: (s) => {
+        return s.split('_').map(s => { return s.charAt(0).toUpperCase() + s.slice(1) }).join(' ');
     }
 }
