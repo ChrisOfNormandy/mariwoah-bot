@@ -183,6 +183,27 @@ const list = [
         run: (message, data) => groups.general.whois.member(message)
     },
     {
+        group: 'utility',
+        regex: {
+            command: /(colorme)|(clrme)/,
+            arguments: /\s(.+)/,
+            argumentIndexes: [1]
+        },
+        description: {
+            command: "Assigns a user a colored role.",
+            arguments: [
+                {
+                    _: 'Color',
+                    d: 'Any color standard color.',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => groups.utility.colorMe(message, data)
+    },
+    {
         group: 'music',
         regex: {
             command: /(play)|(p)/,
