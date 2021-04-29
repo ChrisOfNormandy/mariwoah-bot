@@ -22,7 +22,6 @@ module.exports = {
 
                 if (songName == 'this') {
                     if (queue.has(message.guild.id)) {
-                        console.log(queue.get(message.guild.id).songs)
                         addSong.bySong(message, playlistName, queue.get(message.guild.id).songs[0])
                             .then(song => {
                                 let embed = new Discord.MessageEmbed()

@@ -22,8 +22,6 @@ function noiseTest() {
         }
         str += '\n'
     }
-
-    console.log(str);
 }
 
 module.exports = {

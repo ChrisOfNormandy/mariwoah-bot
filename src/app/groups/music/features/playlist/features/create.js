@@ -3,8 +3,7 @@ const commandFormat = require('../../../common/bot/helpers/global/commandFormat'
 const Discord = require('discord.js');
 // const sql = require('../../../sql/adapter');
 
-module.exports = function (message, playlistName) {
-    console.log(message.guild.id, message.author.id, playlistName)
+module.exports = (message, playlistName) => {
     return new Promise((resolve, reject) => {
         sql.playlists.create(message.guild.id, message.author.id, playlistName)
             .then(res => {
@@ -15,7 +14,7 @@ module.exports = function (message, playlistName) {
                 resolve(commandFormat.valid([res], [embed]));
             })
             .catch(e => {
-                console.log(e);
+                console.error(e);
                 let embed = new Discord.MessageEmbed()
                     .setTitle('Error')
                     .setColor(chatFormat.colors.byName.red)

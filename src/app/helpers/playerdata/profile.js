@@ -67,6 +67,12 @@ function newFile(userID) {
 }
 
 function save() {
+    if (!writeCache.size) {
+        console.log('Nothing to save. Stopping save loop.');
+        saveLoop = null;
+        return;
+    }
+
     let arr = [];
     writeCache.forEach((v, k, m) => arr.push(write(k)));
 
@@ -91,6 +97,13 @@ function save() {
 
 function set(userID, profile) {
     cache.set(userID, profile);
+    if (!writeCache.size && saveLoop === null) {
+        saveLoop = setTimeout(() => {
+            console.log('Setting save timeout to 5 minutes.');
+            save();
+        }, 300000);
+    }
+
     writeCache.set(userID, true);
     return profile;
 }

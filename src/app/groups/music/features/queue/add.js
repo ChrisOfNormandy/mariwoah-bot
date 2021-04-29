@@ -2,7 +2,6 @@ const getSong = require('../../helpers/getSong');
 const append = require('./append');
 
 function byName(message, data) {
-    console.log(data.arguments);
     return new Promise((resolve, reject) => {
         getSong.byName(message, data.arguments.join(' '), data)
             .then(song => resolve(append(message, [song])))

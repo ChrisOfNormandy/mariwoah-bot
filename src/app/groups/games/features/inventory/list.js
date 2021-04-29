@@ -17,9 +17,7 @@ module.exports = (userID, filter = null) => {
 
                 if (filter === null) {
                     let sum;
-                    console.log(arr);
                     for (let i in arr) {
-                        console.log(arr[i].stack)
                         sum = 0;
                         for (let a in arr[i].stack)
                             sum += arr[i].stack[a].price;

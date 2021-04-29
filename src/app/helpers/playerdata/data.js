@@ -19,7 +19,6 @@ const inventory = {
         return new Promise((resolve, reject) => {
             profile.get(userID)
                 .then(user => {
-                    console.log('USER', user);
                     if (!user.gameData.inventory[item.name])
                         user.gameData.inventory[item.name] = {
                             name: item.name,

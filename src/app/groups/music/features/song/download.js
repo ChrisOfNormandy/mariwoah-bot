@@ -12,20 +12,14 @@ function get(url) {
 
         fs.open(path, (err, data) => {
             if (err) {
-                console.log(path, '- Does not exist. Downloading!')
                 const stream = fs.createWriteStream(path);
 
                 ytdl(url, { quality: 'lowest'}).pipe(stream);
 
-                stream.on('finish', () => {
-                    console.log('Finished downloading: ', name);
-                    resolve(new Discord.MessageAttachment(path));
-                });
+                stream.on('finish', () => resolve(new Discord.MessageAttachment(path)));
             }                
-            else {
-                console.log(path, '- Exists. Fetching!')
+            else
                 resolve(new Discord.MessageAttachment(path));
-            }
         });        
     });
 }

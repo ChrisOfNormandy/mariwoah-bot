@@ -77,7 +77,6 @@ module.exports = (message, data) => {
                                 const topic = res.RelatedTopics[count];
 
                                 if (!!!topic.FirstURL) {
-                                    console.log(topic.Topics);
                                     other[topic.Name] = topic.Topics[0];
                                     continue;
                                 }

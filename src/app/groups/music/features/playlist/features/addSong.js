@@ -25,7 +25,7 @@ function byName(message, playlistName, songName) {
                         }
                     })
                     .catch(err => {
-                        console.log(err)
+                        console.error(err)
                         let file = {
                             name: `${playlistName}.json`,
                             type: 'application/json',
@@ -63,7 +63,6 @@ function byURLs(message, playlistName, urls) {
 }
 
 function bySong(message, playlistName, song) {
-    console.log(song);
     return new Promise((resolve, reject) => {
         sql.playlists.addSong(message.guild.id, message.author.id, playlistName, song.url, song)
             .then(r => resolve(song))
