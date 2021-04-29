@@ -1,6 +1,8 @@
 const parser = require('./src/parser');
 const aws = require('./src/aws/aws-link');
 
+const chatFilter = require('./src/app/helpers/chatFilter');
+
 function startup() {
     const Discord = require('discord.js');
     const client = new Discord.Client();
@@ -8,7 +10,7 @@ function startup() {
 
     client.on('ready', () => {
         console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
-        client.user.setActivity(`${client.guilds.cache.size} guilds.`, {type: 'WATCHING'});
+        client.user.setActivity(`chat. | ~? | ~help`, {type: 'WATCHING'});
 
         aws.login()
             .then(res => {
@@ -28,13 +30,21 @@ function startup() {
     });
     
     client.on('message', (message) => {
-        if (!message.author.bot)
-            parser(client, message)
-                .catch(err => {
-                    if (err !== null) {
-                        console.error('ERROR:', err);
-                    }
-                });
+        if (!message.author.bot) {
+            let filter = chatFilter(message);
+
+            if (filter)
+                parser(client, message)
+                    .catch(err => {
+                        if (err !== null) {
+                            console.error('ERROR:', err);
+                        }
+                    });
+            else {
+                message.delete()
+                    .catch(err => message.channel.send(err.message));
+            }
+        }
     });
 
     return client

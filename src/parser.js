@@ -47,7 +47,7 @@ function getData(input) {
     }
 }
 
-module.exports = (client, message) => {
+module.exports = (client, message) => {   
     return new Promise((resolve, reject) => {
         const prefix = require('../config/config.json').settings.commands.prefix;
 
