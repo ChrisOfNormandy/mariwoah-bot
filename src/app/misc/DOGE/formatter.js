@@ -18,9 +18,9 @@ module.exports = (message, data) => {
                     let v = data.data.entries;
                     for (let i in v) {
                         str += `${(i <= v.length - 1 && i > 0)
-                                    ? (v[i - 1][1] > v[i][1])
+                                    ? (v[i][1] > v[i - 1][1])
                                         ? ':arrow_up_small: -- ' 
-                                        : (v[i - 1][1] < v[i][1])
+                                        : (v[i][1] < v[i - 1][1])
                                             ? ':arrow_down_small: -- ' 
                                             : ':arrow_right_small: -- ' 
                                     : ':record_button: -- '}$ ${v[i][1]}`;
