@@ -17,7 +17,13 @@ module.exports = (message, data) => {
                     let str = '';
                     let v = data.data.entries;
                     for (let i in v) {
-                        str += `${(i < v.length - 1 && i > 0) ? (v[i - 1][1] >= v[i][1] ? '[+] | ' : '[-] | ') : (i == v.length - 1 ? '[=] | ' : '[_] | ')}$ ${v[i][1]}`;
+                        str += `${(i <= v.length - 1 && i > 0)
+                                    ? (v[i - 1][1] > v[i][1])
+                                        ? ':arrow_up_small: -- ' 
+                                        : (v[i - 1][1] < v[i][1])
+                                            ? ':arrow_down_small: -- ' 
+                                            : ':arrow_right_small: -- ' 
+                                    : ':record_button: -- '}$ ${v[i][1]}`;
                             if (i < v.length - 1)
                                 str += '\n';
                     }
