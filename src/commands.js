@@ -80,7 +80,7 @@ const list = [
     {
         group: 'utility',
         regex: {
-            command: /(roll)|(r)|(d)/,
+            command: /(roll)|(r\d+)|(d\d+)/,
             arguments: /\s?([1-9][0-9]*)?(\s([1-9][0-9]*))?/,
             argumentIndexes: [1, 3]
         },
@@ -607,6 +607,22 @@ const list = [
                 resolve({content: ['Done']});
             });
         }
+    },
+    {
+        group: 'irl',
+        regex: {
+            command: /(doge)/,
+            arguments: null,
+            argumentIndexes: []
+        },
+        description: {
+            command: "Get doge stats.",
+            arguments: [],
+            flags: []
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => require('./app/misc/DOGE/formatter')(message, data)
     }
 ];
 
