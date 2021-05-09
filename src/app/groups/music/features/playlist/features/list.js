@@ -1,5 +1,4 @@
-const chatFormat = require('../../../common/bot/helpers/global/chatFormat');
-const commandFormat = require('../../../common/bot/helpers/global/commandFormat');
+const {chatFormat, output} = require('../../../../../helpers/commands');
 const Discord = require('discord.js');
 const { s3 } = require('../../../../../../aws/helpers/adapter');
 
@@ -23,7 +22,7 @@ function byName(guild_id, name) {
 
                 if (!l.length) {
                     embed.addField(`Nothing found.`, `You can add songs using:\n> playlist add ${name} {song title / youtube url(s)}`);
-                    resolve(commandFormat.valid(l, [embed]));
+                    resolve(output.valid(l, [embed]));
                 }
                 else {
                     s3.object.get('mariwoah', `guilds/${guild_id}/playlists/${name}.json`)
@@ -37,12 +36,12 @@ function byName(guild_id, name) {
                                 index++;
                             }
 
-                            resolve(commandFormat.valid([list], [embed]));
+                            resolve(output.valid([list], [embed]));
                         })
-                        .catch(err => reject(commandFormat.error([err], [err.message])));
+                        .catch(err => reject(output.error([err], [err.message])));
                 }
             })
-            .catch(err => reject(commandFormat.error([err], [err.message])));
+            .catch(err => reject(output.error([err], [err.message])));
     });
 }
 
@@ -62,9 +61,9 @@ function all(guild_id) {
                     i++;
                 });
 
-                resolve(commandFormat.valid([list], [embed]));
+                resolve(output.valid([list], [embed]));
             })
-            .catch(err => reject(commandFormat.error([err], ["Bad list."])));
+            .catch(err => reject(output.error([err], ["Bad list."])));
     });
 }
 

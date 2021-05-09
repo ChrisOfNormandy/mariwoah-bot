@@ -39,6 +39,11 @@ function getData(input) {
     };
 
     return {
+        arguments: [],
+        client: null,
+        command: null,
+        prefix: null,
+        subcommand: null,
         content: str,
         urls: urls === null ? [] : urls,
         flags: flags === null ? [] : flags,
@@ -55,8 +60,8 @@ module.exports = (client, message) => {
             const input = message.content;
 
             let data = getData(input);
-            data['client'] = client;
-            data['prefix'] = prefix;
+            data.client = client;
+            data.prefix = prefix;
 
             const cmdList = require('./commands');
             const f = cmdList.filter((cmd) => {
@@ -72,14 +77,16 @@ module.exports = (client, message) => {
                 const regex = f[cmdIndex].regex;
 
                 let r = `${prefix}(${regex.command.source})`;
+                
                 if (!!regex.subcommand)
                     r += `\\s(${regex.subcommand.source})`;
                 if (regex.arguments !== null)
-                    r += `(${regex.arguments.source})`;
-                if (!!regex.argsOptional)
-                    r += '?';
+                    r += `(${regex.arguments.source}${!!regex.argsOptional ? '?' : ''})`;
 
                 let rx = new RegExp(r);
+                console.log(rx);
+
+                console.log(data.content);
 
                 if (!rx.test(data.content)) {
                     cmdIndex++;
@@ -90,40 +97,56 @@ module.exports = (client, message) => {
 
                     const c = str.match(regex.command);
                     str = str.replace(c[0], '');
+                    data.command = c[0];
 
-                    const a = regex.arguments !== null
-                        ? str.match(regex.arguments)
-                        : [];
-
-                    data['command'] = c[0];
-                    data['arguments'] = [];
-                    data['subcommand'] = null;
-
+                    let sc = null;
                     if (!!regex.subcommand) {
-                        let count = 0;
-
-                        while (count < regex.subcommandIndexes.length && data['subcommand'] === null) {
-                            if (regex.subcommand.test(a[regex.subcommandIndexes[count]]))
-                                data['subcommand'] = a[regex.subcommandIndexes[count]];
-                            count++;
-                        }
-
-                        if (data['subcommand'] === null) {
-                            finErr = "Invalid subcommand provided.";
-                            cmdIndex++;
-                            continue;
-                        }
+                        sc = str.match(regex.subcommand);
+                        if (sc !== null)
+                            str = str.replace(sc[0], '');
                     }
 
-                    if (a === null) {
-                        if (!(regex.argsOptional && regex.argsOptional !== undefined))
-                            message.channel.send('No argument provided.');
+                    let args = [];
+                    if (regex.arguments) {
+                        args = str.match(regex.arguments);
+                        if (args !== null)
+                            str = str.replace(args[0], '');
+                        else if (regex.argsOptional)
+                            args = [];
                     }
-                    else
-                        for (let i in regex.argumentIndexes)
-                            data['arguments'].push(a[regex.argumentIndexes[i]]);
+
+                    if (args === null) {
+                        console.log(sc, args);
+                        reject('Bad regex; "args" was null.');
+                    }
+                    else {
+                        args = args.map((a) => {return a = a.trim()});
+                        console.log(sc, args);
+
+                        if (!!regex.subcommand) {
+                            let count = 0;
+
+                            while (count < regex.subcommandIndexes.length && data.subcommand === null) {
+                                if (regex.subcommand.test(sc[regex.subcommandIndexes[count]]))
+                                    data.subcommand = sc[regex.subcommandIndexes[count]].trim();
+                                count++;
+                            }
+
+                            if (data.subcommand === null) {
+                                finErr = "Invalid subcommand provided.";
+                                cmdIndex++;
+                                continue;
+                            }
+                        }
+
+                        if (!!args.length)
+                            for (let i in regex.argumentIndexes)
+                                data.arguments.push(args[regex.argumentIndexes[i]]);
+                    }
 
                     finished = true;
+
+                    console.log('SC', data.subcommand, 'ARGS', data.arguments);
                     
                     f[cmdIndex].run(message, data)
                         .then(response => {
@@ -151,7 +174,7 @@ module.exports = (client, message) => {
                             });
                         })
                         .catch(err => {
-                            console.error(err);
+                            console.error('Parser | ERROR:', err);
 
                             err.content.forEach(msg => {
                                 if (!!msg)
@@ -163,7 +186,7 @@ module.exports = (client, message) => {
                 }
             }
             if (!finished)
-                reject(finErr);
+                reject('Fin. Error: ' + finErr);
         }
         else {
             reject(null);

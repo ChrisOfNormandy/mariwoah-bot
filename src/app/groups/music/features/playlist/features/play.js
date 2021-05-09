@@ -1,5 +1,4 @@
 const append = require('../../queue/append');
-const commondFormat = require('../../../common/bot/helpers/global/commandFormat');
 const {s3} = require('../../../../../../aws/helpers/adapter');
 
 module.exports = (message, data) => {

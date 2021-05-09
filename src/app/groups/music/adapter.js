@@ -1,7 +1,7 @@
+const playlist = require('./features/playlist/adapter');
+
 module.exports = {
     playlist: (message, data) => {
-        const playlist = require('./features/playlist/adapter');
-
         switch (data.subcommand) {
             case 'play': return playlist.play(message, data);
             case 'list': return playlist.list(message.guild.id, data.arguments.length ? data.arguments[0] : null);

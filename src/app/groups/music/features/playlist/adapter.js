@@ -1,10 +1,8 @@
-const chatFormat = require('../../common/bot/helpers/global/chatFormat');
+const {chatFormat, output} = require('../../../../helpers/commands');
 const Discord = require('discord.js');
 
 const addSong = require('./features/addSong');
-
 const queue = require('../queue/map');
-const commandFormat = require('../../common/bot/helpers/global/commandFormat');
 
 module.exports = {
     play: require('./features/play'),
@@ -30,12 +28,12 @@ module.exports = {
                                     .setThumbnail(song.thumbnail)
                                     .setURL(song.url)
                                     .addField(':writing_hand: Success!', `Added song to the playlist.`);
-                                resolve(commandFormat.valid([song], [embed]));
+                                resolve(output.valid([song], [embed]));
                             })
-                            .catch(e => reject(commandFormat.error([e], [])));
+                            .catch(e => reject(output.error([e], [])));
                     }
                     else
-                        reject(commandFormat.error([], [chatFormat.response.music.queue.no_active()]));
+                        reject(output.error([], [chatFormat.response.music.queue.no_active()]));
                 }
                 else {
                     addSong.byName(message, playlistName, songName)
@@ -47,16 +45,16 @@ module.exports = {
                                 embed.setThumbnail(song.thumbnail);
                                 embed.setURL(song.url);
                                 embed.addField(':writing_hand: Success!', `Added song to the playlist.`);
-                                resolve(commandFormat.valid([song], [embed]));
+                                resolve(output.valid([song], [embed]));
                             }
                             else {
                                 embed.setTitle(`Error`);
                                 embed.setColor(chatFormat.colors.byName.red);
                                 embed.addField(':interrobang: Oops!', 'Failed to add song to playlist.');
-                                resolve(commandFormat.valid([], [embed]));
+                                resolve(output.valid([], [embed]));
                             }
                         })
-                        .catch(e => reject(commandFormat.error([e], [e.message])));
+                        .catch(e => reject(output.error([e], [e.message])));
                 }
             }
         });
@@ -65,8 +63,8 @@ module.exports = {
         const {s3} = require('../../../../../aws/helpers/adapter');
         return new Promise((resolve, reject) => {
             s3.object.delete('mariwoah', `guilds/${message.guild.id}/playlists/${data.arguments[0]}.json`)
-                .then(res => resolve(commandFormat.valid([res], ['Deleted playlist.'])))
-                .catch(err => reject(commandFormat.error([err], [err.message])));
+                .then(res => resolve(output.valid([res], ['Deleted playlist.'])))
+                .catch(err => reject(output.error([err], [err.message])));
         });
     },
     remove: (message, data) => {
@@ -95,10 +93,10 @@ module.exports = {
                         type: `application/json`,
                         data: pl
                     })
-                    .then(res => resolve(commandFormat.valid([], ["Wow."])))
-                    .catch(err => reject(commandFormat.error([err], [err.message])));
+                    .then(res => resolve(output.valid([], ["Wow."])))
+                    .catch(err => reject(output.error([err], [err.message])));
                 })
-                .catch(err => reject(commandFormat.error([err], [err.message])));
+                .catch(err => reject(output.error([err], [err.message])));
         });
     },
     setVisibility: require('./features/setVisibility')

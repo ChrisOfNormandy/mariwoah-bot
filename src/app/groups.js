@@ -1,4 +1,5 @@
 module.exports = {
+    factions: require('./groups/factions/adapter'),
     fetch: require('./groups/fetch/adapter'),
     games: require('./groups/games/adapter'),
     general: require('./groups/general/adapter'),

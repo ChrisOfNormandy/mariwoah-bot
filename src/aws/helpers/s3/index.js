@@ -44,9 +44,13 @@ const _object = {
      * @returns {Promise<AWS.S3.ObjectList>} Returns list of objects.
      * @param {string} bucket Bucket name.
      */
-    list: (bucket) => {
+    list: (bucket, prefix = null) => {
         return new Promise((resolve, reject) => {
-            s3.listObjectsV2({ Bucket: bucket }, (err, list) => {
+            let params = { Bucket: bucket };
+            if (prefix !== null)
+                params['Prefix'] = prefix;
+
+            s3.listObjectsV2(params, (err, list) => {
                 if (err)
                     reject(err);
                 else {
