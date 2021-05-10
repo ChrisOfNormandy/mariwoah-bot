@@ -84,9 +84,6 @@ module.exports = (client, message) => {
                     r += `(${regex.arguments.source}${!!regex.argsOptional ? '?' : ''})`;
 
                 let rx = new RegExp(r);
-                console.log(rx);
-
-                console.log(data.content);
 
                 if (!rx.test(data.content)) {
                     cmdIndex++;
@@ -116,12 +113,10 @@ module.exports = (client, message) => {
                     }
 
                     if (args === null) {
-                        console.log(sc, args);
                         reject('Bad regex; "args" was null.');
                     }
                     else {
                         args = args.map((a) => {return a = a.trim()});
-                        console.log(sc, args);
 
                         if (!!regex.subcommand) {
                             let count = 0;
@@ -145,8 +140,6 @@ module.exports = (client, message) => {
                     }
 
                     finished = true;
-
-                    console.log('SC', data.subcommand, 'ARGS', data.arguments);
                     
                     f[cmdIndex].run(message, data)
                         .then(response => {

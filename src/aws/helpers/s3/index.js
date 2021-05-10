@@ -1,7 +1,8 @@
+const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 
-let s3 = null;
+let s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
 const _bucket = {
     /**
@@ -255,8 +256,7 @@ const _object = {
     },
 
     /**
-     * Deletes a bucket from S3. Not implemented.
-     * @deprecated
+     * Deletes a bucket from S3.
      * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns output of object deletion.
      * @param {string} bucket Bucket name.
      * @param {string} file Object name.

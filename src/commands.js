@@ -665,9 +665,9 @@ const list = [
         regex: {
             command: /(faction)|(fc)/,
             arguments: /(\s(\w+))/,
-            subcommand: /(create)|(delete)|(about)/,
+            subcommand: /(create)|(delete)|(about)|(remove)/,
             argumentIndexes: [2],
-            subcommandIndexes: [1, 2, 3]
+            subcommandIndexes: [1, 2, 3, 4]
         },
         description: {
             command: "Faction commands using one subcommand.",
@@ -688,9 +688,9 @@ const list = [
         regex: {
             command: /(faction)|(fc)/,
             arguments: /(\s(\w+)\s(.+))/,
-            subcommand: /(setcolor)/,
+            subcommand: /(setcolor)|(seticon)/,
             argumentIndexes: [2, 3],
-            subcommandIndexes: [1]
+            subcommandIndexes: [1, 2]
         },
         description: {
             command: "Faction commands using one subcommand.",
