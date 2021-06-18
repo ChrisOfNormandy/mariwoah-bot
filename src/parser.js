@@ -116,7 +116,12 @@ module.exports = (client, message) => {
                         reject('Bad regex; "args" was null.');
                     }
                     else {
-                        args = args.map((a) => {return a = a.trim()});
+                        try {
+                            args = args.map(a => a.trim());
+                        }
+                        catch (e) {
+                            args = [];
+                        }
 
                         if (!!regex.subcommand) {
                             let count = 0;
