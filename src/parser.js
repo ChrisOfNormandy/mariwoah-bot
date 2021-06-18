@@ -52,9 +52,12 @@ function getData(input) {
     }
 }
 
+const config = require('../config/config.json');
+const cmdList = require('./commands');
+
 module.exports = (client, message) => {   
     return new Promise((resolve, reject) => {
-        const prefix = require('../config/config.json').settings.commands.prefix;
+        const prefix = config.settings.commands.prefix;
 
         if (message.content.indexOf(prefix) == 0) {
             const input = message.content;
@@ -63,7 +66,6 @@ module.exports = (client, message) => {
             data.client = client;
             data.prefix = prefix;
 
-            const cmdList = require('./commands');
             const f = cmdList.filter((cmd) => {
                 const regex = new RegExp('~(' + cmd.regex.command.source + ')');
                 return regex.test(input);
@@ -81,11 +83,12 @@ module.exports = (client, message) => {
                 if (!!regex.subcommand)
                     r += `\\s(${regex.subcommand.source})`;
                 if (regex.arguments !== null)
-                    r += `(${regex.arguments.source}${!!regex.argsOptional ? '?' : ''})`;
+                    r += `(${regex.arguments.source})${!!regex.argsOptional ? '?' : ''}`;
 
                 let rx = new RegExp(r);
 
                 if (!rx.test(data.content)) {
+                    finErr = `Failed test: ${rx}, ${data.content}`;
                     cmdIndex++;
                     continue;
                 }
@@ -174,10 +177,11 @@ module.exports = (client, message) => {
                         .catch(err => {
                             console.error('Parser | ERROR:', err);
 
-                            err.content.forEach(msg => {
-                                if (!!msg)
-                                    message.channel.send(msg);
-                            });
+                            if (!!err.content)
+                                err.content.forEach(msg => {
+                                    if (!!msg)
+                                        message.channel.send(msg);
+                                });
 
                             reject(err.rejections[0]);
                         });

@@ -3,7 +3,7 @@ const config = require('../../config/config.json');
 
 /**
  * Login handler for AWS communication using credentials provided in the system config.
- * @returns {Promise<{credentials: AWS.Credentials, aws: AWS}>} AWS credentials JSON.
+ * @returns {Promise<AWS.Credentials>} AWS credentials JSON.
  */
 function login() {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ function login() {
       if (err)
         reject(err);
       else
-        resolve({credentials: AWS.config.credentials, aws: AWS});
+        resolve({ credentials: AWS.config.credentials, aws: AWS });
     });
   });
 }

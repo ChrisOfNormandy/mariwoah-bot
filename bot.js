@@ -3,6 +3,8 @@ const aws = require('./src/aws/aws-link');
 
 const chatFilter = require('./src/app/helpers/chatFilter');
 
+const aws_helpers = require('./src/aws/helpers/adapter');
+
 function startup() {
     const Discord = require('discord.js');
     const client = new Discord.Client();
@@ -16,10 +18,7 @@ function startup() {
             .then(res => {
                 console.log(`Logged in to AWS using:`, res.credentials.accessKeyId);
 
-                const aws_helpers = require('./src/aws/helpers/adapter');
                 aws_helpers.s3.setup(res.aws);
-
-                // Game profile save loop;
 
                 require('./src/app/helpers/playerdata').profile.save();
             })
@@ -31,19 +30,21 @@ function startup() {
     
     client.on('message', (message) => {
         if (!message.author.bot) {
-            let filter = chatFilter(message);
-
-            if (filter)
-                parser(client, message)
-                    .catch(err => {
-                        if (err !== null) {
-                            console.error('ERROR:', err);
-                        }
-                    });
-            else {
-                message.delete()
-                    .catch(err => message.channel.send(err.message));
-            }
+            chatFilter(message)
+                .then(pass => {
+                    if (pass)
+                        parser(client, message)
+                            .catch(err => {
+                                if (err !== null) {
+                                    console.error('ERROR:', err);
+                                }
+                            });
+                    else {
+                        message.delete()
+                            .catch(err => message.channel.send(err.message));
+                    }
+                })
+                .catch(err => console.error(err)); 
         }
     });
 

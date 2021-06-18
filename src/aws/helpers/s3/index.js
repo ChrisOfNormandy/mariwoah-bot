@@ -1,8 +1,6 @@
-const AWS = require('aws-sdk');
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs'); // Used for tooltip.
 
-let s3 = new AWS.S3({ apiVersion: '2006-03-01' });
+let s3 = null;
 
 const _bucket = {
     /**
@@ -21,20 +19,76 @@ const _bucket = {
     },
 
     /**
-     * Creates a new bucket within S3.
+     * Creates a new bucket within S3. 
+     * @param {string} name Bucket name.
+     * @param {object} params Optional;
+     *
+     * **Bucket**: {_string_} Provided by `name`; required.\
+     * **ACL**: {_string}_ private | public-read | public-read-write | authenticated-read\
+     * **CreateBucketConfiguration**: {\
+     * ---**LocationConstraint**: {_string_} Region name; ex: us-east-1\
+     * }\
+     * **GrantFullControl**: {_string_} Account ID\
+     * **GrantRead**: {_string_} Account ID\
+     * **GrantReadACP**: {_string_} Account ID\
+     * **GrantWrite**: {_string_} Account ID\
+     * **GrantWriteACP**: {_string_} Account ID\
+     * **ObjectLockEnabledForBucket**: {_boolean_} Enable object lock.
+     * 
      * @returns {Promise<AWS.S3.CreateBucketOutput>} Returns output from bucket creation.
-     * @param {string} bucket Bucket name.
      */
-    create: (bucket) => {
-        const bucketParams = {
-            Bucket: bucket
-        };
+    create: (name, params) => {
+        let bucketParams = params || {};
+        bucketParams['Bucket'] = name;
 
-        s3.createBucket(bucketParams, (err, data) => {
-            if (err)
-                reject(err);
-            else
-                resolve(data);
+        return new Promise((resolve, reject) => {
+            s3.createBucket(bucketParams, (err, data) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(data);
+            });
+        });
+    },
+
+    /**
+     * Deletes a bucket from S3.
+     * @param {string} name Bucket name.
+     * @param {string} expectedBucketOwner Optional; Account ID of the expected bucket owner.\
+     * Invalid owner will return `403 (Access Denied)`.
+     * 
+     * @returns {object} Returns empty object.
+     */
+    delete: (name, expectedBucketOwner) => {
+        let params = {
+            Bucket: name
+        };
+        if (!!expectedBucketOwner)
+            params['ExpectedBucketOwner'] = expectedBucketOwner;
+
+        return new Promise((resolve, reject) => {
+            s3.deleteBucket(params, (err, data) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(data);
+            });
+        });
+    },
+
+    /**
+     * Gets bucket permissions.
+     * @param {string} name Bucket name.
+     * @returns {Promise<AWS.S3.GetBucketAclOutput>} Returns bucket permission settings.
+     */
+    getPerms: (name) => {
+        return new Promise((resolve, reject) => {
+            s3.getBucketAcl({ Bucket: name }, (err, data) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(data);
+            });
         });
     }
 };
@@ -42,16 +96,12 @@ const _bucket = {
 const _object = {
     /**
      * Fetches a list of objects from a bucket within S3.
-     * @returns {Promise<AWS.S3.ObjectList>} Returns list of objects.
      * @param {string} bucket Bucket name.
+     * @returns {Promise<AWS.S3.ObjectList>} Returns list of objects.
      */
-    list: (bucket, prefix = null) => {
+    list: (bucket) => {
         return new Promise((resolve, reject) => {
-            let params = { Bucket: bucket };
-            if (prefix !== null)
-                params['Prefix'] = prefix;
-
-            s3.listObjectsV2(params, (err, list) => {
+            s3.listObjectsV2({ Bucket: bucket }, (err, list) => {
                 if (err)
                     reject(err);
                 else {
@@ -65,174 +115,78 @@ const _object = {
     },
 
     /**
-     * Writes and puts a file object into S3 given a file name, type and data.
+     * Puts an object to a bucket by converting a string `data` to a binary Buffer.
      * @param {string} bucket Bucket name.
-     * @param {string | null} folder Folder name; optional.
-     * @param {{name: string, type: string, data: string | object}} fileObj A JSON representing a file object.
-     * @returns 
+     * @param {string | null} folder Folder name; ex: `test/folder`.
+     * @param {string} key File / Object name, including extension.
+     * @param {string} data Data to be written to file.
+     * @returns {Promise<AWS.S3.PutObjectOutput>} Returns result of `putBuffer` using supplied data.
      */
-    putData: (bucket, folder, fileObj) => {
-        if (!fileObj.name || !fileObj.data)
-            return Promise.reject('Cannot put object to S3; invalid object structure.');
+    putData: (bucket, folder, key, data) => {
+        if (typeof data !== 'string')
+            return Promise.reject(new Error('Data passed to Buffer must be a valid string.'));
 
         return new Promise((resolve, reject) => {
-            fs.writeFile(`./temp/${fileObj.name}`, fileObj.type === 'application/json' ? JSON.stringify(fileObj.data) : fileObj.data, (err) => {
-                if (err)
-                    reject(err);
-                else {
-                    _object.put(bucket, folder, fileObj.name)
-                        .then(r => resolve(r))
-                        .catch(err => reject({ error: err, message: 'Failed to put object in S3.' }));
-                }
-            });
+            _object.putBuffer(bucket, folder, key, Buffer.from(data, 'binary'))
+                .then(r => resolve(r))
+                .catch(err => reject(err));
         });
     },
 
     /**
-     * Puts a file by path to S3.
-     * @returns {Promise<{ folder: AWS.S3.PutObjectOutput, data: AWS.S3.PutObjectOutput }>} Returns output of folder creation if provided, output of data put.
+     * Puts an object to a bucket using a provided ReadStream.
      * @param {string} bucket Bucket name.
-     * @param {string | null} folder Folder name. If null (not string) will ignore and put in bucket directly.
-     * @param {string} file Object name.
+     * @param {string} folder Folder name; ex: `test/folder`.
+     * @param {string} key File / Object name, including extension.
+     * @param {fs.ReadStream} stream ReadStream.
+     * @returns {Promise<AWS.S3.PutObjectOutput>} Returns result of `putBuffer` using supplied stream.
      */
-    put: (bucket, folder, file) => {
-        return new Promise((resolve, reject) => {
-            let stream;
-            let isTemp = !fs.existsSync(file) || path.basename(file) === file;
+    put: (bucket, folder, key, stream) => {
+        return _object.putBuffer(bucket, folder, key, stream);
+    },
 
-            if (!isTemp)
-                stream = fs.createReadStream(file);
+    /**
+     * Puts an object to a bucket using a provided Buffer.
+     * @param {string} bucket Bucket name.
+     * @param {string | null} folder Folder name; ex: `test/folder`.
+     * @param {string} key File / Object name, including extension.
+     * @param {Buffer} buffer Buffer in; ex: `Buffer.from(data, 'binary')`.
+     * @returns {Promise<AWS.S3.PutObjectOutput>}
+     */
+    putBuffer: (bucket, folder, key, buffer) => {
+        const params = { Bucket: folder === null ? bucket : `${bucket}/${folder}`, Key: key, Body: buffer };
+
+        return new Promise((resolve, reject) => {
+            if (folder !== null)
+                _object.createFolder(bucket, folder)
+                    .then(r => {
+                        s3.putObject(params, (err, data) => {
+                            if (err)
+                                reject(err)
+                            else
+                                resolve(data);
+                        });
+                    })
+                    .catch(err => reject(err));
             else
-                stream = fs.createReadStream(`./temp/${path.basename(file)}`);
-
-            stream.on('error', (err) => reject(err));
-
-            const dirUploadParams = { Bucket: bucket, Key: `${folder}/`, Body: '' };
-            const uploadParams = { Bucket: folder === null ? bucket : `${bucket}/${folder}`, Key: path.basename(file), Body: stream };
-
-            let returns = {
-                folder: null,
-                data: null
-            }
-
-            s3.listObjectsV2({ Bucket: bucket }, (err, exists) => {
-                if (err)
-                    reject(err);
-                else {
-                    if (!exists.Contents.length && folder !== null) {
-                        s3.putObject(dirUploadParams, (err, data) => {
+                _object.createFolder(bucket, folder)
+                    .then(r => {
+                        s3.putObject(params, (err, data) => {
                             if (err)
-                                reject(err);
-                            else {
-                                returns.folder = data;
-
-                                s3.putObject(uploadParams, (err, data) => {
-                                    if (err)
-                                        reject(err);
-                                    else {
-                                        returns.data = data;
-
-                                        if (isTemp)
-                                            fs.rm(`./temp/${path.basename(file)}`, (err) => {
-                                                if (err)
-                                                    console.error(err)
-                                                else
-                                                    resolve(returns);
-                                            });
-                                        else
-                                            resolve(returns);
-                                    }
-                                });
-                            }
+                                reject(err)
+                            else
+                                resolve(data);
                         });
-                    }
-                    else {
-                        s3.putObject(uploadParams, (err, data) => {
-                            if (err)
-                                reject(err);
-                            else {
-                                returns.data = data;
-
-                                if (isTemp)
-                                    fs.rm(`./temp/${path.basename(file)}`, (err) => {
-                                        if (err)
-                                            console.error(err)
-                                        else
-                                            resolve(returns);
-                                    });
-                                else
-                                    resolve(returns);
-                            }
-                        });
-                    }
-                }
-            });
+                    })
+                    .catch(err => reject(err));
         });
     },
 
     /**
-     * Not implemented.
-     * @deprecated
-     * @param {string} bucket 
-     * @param {string | null} folder 
-     * @param {string} key 
-     * @param {fs.ReadStream} stream 
-     * @returns 
-     */
-    putByStream: (bucket, folder, key, stream) => {
-        return new Promise((resolve, reject) => {
-            const dirUploadParams = { Bucket: bucket, Key: `${folder}/`, Body: '' };
-            const uploadParams = { Bucket: folder === null ? bucket : `${bucket}/${folder}`, Key: key, Body: stream };
-
-            let returns = {
-                folder: null,
-                data: null
-            }
-
-            s3.listObjectsV2({ Bucket: bucket }, (err, exists) => {
-                if (err)
-                    reject(err);
-                else {
-                    if (!exists.Contents.length && folder !== null) {
-                        s3.putObject(dirUploadParams, (err, data) => {
-                            if (err)
-                                reject(err);
-                            else {
-                                returns.folder = data;
-
-                                s3.putObject(uploadParams, (err, data) => {
-                                    if (err)
-                                        reject(err);
-                                    else {
-                                        returns.data = data;
-
-                                        resolve(returns);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    else {
-                        s3.putObject(uploadParams, (err, data) => {
-                            if (err)
-                                reject(err);
-                            else {
-                                returns.data = data;
-
-                                resolve(returns);
-                            }
-                        });
-                    }
-                }
-            });
-        });
-    },
-
-    /**
-     * Fetches an object from a bucket within S3.
-     * @returns {Promise<AWS.S3.GetObjectOutput>} Returns object from bucket.
+     * Fetches an object. To read body content use #Body.toString().
      * @param {string} bucket Bucket name.
-     * @param {string} key Object name.
+     * @param {string} key File / Object name, including extension.
+     * @returns {Promise<AWS.S3.GetObjectOutput>} Returns object from bucket.
      */
     get: (bucket, key) => {
         return new Promise((resolve, reject) => {
@@ -246,20 +200,20 @@ const _object = {
     },
 
     /**
-     * Fetches an object as a file from a bucket within S3.
-     * @returns {Promise<AWS.S3.GetObjectOutput>} Returns object from bucket.
+     * Fetches an object as a raw request.
      * @param {string} bucket Bucket name.
-     * @param {string} key Object name.
+     * @param {string} key File / Object name, including extension.
+     * @returns {AWS.Request<AWS.S3.GetObjectOutput, AWS.AWSError>} Returns object request.
      */
     getRaw: (bucket, key) => {
         return s3.getObject({ Bucket: bucket, Key: key });
     },
 
     /**
-     * Deletes a bucket from S3.
-     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns output of object deletion.
+     * Deletes an object.
      * @param {string} bucket Bucket name.
-     * @param {string} file Object name.
+     * @param {string} file File / Object name, including extension.
+     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns empty object.
      */
     delete: (bucket, file) => {
         return new Promise((resolve, reject) => {
@@ -273,19 +227,61 @@ const _object = {
     },
 
     /**
-     * Deletes a folder object from a bucket within S3. Not implemented.
-     * @deprecated
-     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns output of object deletion.
+     * Deletes a folder and its contents.
      * @param {string} bucket Bucket name.
      * @param {string} folder Folder name.
+     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns output of object deletion.
      */
     deleteFolder: (bucket, folder) => {
         return new Promise((resolve, reject) => {
-            s3.deleteObject({ Bucket: `${bucket}/${folder}/` }, (err, data) => {
+            s3.listObjectsV2({ Bucket: bucket, Prefix: folder }, (err, data) => {
                 if (err)
                     reject(err);
-                else
-                    resolve(data);
+                else {
+                    if (!!data.Contents.length) {
+                        let params = { Bucket: bucket, Delete: { Objects: [] } };
+
+                        data.Contents.forEach((obj) => {
+                            params.Delete.Objects.push({ Key: obj.Key });
+                        });
+
+                        s3.deleteObjects(params, (err, data) => {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(data);
+                        });
+                    }
+                    else
+                        _object.delete(bucket, `${folder}/`)
+                }
+            })
+
+        });
+    },
+
+    /**
+     * Creates a new folder structure. Providing a pathlike folder value will create a nested folders.
+     * @param {string} bucket Bucket name.
+     * @param {string} folder Folder name; ex: `test/folder`.
+     * @returns {Promise<boolean>}
+     */
+    createFolder: (bucket, folder) => {
+        return new Promise((resolve, reject) => {
+            s3.listObjectsV2({ Bucket: bucket }, (err, exists) => {
+                if (err)
+                    reject(err);
+                else {
+                    if (!exists.Contents.length && folder !== null) {
+                        s3.putObject({ Bucket: bucket, Key: `${folder}/`, Body: '' }, (err, data) => {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(true);
+                        });
+                    }
+                    resolve(false);
+                }
             });
         });
     }
