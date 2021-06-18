@@ -19,7 +19,6 @@ module.exports = (message, data) => {
                     reject(output.error([message.author.id], [`You are not a member of that faction.`]));
                 else {
                     if (faction.members[message.author.id].roles.includes('Leader')) {
-                        console.log(data.arguments);
                         if (data.arguments[1] == '<URL:0>') {
                             faction.iconHref = data.urls[0];
                             cache.set(message.guild.id, factionName, faction)
