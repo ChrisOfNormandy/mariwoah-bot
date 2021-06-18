@@ -1,5 +1,145 @@
 const groups = require('../../groups');
 
+let plList = [
+    {
+        group: 'music',
+        regex: {
+            command: /(playlist)|(pl)/
+        },
+        subcommands: [
+            {
+                name: "play",
+                regex: {
+                    arguments: /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/,
+                    argumentIndexes: [1, 2]
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.play(message, data)
+            },
+            {
+                name: "list",
+                regex: {
+                    arguments: /\s([\w\s]+)/,
+                    argumentIndexes: [1],
+                    argsOptional: true
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.list(message, data)
+            },
+            {
+                name: "create",
+                regex: {
+                    arguments: /\s([\w\s]+)/,
+                    argumentIndexes: [1],
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.create(message, data)
+            },
+            {
+                name: "add",
+                regex: {
+                    arguments: /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
+                    argumentIndexes: [1, 2]
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.addSong(message, data)
+            },
+            {
+                name: "delete",
+                regex: {
+                    arguments: /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/,
+                    argumentIndexes: [1, 2]
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.delete(message, data)
+            },
+            {
+                name: "remove",
+                regex: {
+                    arguments: /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
+                    argumentIndexes: [1, 2]
+                },
+                description: {
+                    command: "Playlist commands using one subcommand.",
+                    arguments: [
+                        {
+                            _: '...',
+                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            optional: true
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.music.playlist.remove(message, data)
+            }
+        ],
+        adminOnly: false,
+        enabled: false,
+        run: (message, data) => {
+            let arr = plList[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand });
+            if (!!arr.length)
+                return arr[0].run(message, data);
+            return Promise.reject({ content: ['Subcommand not found.'] }); // This should never happen if commands are set up correctly, but just in case.
+        }
+    }
+]
+
 module.exports = [
     {
         group: 'music',
@@ -170,74 +310,5 @@ module.exports = [
         enabled: true,
         run: (message, data) => groups.music.song.download(data)
     },
-    { // Playlist commands that have 1 subcommand.
-        group: 'music',
-        regex: {
-            command: /(playlist)|(pl)/,
-            arguments: /\s(\w+)(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
-            subcommand: /(play)|(delete)/,
-            argumentIndexes: [3],
-            subcommandIndexes: [1]
-        },
-        description: {
-            command: "Playlist commands using one subcommand.",
-            arguments: [
-                {
-                    _: '...',
-                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                    optional: true
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.playlist(message, data)
-    },
-    { // Playlist commands that have 2 subcommands.
-        group: 'music',
-        regex: {
-            command: /(playlist)|(pl)/,
-            arguments: /\s(\w+)\s(\w+)(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
-            subcommand: /(add)|(remove)/,
-            argumentIndexes: [2, 4],
-            subcommandIndexes: [1]
-        },
-        description: {
-            command: "Playlist commands using two subcommands.",
-            arguments: [
-                {
-                    _: '...',
-                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                    optional: true
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.playlist(message, data)
-    },
-    { // Playlist commands that have 1 subcommand and optional arguments.
-        group: 'music',
-        regex: {
-            command: /(playlist)|(pl)/,
-            arguments: /\s(\w+)?(\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+)))?/,
-            subcommand: /(list)/,
-            argumentIndexes: [3],
-            subcommandIndexes: [1],
-            argsOptional: true
-        },
-        description: {
-            command: "Playlist commands using one subcommand with optional arguments.",
-            arguments: [
-                {
-                    _: '...',
-                    d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                    optional: true
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.playlist(message, data)
-    },
+    plList[0]
 ]

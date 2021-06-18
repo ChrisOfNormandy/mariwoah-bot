@@ -14,13 +14,8 @@ module.exports = (message, data, list) => {
 
         embed.setTitle(`Help - ${arg}`);
 
-        let arr_ = list.filter((cmd) => {
+        let arr = list.filter((cmd) => {
             return cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(arg);
-        });
-        
-        // Remove duplicates
-        let arr = arr_.filter((cmd, index, self) => {
-            return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index;
         });
 
         if (arr.length) {
@@ -57,6 +52,7 @@ module.exports = (message, data, list) => {
                     embed.addField('Flags', flags);
                 }
             });
+
             embed.setFooter('Arguments in italics are optional.');
         }
         else
@@ -81,10 +77,25 @@ module.exports = (message, data, list) => {
 
             const l = arr.length
             for (let i = 0; i < l; i++) {
-                msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
-                if (i < groups[g].length - 1)
-                    msg += '\n'
+                if (arr[i].enabled) {
+                    msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+
+                    if (!!arr[i].subcommands) {
+                        msg += '\n';
+                        arr[i].subcommands.forEach((v, d) => {
+                            if (v.enabled) {
+                                msg += `-- ${v.name}`;
+                                if (d < arr[i].subcommands.length - 1)
+                                    msg += '\n';
+                            }
+                        });
+                    }
+
+                    if (i < groups[g].length - 1)
+                        msg += '\n'
+                }
             }
+
             embed.addField(g, msg, true);
         }
     }
