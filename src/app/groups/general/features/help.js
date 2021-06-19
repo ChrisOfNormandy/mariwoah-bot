@@ -101,8 +101,52 @@ module.exports = (message, data, list) => {
                 }
             });
         }
-        else
-            embed.addField('Oops!', `Could not find a command matching "${arg}".`);
+        else {
+            let groups = {};
+
+            list.forEach(cmd => {
+                if (!!groups[cmd.group] && cmd.group == command)
+                    groups[cmd.group].push(cmd);
+                else if (cmd.group == command)
+                    groups[cmd.group] = [cmd];
+            });
+
+            if (!!groups) {
+                for (let g in groups) {
+                    let msg = '';
+
+                    const arr = groups[g].filter((cmd, index, self) => {
+                        return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index
+                    });
+
+                    const l = arr.length
+                    for (let i = 0; i < l; i++) {
+                        if (arr[i].enabled) {
+                            msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+
+                            if (!!arr[i].subcommands) {
+                                msg += '\n';
+
+                                arr[i].subcommands.forEach((v, d) => {
+                                    if (v.enabled) {
+                                        msg += `-- ${v.name}`;
+                                        if (d < arr[i].subcommands.length - 1)
+                                            msg += '\n';
+                                    }
+                                });
+                            }
+
+                            if (i < groups[g].length - 1)
+                                msg += '\n'
+                        }
+                    }
+
+                    embed.addField(g, msg, true);
+                }
+            }
+            else
+                embed.addField('Oops!', `Could not find a command or group matching "${command}".`);
+        }
     }
     else {
         embed.setTitle('Help - All');

@@ -5,7 +5,7 @@ module.exports = [
         group: 'utility',
         regex: {
             command: /(clean)/,
-            arguments: /\s@(.+)/,
+            arguments: /\s(<USER:\d+>)/,
             argumentIndexes: [1],
             argsOptional: true
         },
@@ -13,7 +13,7 @@ module.exports = [
             command: "Cleans chat of bot messages and commands. Can be used to clean specific user messages.",
             arguments: [
                 {
-                    _: '@User | @Users',
+                    _: '@User',
                     d: 'Ping of one ore more users.',
                     optional: true
                 }

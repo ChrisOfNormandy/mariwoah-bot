@@ -4,13 +4,10 @@ module.exports = [
     {
         group: 'general',
         regex: {
-            command: /(ping)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(ping)/
         },
         description: {
-            command: "Gauge Discord's message latency.",
-            arguments: []
+            command: "Gauge Discord's message latency."
         },
         adminOnly: false,
         settings: {
@@ -24,13 +21,10 @@ module.exports = [
     {
         group: 'general',
         regex: {
-            command: /(whoami)|(me)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(whoami)|(me)/
         },
         description: {
-            command: "Gathers and displays information about yourself.",
-            arguments: []
+            command: "Gathers and displays information about yourself."
         },
         adminOnly: false,
         settings: {
@@ -48,8 +42,8 @@ module.exports = [
         group: 'general',
         regex: {
             command: /(whoareyou)|(whoru)|(whois)/,
-            arguments: null,
-            argumentIndexes: []
+            arguments: /\s(<USER:\d+>)/,
+            argumentIndexes: [1]
         },
         description: {
             command: "Gathers and displays information about another user.",
@@ -57,7 +51,7 @@ module.exports = [
                 {
                     _: '@User',
                     d: 'A pinged user.',
-                    optional: true
+                    optional: false
                 }
             ]
         },

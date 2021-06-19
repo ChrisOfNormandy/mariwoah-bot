@@ -14,12 +14,12 @@ let plList = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Fetches all songs from a playlist and adds them to the music queue.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                            optional: true
+                            _: 'Playlist',
+                            d: 'The name of a playlist.',
+                            optional: false
                         }
                     ]
                 },
@@ -35,11 +35,11 @@ let plList = [
                     argsOptional: true
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Lists all available playlists or songs within a specified playlist.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
+                            _: 'Playlist',
+                            d: 'The name of a playlist.',
                             optional: true
                         }
                     ]
@@ -55,12 +55,12 @@ let plList = [
                     argumentIndexes: [1],
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Creates a new server playlist.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                            optional: true
+                            _: 'Playlist',
+                            d: 'The name of the new playlist.',
+                            optional: false
                         }
                     ]
                 },
@@ -75,12 +75,17 @@ let plList = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Adds a video to the specified playlist.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                            optional: true
+                            _: 'Playlist',
+                            d: 'The name of a playlist.',
+                            optional: false
+                        },
+                        {
+                            _: 'Video(s)',
+                            d: 'One or more YouTube URLs or the title of a video or playlist.',
+                            optional: false
                         }
                     ]
                 },
@@ -95,12 +100,12 @@ let plList = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Removes a playlist from the server.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                            optional: true
+                            _: 'Playlist',
+                            d: 'The name of a playlist.',
+                            optional: false
                         }
                     ]
                 },
@@ -115,12 +120,17 @@ let plList = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Playlist commands using one subcommand.",
+                    command: "Removes a video, or list of videos, from the specified playlist.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~pl help" or "~pl ?" for playlist help.',
-                            optional: true
+                            _: 'Playlist',
+                            d: 'The name of a playlist.',
+                            optional: false
+                        },
+                        {
+                            _: 'Video(s)',
+                            d: 'One or more YouTube URLs or the title of a video or playlist.',
+                            optional: false
                         }
                     ]
                 },
@@ -145,15 +155,15 @@ module.exports = [
         group: 'music',
         regex: {
             command: /(play)|(p)/,
-            arguments: /\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+))/,
-            argumentIndexes: [3, 5]
+            arguments: /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
+            argumentIndexes: [2, 3]
         },
         description: {
-            command: "Plays a song in the voice channel.",
+            command: "Adds a video, or list of videos, to the music queue.",
             arguments: [
                 {
-                    _: 'URL | Title',
-                    d: 'A YouTube URL or the title of a video, playlist, channel.',
+                    _: 'Video(s)',
+                    d: 'One or more YouTube URLs or the title of a video or playlist.',
                     optional: false
                 }
             ],
@@ -165,13 +175,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(join)|(vc)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(join)|(vc)/
         },
         description: {
-            command: "Puts the bot into the requested voice channel.",
-            arguments: []
+            command: "Puts the bot into the requested voice channel."
         },
         adminOnly: false,
         enabled: true,
@@ -180,13 +187,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(leave)|(bye)|(dc)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(leave)|(bye)|(dc)/
         },
         description: {
-            command: "Removes the bot from the voice channel.",
-            arguments: []
+            command: "Removes the bot from the voice channel."
         },
         adminOnly: false,
         enabled: true,
@@ -195,13 +199,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(skip)|(next)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(skip)|(next)/
         },
         description: {
-            command: "Skips the current song in the active queue.",
-            arguments: []
+            command: "Skips the current video in the active queue."
         },
         adminOnly: false,
         enabled: true,
@@ -210,13 +211,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(stop)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(stop)/
         },
         description: {
-            command: "Stops the active queue.",
-            arguments: []
+            command: "Stops the active queue."
         },
         adminOnly: false,
         enabled: true,
@@ -225,13 +223,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(queue)|(q)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(queue)|(q)/
         },
         description: {
-            command: "Lists the songs in the active queue.",
-            arguments: []
+            command: "Lists the videos in the active queue."
         },
         adminOnly: false,
         enabled: true,
@@ -241,13 +236,10 @@ module.exports = [
 
         group: 'music',
         regex: {
-            command: /(pause)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(pause)/
         },
         description: {
-            command: "Pauses the active queue.",
-            arguments: []
+            command: "Pauses the active queue."
         },
         adminOnly: false,
         enabled: true,
@@ -256,13 +248,10 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(resume)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(resume)/
         },
         description: {
-            command: "Resumes the paused, active queue.",
-            arguments: []
+            command: "Resumes the paused, active queue."
         },
         adminOnly: false,
         enabled: true,
@@ -272,15 +261,15 @@ module.exports = [
         group: 'music',
         regex: {
             command: /(song\?)|(songinfo)/,
-            arguments: /\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+))/,
-            argumentIndexes: [3, 5]
+            arguments: /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
+            argumentIndexes: [2, 3]
         },
         description: {
-            command: "Gathers information about a song.",
+            command: "Gathers information about one or more videos.",
             arguments: [
                 {
-                    _: 'URL | Title',
-                    d: 'YouTube url or the title of a video, playlist, channel.',
+                    _: 'Video(s)',
+                    d: 'One or more YouTube URLs or the title of a video or playlist.',
                     optional: false
                 }
             ],
@@ -293,15 +282,15 @@ module.exports = [
         group: 'music',
         regex: {
             command: /(ytdl)/,
-            arguments: /\s(((<URL:\d+>(,\s?)?)+)|([\w\s]+))/,
-            argumentIndexes: [3, 5]
+            arguments: /\s(([\w\s]+)|(<URL:\d+>))/,
+            argumentIndexes: [2, 3]
         },
         description: {
-            command: "Downloads an MP4 audio file.",
+            command: "Downloads an MP4 audio file of a specified video.",
             arguments: [
                 {
-                    _: 'URL | Title',
-                    d: 'YouTube url or the title of a video, playlist, channel.',
+                    _: 'Video',
+                    d: 'A YouTube URL or the title of a video or playlist.',
                     optional: false
                 }
             ],

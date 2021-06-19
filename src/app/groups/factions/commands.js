@@ -14,7 +14,7 @@ const list = [
                     argumentIndexes: [1]
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Gathers information about a faction, such as its leader and members.",
                     arguments: [
                         {
                             _: 'Name',
@@ -34,7 +34,7 @@ const list = [
                     argumentIndexes: [1]
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Creates a new faction.",
                     arguments: [
                         {
                             _: 'Name',
@@ -53,7 +53,7 @@ const list = [
                     arguments: null
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Lists all factions in the server.",
                 },
                 adminOnly: false,
                 enabled: true,
@@ -66,7 +66,7 @@ const list = [
                     argumentIndexes: [1]
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Deletes a faction from the server.",
                     arguments: [
                         {
                             _: 'Name',
@@ -86,7 +86,7 @@ const list = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Sets the faction color, seen in its `about` page.",
                     arguments: [
                         {
                             _: 'Name',
@@ -111,7 +111,7 @@ const list = [
                     argumentIndexes: [1, 2]
                 },
                 description: {
-                    command: "Faction commands using one subcommand.",
+                    command: "Sets the faction icon, seen in its `about` page.",
                     arguments: [
                         {
                             _: 'Name',

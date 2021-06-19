@@ -17,8 +17,7 @@ module.exports = [
                     d: 'A provided filter term.',
                     optional: true
                 }
-            ],
-            flags: []
+            ]
         },
         adminOnly: false,
         enabled: true,
@@ -27,14 +26,10 @@ module.exports = [
     {
         group: 'games',
         regex: {
-            command: /(cast)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(cast)/
         },
         description: {
-            command: "Cast your rod into the depths. Maybe something will bite?",
-            arguments: [],
-            flags: []
+            command: "Cast your rod into the depths. Maybe something will bite?"
         },
         adminOnly: false,
         enabled: true,
@@ -43,14 +38,10 @@ module.exports = [
     {
         group: 'games',
         regex: {
-            command: /(give)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(give)/
         },
         description: {
-            command: "Gives an item.",
-            arguments: [],
-            flags: []
+            command: "Gives an item."
         },
         adminOnly: false,
         enabled: true,
@@ -65,14 +56,10 @@ module.exports = [
     {
         group: 'games',
         regex: {
-            command: /(pf_rs)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(pf_rs)/
         },
         description: {
-            command: "Reset your profile data.",
-            arguments: [],
-            flags: []
+            command: "Reset your profile data."
         },
         adminOnly: false,
         enabled: true,
@@ -87,14 +74,10 @@ module.exports = [
     {
         group: 'games',
         regex: {
-            command: /(save)/,
-            arguments: null,
-            argumentIndexes: []
+            command: /(save)/
         },
         description: {
-            command: "Save profile data.",
-            arguments: [],
-            flags: []
+            command: "Save profile data."
         },
         adminOnly: false,
         enabled: true,
