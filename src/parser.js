@@ -144,7 +144,7 @@ module.exports = (client, message) => {
                         f[cmdIndex].regex.argumentIndexes.forEach(v => data.arguments.push(match[v]));
                     }
                 }
-                else {
+                else if (!!f[cmdIndex].subcommands) {
                     let argRegX = f[cmdIndex].subcommands[scList[data.subcommand]].regex.arguments;
 
                     if (argRegX !== null) {
