@@ -34,7 +34,7 @@ function getFilters(guildId) {
                         ret.banList = list;
                     }
                 })
-                .catch(err => console.log('No banned filter.'))
+                .catch(err => {/*console.log('No banned filter.')*/})
                 .then(() => {
                     getFilter(guildId, 'kicked')
                         .then(list => {
@@ -50,7 +50,7 @@ function getFilters(guildId) {
                                 ret.kickList = list;
                             }
                         })
-                        .catch(err => console.log('No kicked filter.'))
+                        .catch(err => {/*console.log('No kicked filter.')*/ })
                         .then(() => {
                             getFilter(guildId, 'warned')
                                 .then(list => {
@@ -66,7 +66,7 @@ function getFilters(guildId) {
                                         ret.warnList = list;
                                     }
                                 })
-                                .catch(err => console.log('No warned filter.'))
+                                .catch(err => {/*console.log('No warned filter.')*/ })
                                 .then(() => {
                                     cache.set(guildId, ret);
                                     resolve(ret);
