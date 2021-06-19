@@ -2,64 +2,111 @@ const Discord = require('discord.js');
 const { chatFormat, output } = require('../../../helpers/commands');
 
 module.exports = (message, data, list) => {
-    let embed = new Discord.MessageEmbed()
+    const embed = new Discord.MessageEmbed()
         .setColor(chatFormat.colors.information);
 
-    let groups = {};
+    if (!!data.arguments[0]) {
+        let command = data.arguments[0];
 
-    if (data.arguments[0] !== undefined) {
-        let arg = data.arguments[0];
-        if (/[\?]/.test(arg))
-            arg = `\\${arg}`;
+        if (/\?/.test(command))
+            command = `\\${command}`;
 
-        embed.setTitle(`Help - ${arg}`);
+        embed.setTitle(`Help - ${command}`);
 
-        let arr = list.filter((cmd) => {
-            return cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(arg);
+        const cmdSource = list.filter((cmd) => {
+            return cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command);
         });
 
-        if (arr.length) {
-            arr.forEach(cmd => {
-                let msg = '';
+        if (cmdSource.length) {
+            cmdSource.forEach(cmd => {
+                if (!cmd.enabled)
+                    return;
 
-                if (cmd.regex.arguments !== null)
-                    for (let arg in cmd.description.arguments) {
-                        let desc = cmd.description.arguments[arg];
-                        msg += `${desc.optional ? '_' : ''}${desc._}: ${desc.d}${desc.optional ? '_' : ''}`;
-                        if (arg < cmd.description.arguments.length - 1)
-                            msg += '\n';
-                    }
-                else
-                    msg = 'No arguments.';
+                // Command description.
+                if (!!cmd.subcommands) {
+                    cmd.subcommands.forEach((sc, i) => {
+                        let field = '';
 
-                let syntax = `${data.prefix}${cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`;
-                for (let i in cmd.description.arguments) {
-                    if (/\\s\??/.test(cmd.regex.arguments.source))
-                        syntax += ' ';
-                    syntax += `${cmd.description.arguments[i].optional ? '_' : ''}<${cmd.description.arguments[i]._}>${cmd.description.arguments[i].optional ? '_' : ''}`;
+                        field += `${sc.description.command}\n`;
+
+                        // Command syntax.
+                        field += `**Syntax**\n ${data.prefix}${cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]} ${sc.name}\n`;
+
+                        // Command argument list.
+                        if (!!sc.description.arguments) {
+                            let msg = '';
+
+                            sc.description.arguments.forEach((arg, i) => {
+                                msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
+
+                                if (i < sc.description.arguments.length - 1)
+                                    msg += '\n';
+                            });
+
+                            field += `**Arguments**\n ${msg}`;
+                            embed.setFooter('Arguments in italics are optional.');
+                        }
+
+                        // Command flag list.
+                        if (!!sc.description.flags) {
+                            let msg = '';
+
+                            sc.description.flags.forEach((flag, i) => {
+                                msg += `${flag._} : ${flag.d}`;
+
+                                if (i < sc.description.flags.length)
+                                    msg += '\n';
+                            });
+
+                            field += `**Flags**\n ${msg}`;
+                        }
+
+                        embed.addField(`__${sc.name}__`, field, true);
+                    });
                 }
+                else {
+                    embed.addField('Description', cmd.description.command);
 
-                embed.addField(cmd.description.command, msg);
-                embed.addField('Syntax', syntax);
+                    // Command syntax.
+                    embed.addField('Syntax', `${data.prefix}${cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`);
 
-                if (!!cmd.description.flags) {
-                    let flags = '';
-                    for (let i in cmd.description.flags) {
-                        flags += `${cmd.description.flags[i]._} : ${cmd.description.flags[i].d}`;
-                        if (i < cmd.description.flags.length)
-                            flags += '\n';
+                    // Command argument list.
+                    if (!!cmd.description.arguments) {
+                        let msg = '';
+
+                        cmd.description.arguments.forEach((arg, i) => {
+                            msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
+
+                            if (i < cmd.description.arguments.length - 1)
+                                msg += '\n';
+                        });
+
+                        embed.addField('Arguments', msg);
+                        embed.setFooter('Arguments in italics are optional.');
                     }
-                    embed.addField('Flags', flags);
+
+                    // Command flag list.
+                    if (!!cmd.description.flags) {
+                        let msg = '';
+
+                        cmd.description.flags.forEach((flag, i) => {
+                            msg += `${flag._} : ${flag.d}`;
+
+                            if (i < cmd.description.flags.length)
+                                msg += '\n';
+                        });
+
+                        embed.addField('Flags', msg);
+                    }
                 }
             });
-
-            embed.setFooter('Arguments in italics are optional.');
         }
         else
             embed.addField('Oops!', `Could not find a command matching "${arg}".`);
     }
     else {
         embed.setTitle('Help - All');
+        let groups = {};
 
         list.forEach(cmd => {
             if (!!groups[cmd.group])
@@ -82,6 +129,7 @@ module.exports = (message, data, list) => {
 
                     if (!!arr[i].subcommands) {
                         msg += '\n';
+
                         arr[i].subcommands.forEach((v, d) => {
                             if (v.enabled) {
                                 msg += `-- ${v.name}`;

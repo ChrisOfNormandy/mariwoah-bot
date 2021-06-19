@@ -17,9 +17,9 @@ const list = [
                     command: "Faction commands using one subcommand.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
                         }
                     ]
                 },
@@ -37,9 +37,9 @@ const list = [
                     command: "Faction commands using one subcommand.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
                         }
                     ]
                 },
@@ -54,13 +54,6 @@ const list = [
                 },
                 description: {
                     command: "Faction commands using one subcommand.",
-                    arguments: [
-                        {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
-                        }
-                    ]
                 },
                 adminOnly: false,
                 enabled: true,
@@ -76,9 +69,9 @@ const list = [
                     command: "Faction commands using one subcommand.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
                         }
                     ]
                 },
@@ -96,9 +89,14 @@ const list = [
                     command: "Faction commands using one subcommand.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        },
+                        {
+                            _: 'Color',
+                            d: 'A hex color value, like `#ff00ff`.',
+                            optional: false
                         }
                     ]
                 },
@@ -116,9 +114,14 @@ const list = [
                     command: "Faction commands using one subcommand.",
                     arguments: [
                         {
-                            _: '...',
-                            d: 'Use "~fc help" or "~fc ?" for faction help.',
-                            optional: true
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        },
+                        {
+                            _: 'Image',
+                            d: 'An image URL for an icon.',
+                            optional: false
                         }
                     ]
                 },

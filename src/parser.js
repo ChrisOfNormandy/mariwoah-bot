@@ -82,6 +82,7 @@ module.exports = (client, message) => {
 
             let scList = {};
 
+            // If the command has listed subcommands.
             if (!!f[cmdIndex].subcommands) {
                 f[cmdIndex].subcommands.forEach((sc, i) => {
                     scRegX += '(';
@@ -130,11 +131,18 @@ module.exports = (client, message) => {
                 // Fetch and remove arguments.
                 let args = [];
                 if (!!regex.arguments) {
-                    args = str.match(regex.arguments);
-                    if (args !== null)
+                    let match = str.match(regex.arguments);
+                    
+                    if (match === null) {
+                        if (!f[cmdIndex].regex.argsOptional) {
+                            message.channel.send('Missing arguments.');
+                            return Promise.reject(null);
+                        }
+                    }
+                    else {
                         str = str.replace(args[0], '');
-                    else if (regex.argsOptional)
-                        args = [];
+                        f[cmdIndex].regex.argumentIndexes.forEach(v => data.arguments.push(match[v]));
+                    }
                 }
                 else {
                     let argRegX = f[cmdIndex].subcommands[scList[data.subcommand]].regex.arguments;

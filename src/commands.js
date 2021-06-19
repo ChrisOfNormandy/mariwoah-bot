@@ -27,8 +27,9 @@ list.push({
     group: 'general',
     regex: {
         command: /(\?)|(help)/,
-        arguments: /\s?([\w\?]+)?/,
-        argumentIndexes: [1]
+        arguments: /\s([\w\?]+)/,
+        argumentIndexes: [1],
+        argsOptional: true
     },
     description: {
         command: "Displays a list of commands and syntaxes.",
