@@ -97,7 +97,7 @@ module.exports = (client, message) => {
                 });
             }
             else {
-                if (regex.arguments !== null)
+                if (!!regex.arguments)
                     r += `(${regex.arguments.source})${!!regex.argsOptional ? '?' : ''}`;
             }
 
@@ -147,7 +147,7 @@ module.exports = (client, message) => {
                 else if (!!f[cmdIndex].subcommands) {
                     let argRegX = f[cmdIndex].subcommands[scList[data.subcommand]].regex.arguments;
 
-                    if (argRegX !== null) {
+                    if (!!argRegX) {
 
                         let match = str.match(argRegX);
 

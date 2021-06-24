@@ -44,7 +44,7 @@ module.exports = [
             command: "Gives an item."
         },
         adminOnly: false,
-        enabled: true,
+        enabled: false,
         run: (message, data) => {
             return new Promise((resolve, reject) => {
                 require('./app/helpers/playerdata').data.inventory.give(message.author.id, { name: "test_item" }, 'item', 1)
@@ -62,7 +62,7 @@ module.exports = [
             command: "Reset your profile data."
         },
         adminOnly: false,
-        enabled: true,
+        enabled: false,
         run: (message, data) => {
             return new Promise((resolve, reject) => {
                 require('./app/helpers/playerdata/profile').newFile(message.author.id)
@@ -80,7 +80,7 @@ module.exports = [
             command: "Save profile data."
         },
         adminOnly: false,
-        enabled: true,
+        enabled: false,
         run: (message, data) => {
             return new Promise((resolve, reject) => {
                 require('./app/helpers/playerdata/profile').save();

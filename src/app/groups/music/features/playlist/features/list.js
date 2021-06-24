@@ -1,5 +1,7 @@
-const {chatFormat, output} = require('../../../../../helpers/commands');
 const Discord = require('discord.js');
+const path = require('path');
+
+const {chatFormat, output} = require('../../../../../helpers/commands');
 const { s3 } = require('../../../../../../aws/helpers/adapter');
 
 function getList(guild_id) {
@@ -49,7 +51,6 @@ function all(guild_id) {
     return new Promise((resolve, reject) => {
         getList(guild_id)
             .then(list => {
-                const path = require('path');
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Available Playlists`)
                     .setColor(chatFormat.colors.information);
@@ -67,8 +68,6 @@ function all(guild_id) {
     });
 }
 
-module.exports = (guild_id, name = null) => {
-    if (!name)
-        return all(guild_id);
-    return byName(guild_id, name);
+module.exports = (message, data) => {
+    return (data.arguments[0]) ? byName(message.guild.id, data.arguments[0]) : all(message.guild.id);
 }

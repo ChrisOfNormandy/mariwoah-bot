@@ -140,7 +140,7 @@ let plList = [
             }
         ],
         adminOnly: false,
-        enabled: false,
+        enabled: true,
         run: (message, data) => {
             let arr = plList[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand });
             if (!!arr.length)
