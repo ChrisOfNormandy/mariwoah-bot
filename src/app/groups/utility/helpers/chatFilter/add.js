@@ -28,7 +28,7 @@ module.exports = (message, data) => {
             })
             .catch(err => {
                 if (err.code == 'NoSuchKey') {
-                    s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, `[${phrase}]`)
+                    s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, `["${phrase}"]`)
                         .then(r => resolve(output.valid([r], [`No existing filter \`${filterName}\`. One has been created automatically with the provided phrase included.`])))
                         .catch(err => reject(output.error([err], [err.message])));
                 }
