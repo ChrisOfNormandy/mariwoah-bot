@@ -24,7 +24,6 @@ module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         get(message, factionName)
             .then(faction => {
-                console.log('Faction:', faction);
                 if (data.flags.includes('f') && message.member.hasPermission('ADMINISTRATOR'))
                     remove(message, factionName)
                         .then(r => resolve(r))

@@ -11,7 +11,6 @@ const cache = require('./cache');
  */
 module.exports = (message, data) => {
     const factionName = data.arguments[0];
-    console.log(data.arguments);
 
     return new Promise((resolve, reject) => {
         cache.get(message.guild.id, factionName)
