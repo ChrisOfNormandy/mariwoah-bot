@@ -166,7 +166,10 @@ module.exports = (client, message) => {
 
                 if (!f[cmdIndex].enabled)
                     return Promise.reject(null);
-                    
+                
+                if (!!f[cmdIndex].adminOnly && !message.member.hasPermission("ADMINISTRATOR"))
+                    return Promise.reject(null);
+
                 return new Promise((resolve, reject) => {
                     f[cmdIndex].run(message, data)
                         .then(response => {
