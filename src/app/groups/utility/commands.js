@@ -196,4 +196,98 @@ module.exports = [
         enabled: true,
         run: (message, data) => groups.utility.chatFilter_clear(message, data)
     },
+    {
+        group: 'utility',
+        regex: {
+            command: /(getnamefilter)|(nfget)/,
+            arguments: /\s(\w+)/,
+            argumentIndexes: [1]
+        },
+        description: {
+            command: "Fetches the server name filter rules for a given filter.",
+            arguments: [
+                {
+                    _: 'Filter rule.',
+                    d: 'warned | kicked | banned',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: true,
+        enabled: true,
+        run: (message, data) => groups.utility.nameFilter_get(message, data)
+    },
+    {
+        group: 'utility',
+        regex: {
+            command: /(addnamefilter)|(nfadd)/,
+            arguments: /\s(\w+)\s(.+)/,
+            argumentIndexes: [1, 2]
+        },
+        description: {
+            command: "Adds a phrase to a specified name filter.",
+            arguments: [
+                {
+                    _: 'Filter rule.',
+                    d: 'warned | kicked | banned',
+                    optional: false
+                },
+                {
+                    _: 'Filter phrase.',
+                    d: 'Any banned statement.',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: true,
+        enabled: true,
+        run: (message, data) => groups.utility.nameFilter_add(message, data)
+    },
+    {
+        group: 'utility',
+        regex: {
+            command: /(removenamefilter)|(nfremove)|(nfrm)/,
+            arguments: /\s(\w+)\s(.+)/,
+            argumentIndexes: [1, 2]
+        },
+        description: {
+            command: "Removes a phrase from a specified name filter.",
+            arguments: [
+                {
+                    _: 'Filter rule.',
+                    d: 'warned | kicked | banned',
+                    optional: false
+                },
+                {
+                    _: 'Filter phrase.',
+                    d: 'Any banned statement.',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: true,
+        enabled: true,
+        run: (message, data) => groups.utility.nameFilter_remove(message, data)
+    },
+    {
+        group: 'utility',
+        regex: {
+            command: /(clearnamefilter)|(nfclear)/,
+            arguments: /\s(\w+)/,
+            argumentIndexes: [1]
+        },
+        description: {
+            command: "Clears a specified name filter.",
+            arguments: [
+                {
+                    _: 'Filter rule.',
+                    d: 'warned | kicked | banned',
+                    optional: false
+                }
+            ]
+        },
+        adminOnly: true,
+        enabled: true,
+        run: (message, data) => groups.utility.nameFilter_clear(message, data)
+    },
 ]

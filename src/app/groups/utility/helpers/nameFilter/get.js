@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 
 const { s3 } = require('../../../../../aws/helpers/adapter');
 const { chatFormat, output } = require('../../../../helpers/commands');
-const getFilter = require('../../../../helpers/filter/getChat');
+const getFilter = require('../../../../helpers/filter/getName');
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
@@ -11,13 +11,13 @@ module.exports = (message, data) => {
     let filterName = data.arguments[0];
 
     if (!acceptedFilters.includes(filterName))
-        return Promise.reject('Unsupported chat filter name.\nUse \`warned\`, \`kicked\` or \`banned\`.');
+        return Promise.reject('Unsupported name filter name.\nUse \`warned\`, \`kicked\` or \`banned\`.');
 
     return new Promise((resolve, reject) => {
         getFilter(guildId, filterName)
             .then(json => {
                 const embed = new Discord.MessageEmbed()
-                    .setTitle(`Chat filter list for \`${filterName}\` phrases.`)
+                    .setTitle(`Name filter list for \`${filterName}\` phrases.`)
                     .setColor(chatFormat.colors.byName.darkred);
 
                 let str = '';
@@ -35,7 +35,7 @@ module.exports = (message, data) => {
             })
             .catch(err => {
                 if (err.code == 'NoSuchKey') {
-                    s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, '[]')
+                    s3.object.putData('mariwoah', `guilds/${guildId}/name_filters`, `${filterName}.json`, '[]')
                         .then(r => resolve(output.valid([r], [`No existing filter \`${filterName}\`. One has been created automatically.`])))
                         .catch(err => reject(output.error([err], [err.message])));
                 }

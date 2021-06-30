@@ -4,7 +4,9 @@ const cache = require('./filter/cache');
 
 const filterBypass = require('./filter/bypassRoleNames.json');
 
-const getFilter = require('./filter/getChat');
+const getFilter = require('./filter/getName');
+
+const logChannel = "748961589910175805";
 
 function getFilters(guildId) {
     if (!cache.has(guildId)) {
@@ -89,49 +91,51 @@ function unique(arr) {
 
 /**
  * 
- * @param {Discord.Message} message 
+ * @param {Discord.GuildMember} message 
  */
-function ban(message, reason = null) {
-    return message.member.ban({ reason: reason === null ? 'Chat filter violation.' : reason })
+function ban(member, reason = null) {
+    return member.ban({ reason: reason === null ? 'Name filter violation.' : reason })
 }
 
 /**
  * 
- * @param {Discord.Message} message 
+ * @param {Discord.GuildMember} member 
  */
-function kick(message, reason = null) {
-    return message.member.kick({ reason: reason === null ? 'Chat filter violation.' : reason })
+function kick(member, reason = null) {
+    return member.kick({ reason: reason === null ? 'Name filter violation.' : reason })
 }
 
 /**
  * 
- * @param {Discord.Message} message 
+ * @param {Discord.GuildMember} member 
  * @returns {Promise<boolean>}
  */
-module.exports = (message, ignoreAdminBypass = false) => {
-    if (!ignoreAdminBypass && (message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('MANAGE_MESSAGES') || !!message.member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()) }).size))
+module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false) => {
+    if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES') || !!member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()) }).size))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {
-        getFilters(message.guild.id)
+        getFilters(member.guild.id)
             .then(filters => {
-                const banctx = filters.banned !== null ? message.content.match(filters.banned) : null;
-                const kickctx = filters.kicked !== null ? message.content.match(filters.kicked) : null;
-                const warnctx = filters.warned !== null ? message.content.match(filters.warned) : null;
+                const target = member.nickname === null || ignoreNickname ? member.user.username : member.nickname;
+
+                const banctx = filters.banned !== null ? target.match(filters.banned) : null;
+                const kickctx = filters.kicked !== null ? target.match(filters.kicked) : null;
+                const warnctx = filters.warned !== null ? target.match(filters.warned) : null;
 
                 if (banctx !== null) {
                     const embed = new Discord.MessageEmbed()
                         .setTitle('Hello.')
-                        .addField(`Ban report:`, `You were automatically banned from ${message.guild.name} for chat filter violations.`)
-                        .addField(`Reason:`, `Message contained "${banctx.join('", "')}"`)
+                        .addField(`Ban report:`, `You were automatically banned from ${member.guild.name} for name filter violations.`)
+                        .addField(`Reason:`, `Name contained "${banctx.join('", "')}"`)
                         .addField(`Duration of ban:`, unique(banctx) * banctx.length * 3);
 
-                    message.author.send(embed)
+                    member.user.send(embed)
                         .catch(() => console.error('Could not send user a DM.'));
 
 
-                    ban(message)
-                        .then(() => message.channel.send(`<@!${message.author.id}> has been banned for chat violation.`))
+                    ban(member)
+                        .then(() => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been banned for name violation.`))
                         .catch(err => console.error(err));
 
                     resolve(false)
@@ -140,34 +144,45 @@ module.exports = (message, ignoreAdminBypass = false) => {
                 if (kickctx !== null) {
                     const embed = new Discord.MessageEmbed()
                         .setTitle('Hello.')
-                        .addField(`Kick report:`, `You were automatically kicked from ${message.guild.name} for chat filter violations.`)
+                        .addField(`Kick report:`, `You were automatically kicked from ${member.guild.name} for name filter violations.`)
                         .addField(`Reason:`, `Message contained "${kickctx.join('", "')}"`);
 
-                    message.author.send(embed)
+                    member.user.send(embed)
                         .catch(() => console.error('Could not send user a DM.'));
 
 
-                    kick(message)
-                        .then(() => message.channel.send(`<@!${message.author.id}> has been kicked for chat violation.`))
+                    kick(member)
+                        .then(() => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been kicked for name violation.`))
                         .catch(err => console.error(err));
 
                     resolve(false)
                 }
 
                 if (warnctx !== null) {
-                    let msg = message.content;
-                    warnctx.forEach(str => msg = msg.replace(str, `||${str}||`));
-                    message.channel.send(`<@!${message.author.id}> has been issued a warning for chat violation.\n> ${msg}`);
+                    let name = member.user.username;
+                    warnctx.forEach(str => name = name.replace(str, `||${str}||`));
 
                     const embed = new Discord.MessageEmbed()
                         .setTitle('Hello.')
-                        .addField(`Warning report:`, `You were issued a warning from ${message.guild.name} for chat filter violations.`)
+                        .addField(`Warning report:`, `You were issued a warning from ${member.guild.name} for name filter violations.`)
                         .addField(`Reason:`, `Message contained "${warnctx.join('", "')}"`);
 
-                    message.author.send(embed)
+                    member.user.send(embed)
                         .catch(() => console.error('Could not send user a DM.'));
 
-                    resolve(false)
+                    if (changeNickname) {
+                        member.setNickname("Please change. :)", { reason: "Name filter violation." })
+                            .then(r => resolve(false))
+                            .catch(err => {
+                                console.error(err);
+                                resolve(false);
+                            })
+                            .then(() => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`));
+                    }
+                    else {
+                        member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`);
+                        resolve(false);
+                    }
                 }
 
                 resolve(true)
