@@ -7,6 +7,7 @@ const nameFilter = require('./src/app/helpers/nameFilter');
 const aws_helpers = require('./src/aws/helpers/adapter');
 
 const logChannel = "748961589910175805";
+const enableNameFilter = false;
 
 function startup() {
     const Discord = require('discord.js');
@@ -31,39 +32,41 @@ function startup() {
             });
     });
     
-    client.on('guildMemberAdd', member => {
-        nameFilter(member)
-            .catch(err => console.error(err));
-    });
-
-    client.on('guildMemberUpdate', (oldMember, newMember) => {
-        if (
-            (oldMember.user.username !== newMember.user.username) ||
-            (newMember.nickname !== null && oldMember.nickname !== newMember.nickname)
-        ) {
-            oldMember.guild.channels.cache.get(logChannel).send(
-                `${oldMember.user.username}${oldMember.nickname !== null ? `, nickname ${oldMember.nickname}, ` : ''} updated their name.\n` +
-                `Current: <@${newMember.user.id}>${newMember.nickname === null ? '' : `, nickname ${newMember.nickname}`}.`
-            );
-            
-            nameFilter(newMember, true, oldMember.user.username !== newMember.user.username)
-                .then(pass => {
-                    if (!pass) {
-                        if (oldMember.nickname !== newMember.nickname) {
-                            if (newMember.nickname === null)
-                                oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} removed their nickname.`);
-                            else
-                                oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} changed their nickname to ${newMember.nickname}`);
-                        }
-                    }
-                })
+    if (enableNameFilter) {
+        client.on('guildMemberAdd', member => {
+            nameFilter(member)
                 .catch(err => console.error(err));
-            }
-    });
+        });
 
-    // client.on('guildMemberRemove', member => {
-    //     // Do something
-    // });
+        client.on('guildMemberUpdate', (oldMember, newMember) => {
+            if (
+                (oldMember.user.username !== newMember.user.username) ||
+                (newMember.nickname !== null && oldMember.nickname !== newMember.nickname)
+            ) {
+                oldMember.guild.channels.cache.get(logChannel).send(
+                    `${oldMember.user.username}${oldMember.nickname !== null ? `, nickname ${oldMember.nickname}, ` : ''} updated their name.\n` +
+                    `Current: <@${newMember.user.id}>${newMember.nickname === null ? '' : `, nickname ${newMember.nickname}`}.`
+                );
+                
+                nameFilter(newMember, true, oldMember.user.username !== newMember.user.username)
+                    .then(pass => {
+                        if (!pass) {
+                            if (oldMember.nickname !== newMember.nickname) {
+                                if (newMember.nickname === null)
+                                    oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} removed their nickname.`);
+                                else
+                                    oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} changed their nickname to ${newMember.nickname}`);
+                            }
+                        }
+                    })
+                    .catch(err => console.error(err));
+                }
+        });
+
+        // client.on('guildMemberRemove', member => {
+        //     // Do something
+        // });
+    }
 
     client.on('message', (message) => {
         if (!message.author.bot) {

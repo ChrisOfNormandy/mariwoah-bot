@@ -141,7 +141,7 @@ module.exports = (client, message) => {
                     }
                     else {
                         str = str.replace(args[0], '');
-                        f[cmdIndex].regex.argumentIndexes.forEach(v => data.arguments.push(match[v]));
+                        f[cmdIndex].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]) });
                     }
                 }
                 else if (!!f[cmdIndex].subcommands) {
@@ -158,7 +158,7 @@ module.exports = (client, message) => {
                             }
                         }
                         else
-                            f[cmdIndex].subcommands[scList[data.subcommand]].regex.argumentIndexes.forEach(v => data.arguments.push(match[v]));
+                            f[cmdIndex].subcommands[scList[data.subcommand]].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]) });
                     }
                 }
 

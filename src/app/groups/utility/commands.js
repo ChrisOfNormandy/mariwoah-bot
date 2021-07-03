@@ -31,9 +31,9 @@ module.exports = [
     {
         group: 'utility',
         regex: {
-            command: /(roll)|(r\d+)|(d\d+)/,
-            arguments: /\s?([1-9][0-9]*)?(\s([1-9][0-9]*))?/,
-            argumentIndexes: [1, 3]
+            command: /(roll)|(r)|(d)/,
+            arguments: /(\s?([1-9][0-9]*)?(\s([1-9][0-9]*))?)|(\d+(\s\d+)?)/,
+            argumentIndexes: [2, 4, 5, 6]
         },
         description: {
             command: "Rolls a number between 1 and a given value.",
