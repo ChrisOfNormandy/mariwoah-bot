@@ -290,4 +290,16 @@ module.exports = [
         enabled: true,
         run: (message, data) => groups.utility.nameFilter_clear(message, data)
     },
+    {
+        group: 'utility',
+        regex: {
+            command: /(roulette)|(vcr)/
+        },
+        description: {
+            command: "Roll and 1 and get disconnected."
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => groups.utility.vcRoulette(message)
+    },
 ]

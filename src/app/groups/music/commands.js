@@ -175,7 +175,7 @@ module.exports = [
     {
         group: 'music',
         regex: {
-            command: /(join)|(vc)/
+            command: /(join)|(vc\b)/
         },
         description: {
             command: "Puts the bot into the requested voice channel."

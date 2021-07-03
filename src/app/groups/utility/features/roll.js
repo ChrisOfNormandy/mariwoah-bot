@@ -1,7 +1,6 @@
 const { output } = require('../../../helpers/commands');
 
 module.exports = (args) => {
-    console.log(args);
     return new Promise((resolve, reject) => {
         let count = 1, sides = 6;
 
