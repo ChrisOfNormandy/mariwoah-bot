@@ -1,0 +1,54 @@
+const Discord = require('discord.js');
+
+const shuffle = require('../../../helpers/shuffle');
+const getVc = require('../../../helpers/getVoiceChannel');
+const { output } = require('../../../helpers/commands');
+
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {*} data 
+ * @returns 
+ */
+module.exports = (message, data) => {
+    return new Promise((resolve, reject) => {
+        let channel = getVc(message);
+
+        let name = channel.name;
+
+        channel.join()
+            .then(r => {
+                let vcList = r.channel.guild.channels.cache.filter((v) => {
+                    return v.type === 'voice' && (v.name === name || data.arguments.includes(v.name));
+                }).array();
+
+                shuffle(
+                    channel.members.filter((v) => {
+                        return v.user.id !== data.client.user.id;
+                    })
+                        .array()
+                )
+                    .then(list => {
+                        let i = Math.floor(list.length / vcList.length);
+                        let count = 0;
+
+                        list.forEach(user => {
+
+                            if (count < i)
+                                user.voice.setChannel(vcList[0]);
+                            else
+                                user.voice.setChannel(vcList[1]);
+
+                            count++;
+                        });
+
+                        channel.leave();
+
+                        resolve(output.valid([], ['Shuffled and divided users.']));
+                    })
+                    .catch(err => reject(output.error([err], [err.message])));
+            })
+            .catch(err => reject(output.error([err], [err.message])));
+    });
+
+}

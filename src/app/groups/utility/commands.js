@@ -302,4 +302,18 @@ module.exports = [
         enabled: true,
         run: (message, data) => groups.utility.vcRoulette(message)
     },
+    {
+        group: 'utility',
+        regex: {
+            command: /(splitvc)|(svc)/,
+            arguments: /\s(.+)/,
+            argumentIndexes: [1]
+        },
+        description: {
+            command: "Splits the VC into two groups."
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => groups.utility.splitVc(message, data)
+    },
 ]
