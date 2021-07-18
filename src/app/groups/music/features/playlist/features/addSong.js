@@ -11,7 +11,7 @@ function byName(message, playlistName, songName) {
                         let list = JSON.parse(obj.Body.toString());
 
                         if (!!list[song.id])
-                            reject({message: 'Playlist already contains value.'});
+                            reject({ message: 'Playlist already contains value.' });
                         else {
                             list[song.id] = song;
 
@@ -25,16 +25,18 @@ function byName(message, playlistName, songName) {
                         }
                     })
                     .catch(err => {
-                        console.error(err)
+                        console.error(err);
+
                         let file = {
                             name: `${playlistName}.json`,
                             type: 'application/json',
                             data: {}
                         };
+
                         file.data[songName] = song;
 
                         s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, file)
-                            .then(res => resolve(file.data))
+                            .then(() => resolve(file.data))
                             .catch(err => reject(err));
                     });
             })

@@ -10,7 +10,7 @@ class NoiseGen {
     }
 
     GetNoise(x, y, z) {
-        return (Octaves > 1) 
+        return (Octaves > 1)
             ? new Noise().GetOctaveNoise(x * this.XScale, y * this.YScale, z * this.ZScale, this.Octaves)
             : new Noise().GetNoise(x * this.XScale, y * this.YScale, z * this.ZScale);
     }
@@ -27,7 +27,7 @@ class Noise {
     // Inner class to speed up gradient computations
     // (array access is a lot slower than member access)
     Grad(x, y, z) {
-        return { x, y, z, w: 0 }
+        return { x, y, z, w: 0 };
     }
 
     grad3 = [

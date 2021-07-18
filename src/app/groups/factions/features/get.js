@@ -1,5 +1,4 @@
-const {s3} = require('../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../helpers/commands');
+const { s3 } = require('../../../../aws/helpers/adapter');
 
 module.exports = (guild, factionName) => {
     return new Promise((resolve, reject) => {
@@ -7,4 +6,4 @@ module.exports = (guild, factionName) => {
             .then(res => resolve(JSON.parse(res.Body.toString())))
             .catch(err => reject(err));
     });
-}
+};

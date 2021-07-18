@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {chatFormat, output} = require('../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../helpers/commands');
 const queue = require('./map');
 
 function field(song, useLink = false) {
@@ -26,8 +26,8 @@ module.exports = function (message, data) {
     let count = 0;
     let video;
     while (count < q.songs.length && count < chatFormat.response.music.queue.list_length) {
-        video = field(q.songs[count], !!data.flags['l']);
-        
+        video = field(q.songs[count], !!data.flags.l);
+
         if (count == 0) {
             embed.addField(`Now playing:\n${video[0]}`, `By: ${q.songs[0].author}\n${video[1]}`);
 
@@ -44,9 +44,9 @@ module.exports = function (message, data) {
         }
         count++;
     }
-    
+
     if (q.songs.length > chatFormat.response.music.queue.list_length)
         embed.setFooter(`... and ${q.songs.length - count} others.`);
 
-    return Promise.resolve(output.valid(q.songs, [embed], { clear: 30 } ));
-}
+    return Promise.resolve(output.valid(q.songs, [embed], { clear: 30 }));
+};

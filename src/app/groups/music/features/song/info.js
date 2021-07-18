@@ -7,4 +7,4 @@ module.exports = (message, data) => {
             .then(embed => resolve(output.valid([embed], [embed])))
             .catch(e => reject(output.error([e], [chatFormat.response.music.info.error()])));
     });
-}
+};

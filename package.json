@@ -14,6 +14,7 @@
         "duckduckgo-images-api": "^1.0.5",
         "ffmpeg": "^0.0.4",
         "ffmpeg-static": "^4.4.0",
+        "jslint": "^0.12.1",
         "node-duckduckgo": "^2.0.17",
         "node-fetch": "^2.6.1",
         "node-opus": "^0.3.3",
@@ -31,6 +32,13 @@
         "ytdl-core": "^4.8.3"
     },
     "repository": {},
+    "scripts": {
+        "start": "npm run lint & nodemon",
+        "lint": "jslint **/*.js"
+    },
     "private": true,
-    "license": "GNU General Public License (GPL)"
+    "license": "GNU General Public License (GPL)",
+    "devDependencies": {
+        "jshint": "^2.13.0"
+    }
 }

@@ -20,8 +20,8 @@ const crypto = [
         enabled: true,
         run: (message, data) => groups.misc.crypto.any(data.arguments[0].toUpperCase(), data.arguments[0].toUpperCase())
     }
-]
+];
 
 module.exports = {
     crypto
-}
+};

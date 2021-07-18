@@ -142,13 +142,13 @@ let plList = [
         adminOnly: false,
         enabled: true,
         run: (message, data) => {
-            let arr = plList[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand });
+            let arr = plList[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand; });
             if (!!arr.length)
                 return arr[0].run(message, data);
             return Promise.reject({ content: ['Subcommand not found.'] }); // This should never happen if commands are set up correctly, but just in case.
         }
     }
-]
+];
 
 module.exports = [
     {
@@ -300,4 +300,4 @@ module.exports = [
         run: (message, data) => groups.music.song.download(data)
     },
     plList[0]
-]
+];

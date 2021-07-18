@@ -21,4 +21,4 @@ function login() {
 module.exports = {
   AWS,
   login
-}
+};

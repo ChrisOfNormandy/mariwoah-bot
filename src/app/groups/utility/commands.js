@@ -316,4 +316,4 @@ module.exports = [
         enabled: true,
         run: (message, data) => groups.utility.splitVc(message, data)
     },
-]
+];

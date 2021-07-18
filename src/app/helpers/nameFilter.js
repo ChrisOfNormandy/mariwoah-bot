@@ -27,14 +27,14 @@ function getFilters(guildId) {
                         list.forEach((str, i) => {
                             banReg += `(${str}\\b)`;
                             if (i < list.length - 1)
-                                banReg += '|'
+                                banReg += '|';
                         });
 
                         ret.banned = new RegExp(banReg, 'g');
                         ret.banList = list;
                     }
                 })
-                .catch(err => {/*console.error('No banned filter.')*/})
+                .catch(err => {/*console.error('No banned filter.')*/ })
                 .then(() => {
                     getFilter(guildId, 'kicked')
                         .then(list => {
@@ -43,7 +43,7 @@ function getFilters(guildId) {
                                 list.forEach((str, i) => {
                                     kickReg += `(${str}\\b)`;
                                     if (i < list.length - 1)
-                                        kickReg += '|'
+                                        kickReg += '|';
                                 });
 
                                 ret.kicked = new RegExp(kickReg, 'g');
@@ -59,7 +59,7 @@ function getFilters(guildId) {
                                         list.forEach((str, i) => {
                                             warnReg += `(${str}\\b)`;
                                             if (i < list.length - 1)
-                                                warnReg += '|'
+                                                warnReg += '|';
                                         });
 
                                         ret.warned = new RegExp(warnReg, 'g');
@@ -70,9 +70,9 @@ function getFilters(guildId) {
                                 .then(() => {
                                     cache.set(guildId, ret);
                                     resolve(ret);
-                                })
-                        })
-                })
+                                });
+                        });
+                });
         });
     }
     else {
@@ -94,7 +94,7 @@ function unique(arr) {
  * @param {Discord.GuildMember} message 
  */
 function ban(member, reason = null) {
-    return member.ban({ reason: reason === null ? 'Name filter violation.' : reason })
+    return member.ban({ reason: reason === null ? 'Name filter violation.' : reason });
 }
 
 /**
@@ -102,7 +102,7 @@ function ban(member, reason = null) {
  * @param {Discord.GuildMember} member 
  */
 function kick(member, reason = null) {
-    return member.kick({ reason: reason === null ? 'Name filter violation.' : reason })
+    return member.kick({ reason: reason === null ? 'Name filter violation.' : reason });
 }
 
 /**
@@ -111,7 +111,7 @@ function kick(member, reason = null) {
  * @returns {Promise<boolean>}
  */
 module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false) => {
-    if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES') || !!member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()) }).size))
+    if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES') || !!member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()); }).size))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {
@@ -138,7 +138,7 @@ module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreA
                         .then(() => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been banned for name violation.`))
                         .catch(err => console.error(err));
 
-                    resolve(false)
+                    resolve(false);
                 }
 
                 if (kickctx !== null) {
@@ -155,7 +155,7 @@ module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreA
                         .then(() => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been kicked for name violation.`))
                         .catch(err => console.error(err));
 
-                    resolve(false)
+                    resolve(false);
                 }
 
                 if (warnctx !== null) {
@@ -185,8 +185,8 @@ module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreA
                     }
                 }
 
-                resolve(true)
+                resolve(true);
             })
             .catch(err => reject(err));
     });
-}
+};

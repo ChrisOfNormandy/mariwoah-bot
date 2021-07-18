@@ -13,13 +13,13 @@ function byURLArray(message, data) {
     return new Promise((resolve, reject) => {
         getSong.byURLArray(message, data.urls)
             .then(arr => {
-                if (data.flags['s']) {
+                if (data.flags.s) {
                     shuffle(arr)
                         .then(arr_ => resolve(append(message, arr_, data.flags)))
                         .catch(e => reject(e));
                 }
                 else
-                    resolve(append(message, arr, data.flags))
+                    resolve(append(message, arr, data.flags));
             })
             .catch(e => reject(e));
     });
@@ -36,7 +36,8 @@ function byPlaylist(message, data) {
 module.exports = (message, data) => {
     if (data.urls.length)
         return byURLArray(message, data);
-    return (data.flags['p'])
+
+    return (data.flags.p)
         ? byPlaylist(message, data)
         : byName(message, data);
-}
+};

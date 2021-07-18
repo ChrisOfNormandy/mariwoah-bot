@@ -1,4 +1,4 @@
-const { chatFormat, output } = require('../../../helpers/commands');
+const { output } = require('../../../helpers/commands');
 
 const colorList = [
     'red',
@@ -53,4 +53,4 @@ module.exports = (message, data) => {
             }
         }
     });
-}
+};

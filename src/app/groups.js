@@ -6,4 +6,4 @@ module.exports = {
     misc: require('./groups/misc/adapter'),
     music: require('./groups/music/adapter'),
     utility: require('./groups/utility/adapter')
-}
+};

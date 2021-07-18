@@ -1,5 +1,5 @@
 const { s3 } = require('../../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../../helpers/commands');
+const { output } = require('../../../../helpers/commands');
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
@@ -13,9 +13,9 @@ module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         s3.object.get('mariwoah', `guilds/${guildId}/name_filters/${filterName}.json`)
             .then(data => {
-                    s3.object.putData('mariwoah', `guilds/${guildId}/name_filters`, `${filterName}.json`, '[]')
-                        .then(r => resolve(output.valid([r], [`Cleared \`${filterName}\` filter list.`])))
-                        .catch(err => reject(output.error([err], [err.message])));
+                s3.object.putData('mariwoah', `guilds/${guildId}/name_filters`, `${filterName}.json`, '[]')
+                    .then(r => resolve(output.valid([r], [`Cleared \`${filterName}\` filter list.`])))
+                    .catch(err => reject(output.error([err], [err.message])));
             })
             .catch(err => {
                 if (err.code == 'NoSuchKey') {
@@ -24,7 +24,7 @@ module.exports = (message, data) => {
                         .catch(err => reject(output.error([err], [err.message])));
                 }
                 else
-                    reject(reject(output.error([err], [err.message])))
+                    reject(reject(output.error([err], [err.message])));
             });
     });
-}
+};

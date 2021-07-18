@@ -1,8 +1,9 @@
-const ddg = require('node-duckduckgo').duckIt;
 const Discord = require('discord.js');
+const ddg = require('node-duckduckgo').duckIt;
+
 const { chatFormat, output } = require('../../../helpers/commands');
 
-module.exports = (message, data) => {
+module.exports = (data) => {
     let query = data.arguments[0];
 
     let searchType = 'ddg';
@@ -25,7 +26,7 @@ module.exports = (message, data) => {
                     .setTitle(`Search results for ${query}`)
                     .setColor(chatFormat.colors.byName.aqua);
 
-                switch (searchType) {                    
+                switch (searchType) {
                     case 'direct': {
                         if (!!response.headers.link) {
                             const link = response.headers.link.split(';')[0].match(/<([^>]+)>/)[1];
@@ -110,4 +111,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

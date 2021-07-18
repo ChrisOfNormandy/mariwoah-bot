@@ -1,5 +1,5 @@
 const append = require('../../queue/append');
-const {s3} = require('../../../../../../aws/helpers/adapter');
+const { s3 } = require('../../../../../../aws/helpers/adapter');
 
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
@@ -8,7 +8,7 @@ module.exports = (message, data) => {
         s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/${name}.json`)
             .then(obj => {
                 let list = JSON.parse(obj.Body.toString());
-                
+
                 let songs = [];
                 for (let s in list) {
                     const song = list[s];
@@ -21,4 +21,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(err));
     });
-}
+};

@@ -49,9 +49,7 @@ const list = [
             },
             {
                 name: "list",
-                regex: {
-                    arguments: null
-                },
+                regex: {},
                 description: {
                     command: "Lists all factions in the server.",
                 },
@@ -133,12 +131,14 @@ const list = [
         adminOnly: false,
         enabled: true,
         run: (message, data) => {
-            let arr = list[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand});
+            let arr = list[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand; });
+
             if (!!arr.length)
                 return arr[0].run(message, data);
-            return Promise.reject({content: ['Subcommand not found.']}); // This should never happen if commands are set up correctly, but just in case.
+
+            return Promise.reject({ content: ['Subcommand not found.'] }); // This should never happen if commands are set up correctly, but just in case.
         }
     }
-]
+];
 
 module.exports = list;

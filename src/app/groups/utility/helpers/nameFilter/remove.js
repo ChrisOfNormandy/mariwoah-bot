@@ -1,5 +1,5 @@
 const { s3 } = require('../../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../../helpers/commands');
+const { output } = require('../../../../helpers/commands');
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
@@ -33,7 +33,7 @@ module.exports = (message, data) => {
                         .catch(err => reject(output.error([err], [err.message])));
                 }
                 else
-                    reject(reject(output.error([err], [err.message])))
+                    reject(reject(output.error([err], [err.message])));
             });
     });
-}
+};

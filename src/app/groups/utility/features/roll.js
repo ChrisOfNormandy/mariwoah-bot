@@ -37,7 +37,7 @@ module.exports = (args) => {
         }
 
         let value = `Rolled: ${rolls.join(", ")}`;
-        
+
         if (rolls.length > 1) {
             value = (sides > 2)
                 ? `Rolled: ${rolls.join(", ")}\n\nSum: ${sum}\nHighest: ${highest}\nLowest: ${lowest}`
@@ -46,4 +46,4 @@ module.exports = (args) => {
 
         resolve(output.valid(rolls, [value]));
     });
-}
+};

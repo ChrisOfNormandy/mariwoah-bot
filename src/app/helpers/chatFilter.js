@@ -25,14 +25,14 @@ function getFilters(guildId) {
                         list.forEach((str, i) => {
                             banReg += `(${str}\\b)`;
                             if (i < list.length - 1)
-                                banReg += '|'
+                                banReg += '|';
                         });
 
                         ret.banned = new RegExp(banReg, 'g');
                         ret.banList = list;
                     }
                 })
-                .catch(err => {/*console.error('No banned filter.')*/})
+                .catch(err => {/*console.error('No banned filter.')*/ })
                 .then(() => {
                     getFilter(guildId, 'kicked')
                         .then(list => {
@@ -41,7 +41,7 @@ function getFilters(guildId) {
                                 list.forEach((str, i) => {
                                     kickReg += `(${str}\\b)`;
                                     if (i < list.length - 1)
-                                        kickReg += '|'
+                                        kickReg += '|';
                                 });
 
                                 ret.kicked = new RegExp(kickReg, 'g');
@@ -57,7 +57,7 @@ function getFilters(guildId) {
                                         list.forEach((str, i) => {
                                             warnReg += `(${str}\\b)`;
                                             if (i < list.length - 1)
-                                                warnReg += '|'
+                                                warnReg += '|';
                                         });
 
                                         ret.warned = new RegExp(warnReg, 'g');
@@ -68,9 +68,9 @@ function getFilters(guildId) {
                                 .then(() => {
                                     cache.set(guildId, ret);
                                     resolve(ret);
-                                })
-                        })
-                })
+                                });
+                        });
+                });
         });
     }
     else {
@@ -92,7 +92,7 @@ function unique(arr) {
  * @param {Discord.Message} message 
  */
 function ban(message, reason = null) {
-    return message.member.ban({ reason: reason === null ? 'Chat filter violation.' : reason })
+    return message.member.ban({ reason: reason === null ? 'Chat filter violation.' : reason });
 }
 
 /**
@@ -100,7 +100,7 @@ function ban(message, reason = null) {
  * @param {Discord.Message} message 
  */
 function kick(message, reason = null) {
-    return message.member.kick({ reason: reason === null ? 'Chat filter violation.' : reason })
+    return message.member.kick({ reason: reason === null ? 'Chat filter violation.' : reason });
 }
 
 /**
@@ -109,7 +109,7 @@ function kick(message, reason = null) {
  * @returns {Promise<boolean>}
  */
 module.exports = (message, ignoreAdminBypass = false) => {
-    if (!ignoreAdminBypass && (message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('MANAGE_MESSAGES') || !!message.member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()) }).size))
+    if (!ignoreAdminBypass && (message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('MANAGE_MESSAGES') || !!message.member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()); }).size))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {
@@ -134,7 +134,7 @@ module.exports = (message, ignoreAdminBypass = false) => {
                         .then(() => message.channel.send(`<@!${message.author.id}> has been banned for chat violation.`))
                         .catch(err => console.error(err));
 
-                    resolve(false)
+                    resolve(false);
                 }
 
                 if (kickctx !== null) {
@@ -151,7 +151,7 @@ module.exports = (message, ignoreAdminBypass = false) => {
                         .then(() => message.channel.send(`<@!${message.author.id}> has been kicked for chat violation.`))
                         .catch(err => console.error(err));
 
-                    resolve(false)
+                    resolve(false);
                 }
 
                 if (warnctx !== null) {
@@ -167,11 +167,11 @@ module.exports = (message, ignoreAdminBypass = false) => {
                     message.author.send(embed)
                         .catch(() => console.error('Could not send user a DM.'));
 
-                    resolve(false)
+                    resolve(false);
                 }
 
-                resolve(true)
+                resolve(true);
             })
             .catch(err => reject(err));
     });
-}
+};

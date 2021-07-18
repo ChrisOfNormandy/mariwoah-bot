@@ -1,4 +1,4 @@
-const {chatFormat} = require('../../../helpers/commands');
+const { chatFormat } = require('../../../helpers/commands');
 const Discord = require('discord.js');
 const getSong = require('./getSong');
 const queue = require('../features/queue/map');
@@ -46,7 +46,7 @@ module.exports = {
                         value: `Queue position: ${index == 0 ? 'Right now!' : index}`
                     }
                 ]
-            }
+            };
 
             if (fromPlaylist)
                 embed.thumbnail = { url: song.thumbnail };
@@ -67,7 +67,7 @@ module.exports = {
                 if (data.arguments.join(' ').trim() === 'this') {
                     if (queue.has(message.guild.id)) {
                         let songs = queue.get(message.guild.id).songs;
-                        resolve(embedSongInfo(songs[0]))
+                        resolve(embedSongInfo(songs[0]));
                     }
                     else
                         resolve(chatFormat.response.music.queue.no_active());
@@ -80,4 +80,4 @@ module.exports = {
             }
         });
     }
-}
+};

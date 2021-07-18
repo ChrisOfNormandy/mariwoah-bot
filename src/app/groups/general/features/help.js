@@ -1,7 +1,14 @@
 const Discord = require('discord.js');
+
 const { chatFormat, output } = require('../../../helpers/commands');
 
-module.exports = (message, data, list) => {
+/**
+ * 
+ * @param {*} data 
+ * @param {*} list 
+ * @returns 
+ */
+module.exports = (data, list) => {
     const embed = new Discord.MessageEmbed()
         .setColor(chatFormat.colors.information);
 
@@ -116,10 +123,11 @@ module.exports = (message, data, list) => {
                     let msg = '';
 
                     const arr = groups[g].filter((cmd, index, self) => {
-                        return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index
+                        return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index;
                     });
 
-                    const l = arr.length
+                    const l = arr.length;
+
                     for (let i = 0; i < l; i++) {
                         if (arr[i].enabled) {
                             msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
@@ -137,7 +145,7 @@ module.exports = (message, data, list) => {
                             }
 
                             if (i < groups[g].length - 1)
-                                msg += '\n'
+                                msg += '\n';
                         }
                     }
 
@@ -163,10 +171,11 @@ module.exports = (message, data, list) => {
             let msg = '';
 
             const arr = groups[g].filter((cmd, index, self) => {
-                return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index
+                return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index;
             });
 
-            const l = arr.length
+            const l = arr.length;
+
             for (let i = 0; i < l; i++) {
                 if (arr[i].enabled) {
                     msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
@@ -184,7 +193,7 @@ module.exports = (message, data, list) => {
                     }
 
                     if (i < groups[g].length - 1)
-                        msg += '\n'
+                        msg += '\n';
                 }
             }
 
@@ -193,4 +202,4 @@ module.exports = (message, data, list) => {
     }
 
     return Promise.resolve(output.valid([list], [embed]));
-}
+};

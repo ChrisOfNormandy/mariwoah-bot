@@ -39,7 +39,7 @@ const _bucket = {
      */
     create: (name, params) => {
         let bucketParams = params || {};
-        bucketParams['Bucket'] = name;
+        bucketParams.Bucket = name;
 
         return new Promise((resolve, reject) => {
             s3.createBucket(bucketParams, (err, data) => {
@@ -63,8 +63,9 @@ const _bucket = {
         let params = {
             Bucket: name
         };
+
         if (!!expectedBucketOwner)
-            params['ExpectedBucketOwner'] = expectedBucketOwner;
+            params.ExpectedBucketOwner = expectedBucketOwner;
 
         return new Promise((resolve, reject) => {
             s3.deleteBucket(params, (err, data) => {
@@ -105,7 +106,7 @@ const _object = {
                 Bucket: bucket
             };
             if (prefix !== null)
-                params['Prefix'] = prefix;
+                params.Prefix = prefix;
 
             s3.listObjectsV2(params, (err, list) => {
                 if (err)
@@ -165,10 +166,10 @@ const _object = {
         return new Promise((resolve, reject) => {
             if (folder !== null)
                 _object.createFolder(bucket, folder)
-                    .then(r => {
+                    .then(() => {
                         s3.putObject(params, (err, data) => {
                             if (err)
-                                reject(err)
+                                reject(err);
                             else
                                 resolve(data);
                         });
@@ -176,10 +177,10 @@ const _object = {
                     .catch(err => reject(err));
             else
                 _object.createFolder(bucket, folder)
-                    .then(r => {
+                    .then(() => {
                         s3.putObject(params, (err, data) => {
                             if (err)
-                                reject(err)
+                                reject(err);
                             else
                                 resolve(data);
                         });
@@ -259,10 +260,9 @@ const _object = {
                         });
                     }
                     else
-                        _object.delete(bucket, `${folder}/`)
+                        _object.delete(bucket, `${folder}/`);
                 }
-            })
-
+            });
         });
     },
 
@@ -299,4 +299,4 @@ module.exports = {
     setup: (AWS) => {
         s3 = new AWS.S3({ apiVersion: '2006-03-01' });
     }
-}
+};

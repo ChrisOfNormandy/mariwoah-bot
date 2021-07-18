@@ -10,14 +10,10 @@ let saveLoop;
 function create(userID) {
     const profile = {
         id: userID,
-        gameData: {
-            experience: {
-                fishing: 0,
-                chat: 0
-            },
-            inventory: {},
+        skills: {
+            fishing: 0
         }
-    }
+    };
 
     return profile;
 }
@@ -34,7 +30,7 @@ function vs(a, b) {
             a[i] = vs(a[i], b[i]);
         for (let i in b)
             a[i] = vs(a[i], b[i]);
-            
+
         return a;
     }
 
@@ -54,8 +50,8 @@ function write(userID) {
                     type: 'application/json',
                     data: user
                 })
-                .then(result => resolve(result))
-                .catch(err => reject(err));
+                    .then(result => resolve(result))
+                    .catch(err => reject(err));
             })
             .catch(err => reject(err));
     });
@@ -128,4 +124,4 @@ module.exports = {
     update,
     get,
     set
-}
+};

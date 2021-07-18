@@ -6,4 +6,4 @@ module.exports = (guildId, filterName) => {
             .then(data => resolve(JSON.parse(data.Body.toString())))
             .catch(err => reject(err));
     });
-}
+};

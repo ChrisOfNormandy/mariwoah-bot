@@ -13,19 +13,21 @@ function formatSongData(message, songData, playlistData = null) {
         playlist: {},
         thumbnail: songData.thumbnail || songData.thumbnailUrl,
         removed: false
-    }
+    };
+
     if (songData.duration) {
         obj.duration = {
             timestamp: songData.duration.timestamp,
             seconds: songData.duration.seconds
         };
     }
+
     if (playlistData) {
         obj.playlist = {
             title: playlistData.title,
             url: playlistData.url,
             videoCount: playlistData.videos.length,
-        }
+        };
     }
 
     return obj;
@@ -75,7 +77,7 @@ function metaSearch(metadata, timeOut = 0) {
     return new Promise((resolve, reject) => {
         ytSearch({ videoId: metadata }, (err, data) => {
             if (err)
-                reject(err)
+                reject(err);
             else {
                 if (timeOut > 10) {
                     reject(chatFormat.response.music.timeout('song id ' + metadata));
@@ -137,7 +139,7 @@ module.exports = {
                                         msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
                                         const videos = pl.videos;
 
-                                        if (data.flags['s']) {
+                                        if (data.flags.s) {
                                             shuffle(videos)
                                                 .then(list => {
                                                     let arr = [];
@@ -164,6 +166,6 @@ module.exports = {
                         })
                         .catch(e => reject(e));
                 });
-        })
+        });
     }
-}
+};

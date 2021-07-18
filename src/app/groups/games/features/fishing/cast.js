@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
-const { chatFormat, output } = require('../../../../helpers/commands');
-const loot_table = require('./loot_table.json');
 
+const { chatFormat, output } = require('../../../../helpers/commands');
+
+const loot_table = require('./loot_table.json');
 const playerdata = require('../../../../helpers/playerdata');
 const item = require('../inventory/item');
 
@@ -13,28 +14,28 @@ const item = require('../inventory/item');
 // -- 4: > 5
 
 module.exports = (userID) => {
-    let cast = Math.floor(Math.random() * 5);
+    const cast = Math.floor(Math.random() * 5);
 
     let fish = null, embed;
 
     return new Promise((resolve, reject) => {
         if (Math.floor(Math.random() * 100) % 2 == 0) {
-            let list = loot_table.list.filter((fish) => {
-                return fish.rarity <= cast;
-            });
+            const list = loot_table.list.filter((fish) => { return fish.rarity <= cast; });
 
-            let rng = Math.floor(list.length * Math.random());
+            const rng = Math.floor(list.length * Math.random());
 
             fish = list[rng];
-            let weight = Number(Math.pow(10, (-1 * fish.intercept) + fish.slope * Math.log10(fish.length)).toFixed(2));
+
+            const weight = Number(Math.pow(10, (-1 * fish.intercept) + fish.slope * Math.log10(fish.length)).toFixed(2));
+
+            const fishItem = item.create(fish.name, fish.rarity, Number((weight * fish.price_per_pound).toFixed(2)), `A ${fish.length}" ${chatFormat.capFormat(fish.name)} weighing ${weight} pounds.`);
             
-            let fishItem = item.create(fish.name, fish.rarity, Number((weight * fish.price_per_pound).toFixed(2)), `A ${fish.length}" ${chatFormat.capFormat(fish.name)} weighing ${weight} pounds.`);
-            let exp = (Math.floor(fishItem.price) + 1) * (fish.rarity + 1);
+            const exp = (Math.floor(fishItem.price) + 1) * (fish.rarity + 1);
 
             playerdata.data.inventory.give(userID, fishItem, 'fish', 1)
-                .then(user => {
+                .then(() => {
                     playerdata.data.experience.add(userID, 'fishing', exp)
-                        .then(user => {
+                        .then(() => {
                             embed = new Discord.MessageEmbed()
                                 .setTitle('Well found!')
                                 .setColor(chatFormat.colors.byName.blue)
@@ -58,4 +59,4 @@ module.exports = (userID) => {
             resolve(output.valid([fish], [embed]));
         }
     });
-}
+};

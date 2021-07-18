@@ -50,5 +50,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-
-}
+};

@@ -1,4 +1,4 @@
-const {chatFormat, output} = require('../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../helpers/commands');
 const shuffle = require('../../../../helpers/shuffle');
 const queue = require('./map');
 const getVC = require('../../../../helpers/getVoiceChannel');
@@ -10,7 +10,7 @@ function f(message, songs, flags, startFlag) {
         for (let i in songs)
             queue.get(message.guild.id).songs.push(songs[i]);
 
-        if (flags['n'])
+        if (flags.n)
             resolve(output.valid([play(message, queue.get(message.guild.id).songs[0])], []));
         else {
             let fromPlaylist = !!queue.get(message.guild.id).songs[0].playlist.title;
@@ -60,7 +60,7 @@ module.exports = (message, songs, flags = {}) => {
                     queue.get(message.guild.id).connection = connection;
                 }
 
-                if (!!flags['s'])
+                if (!!flags.s)
                     shuffle(songs)
                         .then(songs => {
                             f(message, songs, flags, startFlag)
@@ -75,4 +75,4 @@ module.exports = (message, songs, flags = {}) => {
             }
         }
     });
-}
+};

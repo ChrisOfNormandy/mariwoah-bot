@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
-const { chatFormat, output } = require('../../../../helpers/commands');
+
 const { data } = require('../../../../helpers/playerdata');
+const { chatFormat, output } = require('../../../../helpers/commands');
 
 module.exports = (userID, filter = null) => {
     return new Promise((resolve, reject) => {
@@ -25,9 +26,7 @@ module.exports = (userID, filter = null) => {
                     }
                 }
                 else {
-                    let arr2 = arr.filter(item => {
-                        return item.type == filter;
-                    });
+                    let arr2 = arr.filter(item => { return item.type == filter; });
 
                     for (let i in arr2)
                         str += `\`${chatFormat.capFormat(arr2[i].name)} x${arr2[i].amount}\`\n`;
@@ -39,4 +38,4 @@ module.exports = (userID, filter = null) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

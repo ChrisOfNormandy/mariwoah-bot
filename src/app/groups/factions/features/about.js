@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+
 const { chatFormat, output } = require('../../../helpers/commands');
 
 const cache = require('./cache');
@@ -6,15 +7,15 @@ const cache = require('./cache');
 /**
  * 
  * @param {Discord.Message} message 
- * @param {object} data 
- * @returns 
+ * @param {*} data 
+ * @returns {Promise<{values: *[], content: string[], options: *} | {rejections: Error[] | string[], content: string[]}>}
  */
 module.exports = (message, data) => {
     const factionName = data.arguments[0];
 
     if (!factionName)
         return Promise.reject(output.error([], ['No faction name specified.']));
-        
+
     return new Promise((resolve, reject) => {
         cache.get(message.guild.id, factionName)
             .then(faction => {
@@ -30,4 +31,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

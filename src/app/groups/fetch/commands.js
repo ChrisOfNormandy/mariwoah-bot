@@ -30,7 +30,7 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => groups.fetch.findImg(message, data)
+        run: (message, data) => groups.fetch.findImg(data)
     },
     {
         group: 'fetch',
@@ -61,6 +61,6 @@ module.exports = [
         },
         adminOnly: false,
         enabled: true,
-        run: (message, data) => groups.fetch.find(message, data)
+        run: (message, data) => groups.fetch.find(data)
     },
-]
+];

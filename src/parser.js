@@ -49,7 +49,7 @@ function getData(input) {
         flags: flags === null ? [] : flags,
         parameters,
         mentions
-    }
+    };
 }
 
 const config = require('../config/config.json');
@@ -124,7 +124,7 @@ module.exports = (client, message) => {
 
                     if (sc !== null) {
                         str = str.replace(sc[0], '');
-                        data.subcommand = sc.filter((x) => { return x !== undefined && x != sc[0] })[0];
+                        data.subcommand = sc.filter((x) => { return x !== undefined && x != sc[0]; })[0];
                     }
                 }
 
@@ -132,7 +132,7 @@ module.exports = (client, message) => {
                 let args = [];
                 if (!!regex.arguments) {
                     let match = str.match(regex.arguments);
-                    
+
                     if (match === null) {
                         if (!f[cmdIndex].regex.argsOptional) {
                             message.channel.send('Missing arguments.');
@@ -141,7 +141,7 @@ module.exports = (client, message) => {
                     }
                     else {
                         str = str.replace(args[0], '');
-                        f[cmdIndex].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]) });
+                        f[cmdIndex].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
                     }
                 }
                 else if (!!f[cmdIndex].subcommands) {
@@ -158,7 +158,7 @@ module.exports = (client, message) => {
                             }
                         }
                         else
-                            f[cmdIndex].subcommands[scList[data.subcommand]].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]) });
+                            f[cmdIndex].subcommands[scList[data.subcommand]].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
                     }
                 }
 
@@ -166,7 +166,7 @@ module.exports = (client, message) => {
 
                 if (!f[cmdIndex].enabled)
                     return Promise.reject(null);
-                
+
                 if (!!f[cmdIndex].adminOnly && !message.member.hasPermission("ADMINISTRATOR"))
                     return Promise.reject(null);
 
@@ -177,11 +177,11 @@ module.exports = (client, message) => {
                                 message.channel.send(msg)
                                     .then(msg => {
                                         if (!!response.options && !!response.options.clear)
-                                            setTimeout(() => { msg.delete().catch(err => reject(err)) }, response.options.clear * 1000);
+                                            setTimeout(() => { msg.delete().catch(err => reject(err)); }, response.options.clear * 1000);
 
                                         if (!!f[cmdIndex].settings) {
                                             if (!!f[cmdIndex].settings.responseClear)
-                                                setTimeout(() => { msg.delete().catch(err => reject(err)) }, f[cmdIndex].settings.responseClear.delay * 1000);
+                                                setTimeout(() => { msg.delete().catch(err => reject(err)); }, f[cmdIndex].settings.responseClear.delay * 1000);
 
                                             if (!!f[cmdIndex].settings.commandClear) {
                                                 setTimeout(() => {
@@ -189,7 +189,7 @@ module.exports = (client, message) => {
                                                         .catch(() => {
                                                             message.channel.send('Could not clear command automatically - missing permissions.')
                                                                 .then(msg => setTimeout(() => msg.delete().catch(err => reject(err)), 10 * 1000))
-                                                                .catch(err => reject(err))
+                                                                .catch(err => reject(err));
                                                         });
                                                 }, f[cmdIndex].settings.commandClear.delay * 1000);
                                             }
@@ -218,4 +218,4 @@ module.exports = (client, message) => {
     else {
         return Promise.reject(null);
     }
-}
+};

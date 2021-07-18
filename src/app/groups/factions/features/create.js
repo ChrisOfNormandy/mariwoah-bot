@@ -1,13 +1,14 @@
 const Discord = require('discord.js');
+
 const { s3 } = require('../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../helpers/commands');
+const { output } = require('../../../helpers/commands');
 
 const cache = require('./cache');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {object} data 
+ * @param {*} data 
  * @returns 
  */
 function create(message, data) {
@@ -25,7 +26,7 @@ function create(message, data) {
                     roles: ['Creator', 'Leader']
                 }
             }
-        }
+        };
 
         let file = {
             name: `${factionName}.json`,
@@ -34,7 +35,7 @@ function create(message, data) {
         };
 
         s3.object.putData('mariwoah', `guilds/${message.guild.id}/factions`, file)
-            .then(res => {
+            .then(() => {
                 cache.set(message.guild.id, factionName, faction)
                     .then(r => resolve(output.valid([file], [`The faction ${factionName} has been established successfully.`])))
                     .catch(err => reject(output.error([err], [err.message])));
@@ -43,23 +44,29 @@ function create(message, data) {
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {*} data 
+ * @returns 
+ */
 module.exports = (message, data) => {
     const factionName = data.arguments[0];
 
     return new Promise((resolve, reject) => {
         s3.object.get('mariwoah', `guilds/${message.guild.id}/factions/${factionName}.json`)
-            .then(res => {
+            .then(() => {
                 if (data.flags.includes('f') && message.member.hasPermission('ADMINISTRATOR'))
                     create(message, data)
                         .then(r => resolve(r))
                         .catch(err => reject(err));
                 else
-                    reject(output.error([], ['Faction already exists.']))
+                    reject(output.error([], ['Faction already exists.']));
             })
-            .catch(err => {
+            .catch(() => {
                 create(message, data)
                     .then(r => resolve(r))
                     .catch(err => reject(err));
             });
     });
-}
+};

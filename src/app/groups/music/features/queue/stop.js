@@ -1,4 +1,4 @@
-const {chatFormat, output} = require('../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../helpers/commands');
 const getVC = require('../../../../helpers/getVoiceChannel');
 const queue = require('../queue/map');
 
@@ -14,4 +14,4 @@ module.exports = function (message, reason = null) {
     getVC(message).leave();
 
     return Promise.resolve(output.valid([reason], [(reason) ? reason : chatFormat.response.music.stop.plain()]));
-}
+};

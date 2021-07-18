@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const {chatFormat, output} = require('../../../helpers/commands');
+const { chatFormat } = require('../../../helpers/commands');
 
 module.exports = (obj) => {
     const embed = new Discord.MessageEmbed()
@@ -8,6 +8,6 @@ module.exports = (obj) => {
         .setColor(chatFormat.colors.byName.orange);
 
     for (let i in obj) {
-        embed.addField(obj[i])
+        embed.addField(obj[i]);
     }
-}
+};

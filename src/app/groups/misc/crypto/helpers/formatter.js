@@ -1,11 +1,14 @@
 const Discord = require('discord.js');
+
 const { chatFormat, output } = require('../../../../helpers/commands');
+
 const api = require('../api');
 
 module.exports = (coin, name) => {
     const embed = new Discord.MessageEmbed()
         .setTitle(`${coin} | ${name} Stats`)
         .setColor(chatFormat.colors.byName.lightyellow);
+
     return new Promise((resolve, reject) => {
         api(coin)
             .then(data => {
@@ -34,4 +37,4 @@ module.exports = (coin, name) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

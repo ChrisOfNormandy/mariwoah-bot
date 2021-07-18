@@ -60,4 +60,4 @@ module.exports = {
             resolve(output.valid([user], [embed]));
         });
     }
-}
+};

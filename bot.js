@@ -16,7 +16,7 @@ function startup() {
 
     client.on('ready', () => {
         console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
-        client.user.setActivity(`chat. | ~? | ~help`, {type: 'WATCHING'});
+        client.user.setActivity(`chat. | ~? | ~help`, { type: 'WATCHING' });
 
         aws.login()
             .then(res => {
@@ -31,7 +31,7 @@ function startup() {
                 console.log('Could not log in to AWS.');
             });
     });
-    
+
     if (enableNameFilter) {
         client.on('guildMemberAdd', member => {
             nameFilter(member)
@@ -47,7 +47,7 @@ function startup() {
                     `${oldMember.user.username}${oldMember.nickname !== null ? `, nickname ${oldMember.nickname}, ` : ''} updated their name.\n` +
                     `Current: <@${newMember.user.id}>${newMember.nickname === null ? '' : `, nickname ${newMember.nickname}`}.`
                 );
-                
+
                 nameFilter(newMember, true, oldMember.user.username !== newMember.user.username)
                     .then(pass => {
                         if (!pass) {
@@ -60,7 +60,7 @@ function startup() {
                         }
                     })
                     .catch(err => console.error(err));
-                }
+            }
         });
 
         // client.on('guildMemberRemove', member => {
@@ -84,11 +84,11 @@ function startup() {
                             .catch(err => message.channel.send(err.message));
                     }
                 })
-                .catch(err => console.error(err)); 
+                .catch(err => console.error(err));
         }
     });
 
-    return client
+    return client;
 }
 
 const client = startup();

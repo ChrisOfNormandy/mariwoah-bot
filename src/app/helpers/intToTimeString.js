@@ -15,5 +15,5 @@ module.exports = function (seconds) {
         hour: hour,
         string: `${(hour > 0) ? hour + ':' : ''}${min}:${sec}`,
         timestamp: seconds
-    }
-}
+    };
+};

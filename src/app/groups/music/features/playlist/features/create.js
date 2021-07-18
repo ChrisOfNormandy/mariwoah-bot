@@ -13,11 +13,13 @@ module.exports = (message, playlistName) => {
             })
             .catch(e => {
                 console.error(e);
+
                 let embed = new Discord.MessageEmbed()
                     .setTitle('Error')
                     .setColor(chatFormat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
+
                 reject(output.error([e], [embed]));
             });
     });
-}
+};

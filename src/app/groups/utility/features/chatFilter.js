@@ -3,4 +3,4 @@ module.exports = {
     add: require('../helpers/chatFilter/add'),
     remove: require('../helpers/chatFilter/remove'),
     clear: require('../helpers/chatFilter/clear')
-}
+};

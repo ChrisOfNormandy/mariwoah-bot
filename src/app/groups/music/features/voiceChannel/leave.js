@@ -1,7 +1,7 @@
 const getVC = require('../../../../helpers/getVoiceChannel');
 const stop = require('../queue/stop');
 const queue = require('../queue/map');
-const {chatFormat, output} = require('../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../helpers/commands');
 
 module.exports = (message) => {
     const vc = getVC(message);
@@ -13,4 +13,4 @@ module.exports = (message) => {
             return Promise.resolve(output.valid([stop(message)], []));
         return Promise.resolve(output.valid([], ["Left the voice channel."]));
     }
-}
+};

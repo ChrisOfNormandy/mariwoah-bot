@@ -47,4 +47,4 @@ function byTimestamp(old, current) {
 module.exports = {
     timestampToDate,
     byTimestamp
-}
+};

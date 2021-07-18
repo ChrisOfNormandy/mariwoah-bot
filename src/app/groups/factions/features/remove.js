@@ -1,14 +1,15 @@
 const Discord = require('discord.js');
+
 const { s3 } = require('../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../helpers/commands');
+const { output } = require('../../../helpers/commands');
 
 const get = require('./get');
 
 function remove(message, factionName) {
     return new Promise((resolve, reject) => {
-    s3.object.delete('mariwoah', `guilds/${message.guild.id}/factions/${factionName}.json`)
-        .then(res => resolve(output.valid([res], [`The faction ${factionName} has been removed successfully.`])))
-        .catch(err => reject(output.error([err], [err.message])));
+        s3.object.delete('mariwoah', `guilds/${message.guild.id}/factions/${factionName}.json`)
+            .then(res => resolve(output.valid([res], [`The faction ${factionName} has been removed successfully.`])))
+            .catch(err => reject(output.error([err], [err.message])));
     });
 }
 
@@ -37,4 +38,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [`Could not find a faction named ${factionName}.`])));
     });
-}
+};

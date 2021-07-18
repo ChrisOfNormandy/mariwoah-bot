@@ -10,4 +10,4 @@ module.exports = (message) => {
     if (!vc)
         return undefined;
     return vc;
-}
+};

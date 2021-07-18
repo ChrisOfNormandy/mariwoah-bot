@@ -1,8 +1,9 @@
-const { s3 } = require('../../../../aws/helpers/adapter');
-const { chatFormat, output } = require('../../../helpers/commands');
 const path = require('path');
 
-module.exports = (message, data) => {
+const { s3 } = require('../../../../aws/helpers/adapter');
+const { output } = require('../../../helpers/commands');
+
+module.exports = (message) => {
     return new Promise((resolve, reject) => {
         s3.object.list('mariwoah', `guilds/${message.guild.id}/factions`)
             .then(res => {
@@ -20,4 +21,4 @@ module.exports = (message, data) => {
                     reject(output.error([err], [err.message]));
             });
     });
-}
+};

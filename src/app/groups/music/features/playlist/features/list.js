@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const path = require('path');
 
-const {chatFormat, output} = require('../../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../../helpers/commands');
 const { s3 } = require('../../../../../../aws/helpers/adapter');
 
 function getList(guild_id) {
@@ -16,7 +16,7 @@ function byName(guild_id, name) {
     return new Promise((resolve, reject) => {
         getList(guild_id)
             .then(list => {
-                const l = list.filter((file) => { return file.Key == `guilds/${guild_id}/playlists/${name}.json` });
+                const l = list.filter((file) => { return file.Key == `guilds/${guild_id}/playlists/${name}.json`; });
 
                 let embed = new Discord.MessageEmbed()
                     .setTitle(`Songs in the playlist: ${name}`)
@@ -70,4 +70,4 @@ function all(guild_id) {
 
 module.exports = (message, data) => {
     return (data.arguments[0]) ? byName(message.guild.id, data.arguments[0]) : all(message.guild.id);
-}
+};

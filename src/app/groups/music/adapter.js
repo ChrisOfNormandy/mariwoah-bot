@@ -16,4 +16,4 @@ module.exports = {
         join: require('./features/voiceChannel/join'),
         leave: require('./features/voiceChannel/leave')
     }
-}
+};

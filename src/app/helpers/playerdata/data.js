@@ -12,7 +12,7 @@ const experience = {
                 .catch(err => reject(err));
         });
     }
-}
+};
 
 const inventory = {
     give: (userID, item, type, amount = 1) => {
@@ -44,9 +44,9 @@ const inventory = {
                 .catch(err => reject(err));
         });
     }
-}
+};
 
 module.exports = {
     experience,
     inventory
-}
+};

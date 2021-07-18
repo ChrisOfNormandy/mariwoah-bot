@@ -16,4 +16,4 @@ module.exports = (message) => {
             })
             .catch(e => output.error([e], []));
     });
-}
+};

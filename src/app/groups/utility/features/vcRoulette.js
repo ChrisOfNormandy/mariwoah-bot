@@ -25,4 +25,4 @@ module.exports = (message) => {
         else
             resolve(output.valid([], [`${message.member.nickname === null ? message.author.username : message.member.nickname} rolled a ${roll}.`]));
     });
-}
+};

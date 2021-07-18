@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
-const { chatFormat, output } = require('../../../helpers/commands');
+
+const { output } = require('../../../helpers/commands');
 
 const cache = require('./cache');
 
@@ -20,6 +21,7 @@ module.exports = (message, data) => {
                 else {
                     if (faction.members[message.author.id].roles.includes('Leader')) {
                         faction.iconHref = data.urls[0];
+
                         cache.set(message.guild.id, factionName, faction)
                             .then(r => resolve(output.valid([faction], [`Updated the faction icon for ${factionName}.`])))
                             .catch(err => reject(output.error([err], [err.message])));
@@ -30,4 +32,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

@@ -10,7 +10,7 @@ function noiseTest() {
     for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {
             val = noise.get(x, 0, y, 0.2, height, 0.1);
-            
+
             if (val < 0.3 * height)
                 str += '--';
             if (val < 0.6 * height)
@@ -20,7 +20,7 @@ function noiseTest() {
             else
                 str += '##';
         }
-        str += '\n'
+        str += '\n';
     }
 }
 
@@ -28,4 +28,4 @@ module.exports = {
     run: () => {
         noiseTest();
     }
-}
+};

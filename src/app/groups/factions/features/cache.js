@@ -1,10 +1,19 @@
-const guilds = new Map();
-const members = new Map();
+const Discord = require('discord.js');
 
 const get = require('./get');
 const set = require('./set');
 
+const guilds = new Map();
+const members = new Map();
+
 const cache = {
+    /**
+     * 
+     * @param {Discord.Guild} guild 
+     * @param {string} factionName 
+     * @param {*} faction 
+     * @returns {Promise<*>}
+     */
     set: (guild, factionName, faction) => {
         if (!guilds.has(guild))
             guilds.set(guild, { cache: new Map() });
@@ -13,6 +22,13 @@ const cache = {
 
         return set(guild, factionName, faction);
     },
+
+    /**
+     * 
+     * @param {Discord.Guild} guild 
+     * @param {string} factionName 
+     * @returns {Promise<*>}
+     */
     get: (guild, factionName) => {
         if (!guilds.has(guild))
             guilds.set(guild, { cache: new Map() });
@@ -25,7 +41,7 @@ const cache = {
                             members.set(user, faction.members[user]);
 
                         cache.set(guild, factionName, faction)
-                            .then(r => resolve(faction))
+                            .then(() => resolve(faction))
                             .catch(err => reject(err));
                     })
                     .catch(err => reject(err));
@@ -34,7 +50,15 @@ const cache = {
 
         return Promise.resolve(guilds.get(guild).cache.get(factionName));
     },
+
     members: {
+        /**
+         * 
+         * @param {Discord.Guild} guild 
+         * @param {string} factionName 
+         * @param {Discord.GuildMember} member 
+         * @returns {Promise<*>}
+         */
         set: (guild, factionName, member) => {
             return new Promise((resolve, reject) => {
                 cache.get(guild, factionName)
@@ -48,12 +72,20 @@ const cache = {
                             members.get(guild).cache.set(user, faction.members[user]);
 
                         set(guild, factionName, faction)
-                            .then(r => resolve(faction))
+                            .then(() => resolve(faction))
                             .catch(err => reject(err));
                     })
                     .catch(err => reject(err));
             });
         },
+
+        /**
+         * 
+         * @param {Discord.Guild} guild 
+         * @param {number} id 
+         * @param {string} factionName 
+         * @returns {Promise<Discord.GuildMember | {rejections: Error[] | string[], content: string[]}>}
+         */
         get: (guild, id, factionName = null) => {
             if (!members.has(guild))
                 members.set(guild, { cache: new Map() });
@@ -74,9 +106,7 @@ const cache = {
                         s3.object.list('mariwoah', `guilds/${message.guild.id}/factions`)
                             .then(res => {
                                 let list = [];
-                                res.forEach((fac, index) => {
-                                    list.push(get(guild, `${path.basename(fac.Key).replace('.json', '')}${index < res.length - 1 ? '\n' : ''}`));
-                                });
+                                res.forEach((fac, index) => list.push(get(guild, `${path.basename(fac.Key).replace('.json', '')}${index < res.length - 1 ? '\n' : ''}`)));
 
                                 Promise.all(list)
                                     .then(factions => {
@@ -89,7 +119,8 @@ const cache = {
 
                                             resolve(members.get(guild).cache.has(id)
                                                 ? members.get(guild).cache.get(id)
-                                                : null);
+                                                : null
+                                            );
                                         });
                                     })
                                     .catch(err => reject(err));
@@ -108,6 +139,6 @@ const cache = {
         },
 
     }
-}
+};
 
 module.exports = cache;

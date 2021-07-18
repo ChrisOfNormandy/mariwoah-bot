@@ -11,4 +11,4 @@ module.exports = (userID) => {
             .then(data => resolve(JSON.parse(data.Body.toString())))
             .catch(err => reject(err));
     });
-}
+};

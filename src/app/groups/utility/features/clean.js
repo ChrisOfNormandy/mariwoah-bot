@@ -32,7 +32,7 @@ module.exports = (message, data) => {
 
                         channel.bulkDelete(userMessages)
                             .then(msgs => resolve(output.valid([userMessagesDeleted], [chatFormat.response.cleanChat.user(user, userMessagesDeleted)], { clear: 10 })))
-                            .catch(err => reject(output.error([err], [err.message])));                        
+                            .catch(err => reject(output.error([err], [err.message])));
                     });
                 }
                 else {
@@ -51,7 +51,7 @@ module.exports = (message, data) => {
                     let arr = [
                         channel.bulkDelete(botMessages),
                         channel.bulkDelete(cmdMessages)
-                    ]
+                    ];
 
                     Promise.all(arr)
                         .then(msgs => resolve(output.valid([botMessagesDeleted, cmdMessagesDeleted], [chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted)], { clear: 10 })))
@@ -60,4 +60,4 @@ module.exports = (message, data) => {
             })
             .catch(err => reject(output.error([err], [err.message])));
     });
-}
+};

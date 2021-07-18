@@ -6,4 +6,4 @@ module.exports = {
     remove: require('./features/remove'),
     setColor: require('./features/setColor'),
     setIcon: require('./features/setIcon')
-}
+};

@@ -1,4 +1,4 @@
-const {chatFormat, output} = require('../../../../helpers/commands');
+const { chatFormat, output } = require('../../../../helpers/commands');
 const Discord = require('discord.js');
 
 const addSong = require('./features/addSong');
@@ -60,7 +60,7 @@ module.exports = {
         });
     },
     delete: (message, data) => {
-        const {s3} = require('../../../../../aws/helpers/adapter');
+        const { s3 } = require('../../../../../aws/helpers/adapter');
         return new Promise((resolve, reject) => {
             s3.object.delete('mariwoah', `guilds/${message.guild.id}/playlists/${data.arguments[0]}.json`)
                 .then(res => resolve(output.valid([res], ['Deleted playlist.'])))
@@ -68,7 +68,7 @@ module.exports = {
         });
     },
     remove: (message, data) => {
-        const {s3} = require('../../../../../aws/helpers/adapter');
+        const { s3 } = require('../../../../../aws/helpers/adapter');
         return new Promise((resolve, reject) => {
             s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/${data.arguments[0]}.json`)
                 .then(res => {
@@ -93,11 +93,11 @@ module.exports = {
                         type: `application/json`,
                         data: pl
                     })
-                    .then(res => resolve(output.valid([], ["Wow."])))
-                    .catch(err => reject(output.error([err], [err.message])));
+                        .then(res => resolve(output.valid([res], ["Wow."])))
+                        .catch(err => reject(output.error([err], [err.message])));
                 })
                 .catch(err => reject(output.error([err], [err.message])));
         });
     },
     setVisibility: require('./features/setVisibility')
-}
+};
