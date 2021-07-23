@@ -7,13 +7,13 @@ module.exports = (data) => {
     const query = data.arguments[0];
     const params = {
         query,
-        moderate: !!!data.flags.includes('N')
+        moderate: !data.flags.has('N')
     };
 
     return new Promise((resolve, reject) => {
         search(params)
             .then(res => {
-                const index = !!data.flags.includes('r') ? Math.floor(Math.random() * res.length) : 0;
+                const index = !!data.flags.has('r') ? Math.floor(Math.random() * res.length) : 0;
                 const img = res[index];
 
                 const embed = new Discord.MessageEmbed()

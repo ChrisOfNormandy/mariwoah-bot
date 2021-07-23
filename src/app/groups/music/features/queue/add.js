@@ -13,7 +13,7 @@ function byURLArray(message, data) {
     return new Promise((resolve, reject) => {
         getSong.byURLArray(message, data.urls)
             .then(arr => {
-                if (data.flags.s) {
+                if (data.flags.has('s')) {
                     shuffle(arr)
                         .then(arr_ => resolve(append(message, arr_, data.flags)))
                         .catch(e => reject(e));

@@ -1,78 +1,131 @@
 const Discord = require('discord.js');
-
-const get = require('./get');
-const set = require('./set');
-
-const guilds = new Map();
-const members = new Map();
+const { FactionMember, Faction, faction } = require('../../../objects/Faction');
+const getList = require('./getList');
 
 const cache = {
+    guilds: new Map(),
+
     /**
      * 
      * @param {Discord.Guild} guild 
      * @param {string} factionName 
-     * @param {*} faction 
-     * @returns {Promise<*>}
+     * @returns {Promise<Faction>}
      */
-    set: (guild, factionName, faction) => {
-        if (!guilds.has(guild))
-            guilds.set(guild, { cache: new Map() });
+    set: (guild, factionName) => {
+        if (!cache.guilds.has(guild.id))
+            cache.guilds.set(guild.id, { cache: new Map() });
 
-        guilds.get(guild).cache.set(factionName, faction);
+        return new Promise((resolve, reject) => {
+            faction.fetch(guild.id, factionName)
+                .then(json => {
+                    let faction = new Faction(guild, factionName);
+                    faction.build(json)
+                        .then(faction => {
+                            cache.guilds.get(guild.id).cache.set(factionName, faction);
 
-        return set(guild, factionName, faction);
+                            faction.getMembers().forEach(user => {
+                                if (guild.members.cache.has(user.id)) {
+                                    let member = guild.members.cache.get(user.id);
+                                    user.nickname = member.nickname;
+                                    user.username = member.user.username;
+                                }
+                            });
+
+                            faction.upload()
+                                .then(() => resolve(faction))
+                                .catch(err => reject(err));
+                        })
+                        .catch(err => reject(err));
+                })
+                .catch(() => {
+                    let faction = new Faction(guild, factionName);
+
+                    cache.guilds.get(guild.id).cache.set(factionName, faction);
+
+                    faction.upload()
+                        .then(() => resolve(faction))
+                        .catch(err => reject(err));
+                });
+        });
     },
 
     /**
      * 
      * @param {Discord.Guild} guild 
      * @param {string} factionName 
-     * @returns {Promise<*>}
+     * @returns {Promise<Faction>}
      */
-    get: (guild, factionName) => {
-        if (!guilds.has(guild))
-            guilds.set(guild, { cache: new Map() });
+    get: (guild, factionName, options = {}) => {
+        if (!cache.guilds.has(guild.id))
+            cache.guilds.set(guild.id, { cache: new Map() });
 
-        if (!guilds.get(guild).cache.has(factionName)) {
+        if (!cache.guilds.get(guild.id).cache.has(factionName)) {
             return new Promise((resolve, reject) => {
-                get(guild, factionName)
-                    .then(faction => {
-                        for (let user in faction.members)
-                            members.set(user, faction.members[user]);
+                if (!options.ignoreFecth)
+                    faction.fetch(guild.id, factionName)
+                        .then(json => {
+                            let faction = new Faction(guild, factionName);
+                            faction.build(json)
+                                .then(faction => {
+                                    cache.guilds.get(guild.id).cache.set(factionName, faction);
+                                    faction.upload()
+                                        .then(() => resolve(faction))
+                                        .catch(err => reject(err));
+                                })
+                                .catch(err => reject(err));
+                        })
+                        .catch(err => reject(err));
+                else
+                    reject(new Error('Faction not saved in cache.'));
+            });
+        }
 
-                        cache.set(guild, factionName, faction)
-                            .then(() => resolve(faction))
-                            .catch(err => reject(err));
+        return Promise.resolve(cache.guilds.get(guild.id).cache.get(factionName));
+    },
+
+    /**
+     * 
+     * @param {Discord.Guild} guild 
+     * @param {string} factionName 
+     * @param {Discord.GuildMember} member 
+     */
+    delete: (guild, factionName, member) => {
+        if (member.hasPermission('ADMINISTRATOR')) {
+            return new Promise((resolve, reject) => {
+                faction.remove(guild.id, factionName)
+                    .then(() => {
+                        if (!cache.guilds.has(guild.id))
+                            cache.guilds.set(guild.id, { cache: new Map() });
+
+                        cache.guilds.get(guild.id).cache.delete(factionName);
+
+                        resolve(true);
                     })
                     .catch(err => reject(err));
             });
         }
-
-        return Promise.resolve(guilds.get(guild).cache.get(factionName));
+        else
+            return Promise.reject(new Error('Member lacks permissions.'));
     },
 
     members: {
         /**
          * 
-         * @param {Discord.Guild} guild 
+         * @param {Discord.Guild} guild
          * @param {string} factionName 
          * @param {Discord.GuildMember} member 
-         * @returns {Promise<*>}
+         * @returns {Promise<FactionMember>}
          */
         set: (guild, factionName, member) => {
             return new Promise((resolve, reject) => {
                 cache.get(guild, factionName)
                     .then(faction => {
-                        if (!members.has(guild))
-                            members.set(guild, { cache: new Map() });
-
-                        faction.members[member.id] = member;
-
-                        for (let user in faction.members)
-                            members.get(guild).cache.set(user, faction.members[user]);
-
-                        set(guild, factionName, faction)
-                            .then(() => resolve(faction))
+                        faction.addMember(member)
+                            .then(m => {
+                                faction.upload()
+                                    .then(() => resolve(m))
+                                    .catch(err => reject(err));
+                            })
                             .catch(err => reject(err));
                     })
                     .catch(err => reject(err));
@@ -81,63 +134,49 @@ const cache = {
 
         /**
          * 
-         * @param {Discord.Guild} guild 
-         * @param {number} id 
+         * @param {Discord.Guild} guild
+         * @param {string} id 
          * @param {string} factionName 
-         * @returns {Promise<Discord.GuildMember | {rejections: Error[] | string[], content: string[]}>}
+         * @returns {Promise<FactionMember | FactionMember[]>}
          */
         get: (guild, id, factionName = null) => {
-            if (!members.has(guild))
-                members.set(guild, { cache: new Map() });
+            if (!cache.guilds.has(guild.id))
+                cache.guilds.set(guild.id, { cache: new Map() });
 
-            if (!members.get(guild).cache.has(id)) {
-                return new Promise((resolve, reject) => {
-                    if (factionName !== null) {
-                        get(guild, factionName)
-                            .then(faction => {
-                                for (let user in faction.members)
-                                    members.get(guild).cache.set(user, faction.members[user]);
+            return new Promise((resolve, reject) => {
+                if (factionName === null) {                   
+                    getList(guild)
+                        .then(list => {
+                            let factions = [];
+                            list.forEach(name => factions.push(cache.get(guild, name)));
 
-                                resolve(members.get(guild).cache.get(id) || null);
-                            })
+                            Promise.all(factions)
+                                .then(factions => {
+                                    let list = [];
+
+                                    factions.forEach(faction => {
+                                        let m = faction.getMember(id);
+                                        if (m !== null)
+                                            list.push(faction);
+                                    });
+
+                                    resolve(list);
+                                })
+                                .catch(err => reject(err));
+                        })
+                        .catch(err => reject(err));
+                }
+                else {
+                    if (!cache.guilds.get(guild.id).cache.has(factionName))
+                        reject(new Error('Cache does not contain requested faction.'));
+                    else {
+                        cache.guilds.get(guild.id).cache.get(factionName).getMember(id)
+                            .then(m => resolve(m))
                             .catch(err => reject(err));
                     }
-                    else {
-                        s3.object.list('mariwoah', `guilds/${message.guild.id}/factions`)
-                            .then(res => {
-                                let list = [];
-                                res.forEach((fac, index) => list.push(get(guild, `${path.basename(fac.Key).replace('.json', '')}${index < res.length - 1 ? '\n' : ''}`)));
-
-                                Promise.all(list)
-                                    .then(factions => {
-                                        factions.forEach(faction => {
-                                            cache.set(guild, faction.name, faction);
-
-                                            faction.members.forEach(user => {
-                                                cache.members.set(guild, faction.name, faction.members[user]);
-                                            });
-
-                                            resolve(members.get(guild).cache.has(id)
-                                                ? members.get(guild).cache.get(id)
-                                                : null
-                                            );
-                                        });
-                                    })
-                                    .catch(err => reject(err));
-                            })
-                            .catch(err => {
-                                if (err.KeyCount == 0)
-                                    reject(output.error([err], ['There are no factions in this server.\nTry creating one using:\n> ~fc create']));
-                                else
-                                    reject(output.error([err], [err.message]));
-                            });
-                    }
-                });
-            }
-
-            return Promise.resolve(members.get(guild).cache.get(id));
-        },
-
+                }
+            });
+        }
     }
 };
 

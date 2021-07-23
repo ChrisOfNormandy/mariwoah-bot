@@ -2,12 +2,13 @@ const Discord = require('discord.js');
 const ImageScraper = require('bing-image-scraper');
 
 const commandFormat = require('../../common/bot/helpers/global/commandFormat');
+const MessageData = require('../../objects/MessageData');
 
 const bing = new ImageScraper();
 
 /**
  * 
- * @param {*} data 
+ * @param {MessageData} data 
  * @returns 
  */
 function search(data) {
@@ -21,8 +22,8 @@ function search(data) {
         bing.list({
             keyword: query,
             num: searchResults,
-            nsfw: !!data.flags.n,
-            gif: !!data.flags.g
+            nsfw: data.flags.has('n'),
+            gif: data.flags.has('g')
         })
             .then(res => {
                 let resImages = [];

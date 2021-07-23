@@ -1,9 +1,11 @@
 module.exports = {
     about: require('./features/about'),
     create: require('./features/create'),
-    get: require('./features/get'),
+    cache: require('./features/cache'),
+    delete: require('./features/delete'),
+    reset: require('./features/reset'),
     list: require('./features/list'),
-    remove: require('./features/remove'),
     setColor: require('./features/setColor'),
-    setIcon: require('./features/setIcon')
+    setIcon: require('./features/setIcon'),
+    members: require('./features/members')
 };

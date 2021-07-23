@@ -81,9 +81,7 @@ module.exports = (userID) => {
     return new Promise((resolve, reject) => {
         playerdata.profile.get(userID)
             .then(profile => {
-                console.log(profile);
                 let caught = getCastChance(playerdata.skill.calculate(profile.skills.fishing.score));
-                console.log(caught);
 
                 // if (Math.floor(Math.random() * 100) % 2 == 0) {
                 //     const list = loot_table.list.filter((fish) => { return fish.rarity <= cast; });

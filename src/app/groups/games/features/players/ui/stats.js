@@ -13,8 +13,6 @@ module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         profile.get(message.author.id)
             .then(data => {
-                console.log(data);
-
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Stats for ${message.member.nickname}`)
                     .setColor(chatFormat.colors.byName.yellow);

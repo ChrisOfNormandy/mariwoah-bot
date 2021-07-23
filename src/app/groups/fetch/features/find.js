@@ -1,21 +1,27 @@
 const Discord = require('discord.js');
 const ddg = require('node-duckduckgo').duckIt;
+const MessageData = require('../../../objects/MessageData');
 
 const { chatFormat, output } = require('../../../helpers/commands');
 
+/**
+ * 
+ * @param {MessageData} data 
+ * @returns 
+ */
 module.exports = (data) => {
     let query = data.arguments[0];
 
     let searchType = 'ddg';
 
-    if (/\\.+/.test(query) || data.flags.includes('d'))
+    if (/\\.+/.test(query) || data.flags.has('d'))
         searchType = 'direct';
-    if (data.flags.includes('d'))
+    if (data.flags.has('d'))
         query = `\\${query}`;
 
-    if (/\!bing\s.+/.test(query) || data.flags.includes('b'))
+    if (/\!bing\s.+/.test(query) || data.flags.has('b'))
         searchType = 'bing';
-    if (data.flags.includes('b'))
+    if (data.flags.has('b'))
         query = `!bing ${query}`;
 
     return new Promise((resolve, reject) => {

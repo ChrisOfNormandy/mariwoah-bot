@@ -126,6 +126,124 @@ const list = [
                 adminOnly: false,
                 enabled: true,
                 run: (message, data) => groups.factions.setIcon(message, data)
+            },
+            {
+                name: "delete",
+                regex: {
+                    arguments: /\s(\w+)/,
+                    argumentIndexes: [1]
+                },
+                description: {
+                    command: "Deletes a faction.",
+                    arguments: [
+                        {
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.factions.delete(message, data)
+            },
+            {
+                name: "reset",
+                regex: {
+                    arguments: /\s(\w+)/,
+                    argumentIndexes: [1]
+                },
+                description: {
+                    command: "Resets a faction.",
+                    arguments: [
+                        {
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.factions.reset(message, data)
+            },
+            {
+                name: "join",
+                regex: {
+                    arguments: /\s(\w+)/,
+                    argumentIndexes: [1]
+                },
+                description: {
+                    command: "Join a faction.",
+                    arguments: [
+                        {
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.factions.members.join(message, data)
+            },
+            {
+                name: "leave",
+                regex: {
+                    arguments: /\s(\w+)/,
+                    argumentIndexes: [1]
+                },
+                description: {
+                    command: "Leave a faction.",
+                    arguments: [
+                        {
+                            _: 'Name',
+                            d: 'The name of a faction.',
+                            optional: false
+                        }
+                    ]
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => groups.factions.members.leave(message, data)
+            },
+            {
+                name: "checkme",
+                regex: {},
+                description: {
+                    command: "Join a faction."
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => {
+                    return new Promise((resolve, reject) => {
+                    groups.factions.cache.members.get(message.guild, message.author.id)
+                        .then(r => {
+                            console.log(r);
+                            resolve({content: ['Yes']});
+                        })
+                        .catch(err => reject({rejections: [err], content: [err.message]}));
+                    });
+                }
+            },
+            {
+                name: "addrole",
+                regex: {},
+                description: {
+                    command: "Join a faction."
+                },
+                adminOnly: false,
+                enabled: true,
+                run: (message, data) => {
+                    return new Promise((resolve, reject) => {
+                        groups.factions.members.role.add(message, data)
+                            .then(r => {
+                                console.log(r);
+                                resolve({ content: ['Yes'] });
+                            })
+                            .catch(err => reject({ rejections: [err], content: [err.message] }));
+                    });
+                }
             }
         ],
         adminOnly: false,

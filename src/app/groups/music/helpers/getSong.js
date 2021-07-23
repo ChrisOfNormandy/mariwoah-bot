@@ -1,7 +1,16 @@
+const Discord = require('discord.js');
 const ytSearch = require('yt-search');
 const { chatFormat } = require('../../../helpers/commands');
 const shuffle = require('../../../helpers/shuffle');
+const MessageData = require('../../../objects/MessageData');
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {*} songData 
+ * @param {*} playlistData 
+ * @returns 
+ */
 function formatSongData(message, songData, playlistData = null) {
     let obj = {
         title: songData.title,
@@ -33,6 +42,12 @@ function formatSongData(message, songData, playlistData = null) {
     return obj;
 }
 
+/**
+ * 
+ * @param {string} name 
+ * @param {number} timeOut 
+ * @returns 
+ */
 function search(name, timeOut = 0) {
     return new Promise((resolve, reject) => {
         ytSearch(name, (err, data) => {
@@ -53,6 +68,12 @@ function search(name, timeOut = 0) {
     });
 }
 
+/**
+ * 
+ * @param {*} listId 
+ * @param {*} timeOut 
+ * @returns 
+ */
 function metaSearch_pl(listId, timeOut = 0) {
     return new Promise((resolve, reject) => {
         ytSearch({ listId }, (err, data) => {
@@ -73,6 +94,12 @@ function metaSearch_pl(listId, timeOut = 0) {
     });
 }
 
+/**
+ * 
+ * @param {*} metadata 
+ * @param {*} timeOut 
+ * @returns 
+ */
 function metaSearch(metadata, timeOut = 0) {
     return new Promise((resolve, reject) => {
         ytSearch({ videoId: metadata }, (err, data) => {
@@ -94,7 +121,13 @@ function metaSearch(metadata, timeOut = 0) {
 }
 
 module.exports = {
-    byURL: async function (message, songURL) {
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @param {*} songURL 
+     * @returns 
+     */
+    byURL: function (message, songURL) {
         return new Promise((resolve, reject) => {
             metaSearch(songURL.match(/\?v=([a-zA-Z0-9\-_]+)/)[1])
                 .then(songData => {
@@ -103,6 +136,13 @@ module.exports = {
                 .catch(e => reject(e));
         });
     },
+
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @param {*} urlArray 
+     * @returns 
+     */
     byURLArray: function (message, urlArray) {
         return new Promise((resolve, reject) => {
             let arr = [];
@@ -114,6 +154,13 @@ module.exports = {
                 .catch(e => reject(e));
         });
     },
+
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @param {*} songName 
+     * @returns 
+     */
     byName: function (message, songName) {
         return new Promise((resolve, reject) => {
             search(songName)
@@ -124,6 +171,15 @@ module.exports = {
                 .catch(e => reject(e));
         });
     },
+
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @param {string} playlistName 
+     * @param {MessageData} data 
+     * @param {number} index 
+     * @returns 
+     */
     byPlaylist: function (message, playlistName, data, index = 0) {
         return new Promise((resolve, reject) => {
             message.channel.send(chatFormat.response.music.getSong.playlist())
@@ -139,7 +195,7 @@ module.exports = {
                                         msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
                                         const videos = pl.videos;
 
-                                        if (data.flags.s) {
+                                        if (data.flags.has('s')) {
                                             shuffle(videos)
                                                 .then(list => {
                                                     let arr = [];

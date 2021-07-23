@@ -1,7 +1,14 @@
 const Discord = require('discord.js');
 const { chatFormat, output } = require('../../../../helpers/commands');
+const MessageData = require('../../../../objects/MessageData');
 const queue = require('./map');
 
+/**
+ * 
+ * @param {string} song 
+ * @param {boolean} useLink 
+ * @returns 
+ */
 function field(song, useLink = false) {
     return [
         (useLink) ? song.url : song.title,
@@ -13,6 +20,12 @@ function field(song, useLink = false) {
     ];
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns 
+ */
 module.exports = function (message, data) {
     if (!queue.has(message.guild.id))
         return Promise.reject(output.error([], [chatFormat.response.music.queue.no_data()]));
@@ -26,7 +39,7 @@ module.exports = function (message, data) {
     let count = 0;
     let video;
     while (count < q.songs.length && count < chatFormat.response.music.queue.list_length) {
-        video = field(q.songs[count], !!data.flags.l);
+        video = field(q.songs[count], data.flags.has('l'));
 
         if (count == 0) {
             embed.addField(`Now playing:\n${video[0]}`, `By: ${q.songs[0].author}\n${video[1]}`);

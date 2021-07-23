@@ -2,12 +2,13 @@ const Discord = require('discord.js');
 
 const { chatFormat, output } = require('../../../helpers/commands');
 
+const MessageData = require('../../../objects/MessageData');
 const cache = require('./cache');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} data 
+ * @param {MessageData} data 
  * @returns {Promise<{values: *[], content: string[], options: *} | {rejections: Error[] | string[], content: string[]}>}
  */
 module.exports = (message, data) => {
@@ -17,18 +18,17 @@ module.exports = (message, data) => {
         return Promise.reject(output.error([], ['No faction name specified.']));
 
     return new Promise((resolve, reject) => {
-        cache.get(message.guild.id, factionName)
+        cache.get(message.guild, factionName)
             .then(faction => {
                 let embed = new Discord.MessageEmbed()
-                    .setTitle(`About ${faction.name}`)
-                    .setColor(faction.roleColor || chatFormat.colors.byName.darkred)
-                    .setThumbnail(faction.iconHref);
+                    .setTitle(`About ${faction.getName()}`)
+                    .setColor(faction.getRoleColor() || chatFormat.colors.byName.darkred)
+                    .setThumbnail(faction.getIcon());
 
-                for (let user in faction.members)
-                    embed.addField(message.guild.members.cache.get(user).displayName, faction.members[user].roles.join(', '));
+                faction.getMembers().forEach(user => embed.addField(user.getName(), user.getRoles().join(', ') || 'No roles.'));
 
                 resolve(output.valid([faction], [embed]));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(output.error([err])));
     });
 };

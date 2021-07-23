@@ -1,5 +1,8 @@
 const fs = require('fs'); // Used for tooltip.
 
+/**
+ * @type {AWS.S3}
+ */
 let s3 = null;
 
 const _bucket = {

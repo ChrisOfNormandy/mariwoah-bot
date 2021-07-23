@@ -1,56 +1,4 @@
-function getData(input) {
-    let str = input;
-
-    const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-    const flagRegex = /\s\-[a-zA-Z]+/g;
-    const userMentionsRegex = /<@!\d{18}>/g;
-
-    const mentions = input.match(userMentionsRegex);
-    if (mentions !== null)
-        for (let u in mentions)
-            str = str.replace(mentions[u], `<USER:${u}>`);
-
-    const urls = input.match(urlRegex);
-    if (urls !== null)
-        for (let url in urls)
-            str = str.replace(urls[url], `<URL:${url}>`);
-
-    const flags_ = str.match(flagRegex);
-    const flags = [];
-
-    if (flags_ !== null) {
-        for (let flag in flags_) {
-            str = str.replace(flags_[flag], ``);
-            flags_[flag] = flags_[flag].slice(2);
-
-            if (flags_[flag].length > 1) {
-                let arr = flags_[flag].split('');
-                for (let i in arr)
-                    if (!flags.includes(arr[i]))
-                        flags.push(arr[i]);
-            }
-            else
-                flags.push(flags_[flag]);
-        }
-    }
-
-    let parameters = {
-        integer: {}
-    };
-
-    return {
-        arguments: [],
-        client: null,
-        command: null,
-        prefix: null,
-        subcommand: null,
-        content: str,
-        urls: urls === null ? [] : urls,
-        flags: flags === null ? [] : flags,
-        parameters,
-        mentions
-    };
-}
+const MessageData = require('./app/objects/MessageData');
 
 const config = require('../config/config.json');
 const cmdList = require('./commands');
@@ -58,12 +6,10 @@ const cmdList = require('./commands');
 module.exports = (client, message) => {
     const prefix = config.settings.commands.prefix;
 
-    if (message.content.indexOf(prefix) == 0) {
+    if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix) {
         const input = message.content;
 
-        let data = getData(input);
-        data.client = client;
-        data.prefix = prefix;
+        let data = new MessageData(client, message);
 
         const f = cmdList.filter((cmd) => {
             const regex = new RegExp('~(' + cmd.regex.command.source + ')');
@@ -115,7 +61,7 @@ module.exports = (client, message) => {
                 // Fetch and remove command.
                 const c = str.match(regex.command);
                 str = str.replace(c[0], '');
-                data.command = c[0];
+                data.setCommand(c[0]);
 
                 // Fetch and remove subcommand.
                 let sc = null;
@@ -124,7 +70,9 @@ module.exports = (client, message) => {
 
                     if (sc !== null) {
                         str = str.replace(sc[0], '');
-                        data.subcommand = sc.filter((x) => { return x !== undefined && x != sc[0]; })[0];
+                        data.setSubcommand(
+                            sc.filter((x) => { return x !== undefined && x != sc[0]; })[0]
+                        );
                     }
                 }
 
@@ -141,7 +89,12 @@ module.exports = (client, message) => {
                     }
                     else {
                         str = str.replace(args[0], '');
-                        f[cmdIndex].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
+                        let argList = [];
+                        f[cmdIndex].regex.argumentIndexes.forEach(v => { 
+                            if (!!match[v]) 
+                                argList.push(match[v]); 
+                        });
+                        data.setArguments(...argList);
                     }
                 }
                 else if (!!f[cmdIndex].subcommands) {
@@ -167,7 +120,7 @@ module.exports = (client, message) => {
                 if (!f[cmdIndex].enabled)
                     return Promise.reject(null);
 
-                if (!!f[cmdIndex].adminOnly && !message.member.hasPermission("ADMINISTRATOR"))
+                if (!!f[cmdIndex].adminOnly && !data.admin)
                     return Promise.reject(null);
 
                 return new Promise((resolve, reject) => {
@@ -212,10 +165,10 @@ module.exports = (client, message) => {
                 });
             }
         }
+        
         if (!finished)
             return Promise.reject('Fin. Error: ' + finErr);
     }
-    else {
-        return Promise.reject(null);
-    }
+
+    return Promise.reject(null);
 };

@@ -1,66 +1,50 @@
 const Discord = require('discord.js');
 
-const { s3 } = require('../../../../aws/helpers/adapter');
 const { output } = require('../../../helpers/commands');
+const MessageData = require('../../../objects/MessageData');
 
 const cache = require('./cache');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} data 
- * @returns 
- */
-function create(message, data) {
-    const factionName = data.arguments[0];
-
-    return new Promise((resolve, reject) => {
-        const faction = {
-            name: factionName,
-            roleColor: null,
-            iconHref: null,
-            description: null,
-            members: {
-                [message.author.id]: {
-                    id: message.author.id,
-                    roles: ['Creator', 'Leader']
-                }
-            }
-        };
-
-        s3.object.putData('mariwoah', `guilds/${message.guild.id}/factions`, `${factionName}.json`, JSON.stringify(faction))
-            .then(() => {
-                cache.set(message.guild.id, factionName, faction)
-                    .then(r => resolve(output.valid([faction], [`The faction ${factionName} has been established successfully.`])))
-                    .catch(err => reject(output.error([err], [err.message])));
-            })
-            .catch(err => reject(output.error([err], [err.message])));
-    });
-}
-
-/**
- * 
- * @param {Discord.Message} message 
- * @param {*} data 
+ * @param {MessageData} data 
  * @returns 
  */
 module.exports = (message, data) => {
-    const factionName = data.arguments[0];
+    let factionName = data.arguments[0];
 
     return new Promise((resolve, reject) => {
-        s3.object.get('mariwoah', `guilds/${message.guild.id}/factions/${factionName}.json`)
-            .then(() => {
-                if (data.flags.includes('f') && message.member.hasPermission('ADMINISTRATOR'))
-                    create(message, data)
-                        .then(r => resolve(r))
-                        .catch(err => reject(err));
-                else
-                    reject(output.error([], ['Faction already exists.']));
-            })
-            .catch(() => {
-                create(message, data)
-                    .then(r => resolve(r))
-                    .catch(err => reject(err));
-            });
+        if (data.admin && data.flags.has('f')) {
+            cache.set(message.guild, factionName)
+                .then(faction => {
+                    faction.addMember(message.member)
+                        .then(member => {
+                            member.addRole('Leader');
+                            faction.upload()
+                                .then(() => resolve(output.valid([faction], [`Established a new faction named ${faction.getName()}`])))
+                                .catch(err => reject(err));
+                        })
+                        .catch(err => reject(output.error([err])));
+                })
+                .catch(err => reject(output.error([err])));
+        }
+        else
+            cache.get(message.guild, factionName)
+                .then(faction => reject(output.error([faction], ['Faction already exists.'])))
+                .catch(() => {
+                    cache.set(message.guild, factionName)
+                        .then(faction => {
+                            faction.addMember(message.member)
+                                .then(member => {
+                                    member.addRole('Leader');
+                                    faction.upload()
+                                        .then(() => resolve(output.valid([faction], [`Established a new faction named ${faction.getName()}`])))
+                                        .catch(err => reject(err));
+                                })
+                                .catch(err => reject(output.error([err])));
+                        })
+                        .catch(err => reject(output.error([err])));
+                });
     });
 };
