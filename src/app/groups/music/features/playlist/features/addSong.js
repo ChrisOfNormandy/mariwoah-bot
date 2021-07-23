@@ -15,11 +15,7 @@ function byName(message, playlistName, songName) {
                         else {
                             list[song.id] = song;
 
-                            s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, {
-                                name: `${playlistName}.json`,
-                                type: 'application/json',
-                                data: list
-                            })
+                            s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify(list))
                                 .then(res => resolve(list))
                                 .catch(err => reject(err));
                         }
@@ -27,15 +23,7 @@ function byName(message, playlistName, songName) {
                     .catch(err => {
                         console.error(err);
 
-                        let file = {
-                            name: `${playlistName}.json`,
-                            type: 'application/json',
-                            data: {}
-                        };
-
-                        file.data[songName] = song;
-
-                        s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, file)
+                        s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify({ [songName]: song }))
                             .then(() => resolve(file.data))
                             .catch(err => reject(err));
                     });
@@ -67,7 +55,7 @@ function byURLs(message, playlistName, urls) {
 function bySong(message, playlistName, song) {
     return new Promise((resolve, reject) => {
         sql.playlists.addSong(message.guild.id, message.author.id, playlistName, song.url, song)
-            .then(r => resolve(song))
+            .then(() => resolve(song))
             .catch(e => reject(e));
     });
 }
@@ -76,4 +64,4 @@ module.exports = {
     byName,
     byURLs,
     bySong
-}
+};

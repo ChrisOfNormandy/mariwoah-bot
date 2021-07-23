@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const { data } = require('../../../../helpers/playerdata');
+const { data } = require('../players/playerdata');
 const { chatFormat, output } = require('../../../../helpers/commands');
 
 module.exports = (userID, filter = null) => {

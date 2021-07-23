@@ -1,4 +1,7 @@
 module.exports = {
+    players: {
+        stats: require('./features/players/ui/stats')
+    },
     inventory: {
         list: require('./features/inventory/list')
     },

@@ -15,27 +15,15 @@ function byName(message, playlistName, songName) {
                         else {
                             list[song.id] = song;
 
-                            s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, {
-                                name: `${playlistName}.json`,
-                                type: 'application/json',
-                                data: list
-                            })
-                                .then(res => resolve(list))
+                            s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify(list))
+                                .then(() => resolve(list))
                                 .catch(err => reject(err));
                         }
                     })
                     .catch(err => {
                         console.error(err);
 
-                        let file = {
-                            name: `${playlistName}.json`,
-                            type: 'application/json',
-                            data: {}
-                        };
-
-                        file.data[songName] = song;
-
-                        s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, file)
+                        s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify({ [songName]: song }))
                             .then(res => resolve(file.data))
                             .catch(err => reject(err));
                     });

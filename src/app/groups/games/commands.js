@@ -26,6 +26,28 @@ module.exports = [
     {
         group: 'games',
         regex: {
+            command: /stats/,
+            arguments: /\s(<USER:\d>)/,
+            argumentIndexes: [1],
+            argsOptional: true
+        },
+        description: {
+            command: "Display your inventory.",
+            arguments: [
+                {
+                    _: 'Filter',
+                    d: 'A provided filter term.',
+                    optional: true
+                }
+            ]
+        },
+        adminOnly: false,
+        enabled: true,
+        run: (message, data) => groups.games.players.stats(message, data)
+    },
+    {
+        group: 'games',
+        regex: {
             command: /(cast)/
         },
         description: {
@@ -62,10 +84,10 @@ module.exports = [
             command: "Reset your profile data."
         },
         adminOnly: false,
-        enabled: false,
+        enabled: true,
         run: (message, data) => {
             return new Promise((resolve, reject) => {
-                require('./app/helpers/playerdata/profile').newFile(message.author.id)
+                require('../games/features/players/playerdata').profile.newFile(message.author.id)
                     .then(r => resolve({ content: ['Done'] }))
                     .catch(err => reject({ content: [err.message] }));
             });
@@ -80,10 +102,10 @@ module.exports = [
             command: "Save profile data."
         },
         adminOnly: false,
-        enabled: false,
+        enabled: true,
         run: (message, data) => {
             return new Promise((resolve, reject) => {
-                require('./app/helpers/playerdata/profile').save();
+                require('../games/features/players/playerdata').profile.save();
                 resolve({ content: ['Done'] });
             });
         }

@@ -1,4 +1,4 @@
-const { s3 } = require('../../../aws/helpers/adapter');
+const { s3 } = require('../../../../../../aws/helpers/adapter');
 
 /**
  * Used for getting a file from S3.

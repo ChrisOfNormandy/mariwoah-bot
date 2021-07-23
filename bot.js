@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 const parser = require('./src/parser');
 const aws = require('./src/aws/aws-link');
 
@@ -9,10 +11,13 @@ const aws_helpers = require('./src/aws/helpers/adapter');
 const logChannel = "748961589910175805";
 const enableNameFilter = false;
 
+const clientConfig = require('./config/config.json');
+
+const playerdata = require('./src/app/groups/games/features/players/playerdata');
+
 function startup() {
-    const Discord = require('discord.js');
     const client = new Discord.Client();
-    client.login(require('./config/config.json').auth.token);
+    client.login(clientConfig.auth.token);
 
     client.on('ready', () => {
         console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
@@ -24,7 +29,7 @@ function startup() {
 
                 aws_helpers.s3.setup(res.aws);
 
-                require('./src/app/helpers/playerdata').profile.save();
+                playerdata.profile.save();
             })
             .catch(err => {
                 console.error(err);

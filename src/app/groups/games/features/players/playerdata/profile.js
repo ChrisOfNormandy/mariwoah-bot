@@ -1,4 +1,4 @@
-const { s3 } = require('../../../aws/helpers/adapter');
+const { s3 } = require('../../../../../../aws/helpers/adapter');
 
 const getFile = require('./get');
 
@@ -11,7 +11,25 @@ function create(userID) {
     const profile = {
         id: userID,
         skills: {
-            fishing: 0
+            fishing: {
+                score: 0
+            }
+        },
+        stats: {
+            fishing: {
+                catches: {
+                    fish: {},
+                    treasure: {},
+                    trash: {},
+                    total: {
+                        fish: 0,
+                        treasure: 0,
+                        trash: 0,
+                        all: 0
+                    }
+                },
+                misses: 0
+            }
         }
     };
 
@@ -45,11 +63,7 @@ function write(userID) {
     return new Promise((resolve, reject) => {
         get(userID)
             .then(user => {
-                s3.object.putData('mariwoah', 'user-data/players', {
-                    name: `${userID}.json`,
-                    type: 'application/json',
-                    data: user
-                })
+                s3.object.putData('mariwoah', 'user-data/players', `${userID}.json`, JSON.stringify(user))
                     .then(result => resolve(result))
                     .catch(err => reject(err));
             })
@@ -93,6 +107,7 @@ function save() {
 
 function set(userID, profile) {
     cache.set(userID, profile);
+
     if (!writeCache.size && saveLoop === null) {
         saveLoop = setTimeout(() => {
             console.log('Setting save timeout to 5 minutes.');
@@ -101,6 +116,7 @@ function set(userID, profile) {
     }
 
     writeCache.set(userID, true);
+
     return profile;
 }
 
@@ -109,7 +125,7 @@ function get(userID) {
         if (!cache.has(userID)) {
             getFile(userID)
                 .then(data => resolve(set(userID, update(userID, data))))
-                .catch(err => resolve(set(userID, create(userID))));
+                .catch(() => resolve(set(userID, create(userID))));
         }
         else
             resolve(cache.get(userID));

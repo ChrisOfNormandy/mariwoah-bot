@@ -1,5 +1,6 @@
 module.exports = {
+    data: require('./playerdata/data'),
     get: require('./playerdata/get'),
     profile: require('./playerdata/profile'),
-    data: require('./playerdata/data')
+    skill: require('./playerdata/skill')
 };

@@ -28,16 +28,10 @@ function create(message, data) {
             }
         };
 
-        let file = {
-            name: `${factionName}.json`,
-            type: 'application/json',
-            data: faction
-        };
-
-        s3.object.putData('mariwoah', `guilds/${message.guild.id}/factions`, file)
+        s3.object.putData('mariwoah', `guilds/${message.guild.id}/factions`, `${factionName}.json`, JSON.stringify(faction))
             .then(() => {
                 cache.set(message.guild.id, factionName, faction)
-                    .then(r => resolve(output.valid([file], [`The faction ${factionName} has been established successfully.`])))
+                    .then(r => resolve(output.valid([faction], [`The faction ${factionName} has been established successfully.`])))
                     .catch(err => reject(output.error([err], [err.message])));
             })
             .catch(err => reject(output.error([err], [err.message])));

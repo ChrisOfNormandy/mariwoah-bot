@@ -88,11 +88,7 @@ module.exports = {
                         // else remove by requested user
                     }
 
-                    s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, {
-                        name: `${data.arguments[0]}.json`,
-                        type: `application/json`,
-                        data: pl
-                    })
+                    s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${data.arguments[0]}.json`, JSON.stringify(pl))
                         .then(res => resolve(output.valid([res], ["Wow."])))
                         .catch(err => reject(output.error([err], [err.message])));
                 })
