@@ -1,66 +1,26 @@
+const Command = require('../../objects/Command');
 const groups = require('../../groups');
 
+/**
+ * @type {Command[]}
+ */
 module.exports = [
-    {
-        group: 'fetch',
-        regex: {
-            command: /(findimg)|(img)/,
-            arguments: /\s(.+)/,
-            argumentIndexes: [1]
-        },
-        description: {
-            command: "Searches for an image.",
-            arguments: [
-                {
-                    _: 'Query',
-                    d: 'A provided search term.',
-                    optional: false
-                }
-            ],
-            flags: [
-                {
-                    _: 'r',
-                    d: 'Return a random image instead of the first result.'
-                },
-                {
-                    _: 'N',
-                    d: 'Allows NSFW results; defaults to moderate only.'
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.fetch.findImg(data)
-    },
-    {
-        group: 'fetch',
-        regex: {
-            command: /(find)|(search)/,
-            arguments: /\s(.+)/,
-            argumentIndexes: [1]
-        },
-        description: {
-            command: "Fetches resuts for a search query.",
-            arguments: [
-                {
-                    _: 'Query',
-                    d: 'A provided search term.',
-                    optional: false
-                }
-            ],
-            flags: [
-                {
-                    _: 'r',
-                    d: 'Return a random image instead of the first result.'
-                },
-                {
-                    _: 'N',
-                    d: 'Allows NSFW results; defaults to moderate only.'
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.fetch.find(data)
-    },
+    new Command(
+        'fetch',
+        (message, data) => groups.fetch.findImg(data)
+    )
+        .setRegex(/(findimg)|(img)/, /\s(.+)/, [1])
+        .setCommandDescription('Searches for an image.')
+        .setArgumentDescription(0, 'Query', 'A provided search term.')
+        .setFlag('r', 'Return a random image instead of the first result.')
+        .setFlag('N', 'Allows NSFW results; defaults to moderate only.'),
+    new Command(
+        'fetch',
+        (message, data) => groups.fetch.find(data)
+    )
+        .setRegex(/(find)|(search)/, /\s(.+)/, [1])
+        .setCommandDescription('Fetches resuts for a search query.')
+        .setArgumentDescription(0, 'Query', 'A provided search term.')
+        .setFlag('r', 'Return a random image instead of the first result.')
+        .setFlag('N', 'Allows NSFW results; defaults to moderate only.')
 ];

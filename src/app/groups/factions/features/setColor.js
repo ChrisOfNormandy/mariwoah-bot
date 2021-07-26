@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-
-const { output } = require('../../../helpers/commands');
 const MessageData = require('../../../objects/MessageData');
+
+const { Output } = require('../../../helpers/commands');
 
 const cache = require('./cache');
 
@@ -9,7 +9,7 @@ const cache = require('./cache');
  * 
  * @param {Discord.Message} message 
  * @param {MessageData} data 
- * @returns 
+ * @returns {Promise<Output>}
  */
 module.exports = (message, data) => {
     const factionName = data.arguments[0];
@@ -18,20 +18,20 @@ module.exports = (message, data) => {
         cache.get(message.guild, factionName)
             .then(faction => {
                 let member = faction.getMember(message.author.id);
-                
+
                 if (member === null)
-                    reject(output.error([message.author.id], [`You are not a member of that faction.`]));
+                    reject(new Output().setError(new Error(`You are not a member of that faction.`)));
                 else {
                     if (member.hasRole('Leader')) {
                         faction.setRoleColor(data.arguments[1]);
                         faction.upload()
-                            .then(() => resolve(output.valid([faction], ['Updated faction color.'])))
-                            .catch(err => reject(output.error([err])));
+                            .then(() => resolve(new Output('Updated faction color.').setValues(faction)))
+                            .catch(err => reject(new Output().setError(err)));
                     }
                     else
-                        reject(output.error([faction], [`You must be a faction leader to change the faction color.`]));
+                        reject(new Output().setError(new Error(`You must be a faction leader to change the faction color.`)));
                 }
             })
-            .catch(err => reject(output.error([err])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

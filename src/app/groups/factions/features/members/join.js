@@ -1,8 +1,9 @@
 const Disord = require('discord.js');
-const cache = require('../cache');
-
-const { output } = require('../../../../helpers/commands');
 const MessageData = require('../../../../objects/MessageData');
+
+const { Output } = require('../../../../helpers/commands');
+
+const cache = require('../cache');
 
 /**
  * 
@@ -12,7 +13,7 @@ const MessageData = require('../../../../objects/MessageData');
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         cache.members.set(message.guild, data.arguments[0], message.member)
-            .then(() => resolve(output.valid([], ['Joined.'])))
-            .catch(err => reject(output.error([err])));
+            .then(() => resolve(new Output('Joined.')))
+            .catch(err => reject(new Output().setError(err)));
     });
 };

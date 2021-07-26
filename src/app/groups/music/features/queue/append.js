@@ -1,44 +1,89 @@
-const { chatFormat, output } = require('../../../../helpers/commands');
+const Discord = require('discord.js');
+
+const { chatFormat, Output } = require('../../../../helpers/commands');
+
 const shuffle = require('../../../../helpers/shuffle');
 const queue = require('./map');
 const getVC = require('../../../../helpers/getVoiceChannel');
 const play = require('./play');
 const getEmbed = require('../../helpers/getEmbedSongInfo');
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {*} songs 
+ * @param {Map} flags 
+ * @param {*} startFlag 
+ * @returns {Promise<Output>}
+ */
 function f(message, songs, flags, startFlag) {
     return new Promise((resolve, reject) => {
         for (let i in songs)
             queue.get(message.guild.id).songs.push(songs[i]);
 
-        if (flags.n)
-            resolve(output.valid([play(message, queue.get(message.guild.id).songs[0])], []));
+        if (flags.has('n'))
+            play(message, queue.get(message.guild.id).songs[0])
+                .then(r => resolve(r))
+                .catch(err => reject(err));
         else {
             let fromPlaylist = !!queue.get(message.guild.id).songs[0].playlist.title;
 
             if (startFlag) {
                 getEmbed.single('Now playing...', queue.get(message.guild.id), 0, fromPlaylist)
-                    .then(embed => resolve(output.valid([play(message, queue.get(message.guild.id).songs[0])], [embed], { clear: queue.get(message.guild.id).songs[0].duration.seconds })))
-                    .catch(e => reject(output.error([e], [])));
+                    .then(embed => resolve(new Output(embed).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', queue.get(message.guild.id).songs[0].duration.seconds)))
+                    .catch(err => reject(new Output().setError(err)));
             }
             else {
                 getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1, fromPlaylist)
-                    .then(embed => resolve(output.valid([queue.get(message.guild.id).songs], [embed])))
-                    .catch(e => reject(output.error([e], [])));
+                    .then(embed => resolve(new Output(embed).setValues(queue.get(message.guild.id).songs)))
+                    .catch(err => reject(new Output().setError(err)));
             }
         }
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {Map} flags 
+ * @param {*} songs 
+ * @param {*} startFlag 
+ * @returns {Promise<Output>}
+ */
+function p(message, flags, songs, startFlag) {
+    return new Promise((resolve, reject) => {
+        if (!!flags.s)
+            shuffle(songs)
+                .then(songs => {
+                    f(message, songs, flags, startFlag)
+                        .then(res => resolve(res))
+                        .catch(err => reject(err));
+                })
+                .catch(err => reject(new Output().setError(err)));
+        else
+            f(message, songs, flags, startFlag)
+                .then(res => resolve(res))
+                .catch(err => reject(err));
+    });
+}
+
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {*} songs 
+ * @param {Map} flags 
+ * @returns {Promise<Output>}
+ */
 module.exports = (message, songs, flags = {}) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         if (!songs.length)
-            reject(output.error([], ['Tried to add 0 songs to the active queue.']));
+            reject(new Output().setError(new Error('Tried to add 0 songs to the active queue.')));
         else {
             const voiceChannel = getVC(message);
             let startFlag = false;
 
             if (!voiceChannel)
-                reject(output.error([], [chatFormat.response.music.no_vc()]));
+                reject(new Output().setError(new Error(chatFormat.response.music.no_vc())));
             else {
                 if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
                     let activeQueue = {
@@ -56,22 +101,20 @@ module.exports = (message, songs, flags = {}) => {
                 }
 
                 if (queue.get(message.guild.id).connection === null) {
-                    var connection = await voiceChannel.join();
-                    queue.get(message.guild.id).connection = connection;
-                }
+                    voiceChannel.join()
+                        .then(connection => {
+                            queue.get(message.guild.id).connection = connection;
 
-                if (!!flags.s)
-                    shuffle(songs)
-                        .then(songs => {
-                            f(message, songs, flags, startFlag)
-                                .then(res => resolve(res))
-                                .catch(e => reject(e));
+                            p(message, flags, songs, startFlag)
+                                .then(r => resolve(r))
+                                .catch(err => reject(err));
                         })
-                        .catch(e => reject(output.error([e], [])));
+                        .catch(err => reject(new Output().setError(err)));
+                }
                 else
-                    f(message, songs, flags, startFlag)
-                        .then(res => resolve(res))
-                        .catch(e => reject(e));
+                    p(message, flags, songs, startFlag)
+                        .then(r => resolve(r))
+                        .catch(err => reject(err));
             }
         }
     });

@@ -1,5 +1,10 @@
-const { output } = require('../../../helpers/commands');
+const { Output } = require('../../../helpers/commands');
 
+/**
+ * 
+ * @param {any[]} args 
+ * @returns {Promise<Output>}
+ */
 module.exports = (args) => {
     return new Promise((resolve, reject) => {
         let count = 1, sides = 6;
@@ -7,12 +12,12 @@ module.exports = (args) => {
         if (!isNaN(args[0]) && args[0] > 1)
             sides = args[0];
         else if (args[0] == 1)
-            reject(output.error([null], ["Cannot roll a d1."]));
+            reject(new Output().setError(new Error("Cannot roll a d1.")));
 
         if (!isNaN(args[1]) && args[1] >= 1 && args[1] <= 50)
             count = args[1];
         else if (args[1] > 50)
-            reject(output.error([null], ["Cannot roll more than 50 times at once."]));
+            reject(new Output().setError("Cannot roll more than 50 times at once."));
 
         let roll, rolls = [];
 
@@ -44,6 +49,6 @@ module.exports = (args) => {
                 : `Flipped: ${rolls.join(", ")}\n\nHeads: ${sum}\nTails: ${rolls.length - sum}`;
         }
 
-        resolve(output.valid(rolls, [value]));
+        resolve(new Output(value).setValues(rolls));
     });
 };

@@ -38,7 +38,7 @@ const _bucket = {
      * **GrantWriteACP**: {_string_} Account ID\
      * **ObjectLockEnabledForBucket**: {_boolean_} Enable object lock.
      * 
-     * @returns {Promise<AWS.S3.CreateBucketOutput>} Returns output from bucket creation.
+     * @returns {Promise<AWS.S3.CreateBucketOutput>} Returns Output from bucket creation.
      */
     create: (name, params) => {
         let bucketParams = params || {};
@@ -240,7 +240,7 @@ const _object = {
      * Deletes a folder and its contents.
      * @param {string} bucket Bucket name.
      * @param {string} folder Folder name.
-     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns output of object deletion.
+     * @returns {Promise<AWS.S3.DeleteObjectOutput>} Returns Output of object deletion.
      */
     deleteFolder: (bucket, folder) => {
         return new Promise((resolve, reject) => {

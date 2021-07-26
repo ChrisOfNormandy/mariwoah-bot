@@ -1,8 +1,17 @@
+const Discord = require('discord.js');
+const MessageData = require('../../../../objects/MessageData');
+
 const { s3 } = require('../../../../../aws/helpers/adapter');
-const { output } = require('../../../../helpers/commands');
+const { Output } = require('../../../../helpers/commands');
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 module.exports = (message, data) => {
     let guildId = message.guild.id;
     let filterName = data.arguments[0];
@@ -14,17 +23,17 @@ module.exports = (message, data) => {
         s3.object.get('mariwoah', `guilds/${guildId}/chat_filters/${filterName}.json`)
             .then(() => {
                 s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, '[]')
-                    .then(r => resolve(output.valid([r], [`Cleared \`${filterName}\` filter list.`])))
-                    .catch(err => reject(output.error([err], [err.message])));
+                    .then(r => resolve(new Output(`Cleared \`${filterName}\` filter list.`).setValues(r)))
+                    .catch(err => reject(new Output().setError(err)));
             })
             .catch(err => {
                 if (err.code == 'NoSuchKey') {
                     s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, `[]`)
-                        .then(r => resolve(output.valid([r], [`No existing filter \`${filterName}\`. One has been created automatically.`])))
-                        .catch(err => reject(output.error([err], [err.message])));
+                        .then(r => resolve(new Output(`No existing filter \`${filterName}\`. One has been created automatically.`).setValues(r)))
+                        .catch(err => reject(new Output().setError(err)));
                 }
                 else
-                    reject(reject(output.error([err], [err.message])));
+                    reject(reject(new Output().setError(err)));
             });
     });
 };

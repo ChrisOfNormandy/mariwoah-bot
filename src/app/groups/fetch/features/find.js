@@ -1,13 +1,14 @@
 const Discord = require('discord.js');
-const ddg = require('node-duckduckgo').duckIt;
 const MessageData = require('../../../objects/MessageData');
 
-const { chatFormat, output } = require('../../../helpers/commands');
+const { chatFormat, Output } = require('../../../helpers/commands');
+
+const ddg = require('node-duckduckgo').duckIt;
 
 /**
  * 
  * @param {MessageData} data 
- * @returns 
+ * @returns {Promise<Output>}
  */
 module.exports = (data) => {
     let query = data.arguments[0];
@@ -113,8 +114,8 @@ module.exports = (data) => {
                 if (!embed.fields.length)
                     embed.addField('Nothing found.', 'Try a different search term.');
 
-                resolve(output.valid([], [embed]));
+                resolve(new Output(embed));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

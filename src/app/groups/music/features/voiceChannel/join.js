@@ -1,14 +1,23 @@
-const { chatFormat, output } = require('../../../../helpers/commands');
+const Discord = require('discord.js');
+
+const { chatFormat, Output } = require('../../../../helpers/commands');
+
 const getVC = require('../../../../helpers/getVoiceChannel');
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @returns {Promise<Output>}
+ */
 module.exports = (message) => {
     return new Promise((resolve, reject) => {
         const vc = getVC(message);
+
         if (!vc)
-            resolve(chatFormat.response.music.join.no_vc());
+            resolve(new Output().setError(new Error(chatFormat.response.music.join.no_vc())));
         else
             vc.join()
-                .then(r => resolve(output.valid([r], [])))
-                .catch(e => reject([e], [chatFormat.response.music.join.join_error()]));
+                .then(r => resolve(new Output().setValues(r)))
+                .catch(err => reject(new Output(chatFormat.response.music.join.join_error()).setError(err)));
     });
 };

@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { output } = require('../../../helpers/commands');
+const { Output } = require('../../../helpers/commands');
 
 const getList = require('./getList');
 
@@ -17,13 +17,13 @@ module.exports = (message) => {
                     list += `${name}${index < names.length - 1 ? '\n' : ''}`;
                 });
 
-                resolve(output.valid([names], [list]));
+                resolve(new Output(list).setValues(names));
             })
             .catch(err => {
                 if (err.KeyCount == 0)
-                    reject(output.error([err], ['There are no factions in this server.\nTry creating one using:\n> ~fc create']));
+                    reject(new Output('There are no factions in this server.\nTry creating one using:\n> ~fc create').setError(err));
                 else
-                    reject(output.error([err]));
+                    reject(new Output().setError(err));
             });
     });
 };

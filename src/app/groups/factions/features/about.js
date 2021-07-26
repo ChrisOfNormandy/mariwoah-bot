@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-
-const { chatFormat, output } = require('../../../helpers/commands');
-
 const MessageData = require('../../../objects/MessageData');
+
+const { chatFormat, Output } = require('../../../helpers/commands');
+
 const cache = require('./cache');
 
 /**
@@ -15,7 +15,7 @@ module.exports = (message, data) => {
     const factionName = data.arguments[0];
 
     if (!factionName)
-        return Promise.reject(output.error([], ['No faction name specified.']));
+        return Promise.reject(new Output().setError(new Error('No faction name specified.')));
 
     return new Promise((resolve, reject) => {
         cache.get(message.guild, factionName)
@@ -27,8 +27,8 @@ module.exports = (message, data) => {
 
                 faction.getMembers().forEach(user => embed.addField(user.getName(), user.getRoles().join(', ') || 'No roles.'));
 
-                resolve(output.valid([faction], [embed]));
+                resolve(new Output(embed).setValues(faction));
             })
-            .catch(err => reject(output.error([err])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

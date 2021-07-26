@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-
-const { output } = require('../../../helpers/commands');
 const MessageData = require('../../../objects/MessageData');
+
+const { Output } = require('../../../helpers/commands');
 
 const cache = require('./cache');
 
@@ -22,16 +22,16 @@ module.exports = (message, data) => {
                         .then(member => {
                             member.addRole('Leader');
                             faction.upload()
-                                .then(() => resolve(output.valid([faction], [`Established a new faction named ${faction.getName()}`])))
-                                .catch(err => reject(err));
+                                .then(() => resolve(new Output(`Established a new faction named ${faction.getName()}`).setValues(faction)))
+                                .catch(err => reject(new Output().setError(err)));
                         })
-                        .catch(err => reject(output.error([err])));
+                        .catch(err => reject(new Output().setError(err)));
                 })
-                .catch(err => reject(output.error([err])));
+                .catch(err => reject(new Output().setError(err)));
         }
         else
             cache.get(message.guild, factionName)
-                .then(faction => reject(output.error([faction], ['Faction already exists.'])))
+                .then(faction => reject(new Output().setValues(faction).setError(new Error('Faction already exists.'))))
                 .catch(() => {
                     cache.set(message.guild, factionName)
                         .then(faction => {
@@ -39,12 +39,12 @@ module.exports = (message, data) => {
                                 .then(member => {
                                     member.addRole('Leader');
                                     faction.upload()
-                                        .then(() => resolve(output.valid([faction], [`Established a new faction named ${faction.getName()}`])))
-                                        .catch(err => reject(err));
+                                        .then(() => resolve(new Output(`Established a new faction named ${faction.getName()}`).setValues(faction)))
+                                        .catch(err => reject(new Output().setError(err)));
                                 })
-                                .catch(err => reject(output.error([err])));
+                                .catch(err => reject(new Output().setError(err)));
                         })
-                        .catch(err => reject(output.error([err])));
+                        .catch(err => reject(new Output().setError(err)));
                 });
     });
 };

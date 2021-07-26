@@ -1,303 +1,131 @@
 const groups = require('../../groups');
+const Command = require('../../objects/Command');
+const Output = require('../../objects/Output');
 
 let plList = [
-    {
-        group: 'music',
-        regex: {
-            command: /(playlist)|(pl)/
-        },
-        subcommands: [
-            {
-                name: "play",
-                regex: {
-                    arguments: /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/,
-                    argumentIndexes: [1, 2]
-                },
-                description: {
-                    command: "Fetches all songs from a playlist and adds them to the music queue.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of a playlist.',
-                            optional: false
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.play(message, data)
-            },
-            {
-                name: "list",
-                regex: {
-                    arguments: /\s([\w\s]+)/,
-                    argumentIndexes: [1],
-                    argsOptional: true
-                },
-                description: {
-                    command: "Lists all available playlists or songs within a specified playlist.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of a playlist.',
-                            optional: true
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.list(message, data)
-            },
-            {
-                name: "create",
-                regex: {
-                    arguments: /\s([\w\s]+)/,
-                    argumentIndexes: [1],
-                },
-                description: {
-                    command: "Creates a new server playlist.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of the new playlist.',
-                            optional: false
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.create(message, data)
-            },
-            {
-                name: "add",
-                regex: {
-                    arguments: /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
-                    argumentIndexes: [1, 2]
-                },
-                description: {
-                    command: "Adds a video to the specified playlist.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of a playlist.',
-                            optional: false
-                        },
-                        {
-                            _: 'Video(s)',
-                            d: 'One or more YouTube URLs or the title of a video or playlist.',
-                            optional: false
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.addSong(message, data)
-            },
-            {
-                name: "delete",
-                regex: {
-                    arguments: /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/,
-                    argumentIndexes: [1, 2]
-                },
-                description: {
-                    command: "Removes a playlist from the server.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of a playlist.',
-                            optional: false
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.delete(message, data)
-            },
-            {
-                name: "remove",
-                regex: {
-                    arguments: /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
-                    argumentIndexes: [1, 2]
-                },
-                description: {
-                    command: "Removes a video, or list of videos, from the specified playlist.",
-                    arguments: [
-                        {
-                            _: 'Playlist',
-                            d: 'The name of a playlist.',
-                            optional: false
-                        },
-                        {
-                            _: 'Video(s)',
-                            d: 'One or more YouTube URLs or the title of a video or playlist.',
-                            optional: false
-                        }
-                    ]
-                },
-                adminOnly: false,
-                enabled: true,
-                run: (message, data) => groups.music.playlist.remove(message, data)
-            }
-        ],
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
-            let arr = plList[0].subcommands.filter((cmd) => { return cmd.name == data.subcommand; });
-            if (!!arr.length)
-                return arr[0].run(message, data);
-            return Promise.reject({ content: ['Subcommand not found.'] }); // This should never happen if commands are set up correctly, but just in case.
-        }
-    }
+    new Command(
+        'play',
+        (message, data) => groups.music.playlist.play(message, data)
+    )
+        .setRegex(/play/, /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/, [1, 2])
+        .setCommandDescription('Fetches all songs from a playlist and adds them to the music queue.')
+        .setArgumentDescription(0, 'Playlist', 'The name of a playlist.'),
+    new Command(
+        'list',
+        (message, data) => groups.music.playlist.list(message, data)
+    )
+        .setRegex(/list/, /\s([\w\s]+)/, [1], true)
+        .setCommandDescription('Lists all available playlists or songs within a specified playlist.')
+        .setArgumentDescription(0, 'Playlist', 'The name of a playlist.', true),
+    new Command(
+        'create',
+        (message, data) => groups.music.playlist.create(message, data)
+    )
+        .setRegex(/create/, /\s([\w\s]+)/, [1])
+        .setCommandDescription('Creates a new server playlist.')
+        .setArgumentDescription(0, 'Playlist', 'The name of the new playlist.'),
+    new Command(
+        'add',
+        (message, data) => groups.music.playlist.addSong(message, data)
+    )
+        .setRegex(/add/, /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [1, 2])
+        .setCommandDescription('Adds a video to the specified playlist.')
+        .setArgumentDescription(0, 'Playlist', 'The name of a playlist.')
+        .setArgumentDescription(1, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.'),
+    new Command(
+        'delete',
+        (message, data) => groups.music.playlist.delete(message, data)
+    )
+        .setRegex(/delete/, /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/, [1, 2])
+        .setCommandDescription('Removes a playlist from the server.')
+        .setArgumentDescription(0, 'Playlist', 'The name of a playlist.'),
+    new Command(
+        'remove',
+        (message, data) => groups.music.playlist.remove(message, data)
+    )
+        .setRegex(/remove/, /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [1, 2])
+        .setCommandDescription('Removes a video, or list of videos, from the specified playlist.')
+        .setArgumentDescription(0, 'Playlist', 'The name of a playlist.')
+        .setArgumentDescription(1, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.')
 ];
 
-module.exports = [
-    {
-        group: 'music',
-        regex: {
-            command: /(play)|(p)/,
-            arguments: /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
-            argumentIndexes: [2, 3]
-        },
-        description: {
-            command: "Adds a video, or list of videos, to the music queue.",
-            arguments: [
-                {
-                    _: 'Video(s)',
-                    d: 'One or more YouTube URLs or the title of a video or playlist.',
-                    optional: false
-                }
-            ],
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.add(message, data)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(join)|(vc\b)/
-        },
-        description: {
-            command: "Puts the bot into the requested voice channel."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.voiceChannel.join(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(leave)|(bye)|(dc)/
-        },
-        description: {
-            command: "Removes the bot from the voice channel."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.voiceChannel.leave(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(skip)|(next)/
-        },
-        description: {
-            command: "Skips the current video in the active queue."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.skip(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(stop)/
-        },
-        description: {
-            command: "Stops the active queue."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.stop(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(queue)|(q)/
-        },
-        description: {
-            command: "Lists the videos in the active queue."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.list(message, data)
-    },
-    {
+let playlistCommand = new Command('music');
+playlistCommand.setFunction((message, data) => { 
+    let sc = playlistCommand.getSubcommand(data.subcommand);
+    return !!sc
+        ? sc.run(message, data)
+        : Promise.reject(new Output().setError(new Error('Subcommand not found.')));
+})
+    .setRegex(/(playlist)|(pl)/)
+    .setCommandDescription('Playlist commands.');
+plList.forEach(cmd => playlistCommand.addSubcommand(cmd.getGroup(), cmd));
 
-        group: 'music',
-        regex: {
-            command: /(pause)/
-        },
-        description: {
-            command: "Pauses the active queue."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.pause(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(resume)/
-        },
-        description: {
-            command: "Resumes the paused, active queue."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.queue.resume(message)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(song\?)|(songinfo)/,
-            arguments: /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/,
-            argumentIndexes: [2, 3]
-        },
-        description: {
-            command: "Gathers information about one or more videos.",
-            arguments: [
-                {
-                    _: 'Video(s)',
-                    d: 'One or more YouTube URLs or the title of a video or playlist.',
-                    optional: false
-                }
-            ],
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.song.info(message, data)
-    },
-    {
-        group: 'music',
-        regex: {
-            command: /(ytdl)/,
-            arguments: /\s(([\w\s]+)|(<URL:\d+>))/,
-            argumentIndexes: [2, 3]
-        },
-        description: {
-            command: "Downloads an MP4 audio file of a specified video.",
-            arguments: [
-                {
-                    _: 'Video',
-                    d: 'A YouTube URL or the title of a video or playlist.',
-                    optional: false
-                }
-            ],
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.music.song.download(data)
-    },
-    plList[0]
+/**
+ * @type {Command[]}
+ */
+module.exports = [
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.add(message, data)
+    )
+        .setRegex(/(play)|(p)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
+        .setCommandDescription('Adds a video, or list of videos, to the music queue.')
+        .setArgumentDescription(0, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.voiceChannel.join(message)
+    )
+        .setRegex(/(join)|(vc\b)/)
+        .setCommandDescription('Puts the bot into the requested voice channel.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.voiceChannel.leave(message)
+    )
+        .setRegex(/(leave)|(bye)|(dc)/)
+        .setCommandDescription('Removes the bot from the voice channel.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.skip(message)
+    )
+        .setRegex(/(skip)|(next)/)
+        .setCommandDescription('Skips the current video in the active queue.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.stop(message)
+    )
+        .setRegex(/(stop)/)
+        .setCommandDescription('Stops the active queue.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.list(message, data)
+    )
+        .setRegex(/(queue)|(q)/)
+        .setCommandDescription('Lists the videos in the active queue.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.pause(message)
+    )
+        .setRegex(/(pause)/)
+        .setCommandDescription('Pauses the active queue.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.queue.resume(message)
+    )
+        .setRegex(/(resume)/)
+        .setCommandDescription('Resumes the paused, active queue.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.song.info(message, data)
+    )
+        .setRegex(/(song\?)|(songinfo)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
+        .setCommandDescription('Gathers information about one or more videos.')
+        .setArgumentDescription(0, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.'),
+    new Command(
+        'music',
+        (message, data) => groups.music.song.download(data)
+    )
+        .setRegex(/(ytdl)/, /\s(([\w\s]+)|(<URL:\d+>))/, [2, 3])
+        .setCommandDescription('Downloads an MP4 audio file of a specified video.')
+        .setArgumentDescription(0, 'Video', 'A YouTube URL or the title of a video or playlist.'),
+    playlistCommand
 ];

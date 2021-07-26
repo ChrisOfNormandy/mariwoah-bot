@@ -1,7 +1,15 @@
 const Discord = require('discord.js');
 
-const { chatFormat, output } = require('../../../helpers/commands');
+const { chatFormat, Output } = require('../../../helpers/commands');
 
+/**
+ * 
+ * @param {string} name 
+ * @param {string} joinDate 
+ * @param {string} roleList 
+ * @param {Discord.GuildMember} member 
+ * @returns 
+ */
 function formatEmbed(name, joinDate, roleList, member) {
     const user = member.user;
 
@@ -17,12 +25,22 @@ function formatEmbed(name, joinDate, roleList, member) {
     return embed;
 }
 
+/**
+ * 
+ * @param {Date} date 
+ * @returns {string}
+ */
 function getDate(date) {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`;
 }
 
+/**
+ * 
+ * @param {Discord.GuildMember} member 
+ * @returns {string}
+ */
 function getRoles(member) {
     let roles = '';
     let count = 0;
@@ -37,6 +55,11 @@ function getRoles(member) {
 }
 
 module.exports = {
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @returns {Promise<Output>}
+     */
     self: (message) => {
         const member = message.member;
         const user = member.user;
@@ -45,10 +68,15 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
-            resolve(output.valid([user], [embed]));
+            resolve(new Output(embed).setValues(user));
         });
     },
 
+    /**
+     * 
+     * @param {Discord.Message} message 
+     * @returns {Promise<Output>}
+     */
     member: (message) => {
         const user = message.mentions.users.first();
         const member = message.guild.member(user);
@@ -57,7 +85,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
-            resolve(output.valid([user], [embed]));
+            resolve(new Output(embed).setValues(user));
         });
     }
 };

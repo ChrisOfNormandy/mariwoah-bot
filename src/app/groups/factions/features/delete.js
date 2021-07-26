@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const cache = require('./cache');
 
-const { output } = require('../../../helpers/commands');
+const { Output } = require('../../../helpers/commands');
 const MessageData = require('../../../objects/MessageData');
 
 /**
@@ -13,7 +13,7 @@ const MessageData = require('../../../objects/MessageData');
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         cache.delete(message.guild, data.arguments[0], message.member)
-            .then(r => resolve(output.valid([r], ['Faction deleted.'])))
-            .catch(err => reject(output.error([err])));
+            .then(r => resolve(new Output('Faction deleted.').setValues(r)))
+            .catch(err => reject(new Output().setError(err)));
     });
 };

@@ -1,8 +1,10 @@
 const Discord = require('discord.js');
-const ytSearch = require('yt-search');
-const { chatFormat } = require('../../../helpers/commands');
-const shuffle = require('../../../helpers/shuffle');
 const MessageData = require('../../../objects/MessageData');
+
+const { chatFormat } = require('../../../helpers/commands');
+
+const ytSearch = require('yt-search');
+const shuffle = require('../../../helpers/shuffle');
 
 /**
  * 
@@ -46,7 +48,7 @@ function formatSongData(message, songData, playlistData = null) {
  * 
  * @param {string} name 
  * @param {number} timeOut 
- * @returns 
+ * @returns {Promise<>}
  */
 function search(name, timeOut = 0) {
     return new Promise((resolve, reject) => {

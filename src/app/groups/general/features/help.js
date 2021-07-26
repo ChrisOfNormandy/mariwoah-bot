@@ -1,12 +1,13 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../objects/MessageData');
 
-const { chatFormat, output } = require('../../../helpers/commands');
+const { chatFormat, Output } = require('../../../helpers/commands');
 
 /**
  * 
- * @param {*} data 
+ * @param {MessageData} data 
  * @param {*} list 
- * @returns 
+ * @returns {Promise<Output>}
  */
 module.exports = (data, list) => {
     const embed = new Discord.MessageEmbed()
@@ -201,5 +202,5 @@ module.exports = (data, list) => {
         }
     }
 
-    return Promise.resolve(output.valid([list], [embed]));
+    return Promise.resolve(new Output(embed).setValues(list));
 };

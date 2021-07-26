@@ -1,14 +1,16 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../objects/MessageData');
+
+const { Output } = require('../../../helpers/commands');
 
 const shuffle = require('../../../helpers/shuffle');
 const getVc = require('../../../helpers/getVoiceChannel');
-const { output } = require('../../../helpers/commands');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} data 
- * @returns 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
  */
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
@@ -44,10 +46,10 @@ module.exports = (message, data) => {
 
                         channel.leave();
 
-                        resolve(output.valid([], ['Shuffled and divided users.']));
+                        resolve(new Output('Shuffled and divided users.'));
                     })
-                    .catch(err => reject(output.error([err], [err.message])));
+                    .catch(err => reject(new Output().setError(err)));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

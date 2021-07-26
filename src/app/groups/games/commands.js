@@ -1,113 +1,63 @@
+const Command = require('../../objects/Command');
 const groups = require('../../groups');
 
+/**
+ * @type {Command[]}
+ */
 module.exports = [
-    {
-        group: 'games',
-        regex: {
-            command: /(inv)|(inventory)/,
-            arguments: /\s(.+)/,
-            argumentIndexes: [1],
-            argsOptional: true
-        },
-        description: {
-            command: "Display your inventory.",
-            arguments: [
-                {
-                    _: 'Filter',
-                    d: 'A provided filter term.',
-                    optional: true
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.games.inventory.list(message.author.id, data.arguments[0] || null)
-    },
-    {
-        group: 'games',
-        regex: {
-            command: /stats/,
-            arguments: /\s(<USER:\d>)/,
-            argumentIndexes: [1],
-            argsOptional: true
-        },
-        description: {
-            command: "Display your inventory.",
-            arguments: [
-                {
-                    _: 'Filter',
-                    d: 'A provided filter term.',
-                    optional: true
-                }
-            ]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.games.players.stats(message, data)
-    },
-    {
-        group: 'games',
-        regex: {
-            command: /(cast)/
-        },
-        description: {
-            command: "Cast your rod into the depths. Maybe something will bite?"
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.games.fishing.cast(message.author.id)
-    },
-    {
-        group: 'games',
-        regex: {
-            command: /(give)/
-        },
-        description: {
-            command: "Gives an item."
-        },
-        adminOnly: false,
-        enabled: false,
-        run: (message, data) => {
+    new Command(
+        'games',
+        (message, data) => groups.games.inventory.list(message.author.id, data.arguments[0] || null)
+    )
+        .setRegex(/(inv)|(inventory)/, /\s(.+)/, [1], true)
+        .setCommandDescription("Display your inventory.")
+        .setArgumentDescription(0, "Filter", 'A provided filter term.', true),
+    new Command(
+        'games',
+        (message, data) => groups.games.players.stats(message, data)
+    )
+        .setRegex(/stats/, /\s(<USER:\d>)/, [1], true)
+        .setCommandDescription('Display your inventory.')
+        .setArgumentDescription(0, 'Filter', 'A provided filter term.', true),
+    new Command(
+        'games',
+        (message, data) => groups.games.fishing.cast(message.author.id)
+    )
+        .setRegex(/(cast)/)
+        .setCommandDescription('Cast your rod into the depths. Maybe something will bite?'),
+    new Command(
+        'games',
+        (message, data) => {
             return new Promise((resolve, reject) => {
                 require('./app/helpers/playerdata').data.inventory.give(message.author.id, { name: "test_item" }, 'item', 1)
                     .then(r => resolve({ content: ['Done'] }))
                     .catch(err => reject({ content: [err.message] }));
             });
         }
-    },
-    {
-        group: 'games',
-        regex: {
-            command: /(pf_rs)/
-        },
-        description: {
-            command: "Reset your profile data."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
+    )
+        .setRegex(/(give)/)
+        .setCommandDescription('Gives an item.'),
+    new Command(
+        'games',
+        (message, data) => {
             return new Promise((resolve, reject) => {
                 require('../games/features/players/playerdata').profile.newFile(message.author.id)
                     .then(r => resolve({ content: ['Done'] }))
                     .catch(err => reject({ content: [err.message] }));
             });
         }
-    },
-    {
-        group: 'games',
-        regex: {
-            command: /(save)/
-        },
-        description: {
-            command: "Save profile data."
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => {
+    )
+        .setRegex(/(pf_rs)/)
+        .setCommandDescription('Reset your profile data.'),
+    new Command(
+        'games',
+        (message, data) => {
             return new Promise((resolve, reject) => {
                 require('../games/features/players/playerdata').profile.save();
                 resolve({ content: ['Done'] });
             });
         }
-    },
+    )
+        .setRegex(/(save)/)
+        .setCommandDescription('Save profile data.')
 ];

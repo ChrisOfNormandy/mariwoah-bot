@@ -1,3 +1,5 @@
+const Command = require('./app/objects/Command');
+
 const groups = require('./app/groups');
 
 const factions = require('./app/groups/factions/commands');
@@ -8,9 +10,12 @@ const misc = require('./app/groups/misc/commands'); // Has subgroups
 const music = require('./app/groups/music/commands');
 const utility = require('./app/groups/utility/commands');
 
+/**
+ * 
+ * @returns {Command[]}
+ */
 function getList() {
-    let arr = [];
-    return arr.concat(
+    return [].concat(
         factions,
         fetch,
         games,
@@ -22,37 +27,17 @@ function getList() {
 }
 
 const list = getList();
-
-list.push({
-    group: 'general',
-    regex: {
-        command: /(\?)|(help)/,
-        arguments: /\s([\w\?]+)/,
-        argumentIndexes: [1],
-        argsOptional: true
-    },
-    description: {
-        command: "Displays a list of commands and syntaxes.",
-        arguments: [
-            {
-                _: "Command",
-                d: "A command string.",
-                optional: true
-            }
-        ]
-    },
-    adminOnly: false,
-    settings: {
-        "responseClear": {
-            delay: 30
-        },
-        "commandClear": {
-            delay: 0
-        }
-    },
-    enabled: true,
-    run: (message, data) => groups.general.help(message, data, list)
-});
+list.push(
+    new Command(
+        'general',
+        (message, data) => groups.general.help(message, data, list)
+    )
+        .setRegex(/(\?)|(help)/, /\s([\w\?]+)/, [1])
+        .setCommandDescription('Displays a list of commands and syntaxes.')
+        .setArgumentDescription(0, 'Command', 'A command string.', true)
+        .setSetting('responseClear', { delay: 30 })
+        .setSetting('commandClear', { delay: 0 })
+);
 
 console.log(`Loaded ${list.length} commands.`);
 

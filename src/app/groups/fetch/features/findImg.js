@@ -1,8 +1,15 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../objects/MessageData');
+
+const { chatFormat, Output } = require('../../../helpers/commands');
+
 const search = require('duckduckgo-images-api').image_search;
 
-const { chatFormat, output } = require('../../../helpers/commands');
-
+/**
+ * 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 module.exports = (data) => {
     const query = data.arguments[0];
     const params = {
@@ -23,8 +30,8 @@ module.exports = (data) => {
                     .setDescription(`Image ${index + 1} of ${res.length}`)
                     .setFooter(`Source: ${img.url}\nFetched from ${img.source} via duckduckgo.`);
 
-                resolve(output.valid([img], [embed]));
+                resolve(new Output(embed).setValues(img));
             })
-            .catch(err => reject(err));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

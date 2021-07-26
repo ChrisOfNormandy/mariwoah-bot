@@ -1,9 +1,15 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../../../objects/MessageData');
 const path = require('path');
 
-const { chatFormat, output } = require('../../../../../helpers/commands');
+const { chatFormat, Output } = require('../../../../../helpers/commands');
 const { s3 } = require('../../../../../../aws/helpers/adapter');
 
+/**
+ * 
+ * @param {string} guild_id 
+ * @returns {Promise<AWS.S3.ObjectList>}
+ */
 function getList(guild_id) {
     return new Promise((resolve, reject) => {
         s3.object.list('mariwoah', `guilds/${guild_id}/playlists`)
@@ -12,6 +18,12 @@ function getList(guild_id) {
     });
 }
 
+/**
+ * 
+ * @param {string} guild_id 
+ * @param {string} name 
+ * @returns {Promise<Output>}
+ */
 function byName(guild_id, name) {
     return new Promise((resolve, reject) => {
         getList(guild_id)
@@ -24,7 +36,7 @@ function byName(guild_id, name) {
 
                 if (!l.length) {
                     embed.addField(`Nothing found.`, `You can add songs using:\n> playlist add ${name} {song title / youtube url(s)}`);
-                    resolve(output.valid(l, [embed]));
+                    resolve(new Output(embed).setValues(l));
                 }
                 else {
                     s3.object.get('mariwoah', `guilds/${guild_id}/playlists/${name}.json`)
@@ -32,21 +44,27 @@ function byName(guild_id, name) {
                             let list = JSON.parse(obj.Body.toString());
 
                             let index = 1;
+
                             for (let s in list) {
                                 const song = list[s];
                                 embed.addField(`${index}. ${song.title}`, `${song.author} | Duration: ${song.duration.timestamp}\n${song.url}`);
                                 index++;
                             }
 
-                            resolve(output.valid([list], [embed]));
+                            resolve(new Output(embed).setValues(list));
                         })
-                        .catch(err => reject(output.error([err], [err.message])));
+                        .catch(err => reject(new Output().setError(err)));
                 }
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 }
 
+/**
+ * 
+ * @param {string} guild_id 
+ * @returns {Promise<Output>}
+ */
 function all(guild_id) {
     return new Promise((resolve, reject) => {
         getList(guild_id)
@@ -62,12 +80,20 @@ function all(guild_id) {
                     i++;
                 });
 
-                resolve(output.valid([list], [embed]));
+                resolve(new Output(embed).setValues(list));
             })
-            .catch(err => reject(output.error([err], ["Bad list."])));
+            .catch(err => reject(new Output().setError(err)));
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 module.exports = (message, data) => {
-    return (data.arguments[0]) ? byName(message.guild.id, data.arguments[0]) : all(message.guild.id);
+    return (data.arguments[0])
+        ? byName(message.guild.id, data.arguments[0])
+        : all(message.guild.id);
 };

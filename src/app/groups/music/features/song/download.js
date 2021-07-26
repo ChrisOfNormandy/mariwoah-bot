@@ -1,10 +1,17 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../../objects/MessageData');
+
+const { Output } = require('../../../../helpers/commands');
+
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const getSong = require('../../helpers/getSong');
-const { output } = require('../../../../helpers/commands');
 
-
+/**
+ * 
+ * @param {string} url 
+ * @returns {Promise<Discord.MessageAttachment>}
+ */
 function get(url) {
     return new Promise((resolve, reject) => {
         const name = ytdl.getURLVideoID(url);
@@ -24,6 +31,11 @@ function get(url) {
     });
 }
 
+/**
+ * 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 function download(data) {
     let arr = [];
 
@@ -33,8 +45,8 @@ function download(data) {
 
         return new Promise((resolve, reject) => {
             Promise.all(arr)
-                .then(results => resolve(output.valid(results, [`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`, { files: results }])))
-                .catch(e => reject(output.error([e], [])));
+                .then(results => resolve(new Output(`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`).setValues(results).setOption('files', results)))
+                .catch(err => reject(new Output().setError(err)));
         });
     }
     else {
@@ -42,10 +54,10 @@ function download(data) {
             getSong.byName({ author: null }, data.arguments.join(' '))
                 .then(song => {
                     get(song.url)
-                        .then(result => resolve(output.valid([result], [`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`, { files: [result] }])))
-                        .catch(e => reject(output.error([e], [])));
+                        .then(result => resolve(new Output(`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`).setValues(result).setOption('files', result)))
+                        .catch(err => reject(new Output().setError(err)));
                 })
-                .catch(e => reject(output.error([e], [])));
+                .catch(err => reject(new Output().setError(err)));
         });
     }
 }

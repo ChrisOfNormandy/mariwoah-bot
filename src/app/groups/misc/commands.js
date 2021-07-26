@@ -1,25 +1,17 @@
+const Command = require('../../objects/Command');
 const groups = require('../../groups');
 
+/**
+ * @type {Command}
+ */
 const crypto = [
-    {
-        group: 'crypto',
-        regex: {
-            command: /(crypto)/,
-            arguments: /\s([a-zA-Z]+)/,
-            argumentIndexes: [1]
-        },
-        description: {
-            command: "Get coin stats.",
-            arguments: [{
-                _: 'Coin name.',
-                d: 'The coin name, such as BTC, DOGE or ETH.',
-                optional: false
-            }]
-        },
-        adminOnly: false,
-        enabled: true,
-        run: (message, data) => groups.misc.crypto.any(data.arguments[0].toUpperCase(), data.arguments[0].toUpperCase())
-    }
+    new Command(
+        'crypto',
+        (message, data) => groups.misc.crypto.any(data.arguments[0].toUpperCase(), data.arguments[0].toUpperCase())
+    )
+        .setRegex(/(crypto)/, /\s([a-zA-Z]+)/, [1])
+        .setCommandDescription('Get coin stats.')
+        .setArgumentDescription(0, 'Coin name', 'The coin name, such as BTC, DOGE or ETH.')
 ];
 
 module.exports = {

@@ -1,30 +1,32 @@
 const Discord = require('discord.js');
+const MessageData = require('../../../../../objects/MessageData');
+
+const { chatFormat, Output } = require('../../../../../helpers/commands');
 
 const profile = require('../playerdata/profile');
-const { chatFormat, output } = require('../../../../../helpers/commands');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} data 
- * @returns 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
  */
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         profile.get(message.author.id)
-            .then(data => {
+            .then(profileData => {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Stats for ${message.member.nickname}`)
                     .setColor(chatFormat.colors.byName.yellow);
 
                 let skills = '';
-                for (let i in data.skills)
-                    skills += `${i}: ${data.skills[i].score}\n`;
+                for (let i in profileData.skills)
+                    skills += `${i}: ${profileData.skills[i].score}\n`;
 
                 embed.addField('Skills', skills);
 
-                resolve(output.valid([data], [embed]));
+                resolve(new Output(embed).setValues(profileData));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

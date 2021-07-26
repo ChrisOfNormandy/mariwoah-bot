@@ -1,8 +1,14 @@
 const Discord = require('discord.js');
 
 const { data } = require('../players/playerdata');
-const { chatFormat, output } = require('../../../../helpers/commands');
+const { chatFormat, Output } = require('../../../../helpers/commands');
 
+/**
+ * 
+ * @param {string} userID 
+ * @param {string} filter 
+ * @returns {Promise<Output>}
+ */
 module.exports = (userID, filter = null) => {
     return new Promise((resolve, reject) => {
         data.inventory.list(userID)
@@ -34,8 +40,8 @@ module.exports = (userID, filter = null) => {
 
                 embed.addField('List', str || 'Nothing here.');
 
-                resolve(output.valid([list], [embed]));
+                resolve(new Output(embed).setValues(list));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

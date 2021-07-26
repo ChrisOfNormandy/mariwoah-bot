@@ -1,8 +1,9 @@
 const Disord = require('discord.js');
-const cache = require('../cache');
-
-const { output } = require('../../../../helpers/commands');
 const MessageData = require('../../../../objects/MessageData');
+
+const { Output } = require('../../../../helpers/commands');
+
+const cache = require('../cache');
 
 /**
  * 
@@ -16,11 +17,11 @@ module.exports = (message, data) => {
                 faction.removeMember(message.member)
                     .then(() => {
                         faction.upload()
-                            .then(() => resolve(output.valid([faction], ['Left faction.'])))
-                            .catch(err => reject(output.error([err])));
+                            .then(() => resolve(new Output('Left faction.').setValues(faction)))
+                            .catch(err => reject(new Output().setError(err)));
                     })
-                    .catch(err => reject(output.error([err])));
+                    .catch(err => reject(new Output().setError(err)));
             })
-            .catch(err => reject(output.error([err])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

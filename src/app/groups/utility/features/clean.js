@@ -1,11 +1,23 @@
-const { chatFormat, output } = require('../../../helpers/commands');
+const Discord = require('discord.js');
+const MessageData = require('../../../objects/MessageData');
 
-// Converts Discord timestamp to a nice date-time format
+const { chatFormat, Output } = require('../../../helpers/commands');
+
+/**
+ * 
+ * @param {number} timestamp 
+ * @returns {Date}
+ */
 function timestampToDate(timestamp) {
     return new Date(timestamp);
 }
 
-// Gets the age of a message by comparing original (a) to current (b)
+/**
+ * 
+ * @param {Date} a 
+ * @param {Date} b 
+ * @returns {number}
+ */
 function getAge(a, b) {
     const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -16,6 +28,12 @@ function getAge(a, b) {
     return r;
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns 
+ */
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         const channel = message.channel;
@@ -31,12 +49,13 @@ module.exports = (message, data) => {
                         const userMessagesDeleted = userMessages.array().length;
 
                         channel.bulkDelete(userMessages)
-                            .then(msgs => resolve(output.valid([userMessagesDeleted], [chatFormat.response.cleanChat.user(user, userMessagesDeleted)], { clear: 10 })))
-                            .catch(err => reject(output.error([err], [err.message])));
+                            .then(msgs => resolve(new Output(chatFormat.response.cleanChat.user(user, userMessagesDeleted)).setValues(msgs, userMessagesDeleted).setOption('clear', 10)))
+                            .catch(err => reject(new Output().setError(err)));
                     });
                 }
                 else {
                     const prefix = data.prefix;
+
                     const botMessages = messages.filter((msg) => {
                         return msg.author.bot && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14;
                     });
@@ -54,10 +73,12 @@ module.exports = (message, data) => {
                     ];
 
                     Promise.all(arr)
-                        .then(msgs => resolve(output.valid([botMessagesDeleted, cmdMessagesDeleted], [chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted)], { clear: 10 })))
-                        .catch(err => reject(output.error([err], [err.message])));
+                        .then(msgs => resolve(new Output(chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted))
+                            .setValues(msgs, botMessagesDeleted, cmdMessagesDeleted)
+                            .setOption('clear', 10)))
+                        .catch(err => reject(new Output().setError(err)));
                 }
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

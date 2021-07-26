@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
-const { chatFormat, output } = require('../../../../helpers/commands');
 const MessageData = require('../../../../objects/MessageData');
+
+const { chatFormat, Output } = require('../../../../helpers/commands');
+
 const queue = require('./map');
 
 /**
@@ -24,11 +26,11 @@ function field(song, useLink = false) {
  * 
  * @param {Discord.Message} message 
  * @param {MessageData} data 
- * @returns 
+ * @returns {Promise<Output>}
  */
-module.exports = function (message, data) {
+module.exports = (message, data) => {
     if (!queue.has(message.guild.id))
-        return Promise.reject(output.error([], [chatFormat.response.music.queue.no_data()]));
+        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.queue.no_data())));
 
     let q = queue.get(message.guild.id);
 
@@ -61,5 +63,5 @@ module.exports = function (message, data) {
     if (q.songs.length > chatFormat.response.music.queue.list_length)
         embed.setFooter(`... and ${q.songs.length - count} others.`);
 
-    return Promise.resolve(output.valid(q.songs, [embed], { clear: 30 }));
+    return Promise.resolve(new Output(embed).setValues(q.songs).setOption('clear', 30));
 };

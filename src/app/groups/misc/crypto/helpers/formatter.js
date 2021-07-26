@@ -1,9 +1,15 @@
 const Discord = require('discord.js');
 
-const { chatFormat, output } = require('../../../../helpers/commands');
+const { chatFormat, Output } = require('../../../../helpers/commands');
 
 const api = require('../api');
 
+/**
+ * 
+ * @param {string} coin 
+ * @param {string} name 
+ * @returns {Promise<Output>}
+ */
 module.exports = (coin, name) => {
     const embed = new Discord.MessageEmbed()
         .setTitle(`${coin} | ${name} Stats`)
@@ -14,7 +20,7 @@ module.exports = (coin, name) => {
             .then(data => {
                 if (!data) {
                     embed.addField('Uh oh', 'Failed to get current stats.');
-                    resolve(output.valid([data], [embed]));
+                    resolve(new Output(embed).setValues(data));
                 }
                 else {
                     let str = '';
@@ -32,9 +38,9 @@ module.exports = (coin, name) => {
                     }
                     embed.addField(`${name} stats from ${data.startTime.replace('T', ' ')} to ${data.endTime.replace('T', ' ')}:`, str);
                     embed.setDescription(`**$ ${v[v.length - 1][1].toFixed(4)}**`);
-                    resolve(output.valid([data], [embed]));
+                    resolve(new Output(embed).setValues(data));
                 }
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

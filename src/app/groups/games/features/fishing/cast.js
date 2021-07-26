@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 
-const { chatFormat, output } = require('../../../../helpers/commands');
+const { chatFormat, Output } = require('../../../../helpers/commands');
 
 const loot_table = require('./loot_table.json');
 const playerdata = require('../players/playerdata');
@@ -108,11 +108,11 @@ module.exports = (userID) => {
                 //                         .addField('Price per pound:', `${fish.price_per_pound} U.`)
                 //                         .setFooter(`XP earned: ${exp}`);
 
-                //                     resolve(output.valid([fish], [embed]));
+                //                     resolve(Output.valid([fish], [embed]));
                 //                 })
-                //                 .catch(err => reject(output.error([err], [err.message])));
+                //                 .catch(err => reject(Output.error([err], [err.message])));
                 //         })
-                //         .catch(err => reject(output.error([err], [err.message])));
+                //         .catch(err => reject(Output.error([err], [err.message])));
                 // }
                 // else {
                 //     embed = new Discord.MessageEmbed()
@@ -120,11 +120,11 @@ module.exports = (userID) => {
                 //         .setColor(chatFormat.colors.byName.blue)
                 //         .addField(`You didn't catch anything.`, 'Better luck next time!');
 
-                //     resolve(output.valid([fish], [embed]));
+                //     resolve(Output.valid([fish], [embed]));
                 // }
 
-                resolve(output.valid([profile], ['yes']));
+                resolve(new Output('Yes.').setValues(profile));
             })
-            .catch(err => reject(output.error([err], [err.message])));
+            .catch(err => reject(new Output().setError(err)));
     });
 };

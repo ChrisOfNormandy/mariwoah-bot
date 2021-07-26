@@ -1,11 +1,13 @@
-const getVc = require('../../../helpers/getVoiceChannel');
-const { output } = require('../../../helpers/commands');
 const Discord = require('discord.js');
+
+const { Output } = require('../../../helpers/commands');
+
+const getVc = require('../../../helpers/getVoiceChannel');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @returns 
+ * @returns {Promise<Output>}
  */
 module.exports = (message) => {
     let roll = Math.floor(Math.random() * 6) + 1;
@@ -13,16 +15,17 @@ module.exports = (message) => {
         roll = 6;
 
     let vc = getVc(message);
+
     if (!vc)
-        return Promise.reject(output.error([], ["Must be in a voice channel to play VC Roulette."]));
+        return Promise.reject(new Output().setError(new Error("Must be in a voice channel to play VC Roulette.")));
 
     return new Promise((resolve, reject) => {
         if (roll === 1) {
             message.member.voice.kick()
-                .then(r => resolve(output.valid([], [`${message.member.nickname === null ? message.author.username : message.member.nickname} has been disconnected.`])))
-                .catch(err => reject(output.error([err], [`${message.member.nickname === null ? message.author.username : message.member.nickname} should have disconnected, but I, the bot, do not have permission to kick them.`])));
+                .then(r => resolve(new Output(`${message.member.nickname === null ? message.author.username : message.member.nickname} has been disconnected.`).setValues(r)))
+                .catch(err => reject(new Output(`${message.member.nickname === null ? message.author.username : message.member.nickname} should have disconnected, but I, the bot, do not have permission to kick them.`).setError(err)([err])));
         }
         else
-            resolve(output.valid([], [`${message.member.nickname === null ? message.author.username : message.member.nickname} rolled a ${roll}.`]));
+            resolve(new Output(`${message.member.nickname === null ? message.author.username : message.member.nickname} rolled a ${roll}.`));
     });
 };

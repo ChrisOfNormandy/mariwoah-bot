@@ -1,4 +1,7 @@
-const { output } = require('../../../helpers/commands');
+const Discord = require('discord.js');
+const MessageData = require('../../../objects/MessageData');
+
+const { Output } = require('../../../helpers/commands');
 
 const colorList = [
     'red',
@@ -23,19 +26,25 @@ const colorList = [
     'brown'
 ];
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         if (!colorList.includes(data.arguments[0]))
-            reject(output.error([], ['Color not supported.']));
+            reject(new Output().setError(new Error('Color not supported.')));
         else {
             let flag = null;
-            message.member.roles.cache.forEach((v, k, m) => {
+            message.member.roles.cache.forEach((v, k) => {
                 if (colorList.includes(v.name.toLowerCase().replace(' ', '_')))
                     message.member.roles.remove(k)
-                        .catch(err => reject(output.error([err], [err.message])));
+                        .catch(err => reject(new Output().setError(err)));
             });
 
-            message.guild.roles.cache.forEach((v, k, m) => {
+            message.guild.roles.cache.forEach((v, k) => {
                 if (flag !== null)
                     return;
 
@@ -45,12 +54,11 @@ module.exports = (message, data) => {
 
             if (flag !== null) {
                 message.member.roles.add(flag)
-                    .then(r => resolve(output.valid([], ['Done!'])))
-                    .catch(err => reject(output.error([err], [err.message])));
+                    .then(r => resolve(new Output('Done!').setValues(r)))
+                    .catch(err => reject(new Output().setError(err)));
             }
-            else {
-                resolve(output.valid([], ['No role found.']));
-            }
+            else
+                reject(new Output().setError(new Error('No role found.')));
         }
     });
 };

@@ -15,6 +15,8 @@ const clientConfig = require('./config/config.json');
 
 const playerdata = require('./src/app/groups/games/features/players/playerdata');
 
+const logging = require('./src/app/objects/helpers/logging');
+
 function startup() {
     const client = new Discord.Client();
     client.login(clientConfig.auth.token);
@@ -80,9 +82,8 @@ function startup() {
                     if (pass)
                         parser(client, message)
                             .catch(err => {
-                                if (err !== null) {
-                                    console.error('ERROR:', err);
-                                }
+                                if (err !== null)
+                                    logging.error(err, message.content);
                             });
                     else {
                         message.delete()

@@ -11,36 +11,22 @@ module.exports = (client, message) => {
 
         let data = new MessageData(client, message);
 
-        const f = cmdList.filter((cmd) => {
-            const regex = new RegExp('~(' + cmd.regex.command.source + ')');
-            return regex.test(input);
-        });
+        const f = cmdList.filter((cmd) => { return new RegExp('~(' + cmd.getRegex().command.source + ')').test(input); });
 
         let cmdIndex = 0;
         let finished = false;
         let finErr = "";
 
         while (!finished && cmdIndex < f.length) {
-            const regex = f[cmdIndex].regex;
+            const regex = f[cmdIndex].getRegex();
 
             let r = `${prefix}(${regex.command.source})`;
             let scRegX = '';
 
-            let scList = {};
-
             // If the command has listed subcommands.
-            if (!!f[cmdIndex].subcommands) {
-                f[cmdIndex].subcommands.forEach((sc, i) => {
-                    scRegX += '(';
-
-                    scRegX += `\\s(${sc.name})`;
-
-                    scRegX += `)${i < f[cmdIndex].subcommands.length - 1 ? '|' : ''}`;
-
-                    r += scRegX;
-
-                    scList[sc.name] = i;
-                });
+            if (!!f[cmdIndex].subcommands.size) {
+                scRegX += `${Array.from(f[cmdIndex].subcommands.keys()).map(sc => { return `(\\s(${sc}))`; }).join('|')}`;
+                r += scRegX;
             }
             else {
                 if (!!regex.arguments)
@@ -65,7 +51,7 @@ module.exports = (client, message) => {
 
                 // Fetch and remove subcommand.
                 let sc = null;
-                if (!!f[cmdIndex].subcommands) {
+                if (!!f[cmdIndex].subcommands.size) {
                     sc = str.match(new RegExp(scRegX));
 
                     if (sc !== null) {
@@ -90,28 +76,27 @@ module.exports = (client, message) => {
                     else {
                         str = str.replace(args[0], '');
                         let argList = [];
-                        f[cmdIndex].regex.argumentIndexes.forEach(v => { 
-                            if (!!match[v]) 
-                                argList.push(match[v]); 
+                        f[cmdIndex].getRegex().argumentIndexes.forEach(v => {
+                            if (!!match[v])
+                                argList.push(match[v]);
                         });
                         data.setArguments(...argList);
                     }
                 }
-                else if (!!f[cmdIndex].subcommands) {
-                    let argRegX = f[cmdIndex].subcommands[scList[data.subcommand]].regex.arguments;
+                else if (!!f[cmdIndex].subcommands.size) {
+                    let argRegX = f[cmdIndex].getSubcommand(data.subcommand).getRegex().arguments;
 
                     if (!!argRegX) {
-
                         let match = str.match(argRegX);
 
                         if (match === null) {
-                            if (!f[cmdIndex].subcommands[scList[data.subcommand]].regex.argsOptional) {
+                            if (!f[cmdIndex].getSubcommand(data.subcommand).getRegex().argsOptional) {
                                 message.channel.send('Missing arguments.');
                                 return Promise.reject(null);
                             }
                         }
                         else
-                            f[cmdIndex].subcommands[scList[data.subcommand]].regex.argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
+                            f[cmdIndex].getSubcommand(data.subcommand).getRegex().argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
                     }
                 }
 
@@ -126,7 +111,7 @@ module.exports = (client, message) => {
                 return new Promise((resolve, reject) => {
                     f[cmdIndex].run(message, data)
                         .then(response => {
-                            response.content.forEach(msg => {
+                            response.getContent().forEach(msg => {
                                 message.channel.send(msg)
                                     .then(msg => {
                                         if (!!response.options && !!response.options.clear)
@@ -147,25 +132,26 @@ module.exports = (client, message) => {
                                                 }, f[cmdIndex].settings.commandClear.delay * 1000);
                                             }
                                         }
+
+                                        resolve(response);
                                     })
                                     .catch(err => reject(err));
                             });
                         })
                         .catch(err => {
-                            console.error('Parser | ERROR:', err);
-
-                            if (!!err.content)
-                                err.content.forEach(msg => {
-                                    if (!!msg)
-                                        message.channel.send(msg);
-                                });
-
-                            reject(err.rejections[0]);
+                            err.getContent().forEach(msg => {
+                                if (!!msg)
+                                    message.channel.send(msg);
+                            });
+                            if (config.settings.dev.enabled)
+                                reject(err.getErrors());
+                            else
+                                reject(null);
                         });
                 });
             }
         }
-        
+
         if (!finished)
             return Promise.reject('Fin. Error: ' + finErr);
     }
