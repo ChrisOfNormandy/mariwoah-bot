@@ -42,16 +42,17 @@ class Output {
      * @param {*} value 
      */
     setOption(key, value) {
-        this.options[key] = value;
+        this.options.set(key, value);
         return this;
     }
 
     /**
      * 
-     * @returns {object}
+     * @param {string} key
+     * @returns {*}
      */
-    getOptions() {
-        return this.options;
+    getOption(key) {
+        return this.options.get(key);
     }
 
     /**
@@ -62,7 +63,11 @@ class Output {
         this.content = content;
         this.error = null;
         this.values = [];
-        this.options = {};
+
+        /**
+         * @type {Map<string, *>}
+         */
+        this.options = new Map();
     }
 }
 

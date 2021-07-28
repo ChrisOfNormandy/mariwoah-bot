@@ -3,15 +3,13 @@ const MessageData = require('./app/objects/MessageData');
 const config = require('../config/config.json');
 const cmdList = require('./commands');
 
+const prefix = config.settings.commands.prefix;
+
 module.exports = (client, message) => {
-    const prefix = config.settings.commands.prefix;
-
     if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix) {
-        const input = message.content;
-
         let data = new MessageData(client, message);
 
-        const f = cmdList.filter((cmd) => { return new RegExp('~(' + cmd.getRegex().command.source + ')').test(input); });
+        const f = cmdList.filter((cmd) => { return new RegExp('~(' + cmd.getRegex().command.source + ')').test(message.content); });
 
         let cmdIndex = 0;
         let finished = false;
@@ -21,16 +19,19 @@ module.exports = (client, message) => {
             const regex = f[cmdIndex].getRegex();
 
             let r = `${prefix}(${regex.command.source})`;
-            let scRegX = '';
 
-            // If the command has listed subcommands.
-            if (!!f[cmdIndex].subcommands.size) {
-                scRegX += `${Array.from(f[cmdIndex].subcommands.keys()).map(sc => { return `(\\s(${sc}))`; }).join('|')}`;
-                r += scRegX;
-            }
-            else {
-                if (!!regex.arguments)
-                    r += `(${regex.arguments.source})${!!regex.argsOptional ? '?' : ''}`;
+            if (data.hasData) {
+                let scRegX = '';
+
+                // If the command has listed subcommands.
+                if (!!f[cmdIndex].subcommands.size) {
+                    scRegX += `${Array.from(f[cmdIndex].subcommands.keys()).map(sc => { return `(\\s(${sc}))`; }).join('|')}`;
+                    r += scRegX;
+                }
+                else {
+                    if (!!regex.arguments)
+                        r += `(${regex.arguments.source})${!!regex.argsOptional ? '?' : ''}`;
+                }
             }
 
             let rx = new RegExp(r);
@@ -50,53 +51,55 @@ module.exports = (client, message) => {
                 data.setCommand(c[0]);
 
                 // Fetch and remove subcommand.
-                let sc = null;
-                if (!!f[cmdIndex].subcommands.size) {
-                    sc = str.match(new RegExp(scRegX));
+                if (data.hasData) {
+                    let sc = null;
+                    if (!!f[cmdIndex].subcommands.size) {
+                        sc = str.match(new RegExp(scRegX));
 
-                    if (sc !== null) {
-                        str = str.replace(sc[0], '');
-                        data.setSubcommand(
-                            sc.filter((x) => { return x !== undefined && x != sc[0]; })[0]
-                        );
-                    }
-                }
-
-                // Fetch and remove arguments.
-                let args = [];
-                if (!!regex.arguments) {
-                    let match = str.match(regex.arguments);
-
-                    if (match === null) {
-                        if (!f[cmdIndex].regex.argsOptional) {
-                            message.channel.send('Missing arguments.');
-                            return Promise.reject(null);
+                        if (sc !== null) {
+                            str = str.replace(sc[0], '');
+                            data.setSubcommand(
+                                sc.filter((x) => { return x !== undefined && x != sc[0]; })[0]
+                            );
                         }
                     }
-                    else {
-                        str = str.replace(args[0], '');
-                        let argList = [];
-                        f[cmdIndex].getRegex().argumentIndexes.forEach(v => {
-                            if (!!match[v])
-                                argList.push(match[v]);
-                        });
-                        data.setArguments(...argList);
-                    }
-                }
-                else if (!!f[cmdIndex].subcommands.size) {
-                    let argRegX = f[cmdIndex].getSubcommand(data.subcommand).getRegex().arguments;
 
-                    if (!!argRegX) {
-                        let match = str.match(argRegX);
+                    // Fetch and remove arguments.
+                    let args = [];
+                    if (!!regex.arguments) {
+                        let match = str.match(regex.arguments);
 
                         if (match === null) {
-                            if (!f[cmdIndex].getSubcommand(data.subcommand).getRegex().argsOptional) {
+                            if (!f[cmdIndex].regex.argsOptional) {
                                 message.channel.send('Missing arguments.');
                                 return Promise.reject(null);
                             }
                         }
-                        else
-                            f[cmdIndex].getSubcommand(data.subcommand).getRegex().argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
+                        else {
+                            str = str.replace(args[0], '');
+                            let argList = [];
+                            f[cmdIndex].getRegex().argumentIndexes.forEach(v => {
+                                if (!!match[v])
+                                    argList.push(match[v]);
+                            });
+                            data.setArguments(...argList);
+                        }
+                    }
+                    else if (!!f[cmdIndex].subcommands.size) {
+                        let argRegX = f[cmdIndex].getSubcommand(data.subcommand).getRegex().arguments;
+
+                        if (!!argRegX) {
+                            let match = str.match(argRegX);
+
+                            if (match === null) {
+                                if (!f[cmdIndex].getSubcommand(data.subcommand).getRegex().argsOptional) {
+                                    message.channel.send('Missing arguments.');
+                                    return Promise.reject(null);
+                                }
+                            }
+                            else
+                                f[cmdIndex].getSubcommand(data.subcommand).getRegex().argumentIndexes.forEach(v => { if (!!match[v]) data.arguments.push(match[v]); });
+                        }
                     }
                 }
 
@@ -114,14 +117,14 @@ module.exports = (client, message) => {
                             response.getContent().forEach(msg => {
                                 message.channel.send(msg)
                                     .then(msg => {
-                                        if (!!response.options && !!response.options.clear)
-                                            setTimeout(() => { msg.delete().catch(err => reject(err)); }, response.options.clear * 1000);
+                                        if (response.options.has('clear'))
+                                            setTimeout(() => msg.delete().catch(err => reject(err)), response.options.get('clear').delay * 1000);
 
-                                        if (!!f[cmdIndex].settings) {
-                                            if (!!f[cmdIndex].settings.responseClear)
-                                                setTimeout(() => { msg.delete().catch(err => reject(err)); }, f[cmdIndex].settings.responseClear.delay * 1000);
+                                        if (!!f[cmdIndex].settings.size) {
+                                            if (f[cmdIndex].settings.has('responseClear'))
+                                                setTimeout(() => msg.delete().catch(err => reject(err)), f[cmdIndex].settings.get('responseClear').delay * 1000);
 
-                                            if (!!f[cmdIndex].settings.commandClear) {
+                                            if (f[cmdIndex].settings.get('commandClear'))
                                                 setTimeout(() => {
                                                     message.delete()
                                                         .catch(() => {
@@ -129,8 +132,7 @@ module.exports = (client, message) => {
                                                                 .then(msg => setTimeout(() => msg.delete().catch(err => reject(err)), 10 * 1000))
                                                                 .catch(err => reject(err));
                                                         });
-                                                }, f[cmdIndex].settings.commandClear.delay * 1000);
-                                            }
+                                                }, f[cmdIndex].settings.get('commandClear').delay * 1000);
                                         }
 
                                         resolve(response);

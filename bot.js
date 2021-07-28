@@ -17,6 +17,8 @@ const playerdata = require('./src/app/groups/games/features/players/playerdata')
 
 const logging = require('./src/app/objects/helpers/logging');
 
+const { byTimestamp } = require('./src/app/helpers/getAge');
+
 function startup() {
     const client = new Discord.Client();
     client.login(clientConfig.auth.token);
@@ -77,10 +79,17 @@ function startup() {
 
     client.on('message', (message) => {
         if (!message.author.bot) {
+            let start = Date.now();
+            
             chatFilter(message)
                 .then(pass => {
                     if (pass)
                         parser(client, message)
+                            .then(() => {
+                                let end = Date.now();
+                                if (clientConfig.settings.dev.enabled)
+                                    console.log(byTimestamp(start, end));
+                            })
                             .catch(err => {
                                 if (err !== null)
                                     logging.error(err, message.content);

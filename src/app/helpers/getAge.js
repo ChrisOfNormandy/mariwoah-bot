@@ -35,12 +35,19 @@ function age_seconds(a, b) {
     return Math.floor((utc2 - utc1) / ms) % 60;
 }
 
+function age_milliseconds(a, b) {
+    const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate(), a.getHours(), a.getMinutes(), a.getSeconds(), a.getMilliseconds());
+    const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate(), b.getHours(), a.getMinutes(), b.getSeconds(), b.getMilliseconds());
+    return Math.floor(utc2 - utc1) % 1000;
+}
+
 function byTimestamp(old, current) {
     return {
         days: age_days(timestampToDate(old), timestampToDate(current)),
         hours: age_hours(timestampToDate(old), timestampToDate(current)),
         minutes: age_minutes(timestampToDate(old), timestampToDate(current)),
-        seconds: age_seconds(timestampToDate(old), timestampToDate(current))
+        seconds: age_seconds(timestampToDate(old), timestampToDate(current)),
+        milliseconds: age_milliseconds(timestampToDate(old), timestampToDate(current))
     };
 }
 

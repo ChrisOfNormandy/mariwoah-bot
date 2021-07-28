@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const MessageData = require('./MessageData');
+const Output = require('./Output');
 
 class Command {
     /**
@@ -27,6 +28,9 @@ class Command {
      * @returns {Command}
      */
     setRegex(command, args = null, indexes = [], optional = false) {
+        /**
+         * @type {{command: RegExp, arguments: RegExp, argumentIndexes: number[], argsOptional: boolean}}
+         */
         this.regex = {
             command: command,
             arguments: args,
@@ -34,9 +38,13 @@ class Command {
             argsOptional: optional
         };
 
+        /**
+         * @type {{command: string, arguments: {_: string, d: string, optional: boolean}[], flags: string[]}}
+         */
         this.description = {
             command: "",
-            arguments: []
+            arguments: [],
+            flags: []
         };
 
         return this;
@@ -44,7 +52,7 @@ class Command {
 
     /**
      * 
-     * @returns {{command: string, arguments: {_: string, d: string, optional: boolean}[]}}
+     * @returns {{command: string, arguments: {_: string, d: string, optional: boolean}[], flags: {_: string, d: string, optional: boolean}[]}}
      */
     getDescription() {
         return this.description;
@@ -79,9 +87,26 @@ class Command {
 
     /**
      * 
+     * @param {number} index 
+     * @param {string} name 
+     * @param {string} desc 
+     * @param {boolean} optional 
+     * @returns {Command}
+     */
+    setFlagDescription(index, name, desc, optional = true) {
+        this.description.flags[index] = {
+            _: name,
+            d: desc,
+            optional
+        };
+        return this;
+    }
+
+    /**
+     * 
      * @param {Discord.Message} message 
      * @param {MessageData} data 
-     * @returns 
+     * @returns {Promise<Output>}
      */
     run(message, data) {
         return this.func(message, data);
@@ -203,15 +228,18 @@ class Command {
          * @type {string}
          */
         this.name = undefined;
+
         this.regex = {
             command: undefined,
             arguments: undefined,
             argumentIndexes: undefined,
             argsOptional: undefined
         };
+
         this.description = {
             command: undefined,
-            arguments: undefined
+            arguments: undefined,
+            flags: undefined
         };
         
         /**

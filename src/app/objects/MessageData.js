@@ -111,7 +111,12 @@ class MessageData {
         this.mentions = [];
         this.admin = message.member.hasPermission('ADMINISTRATOR');
 
-        this.build(message.content);
+        if (message.content.split(' ').length > 1) {
+            this.hasData = true;
+            this.build(message.content);
+        }
+        else
+            this.hasData = false;
     }
 }
 

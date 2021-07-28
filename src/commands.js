@@ -30,9 +30,9 @@ const list = getList();
 list.push(
     new Command(
         'general',
-        (message, data) => groups.general.help(message, data, list)
+        (message, data) => groups.general.help(data, list)
     )
-        .setRegex(/(\?)|(help)/, /\s([\w\?]+)/, [1])
+        .setRegex(/(\?)|(help)/, /\s([\w\?]+)/, [1], true)
         .setCommandDescription('Displays a list of commands and syntaxes.')
         .setArgumentDescription(0, 'Command', 'A command string.', true)
         .setSetting('responseClear', { delay: 30 })

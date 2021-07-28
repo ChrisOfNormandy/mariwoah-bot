@@ -1,19 +1,20 @@
 const Discord = require('discord.js');
 const MessageData = require('../../../objects/MessageData');
+const Command = require('../../../objects/Command');
 
 const { chatFormat, Output } = require('../../../helpers/commands');
 
 /**
  * 
  * @param {MessageData} data 
- * @param {*} list 
+ * @param {Command[]} list 
  * @returns {Promise<Output>}
  */
 module.exports = (data, list) => {
     const embed = new Discord.MessageEmbed()
         .setColor(chatFormat.colors.information);
 
-    if (!!data.arguments[0]) {
+    if (!!data.arguments.length) {
         let command = data.arguments[0];
 
         if (/\?/.test(command))
@@ -21,33 +22,29 @@ module.exports = (data, list) => {
 
         embed.setTitle(`Help - ${command}`);
 
-        const cmdSource = list.filter((cmd) => {
-            return cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command);
-        });
+        const cmdSource = list.filter(cmd => { return cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command) && cmd.enabled; });
 
-        if (cmdSource.length) {
+        if (!!cmdSource.length) {
             cmdSource.forEach(cmd => {
-                if (!cmd.enabled)
-                    return;
-
                 // Command description.
-                if (!!cmd.subcommands) {
-                    cmd.subcommands.forEach((sc, i) => {
-                        let field = '';
+                if (!!cmd.subcommands.size) {
+                    cmd.subcommands.forEach(sc => {
+                        let desc = sc.getDescription();
 
-                        field += `${sc.description.command}\n`;
+                        // Command description.
+                        let field = `${desc.command}\n`;
 
                         // Command syntax.
-                        field += `**Syntax**\n ${data.prefix}${cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]} ${sc.name}\n`;
+                        field += `**Syntax**\n ${data.prefix}${command} ${sc.name}\n`;
 
                         // Command argument list.
-                        if (!!sc.description.arguments) {
+                        if (!!desc.arguments.length) {
                             let msg = '';
 
-                            sc.description.arguments.forEach((arg, i) => {
+                            desc.arguments.forEach((arg, i) => {
                                 msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
 
-                                if (i < sc.description.arguments.length - 1)
+                                if (i < desc.arguments.length - 1)
                                     msg += '\n';
                             });
 
@@ -56,13 +53,13 @@ module.exports = (data, list) => {
                         }
 
                         // Command flag list.
-                        if (!!sc.description.flags) {
+                        if (!!desc.flags.length) {
                             let msg = '';
 
-                            sc.description.flags.forEach((flag, i) => {
-                                msg += `${flag._} : ${flag.d}`;
+                            desc.flags.forEach((flag, i) => {
+                                msg += `${flag.optional ? '_' : ''}${flag._} : ${flag.d}${flag.optional ? '_' : ''}`;
 
-                                if (i < sc.description.flags.length)
+                                if (i < desc.flags.length)
                                     msg += '\n';
                             });
 
@@ -73,19 +70,21 @@ module.exports = (data, list) => {
                     });
                 }
                 else {
-                    embed.addField('Description', cmd.description.command);
+                    embed.addField('Description', cmd.getDescription().command);
 
                     // Command syntax.
-                    embed.addField('Syntax', `${data.prefix}${cmd.regex.command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`);
+                    embed.addField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`);
+
+                    let desc = cmd.getDescription();
 
                     // Command argument list.
-                    if (!!cmd.description.arguments) {
+                    if (!!desc.arguments.length) {
                         let msg = '';
 
-                        cmd.description.arguments.forEach((arg, i) => {
+                        desc.arguments.forEach((arg, i) => {
                             msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
 
-                            if (i < cmd.description.arguments.length - 1)
+                            if (i < desc.arguments.length - 1)
                                 msg += '\n';
                         });
 
@@ -94,10 +93,10 @@ module.exports = (data, list) => {
                     }
 
                     // Command flag list.
-                    if (!!cmd.description.flags) {
+                    if (!!desc.flags.length) {
                         let msg = '';
 
-                        cmd.description.flags.forEach((flag, i) => {
+                        desc.flags.forEach((flag, i) => {
                             msg += `${flag._} : ${flag.d}`;
 
                             if (i < cmd.description.flags.length)
@@ -110,48 +109,55 @@ module.exports = (data, list) => {
             });
         }
         else {
-            let groups = {};
+            /**
+             * @type {Map<string, Command[]>}
+             */
+            let groups = new Map();
 
             list.forEach(cmd => {
-                if (!!groups[cmd.group] && cmd.group == command)
-                    groups[cmd.group].push(cmd);
-                else if (cmd.group == command)
-                    groups[cmd.group] = [cmd];
+                if (cmd.getGroup() === command) {
+                    if (groups.has(cmd.getGroup()))
+                        groups.get(cmd.getGroup()).push(cmd);
+                    else
+                        groups.set(cmd.getGroup(), [cmd]);
+                }
             });
 
-            if (!!groups) {
-                for (let g in groups) {
+            if (!!groups.size) {
+                groups.forEach((cmdArr, g) => {
                     let msg = '';
 
-                    const arr = groups[g].filter((cmd, index, self) => {
-                        return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index;
+                    const arr = cmdArr.filter((cmd, index) => {
+                        return cmdArr.findIndex(t => t.getRegex().command.source === cmd.getRegex().command.source) === index;
                     });
 
                     const l = arr.length;
 
                     for (let i = 0; i < l; i++) {
                         if (arr[i].enabled) {
-                            msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+                            msg += arr[i].getRegex().command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
 
-                            if (!!arr[i].subcommands) {
+                            if (!!arr[i].subcommands.size) {
                                 msg += '\n';
 
-                                arr[i].subcommands.forEach((v, d) => {
+                                let d = 0;
+                                arr[i].subcommands.forEach(v => {
                                     if (v.enabled) {
                                         msg += `-- ${v.name}`;
-                                        if (d < arr[i].subcommands.length - 1)
+                                        if (d < arr[i].subcommands.size - 1)
                                             msg += '\n';
                                     }
+                                    d++;
                                 });
                             }
 
-                            if (i < groups[g].length - 1)
+                            if (i < cmdArr.length - 1)
                                 msg += '\n';
                         }
                     }
 
                     embed.addField(g, msg, true);
-                }
+                });
             }
             else
                 embed.addField('Oops!', `Could not find a command or group matching "${command}".`);
@@ -159,47 +165,53 @@ module.exports = (data, list) => {
     }
     else {
         embed.setTitle('Help - All');
-        let groups = {};
+
+        /**
+         * @type {Map<string, Command[]>}
+         */
+        let groups = new Map();
 
         list.forEach(cmd => {
-            if (!!groups[cmd.group])
-                groups[cmd.group].push(cmd);
+            if (groups.has(cmd.getGroup()))
+                groups.get(cmd.getGroup()).push(cmd);
             else
-                groups[cmd.group] = [cmd];
+                groups.set(cmd.getGroup(), [cmd]);
         });
 
-        for (let g in groups) {
+        groups.forEach((cmdArr, g) => {
             let msg = '';
 
-            const arr = groups[g].filter((cmd, index, self) => {
-                return self.findIndex(t => t.regex.command.source === cmd.regex.command.source) === index;
+            const arr = cmdArr.filter((cmd, index) => {
+                return cmdArr.findIndex(t => t.getRegex().command.source === cmd.getRegex().command.source) === index;
             });
 
             const l = arr.length;
 
             for (let i = 0; i < l; i++) {
                 if (arr[i].enabled) {
-                    msg += arr[i].regex.command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+                    msg += arr[i].getRegex().command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
 
-                    if (!!arr[i].subcommands) {
+                    if (!!arr[i].subcommands.size) {
                         msg += '\n';
 
-                        arr[i].subcommands.forEach((v, d) => {
+                        let d = 0;
+                        arr[i].subcommands.forEach(v => {
                             if (v.enabled) {
                                 msg += `-- ${v.name}`;
-                                if (d < arr[i].subcommands.length - 1)
+                                if (d < arr[i].subcommands.size - 1)
                                     msg += '\n';
                             }
+                            d++;
                         });
                     }
 
-                    if (i < groups[g].length - 1)
+                    if (i < cmdArr.length - 1)
                         msg += '\n';
                 }
             }
 
             embed.addField(g, msg, true);
-        }
+        });
     }
 
     return Promise.resolve(new Output(embed).setValues(list));
