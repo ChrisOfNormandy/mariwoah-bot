@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
-const Command = require('../../../objects/Command');
+const MessageData = require('./objects/MessageData');
+const Command = require('./objects/Command');
 
-const { chatFormat, Output } = require('../../../helpers/commands');
+const { chatFormat, Output } = require('./helpers/commands');
 
 /**
  * 
@@ -22,7 +22,9 @@ module.exports = (data, list) => {
 
         embed.setTitle(`Help - ${command}`);
 
-        const cmdSource = list.filter(cmd => { return cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command) && cmd.enabled; });
+        const cmdSource = list.filter(cmd => { 
+            return cmd.getRegex().command !== undefined && cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command) && cmd.enabled; 
+        });
 
         if (!!cmdSource.length) {
             cmdSource.forEach(cmd => {
@@ -32,7 +34,7 @@ module.exports = (data, list) => {
                         let desc = sc.getDescription();
 
                         // Command description.
-                        let field = `${desc.command}\n`;
+                        let field = `${desc.command || 'No description provided.'}\n`;
 
                         // Command syntax.
                         field += `**Syntax**\n ${data.prefix}${command} ${sc.name}\n`;
@@ -70,7 +72,7 @@ module.exports = (data, list) => {
                     });
                 }
                 else {
-                    embed.addField('Description', cmd.getDescription().command);
+                    embed.addField('Description', cmd.getDescription().command || 'No description provided.');
 
                     // Command syntax.
                     embed.addField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`);
@@ -182,7 +184,9 @@ module.exports = (data, list) => {
             let msg = '';
 
             const arr = cmdArr.filter((cmd, index) => {
-                return cmdArr.findIndex(t => t.getRegex().command.source === cmd.getRegex().command.source) === index;
+                if (cmd.getRegex().command === undefined)
+                    return;
+                return cmdArr.findIndex(t => t.getRegex().command !== undefined && t.getRegex().command.source === cmd.getRegex().command.source) === index;
             });
 
             const l = arr.length;

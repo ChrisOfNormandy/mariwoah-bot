@@ -8,7 +8,7 @@ const getFilter = require('./filter/getName');
 
 const logChannel = "748961589910175805";
 
-function getFilters(guildId) {
+function getFilters(bucket, guildId) {
     if (!cache.has(guildId)) {
         return new Promise((resolve, reject) => {
             let ret = {
@@ -20,7 +20,7 @@ function getFilters(guildId) {
                 warnList: []
             };
 
-            getFilter(guildId, 'banned')
+            getFilter(bucket, guildId, 'banned')
                 .then(list => {
                     if (!!list.length) {
                         let banReg = '';
@@ -36,7 +36,7 @@ function getFilters(guildId) {
                 })
                 .catch(err => {/*console.error('No banned filter.')*/ })
                 .then(() => {
-                    getFilter(guildId, 'kicked')
+                    getFilter(bucket, guildId, 'kicked')
                         .then(list => {
                             if (!!list.length) {
                                 let kickReg = '';
@@ -52,7 +52,7 @@ function getFilters(guildId) {
                         })
                         .catch(err => {/*console.error('No kicked filter.')*/ })
                         .then(() => {
-                            getFilter(guildId, 'warned')
+                            getFilter(bucket, guildId, 'warned')
                                 .then(list => {
                                     if (!!list.length) {
                                         let warnReg = '';
@@ -107,15 +107,19 @@ function kick(member, reason = null) {
 
 /**
  * 
+ * @param {string} bucket 
  * @param {Discord.GuildMember} member 
+ * @param {boolean} changeNickname 
+ * @param {boolean} ignoreNickname 
+ * @param {boolean} ignoreAdminBypass 
  * @returns {Promise<boolean>}
  */
-module.exports = (member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false) => {
+module.exports = (bucket, member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false) => {
     if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES') || !!member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()); }).size))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {
-        getFilters(member.guild.id)
+        getFilters(bucket, member.guild.id)
             .then(filters => {
                 const target = member.nickname === null || ignoreNickname ? member.user.username : member.nickname;
 

@@ -1,44 +1,41 @@
 {
-    "name": "mariwoah-bot",
-    "version": "69.420.0",
-    "description": "Misc. Utilities bot.",
-    "main": "bot.js",
-    "author": "ChrisOfNormandy",
-    "dependencies": {
-        "@discordjs/opus": "^0.5.3",
-        "abort-controller": "^3.0.0",
-        "aws-sdk": "^2.935.0",
-        "axios": "^0.21.1",
-        "ddg": "^0.0.3",
-        "discord.js": "^12.5.3",
-        "duckduckgo-images-api": "^1.0.5",
-        "ffmpeg": "^0.0.4",
-        "ffmpeg-static": "^4.4.0",
-        "jslint": "^0.12.1",
-        "node-duckduckgo": "^2.0.17",
-        "node-fetch": "^2.6.1",
-        "node-opus": "^0.3.3",
-        "nodemon": "^2.0.7",
-        "npm": "^7.19.0",
-        "prism-media": "^1.3.1",
-        "setimmediate": "^1.0.5",
-        "simple-youtube-api": "^5.2.1",
-        "tweetnacl": "^1.0.3",
-        "winston": "^3.3.3",
-        "ws": "^7.5.0",
-        "yt-hunter": "0.0.0",
-        "yt-search": "^2.9.0",
-        "ytdl": "^1.4.1",
-        "ytdl-core": "^4.8.3"
-    },
-    "repository": {},
-    "scripts": {
-        "start": "npm run lint & nodemon",
-        "lint": "jslint **/*.js"
-    },
-    "private": true,
-    "license": "GNU General Public License (GPL)",
-    "devDependencies": {
-        "jshint": "^2.13.0"
-    }
+  "name": "@chrisofnormandy/mariwoah-bot",
+  "version": "0.0.0",
+  "description": "Bot import package for Discord.",
+  "main": "index.js",
+  "author": "ChrisOfNormandy",
+  "dependencies": {
+    "@discordjs/opus": "^0.5.3",
+    "abort-controller": "^3.0.0",
+    "aws-sdk": "^2.955.0",
+    "axios": "^0.21.1",
+    "discord.js": "^12.5.3",
+    "ffmpeg": "^0.0.4",
+    "ffmpeg-static": "^4.4.0",
+    "jslint": "^0.12.1",
+    "node-fetch": "^2.6.1",
+    "node-opus": "^0.3.3",
+    "nodemon": "^2.0.12",
+    "npm": "^7.20.2",
+    "prism-media": "^1.3.1",
+    "setimmediate": "^1.0.5",
+    "simple-youtube-api": "^5.2.1",
+    "tweetnacl": "^1.0.3",
+    "winston": "^3.3.3",
+    "ws": "^7.5.3",
+    "yt-hunter": "0.0.0",
+    "yt-search": "^2.10.0",
+    "ytdl": "^1.4.1",
+    "ytdl-core": "^4.9.0"
+  },
+  "repository": {},
+  "scripts": {
+    "start": "npm run lint & nodemon",
+    "lint": "jslint **/*.js"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jshint": "^2.13.0"
+  }
 }

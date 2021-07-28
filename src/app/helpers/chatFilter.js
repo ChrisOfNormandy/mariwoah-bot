@@ -6,7 +6,7 @@ const filterBypass = require('./filter/bypassRoleNames.json');
 
 const getFilter = require('./filter/getChat');
 
-function getFilters(guildId) {
+function getFilters(bucket, guildId) {
     if (!cache.has(guildId)) {
         return new Promise((resolve, reject) => {
             let ret = {
@@ -18,7 +18,7 @@ function getFilters(guildId) {
                 warnList: []
             };
 
-            getFilter(guildId, 'banned')
+            getFilter(bucket, guildId, 'banned')
                 .then(list => {
                     if (!!list.length) {
                         let banReg = '';
@@ -34,7 +34,7 @@ function getFilters(guildId) {
                 })
                 .catch(err => {/*console.error('No banned filter.')*/ })
                 .then(() => {
-                    getFilter(guildId, 'kicked')
+                    getFilter(bucket, guildId, 'kicked')
                         .then(list => {
                             if (!!list.length) {
                                 let kickReg = '';
@@ -50,7 +50,7 @@ function getFilters(guildId) {
                         })
                         .catch(err => {/*console.error('No kicked filter.')*/ })
                         .then(() => {
-                            getFilter(guildId, 'warned')
+                            getFilter(bucket, guildId, 'warned')
                                 .then(list => {
                                     if (!!list.length) {
                                         let warnReg = '';
@@ -105,15 +105,16 @@ function kick(message, reason = null) {
 
 /**
  * 
+ * @param {string} bucket
  * @param {Discord.Message} message 
  * @returns {Promise<boolean>}
  */
-module.exports = (message, ignoreAdminBypass = false) => {
+module.exports = (bucket, message, ignoreAdminBypass = false) => {
     if (!ignoreAdminBypass && (message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('MANAGE_MESSAGES') || !!message.member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()); }).size))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {
-        getFilters(message.guild.id)
+        getFilters(bucket, message.guild.id)
             .then(filters => {
                 const banctx = filters.banned !== null ? message.content.match(filters.banned) : null;
                 const kickctx = filters.kicked !== null ? message.content.match(filters.kicked) : null;

@@ -1,9 +1,29 @@
-module.exports = {
-    factions: require('./groups/factions/adapter'),
-    fetch: require('./groups/fetch/adapter'),
-    games: require('./groups/games/adapter'),
-    general: require('./groups/general/adapter'),
-    misc: require('./groups/misc/adapter'),
-    music: require('./groups/music/adapter'),
-    utility: require('./groups/utility/adapter')
+const CommandGroup = require('./objects/CommandGroup');
+
+let groups = {
+    /**
+     * @type {Map<string, CommandGroup>}
+     */
+    cache: new Map(),
+
+    /**
+     * 
+     * @param {string} name 
+     * @returns {CommandGroup}
+     */
+    addCommandGroup: (name) => {
+        groups.cache.set(name, new CommandGroup(name));
+        return groups.cache.get(name);
+    },
+
+    /**
+     * 
+     * @param {string} name 
+     * @returns {CommandGroup}
+     */
+    getCommandGroup: (name) => {
+        return groups.cache.get(name);
+    }
 };
+
+module.exports = groups;
