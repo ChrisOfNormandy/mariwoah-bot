@@ -25,12 +25,15 @@ function getList() {
             .setSetting('commandClear', { delay: 0 })
     );
 
-    console.log(list);
-
     return list;
 }
 
 
-module.exports = {
-    getList
+const _ = {
+    cache: [],
+    getList: () => {
+        return _.cache.length ? _.cache : getList();
+    }
 };
+
+module.exports = _;

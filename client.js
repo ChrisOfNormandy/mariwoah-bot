@@ -17,7 +17,7 @@ const { byTimestamp } = require('./src/app/helpers/getAge');
 
 const bucket = 'mariwoah';
 
-function startup(clientConfig, awsCredentials) {
+function startup(clientConfig, awsCredentials, prefix = '/', devEnabled = false) {
     const client = new Discord.Client();
     client.login(clientConfig.auth.token);
 
@@ -80,7 +80,7 @@ function startup(clientConfig, awsCredentials) {
             chatFilter(bucket, message)
                 .then(pass => {
                     if (pass)
-                        parser(client, message)
+                        parser(client, message, prefix, devEnabled)
                             .then(() => {
                                 let end = Date.now();
                                 if (clientConfig.settings.dev.enabled)

@@ -1,13 +1,10 @@
 const MessageData = require('./app/objects/MessageData');
 
-const config = require('../config/config.json');
 const cmdList = require('./commands');
 
-const prefix = config.settings.commands.prefix;
-
-module.exports = (client, message) => {
+module.exports = (client, message, prefix, devEnabled) => {
     if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix) {
-        let data = new MessageData(client, message);
+        let data = new MessageData(client, message, prefix, devEnabled);
 
         const f = cmdList.getList().filter((cmd) => { 
             if (!cmd.getRegex().command)
@@ -149,7 +146,7 @@ module.exports = (client, message) => {
                                 if (!!msg)
                                     message.channel.send(msg);
                             });
-                            if (config.settings.dev.enabled)
+                            if (devEnabled)
                                 reject(err.getErrors());
                             else
                                 reject(null);

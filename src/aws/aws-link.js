@@ -1,5 +1,4 @@
 const AWS = require("aws-sdk");
-const config = require('../../config/config.json');
 
 /**
  * Login handler for AWS communication using credentials provided in the system config.

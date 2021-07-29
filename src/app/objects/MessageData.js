@@ -1,7 +1,5 @@
 const Discord = require('discord.js');
 
-const config = require('../../../config/config.json');
-
 const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
 const flagRegex = /\s-[a-zA-Z]+\b/g;
 const userMentionsRegex = /<@!\d{18}>/g;
@@ -52,14 +50,6 @@ class MessageData {
 
     /**
      * 
-     * @returns {string}
-     */
-    getPrefix() {
-        return config.settings.commands.prefix;
-    }
-
-    /**
-     * 
      * @param  {...string} args 
      */
     setArguments(...args) {
@@ -95,12 +85,12 @@ class MessageData {
      * @param {Discord.Client} client 
      * @param {Discord.Message} message 
      */
-    constructor(client, message) {
+    constructor(client, message, prefix = "/") {
         this.client = client;
 
         this.arguments = [];
         this.command = null;
-        this.prefix = this.getPrefix();
+        this.prefix = prefix;
         this.subcommand = null;
         this.content = message.content;
         this.urls = [];
