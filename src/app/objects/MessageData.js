@@ -16,7 +16,7 @@ class MessageData {
         if (mentions !== null) {
             for (let m in mentions) {
                 this.mentions.push(mentions[m].match(/\d{18}/)[0]);
-                str.replace(mentions[m], `<USER:${m}>`);
+                str = str.replace(mentions[m], `<USER:${m}>`);
             }
         }
 
@@ -24,7 +24,7 @@ class MessageData {
         if (urls !== null) {
             for (let url in urls) {
                 this.urls.push(urls[url]);
-                str.replace(urls[url], `<URL:${url}>`);
+                str = str.replace(urls[url], `<URL:${url}>`);
             }
         }
 
@@ -101,12 +101,10 @@ class MessageData {
         this.mentions = [];
         this.admin = message.member.hasPermission('ADMINISTRATOR');
 
-        if (message.content.split(' ').length > 1) {
-            this.hasData = true;
+        if (message.content.split(' ').length > 1)
             this.build(message.content);
-        }
-        else
-            this.hasData = false;
+
+        this.hasData = true;
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@chrisofnormandy/mariwoah-bot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Bot import package for Discord.",
   "main": "index.js",
   "author": "ChrisOfNormandy",
@@ -33,7 +33,6 @@
     "start": "npm run lint & nodemon",
     "lint": "jslint **/*.js"
   },
-  "private": true,
   "license": "UNLICENSED",
   "devDependencies": {
     "jshint": "^2.13.0"

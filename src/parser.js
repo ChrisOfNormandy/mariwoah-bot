@@ -5,7 +5,7 @@ const cmdList = require('./commands');
 module.exports = (client, message, prefix, devEnabled) => {
     if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix) {
         let data = new MessageData(client, message, prefix, devEnabled);
-
+        
         const f = cmdList.getList().filter((cmd) => { 
             if (!cmd.getRegex().command)
                 return;
@@ -20,13 +20,12 @@ module.exports = (client, message, prefix, devEnabled) => {
             const regex = f[cmdIndex].getRegex();
 
             let r = `${prefix}(${regex.command.source})`;
+            let scRegX = '';
 
             if (data.hasData) {
-                let scRegX = '';
-
                 // If the command has listed subcommands.
                 if (!!f[cmdIndex].subcommands.size) {
-                    scRegX += `${Array.from(f[cmdIndex].subcommands.keys()).map(sc => { return `(\\s(${sc}))`; }).join('|')}`;
+                    scRegX = `${Array.from(f[cmdIndex].subcommands.keys()).map(sc => { return `(\\s(${sc}))`; }).join('|')}`;
                     r += scRegX;
                 }
                 else {

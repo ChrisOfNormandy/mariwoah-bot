@@ -30,7 +30,15 @@ function getList() {
 
 
 const _ = {
+    /**
+     * @type {Command[]}
+     */
     cache: [],
+
+    /**
+     * 
+     * @returns {Command[]}
+     */
     getList: () => {
         return _.cache.length ? _.cache : getList();
     }
