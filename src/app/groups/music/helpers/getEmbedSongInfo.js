@@ -1,7 +1,4 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
-
-const { chatFormat } = require('../../../helpers/commands');
+const {Discord, MessageData, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
 
 const getSong = require('./getSong');
 const queue = require('../features/queue/map');
@@ -29,11 +26,11 @@ module.exports = {
      * @param {*} activeQueue 
      * @param {number} index 
      * @param {*} fromPlaylist 
-     * @returns {Discord.MessageEmbed | null}
+     * @returns {Promise<Discord.MessageEmbed>}
      */
     single: (title, activeQueue, index, fromPlaylist = false) => {
         if (!activeQueue.songs[index])
-            return null;
+            return Promise.reject(new Error('No active queue.'));
 
         const song = activeQueue.songs[index] || null;
         const requested = activeQueue.songs[index].requested || 'Unknown';
@@ -68,7 +65,7 @@ module.exports = {
         else
             embed.image = { url: song.thumbnail };
 
-        return embed;
+        return Promise.resolve(embed);
     },
 
     /**

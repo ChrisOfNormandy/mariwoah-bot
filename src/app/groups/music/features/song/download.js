@@ -1,10 +1,7 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../../objects/MessageData');
-
-const { Output } = require('../../../../helpers/commands');
+const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
+const ytdl = require('@chrisofnormandy/mariwoah-bot').youtube.ytdl;
 
 const fs = require('fs');
-const ytdl = require('ytdl-core');
 const getSong = require('../../helpers/getSong');
 
 /**
@@ -16,6 +13,9 @@ function get(url) {
     return new Promise((resolve, reject) => {
         const name = ytdl.getURLVideoID(url);
         const path = `temp/video_${name}.mp4`;
+
+        if (!fs.existsSync('temp/'))
+            fs.mkdirSync('temp/');
 
         fs.open(path, (err, data) => {
             if (err) {
@@ -45,7 +45,7 @@ function download(data) {
 
         return new Promise((resolve, reject) => {
             Promise.all(arr)
-                .then(results => resolve(new Output(`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`).setValues(results).setOption('files', results)))
+                .then(results => resolve(new Output(...results).setValues(results).setOption('files', results)))
                 .catch(err => reject(new Output().setError(err)));
         });
     }
@@ -54,7 +54,7 @@ function download(data) {
             getSong.byName({ author: null }, data.arguments.join(' '))
                 .then(song => {
                     get(song.url)
-                        .then(result => resolve(new Output(`Please wait while things are uploaded.\nLonger videos take more time to download and upload.`).setValues(result).setOption('files', result)))
+                        .then(result => resolve(new Output(result).setValues(result).setOption('files', result)))
                         .catch(err => reject(new Output().setError(err)));
                 })
                 .catch(err => reject(new Output().setError(err)));

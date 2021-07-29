@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { Discord} = require('@chrisofnormandy/mariwoah-bot');
 const { s3 } = require('../../aws/helpers/adapter');
 
 const faction = require('./helpers/faction');

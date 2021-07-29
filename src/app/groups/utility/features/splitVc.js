@@ -1,7 +1,4 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
-
-const { Output } = require('../../../helpers/commands');
+const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const shuffle = require('../../../helpers/shuffle');
 const getVc = require('../../../helpers/getVoiceChannel');

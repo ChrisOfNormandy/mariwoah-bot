@@ -1,7 +1,4 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
-
-const { Output } = require('../../../helpers/commands');
+const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const cache = require('./cache');
 const create = require('./create');
@@ -15,7 +12,7 @@ const create = require('./create');
 module.exports = (message, data) => {
     if (!data.admin)
         return Promise.reject(new Output().setError(new Error('Member lacks permissions.')));
-        
+
     return new Promise((resolve, reject) => {
         cache.delete(message.guild, data.arguments[0], message.member)
             .then(() => {

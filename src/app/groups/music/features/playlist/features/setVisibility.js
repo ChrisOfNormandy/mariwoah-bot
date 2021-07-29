@@ -1,4 +1,4 @@
-// const Discord = require('discord.js');
+// const {Discord} = require('@chrisofnormandy/mariwoah-bot');
 // const {chatFormat, Output} = require('../../../../../helpers/commands');
 
 // module.exports = function(guild_id, name, value) {

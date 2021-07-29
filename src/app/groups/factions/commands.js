@@ -1,5 +1,5 @@
-const Command = require('../../objects/Command');
-const Output = require('../../objects/Output');
+const { Command, Output } = require('@chrisofnormandy/mariwoah-bot');
+
 const groups = require('../../groups');
 
 const list = [

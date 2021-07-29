@@ -1,4 +1,5 @@
-const Command = require('../../objects/Command');
+const { Command } = require('@chrisofnormandy/mariwoah-bot');
+
 const groups = require('../../groups');
 
 function shuffle(message, data) {
@@ -23,9 +24,9 @@ module.exports = [
         .setSetting('delay', 10),
     new Command(
         'utility',
-        (message, data) => groups.utility.roll(data.arguments)
+        (message, data) => groups.utility.roll(data)
     )
-        .setRegex(/(roll)|(r)|(d)/, /(\s?([1-9][0-9]*)?(\s([1-9][0-9]*))?)|(\d+(\s\d+)?)/, [2, 4, 5, 6])
+        .setRegex(/(roll\s)|(r)|(d)/, /(\d+)(\s(\d+))?/, [1, 3])
         .setCommandDescription('Rolls a number between 1 and a given value.')
         .setArgumentDescription(0, 'Sides', 'Any integer between 1 and 2^53-1. Defaults to 6.', true)
         .setArgumentDescription(1, 'Count', 'Any integer between 1 and 50', true),

@@ -1,13 +1,10 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../../objects/MessageData');
-
-const { chatFormat, Output } = require('../../../../helpers/commands');
+const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./map');
 
 /**
  * 
- * @param {string} song 
+ * @param {*} song 
  * @param {boolean} useLink 
  * @returns 
  */
@@ -36,7 +33,7 @@ module.exports = (message, data) => {
 
     let embed = new Discord.MessageEmbed()
         .setTitle(`Active queue for ${message.guild.name}`)
-        .setColor(chatFormat.colors.byName.lightBlue);
+        .setColor(chatFormat.colors.byName.aqua);
 
     let count = 0;
     let video;
@@ -63,5 +60,5 @@ module.exports = (message, data) => {
     if (q.songs.length > chatFormat.response.music.queue.list_length)
         embed.setFooter(`... and ${q.songs.length - count} others.`);
 
-    return Promise.resolve(new Output(embed).setValues(q.songs).setOption('clear', 30));
+    return Promise.resolve(new Output(embed).setValues(q.songs).setOption('clear', { delay: 30 }));
 };

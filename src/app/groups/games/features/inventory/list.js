@@ -1,7 +1,6 @@
-const Discord = require('discord.js');
+const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const { data } = require('../players/playerdata');
-const { chatFormat, Output } = require('../../../../helpers/commands');
 
 /**
  * 

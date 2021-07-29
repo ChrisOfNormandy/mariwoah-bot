@@ -1,5 +1,5 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../../objects/MessageData');
+const {Discord} = require('@chrisofnormandy/mariwoah-bot');
+const {MessageData} = require('@chrisofnormandy/mariwoah-bot');
 
 const cache = require('../cache');
 

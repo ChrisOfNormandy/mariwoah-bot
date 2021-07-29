@@ -1,11 +1,13 @@
-const { Output } = require('../../../helpers/commands');
+const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
- * @param {any[]} args 
+ * @param {MessageData} data 
  * @returns {Promise<Output>}
  */
-module.exports = (args) => {
+module.exports = (data) => {
+    let args = data.arguments;
+    
     return new Promise((resolve, reject) => {
         let count = 1, sides = 6;
 

@@ -1,4 +1,5 @@
-const Command = require('../../objects/Command');
+const { Command, Output } = require('@chrisofnormandy/mariwoah-bot');
+
 const groups = require('../../groups');
 
 /**
@@ -30,8 +31,8 @@ module.exports = [
         (message, data) => {
             return new Promise((resolve, reject) => {
                 require('./app/helpers/playerdata').data.inventory.give(message.author.id, { name: "test_item" }, 'item', 1)
-                    .then(r => resolve({ content: ['Done'] }))
-                    .catch(err => reject({ content: [err.message] }));
+                    .then(r => resolve(new Output('Done').setValues(r)))
+                    .catch(err => reject(new Output().setError(err)));
             });
         }
     )
@@ -42,8 +43,8 @@ module.exports = [
         (message, data) => {
             return new Promise((resolve, reject) => {
                 require('../games/features/players/playerdata').profile.newFile(message.author.id)
-                    .then(r => resolve({ content: ['Done'] }))
-                    .catch(err => reject({ content: [err.message] }));
+                    .then(r => resolve(new Output('Done').setValues(r)))
+                    .catch(err => reject(new Output().setError(err)));
             });
         }
     )
@@ -54,7 +55,7 @@ module.exports = [
         (message, data) => {
             return new Promise((resolve, reject) => {
                 require('../games/features/players/playerdata').profile.save();
-                resolve({ content: ['Done'] });
+                resolve(new Output('Done').setValues(r));
             });
         }
     )

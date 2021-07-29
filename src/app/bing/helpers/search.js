@@ -1,8 +1,5 @@
-const Discord = require('discord.js');
+const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 const ImageScraper = require('bing-image-scraper');
-
-const commandFormat = require('../../common/bot/helpers/global/commandFormat');
-const MessageData = require('../../objects/MessageData');
 
 const bing = new ImageScraper();
 
@@ -61,9 +58,9 @@ function search(data) {
                     count++;
                 }
 
-                resolve(commandFormat.valid([res], [{ files: result_arr }]));
+                resolve(new Output({ files: result_arr }).setValues(res));
             })
-            .catch(e => reject(commandFormat.error([e], [])));
+            .catch(err => reject(new Output().setError(err)));
     });
 }
 

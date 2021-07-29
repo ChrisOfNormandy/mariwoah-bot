@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const {Discord} = require('@chrisofnormandy/mariwoah-bot');
 
 const cache = require('./filter/cache');
 

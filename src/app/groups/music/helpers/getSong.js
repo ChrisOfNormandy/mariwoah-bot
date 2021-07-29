@@ -1,9 +1,6 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
+const { Discord, MessageData, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
-const { chatFormat } = require('../../../helpers/commands');
-
-const ytSearch = require('yt-search');
+const ytSearch = require('@chrisofnormandy/mariwoah-bot').youtube.search;
 const shuffle = require('../../../helpers/shuffle');
 
 /**

@@ -4,7 +4,7 @@ const append = require('./append');
 function byName(message, data) {
     return new Promise((resolve, reject) => {
         getSong.byName(message, data.arguments.join(' '), data)
-            .then(song => resolve(append(message, [song])))
+            .then(song => resolve(append(message, [song], data.flags)))
             .catch(e => reject(e));
     });
 }

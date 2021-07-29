@@ -1,6 +1,6 @@
+const { Command, Output } = require('@chrisofnormandy/mariwoah-bot');
+
 const groups = require('../../groups');
-const Command = require('../../objects/Command');
-const Output = require('../../objects/Output');
 
 let plList = [
     new Command(
@@ -50,7 +50,7 @@ let plList = [
 ];
 
 let playlistCommand = new Command('music');
-playlistCommand.setFunction((message, data) => { 
+playlistCommand.setFunction((message, data) => {
     let sc = playlistCommand.getSubcommand(data.subcommand);
     return !!sc
         ? sc.run(message, data)
@@ -68,7 +68,7 @@ module.exports = [
         'music',
         (message, data) => groups.music.queue.add(message, data)
     )
-        .setRegex(/(play)|(p)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
+        .setRegex(/(play)|(p\b)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
         .setCommandDescription('Adds a video, or list of videos, to the music queue.')
         .setArgumentDescription(0, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.'),
     new Command(
@@ -99,20 +99,22 @@ module.exports = [
         'music',
         (message, data) => groups.music.queue.list(message, data)
     )
-        .setRegex(/(queue)|(q)/)
+        .setRegex(/(queue)|(q\b)/)
         .setCommandDescription('Lists the videos in the active queue.'),
     new Command(
         'music',
         (message, data) => groups.music.queue.pause(message)
     )
         .setRegex(/(pause)/)
-        .setCommandDescription('Pauses the active queue.'),
+        .setCommandDescription('Pauses the active queue.')
+        .disable(),
     new Command(
         'music',
         (message, data) => groups.music.queue.resume(message)
     )
         .setRegex(/(resume)/)
-        .setCommandDescription('Resumes the paused, active queue.'),
+        .setCommandDescription('Resumes the paused, active queue.')
+        .disable(),
     new Command(
         'music',
         (message, data) => groups.music.song.info(message, data)

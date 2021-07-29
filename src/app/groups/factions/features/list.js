@@ -1,5 +1,4 @@
-const Discord = require('discord.js');
-const { Output } = require('../../../helpers/commands');
+const { Discord, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const getList = require('./getList');
 
@@ -11,7 +10,7 @@ const getList = require('./getList');
 module.exports = (message) => {
     return new Promise((resolve, reject) => {
         getList(message.guild)
-            .then(names => {                
+            .then(names => {
                 let list = '';
                 names.forEach((name, index) => {
                     list += `${name}${index < names.length - 1 ? '\n' : ''}`;

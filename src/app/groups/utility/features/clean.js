@@ -1,7 +1,4 @@
-const Discord = require('discord.js');
-const MessageData = require('../../../objects/MessageData');
-
-const { chatFormat, Output } = require('../../../helpers/commands');
+const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -49,7 +46,7 @@ module.exports = (message, data) => {
                         const userMessagesDeleted = userMessages.array().length;
 
                         channel.bulkDelete(userMessages)
-                            .then(msgs => resolve(new Output(chatFormat.response.cleanChat.user(user, userMessagesDeleted)).setValues(msgs, userMessagesDeleted).setOption('clear', 10)))
+                            .then(msgs => resolve(new Output(chatFormat.response.cleanChat.user(user, userMessagesDeleted)).setValues(msgs, userMessagesDeleted).setOption('clear', {delay: 10})))
                             .catch(err => reject(new Output().setError(err)));
                     });
                 }
@@ -75,7 +72,7 @@ module.exports = (message, data) => {
                     Promise.all(arr)
                         .then(msgs => resolve(new Output(chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted))
                             .setValues(msgs, botMessagesDeleted, cmdMessagesDeleted)
-                            .setOption('clear', 10)))
+                            .setOption('clear', { delay: 10 })))
                         .catch(err => reject(new Output().setError(err)));
                 }
             })
