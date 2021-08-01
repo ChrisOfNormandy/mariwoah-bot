@@ -9,7 +9,8 @@ module.exports = (client, message, prefix, devEnabled) => {
         const f = cmdList.getList().filter((cmd) => { 
             if (!cmd.getRegex().command)
                 return;
-            return new RegExp('~(' + cmd.getRegex().command.source + ')').test(message.content); 
+            let regexStr = `${prefix}(${cmd.getRegex().command.source})`;
+            return new RegExp(regexStr).test(message.content); 
         });
 
         let cmdIndex = 0;
