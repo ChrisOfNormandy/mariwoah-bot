@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "CommonJS",
+        "declaration": true,
+        "strict": true,
+        "outDir": "./typings",
+    },
+    "include": ["src/**.*"],
+    "exclude": ["node_modules"]
+}

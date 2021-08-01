@@ -1,6 +1,6 @@
 const CommandGroup = require('./objects/CommandGroup');
 
-let groups = {
+const groups = {
     /**
      * @type {Map<string, CommandGroup>}
      */

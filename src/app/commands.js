@@ -1,7 +1,7 @@
-const Command = require('./app/objects/Command');
+const Command = require('./objects/Command');
 
-const groups = require('./app/groups');
-const help = require('./app/help');
+const groups = require('./groups');
+const help = require('./help');
 
 /**
  * 

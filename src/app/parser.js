@@ -1,4 +1,4 @@
-const MessageData = require('./app/objects/MessageData');
+const MessageData = require('./objects/MessageData');
 
 const cmdList = require('./commands');
 

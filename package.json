@@ -1,9 +1,19 @@
 {
   "name": "@chrisofnormandy/mariwoah-bot",
-  "version": "0.0.1",
-  "description": "Bot import package for Discord.",
-  "main": "index.js",
   "author": "ChrisOfNormandy",
+  "version": "0.0.2",
+  "description": "Bot import package for Discord.",
+  "main": "./src/index",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": [
+      {
+        "require": "./src/index.js",
+        "import": "./src/index.ts"
+      },
+      "./src/index.js"
+    ]
+  },
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
     "abort-controller": "^3.0.0",
@@ -30,11 +40,15 @@
   },
   "repository": {},
   "scripts": {
-    "start": "npm run lint & nodemon",
-    "lint": "jslint **/*.js"
+    "lint": "jslint **/*.js",
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "publish": "npm run lint & npm run prepublish"
   },
   "license": "UNLICENSED",
   "devDependencies": {
-    "jshint": "^2.13.0"
+    "@types/yt-search": "^2.3.2",
+    "jshint": "^2.13.0",
+    "typescript": "^4.3.5"
   }
 }
