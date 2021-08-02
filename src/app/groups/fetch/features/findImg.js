@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
 
 const search = require('duckduckgo-images-api').image_search;
 
@@ -27,7 +28,7 @@ module.exports = (data) => {
                     .setDescription(`Image ${index + 1} of ${res.length}`)
                     .setFooter(`Source: ${img.url}\nFetched from ${img.source} via duckduckgo.`);
 
-                resolve(new Output(embed).setValues(img));
+                resolve(new Output({embed}).setValues(img));
             })
             .catch(err => reject(new Output().setError(err)));
     });

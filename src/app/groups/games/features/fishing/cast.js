@@ -1,4 +1,5 @@
-const {Discord, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const loot_table = require('./loot_table.json');
 const playerdata = require('../players/playerdata');

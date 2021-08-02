@@ -1,4 +1,4 @@
-const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 const ImageScraper = require('bing-image-scraper');
 
 const bing = new ImageScraper();

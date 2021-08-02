@@ -1,5 +1,6 @@
-const { Discord, MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
-const ytdl = require('@chrisofnormandy/mariwoah-bot').youtube.ytdl;
+const Discord = require('discord.js');
+const ytdl = require('ytdl-core');
+const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const fs = require('fs');
 const getSong = require('../../helpers/getSong');

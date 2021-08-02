@@ -1,4 +1,5 @@
-const {Discord, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -15,7 +16,7 @@ module.exports = (message, playlistName) => {
                     .setColor(chatFormat.colors.byName.green)
                     .addField('Successfully created playlist:', playlistName);
 
-                resolve(new Output(embed).setValues(res));
+                resolve(new Output({embed}).setValues(res));
             })
             .catch(err => {
                 let embed = new Discord.MessageEmbed()
@@ -23,7 +24,7 @@ module.exports = (message, playlistName) => {
                     .setColor(chatFormat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
 
-                reject(new Output(embed).setError(err));
+                reject(new Output({embed}).setError(err));
             });
     });
 };

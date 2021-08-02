@@ -1,4 +1,5 @@
-const {Discord, MessageData, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const addSong = require('./features/addSong');
 const queue = require('../queue/map');
@@ -30,7 +31,7 @@ function _addSong(message, data) {
                                 .setURL(song.url)
                                 .addField(':writing_hand: Success!', `Added song to the playlist.`);
 
-                            resolve(new Output(embed).setValues(song));
+                            resolve(new Output({embed}).setValues(song));
                         })
                         .catch(err => reject(new Output().setError(err)));
                 }
@@ -49,14 +50,14 @@ function _addSong(message, data) {
                                 .setURL(song.url)
                                 .addField(':writing_hand: Success!', `Added song to the playlist.`);
 
-                            resolve(new Output(embed).setValues(song));
+                            resolve(new Output({embed}).setValues(song));
                         }
                         else {
                             embed.setTitle(`Error`)
                                 .setColor(chatFormat.colors.byName.red)
                                 .addField(':interrobang: Oops!', 'Failed to add song to playlist.');
 
-                            resolve(new Output(embed));
+                            resolve(new Output({embed}));
                         }
                     })
                     .catch(err => reject(new Output().setError(err)));

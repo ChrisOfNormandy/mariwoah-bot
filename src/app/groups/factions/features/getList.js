@@ -1,4 +1,4 @@
-const {Discord} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
 const path = require('path');
 
 const { s3 } = require('../../../../aws/helpers/adapter');

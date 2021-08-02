@@ -1,4 +1,5 @@
-const { Discord, MessageData, Command, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Command, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -210,5 +211,5 @@ module.exports = (data, list) => {
         });
     }
 
-    return Promise.resolve(new Output(embed).setValues(list));
+    return Promise.resolve(new Output({embed}).setValues(list));
 };

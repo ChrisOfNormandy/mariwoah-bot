@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
 
@@ -11,7 +12,7 @@ const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         getEmbedSongInfo.songInfo(message, data)
-            .then(embed => resolve(new Output(embed)))
+            .then(embed => resolve(new Output({embed})))
             .catch(err => reject(new Output(chatFormat.response.music.info.error()).setError(err)));
     });
 };

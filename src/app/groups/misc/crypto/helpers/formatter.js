@@ -1,4 +1,5 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const api = require('../api');
 
@@ -18,7 +19,7 @@ module.exports = (coin, name) => {
             .then(data => {
                 if (!data) {
                     embed.addField('Uh oh', 'Failed to get current stats.');
-                    resolve(new Output(embed).setValues(data));
+                    resolve(new Output({embed}).setValues(data));
                 }
                 else {
                     let str = '';
@@ -36,7 +37,7 @@ module.exports = (coin, name) => {
                     }
                     embed.addField(`${name} stats from ${data.startTime.replace('T', ' ')} to ${data.endTime.replace('T', ' ')}:`, str);
                     embed.setDescription(`**$ ${v[v.length - 1][1].toFixed(4)}**`);
-                    resolve(new Output(embed).setValues(data));
+                    resolve(new Output({embed}).setValues(data));
                 }
             })
             .catch(err => reject(new Output().setError(err)));

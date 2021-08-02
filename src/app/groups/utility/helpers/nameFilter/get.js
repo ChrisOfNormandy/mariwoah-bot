@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const { s3 } = require('../../../../../aws/helpers/adapter');
 
@@ -37,7 +38,7 @@ module.exports = (message, data) => {
 
                 embed.addField('List:', str);
 
-                resolve(new Output(embed).setValues(json));
+                resolve(new Output({embed}).setValues(json));
             })
             .catch(err => {
                 if (err.code == 'NoSuchKey') {

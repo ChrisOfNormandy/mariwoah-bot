@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 const path = require('path');
 
 const { s3 } = require('../../../../../../aws/helpers/adapter');
@@ -34,7 +35,7 @@ function byName(guild_id, name) {
 
                 if (!l.length) {
                     embed.addField(`Nothing found.`, `You can add songs using:\n> playlist add ${name} {song title / youtube url(s)}`);
-                    resolve(new Output(embed).setValues(l));
+                    resolve(new Output({embed}).setValues(l));
                 }
                 else {
                     s3.object.get('mariwoah', `guilds/${guild_id}/playlists/${name}.json`)
@@ -49,7 +50,7 @@ function byName(guild_id, name) {
                                 index++;
                             }
 
-                            resolve(new Output(embed).setValues(list));
+                            resolve(new Output({embed}).setValues(list));
                         })
                         .catch(err => reject(new Output().setError(err)));
                 }
@@ -78,7 +79,7 @@ function all(guild_id) {
                     i++;
                 });
 
-                resolve(new Output(embed).setValues(list));
+                resolve(new Output({embed}).setValues(list));
             })
             .catch(err => reject(new Output().setError(err)));
     });

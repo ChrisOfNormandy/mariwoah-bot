@@ -1,5 +1,6 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
-const ytdl = require('@chrisofnormandy/mariwoah-bot').youtube.ytdl;
+const Discord = require('discord.js');
+const ytdl = require('ytdl-core');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./map');
 const stop = require('./stop');

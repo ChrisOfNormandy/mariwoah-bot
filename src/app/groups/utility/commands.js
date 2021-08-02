@@ -124,5 +124,40 @@ module.exports = [
     )
         .setRegex(/(splitvc)|(svc)/, /\s(.+)/, [1])
         .setCommandDescription('Splits the VC into two groups.')
+        .setAdminOnly(),
+    new Command(
+        'utility',
+        (message, data) => groups.utility.roleHandler.add(message, data)
+    )
+        .setRegex(/(setrole)|(addrole)/, /\s(<USER:(\d+)>)\s(<ROLE:(\d+)>)(\s((\d{1,2}:){1,3}\d+))?/, [2, 4, 6])
+        .setCommandDescription('Give a user a role.')
+        .setAdminOnly(),
+    new Command(
+        'utility',
+        (message, data) => groups.utility.roleHandler.remove(message, data)
+    )
+        .setRegex(/(removerole)|(rmrole)|(delrole)/, /\s(<USER:(\d+)>)\s(<ROLE:(\d+)>)/, [2, 4])
+        .setCommandDescription('Remove a user role.')
+        .setAdminOnly(),
+    new Command(
+        'utility',
+        (message, data) => groups.utility.roleHandler.create(message, data)
+    )
+        .setRegex(/(createrole)|(newrole)/, /\s(.*)/, [1])
+        .setCommandDescription('Create a new role.')
+        .setAdminOnly(),
+    new Command(
+        'utility',
+        (message, data) => groups.utility.roleHandler.getTimedRoles(message, data)
+    )
+        .setRegex(/(gettimedroles)|(gtroles)/)
+        .setCommandDescription('Get timed roles.')
+        .setAdminOnly(),
+    new Command(
+        'utility',
+        (message, data) => groups.utility.roleHandler.clearTimedRoles(message, data)
+    )
+        .setRegex(/(cleartimedroles)|(cleartr)/)
+        .setCommandDescription('Get timed roles.')
         .setAdminOnly()
 ];

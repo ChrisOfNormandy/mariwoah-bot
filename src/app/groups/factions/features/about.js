@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const cache = require('./cache');
 
@@ -24,7 +25,7 @@ module.exports = (message, data) => {
 
                 faction.getMembers().forEach(user => embed.addField(user.getName(), user.getRoles().join(', ') || 'No roles.'));
 
-                resolve(new Output(embed).setValues(faction));
+                resolve(new Output({embed}).setValues(faction));
             })
             .catch(err => reject(new Output().setError(err)));
     });

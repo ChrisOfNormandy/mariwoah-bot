@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const profile = require('../playerdata/profile');
 
@@ -22,7 +23,7 @@ module.exports = (message, data) => {
 
                 embed.addField('Skills', skills);
 
-                resolve(new Output(embed).setValues(profileData));
+                resolve(new Output({embed}).setValues(profileData));
             })
             .catch(err => reject(new Output().setError(err)));
     });

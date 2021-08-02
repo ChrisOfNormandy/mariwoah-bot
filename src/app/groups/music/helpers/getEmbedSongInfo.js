@@ -1,4 +1,5 @@
-const {Discord, MessageData, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const getSong = require('./getSong');
 const queue = require('../features/queue/map');

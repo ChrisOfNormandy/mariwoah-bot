@@ -1,4 +1,4 @@
-const { Discord } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
 const { FactionMember, Faction, faction } = require('../../../objects/Faction');
 const getList = require('./getList');
 

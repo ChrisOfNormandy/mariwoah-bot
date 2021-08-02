@@ -1,4 +1,5 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -66,7 +67,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
-            resolve(new Output(embed).setValues(user));
+            resolve(new Output({embed}).setValues(user));
         });
     },
 
@@ -83,7 +84,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
-            resolve(new Output(embed).setValues(user));
+            resolve(new Output({embed}).setValues(user));
         });
     }
 };

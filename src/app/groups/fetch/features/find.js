@@ -1,4 +1,5 @@
-const { Discord, MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const ddg = require('node-duckduckgo').duckIt;
 
@@ -111,7 +112,7 @@ module.exports = (data) => {
                 if (!embed.fields.length)
                     embed.addField('Nothing found.', 'Try a different search term.');
 
-                resolve(new Output(embed));
+                resolve(new Output({embed}));
             })
             .catch(err => reject(new Output().setError(err)));
     });

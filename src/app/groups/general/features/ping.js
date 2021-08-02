@@ -1,4 +1,5 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -16,7 +17,7 @@ module.exports = (message) => {
                 embed.addField('Message latency', `${msg.createdTimestamp - message.createdTimestamp}ms.`);
 
                 msg.delete()
-                    .then(() => resolve(new Output(embed).setValues(msg.createdTimestamp - message.createdTimestamp).setOption('clear', { delay: 10 })))
+                    .then(() => resolve(new Output({embed}).setValues(msg.createdTimestamp - message.createdTimestamp).setOption('clear', { delay: 10 })))
                     .catch(err => reject(new Output().setError(err)));
             })
             .catch(err => reject(new Output().setError(err)));

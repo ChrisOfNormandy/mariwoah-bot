@@ -15,6 +15,9 @@ const crypto = [
         .setArgumentDescription(0, 'Coin name', 'The coin name, such as BTC, DOGE or ETH.')
 ];
 
+/**
+ * @type {Command[]}
+ */
 module.exports = {
     crypto
 };

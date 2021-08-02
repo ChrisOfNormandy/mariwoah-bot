@@ -10,6 +10,7 @@ module.exports = {
     clean: require('./features/clean'),
     colorMe: require('./features/colorMe'),
     roll: require('./features/roll'),
+    roleHandler: require('./features/roleHandler'),
     shuffle: require('./features/shuffle'),
     splitVc: require('./features/splitVc'),
     vcRoulette: require('./features/vcRoulette')

@@ -1,4 +1,4 @@
-const {Discord} = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
 
 const { chatFormat } = require('../../../helpers/commands');
 

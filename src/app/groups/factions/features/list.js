@@ -1,4 +1,5 @@
-const { Discord, Output } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const getList = require('./getList');
 

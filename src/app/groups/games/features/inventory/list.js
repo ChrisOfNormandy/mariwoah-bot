@@ -1,4 +1,5 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const { data } = require('../players/playerdata');
 
@@ -39,7 +40,7 @@ module.exports = (userID, filter = null) => {
 
                 embed.addField('List', str || 'Nothing here.');
 
-                resolve(new Output(embed).setValues(list));
+                resolve(new Output({embed}).setValues(list));
             })
             .catch(err => reject(new Output().setError(err)));
     });

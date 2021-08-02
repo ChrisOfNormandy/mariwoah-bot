@@ -1,4 +1,5 @@
-const { Discord, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const Discord = require('discord.js');
+const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
 const shuffle = require('../../../../helpers/shuffle');
 const queue = require('./map');
@@ -28,12 +29,12 @@ function f(message, songs, flags, startFlag) {
 
             if (startFlag) {
                 getEmbed.single('Now playing...', queue.get(message.guild.id), 0, fromPlaylist)
-                    .then(embed => resolve(new Output(embed).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', { delay: queue.get(message.guild.id).songs[0].duration.seconds })))
+                    .then(embed => resolve(new Output({embed}).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', { delay: queue.get(message.guild.id).songs[0].duration.seconds })))
                     .catch(err => reject(new Output().setError(err)));
             }
             else {
                 getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1, fromPlaylist)
-                    .then(embed => resolve(new Output(embed).setValues(queue.get(message.guild.id).songs)))
+                    .then(embed => resolve(new Output({embed}).setValues(queue.get(message.guild.id).songs)))
                     .catch(err => reject(new Output().setError(err)));
             }
         }
