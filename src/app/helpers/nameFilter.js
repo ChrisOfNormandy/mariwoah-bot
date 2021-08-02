@@ -110,7 +110,7 @@ function kick(member, reason = null) {
  * @param {boolean} changeNickname 
  * @param {boolean} ignoreNickname 
  * @param {boolean} ignoreAdminBypass 
- * @param {string[]} logChannels
+ * @param {{guild: string, channel: string}[]} logChannels
  * @returns {Promise<boolean>}
  */
 module.exports = (bucket, member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false, logChannels = []) => {
@@ -138,7 +138,7 @@ module.exports = (bucket, member, changeNickname = true, ignoreNickname = false,
 
 
                     ban(member)
-                        .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been banned for name violation.`)))
+                        .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel.channel).send(`<@!${member.user.id}> has been banned for name violation.`)))
                         .catch(err => console.error(err));
 
                     resolve(false);
@@ -155,7 +155,7 @@ module.exports = (bucket, member, changeNickname = true, ignoreNickname = false,
 
 
                     kick(member)
-                        .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been kicked for name violation.`)))
+                        .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel.channel).send(`<@!${member.user.id}> has been kicked for name violation.`)))
                         .catch(err => console.error(err));
 
                     resolve(false);
@@ -180,10 +180,10 @@ module.exports = (bucket, member, changeNickname = true, ignoreNickname = false,
                                 console.error(err);
                                 resolve(false);
                             })
-                            .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`)));
+                            .then(() => logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel.channel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`)));
                     }
                     else {
-                        logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`));
+                        logChannels.forEach(logChannel => member.guild.channels.cache.get(logChannel.channel).send(`<@!${member.user.id}> has been issued a warning for name violation.\n> ${name}`));
                         resolve(false);
                     }
                 }

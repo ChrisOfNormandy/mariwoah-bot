@@ -12,27 +12,17 @@ const logging = require('./objects/helpers/logging');
 
 const { byTimestamp } = require('./helpers/getAge');
 
+/**
+ * 
+ * @param {*} clientConfig 
+ * @param {boolean} devEnabled 
+ * @returns {Promise<Discord.Client>}
+ */
 function startup(clientConfig, devEnabled = false) {
     const client = new Discord.Client();
     client.login(clientConfig.auth.token);
 
     const prefix = clientConfig.settings.commands.prefix || '/';
-
-    client.on('ready', () => {
-        console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
-        client.user.setActivity(`chat. | ~? | ~help`, { type: 'WATCHING' });
-
-        aws.login(clientConfig.auth.aws)
-            .then(res => {
-                console.log(`Logged in to AWS using:`, res.credentials.accessKeyId);
-
-                aws_helpers.s3.setup(res.aws);
-            })
-            .catch(err => {
-                console.error(err);
-                console.log('Could not log in to AWS.');
-            });
-    });
 
     if (clientConfig.settings.filters.name.enabled) {
         client.on('guildMemberAdd', member => {
@@ -47,7 +37,7 @@ function startup(clientConfig, devEnabled = false) {
             ) {
                 clientConfig.settings.logging.channels.forEach(logChannel => {
                     try {
-                        oldMember.guild.channels.cache.get(logChannel).send(
+                        oldMember.guild.channels.cache.get(logChannel.channel).send(
                             `${oldMember.user.username}${oldMember.nickname !== null ? `, nickname ${oldMember.nickname}, ` : ''} updated their name.\n` +
                             `Current: <@${newMember.user.id}>${newMember.nickname === null ? '' : `, nickname ${newMember.nickname}`}.`
                         );
@@ -64,9 +54,9 @@ function startup(clientConfig, devEnabled = false) {
                                 try {
                                     clientConfig.settings.logging.channels.forEach(logChannel => {
                                         if (newMember.nickname === null)
-                                            oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} removed their nickname.`);
+                                            oldMember.guild.channels.get(logChannel.channel).send(`${oldMember.user.username} removed their nickname.`);
                                         else
-                                            oldMember.guild.channels.get(logChannel).send(`${oldMember.user.username} changed their nickname to ${newMember.nickname}`);
+                                            oldMember.guild.channels.get(logChannel.channel).send(`${oldMember.user.username} changed their nickname to ${newMember.nickname}`);
                                     });
                                 }
                                 catch (err) {
@@ -124,7 +114,25 @@ function startup(clientConfig, devEnabled = false) {
         }
     });
 
-    return client;
+    return new Promise((resolve, reject) => {
+        client.on('ready', () => {
+            console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
+            client.user.setActivity(`chat. | ~? | ~help`, { type: 'WATCHING' });
+
+            aws.login(clientConfig.auth.aws)
+                .then(res => {
+                    console.log(`Logged in to AWS using:`, res.credentials.accessKeyId);
+
+                    aws_helpers.s3.setup(res.aws);
+                })
+                .catch(err => {
+                    console.error(err);
+                    console.log('Could not log in to AWS.');
+                });
+
+            resolve(client);
+        });
+    });
 }
 
 module.exports = {

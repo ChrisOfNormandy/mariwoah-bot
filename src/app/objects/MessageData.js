@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
 const flagRegex = /\s-[a-zA-Z]+\b/g;
 const userMentionsRegex = /<@!\d{18}>/g;
+const roleMentionsRegex = /<@&\d{18}>/g;
 
 class MessageData {
     /**
@@ -17,6 +18,14 @@ class MessageData {
             for (let m in mentions) {
                 this.mentions.push(mentions[m].match(/\d{18}/)[0]);
                 str = str.replace(mentions[m], `<USER:${m}>`);
+            }
+        }
+
+        let roles = content.match(roleMentionsRegex);
+        if (roles !== null) {
+            for (let m in roles) {
+                this.roles.push(roles[m].match(/\d{18}/)[0]);
+                str = str.replace(roles[m], `<ROLE:${m}>`);
             }
         }
 
@@ -99,6 +108,7 @@ class MessageData {
             integer: {}
         };
         this.mentions = [];
+        this.roles = [];
         this.admin = message.member.hasPermission('ADMINISTRATOR');
 
         if (message.content.split(' ').length > 1)

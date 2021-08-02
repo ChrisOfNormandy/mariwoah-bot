@@ -1,7 +1,16 @@
+const Discord = require('discord.js');
 const MessageData = require('./objects/MessageData');
 
 const cmdList = require('./commands');
 
+/**
+ * 
+ * @param {Discord.Client} client 
+ * @param {Discord.Message} message 
+ * @param {string} prefix 
+ * @param {boolean} devEnabled 
+ * @returns {Promise<*>}
+ */
 module.exports = (client, message, prefix, devEnabled) => {
     if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix) {
         let data = new MessageData(client, message, prefix, devEnabled);
