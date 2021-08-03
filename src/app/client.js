@@ -83,7 +83,7 @@ function startup(clientConfig, devEnabled = false) {
                     .then(pass => {
                         if (pass)
                             parser(client, message, prefix, devEnabled)
-                                .then(() => {
+                                .then(response => {
                                     let end = Date.now();
                                     if (clientConfig.settings.dev.enabled)
                                         console.log(byTimestamp(start, end));
@@ -101,10 +101,12 @@ function startup(clientConfig, devEnabled = false) {
             }
             else {
                 parser(client, message, prefix, devEnabled)
-                    .then(() => {
+                    .then(response => {
                         let end = Date.now();
-                        if (clientConfig.settings.dev.enabled)
+                        if (clientConfig.settings.dev.enabled) {
                             console.log(byTimestamp(start, end));
+                            console.log(response);
+                        }
                     })
                     .catch(err => {
                         if (err !== null)

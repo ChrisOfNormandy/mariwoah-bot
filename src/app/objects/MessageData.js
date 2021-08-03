@@ -1,9 +1,19 @@
 const Discord = require('discord.js');
+const Output = require('./Output');
 
 const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
+
 const flagRegex = /\s-[a-zA-Z]+\b/g;
+
 const userMentionsRegex = /<@!\d{18}>/g;
 const roleMentionsRegex = /<@&\d{18}>/g;
+
+const variableRegex = /\{\w\}/g;
+const variableRegex_ = /\{(\w)\}/;
+
+const varOutputRegex = /(.+?)\s>\s(\w)/;
+
+const pipedCommandRegex = /(.+?)\s\|\s(.+)/;
 
 class MessageData {
     /**
@@ -54,6 +64,19 @@ class MessageData {
             }
         }
 
+        const variables = content.match(variableRegex);
+        if (variables !== null) {
+            for (let v in variables) {
+                let val = variables[v].match(variableRegex_)[1];
+                this.variables.push(val);
+
+                console.log(val, variables[v], this.vars, this.vars.get(val));
+
+                if (this.vars.has(val) && this.vars.get(val) !== undefined)
+                    str = str.replace(variables[v], this.vars.get(val));
+            }
+        }
+
         this.content = str;
     }
 
@@ -92,29 +115,61 @@ class MessageData {
     /**
      * 
      * @param {Discord.Client} client 
-     * @param {Discord.Message} message 
+     * @param {string} content 
+     * @param {Discord.GuildMember} member 
+     * @param {string} prefix 
+     * @param {Output} ingest
+     * @param {MessageData} ingestData
      */
-    constructor(client, message, prefix = "/") {
+    constructor(client, content, member, prefix = "/", ingest = undefined, ingestData = undefined) {
         this.client = client;
 
-        this.arguments = [];
-        this.command = null;
         this.prefix = prefix;
+        this.content = content;
+
+        this.command = null;
         this.subcommand = null;
-        this.content = message.content;
-        this.urls = [];
-        this.flags = new Map();
-        this.parameters = {
-            integer: {}
-        };
+
+        this.arguments = [];
+        this.variables = [];
         this.mentions = [];
         this.roles = [];
-        this.admin = message.member.hasPermission('ADMINISTRATOR');
+        this.urls = [];
 
-        if (message.content.split(' ').length > 1)
-            this.build(message.content);
+        this.flags = new Map();
+        this.vars = new Map();
+        this.outputs = [];
+        
+        this.admin = member.hasPermission('ADMINISTRATOR');
 
         this.hasData = true;
+
+        this.ingest = ingest;
+
+        this.pipedCommand = null;
+
+        if (ingestData !== undefined) {
+            console.log('>>>', ingestData.vars);
+            ingestData.vars.forEach((v, k) => this.vars.set(k, v));
+        }
+
+        let v = this.content.match(varOutputRegex);
+        if (v !== null) {
+            this.content = this.content.replace(v[0], v[1]);
+            this.vars.set(v[2], undefined);
+            this.outputs.push(v[2]);
+        }
+
+        let pipes = this.content.match(pipedCommandRegex);
+        if (pipes !== null) {
+            this.content = pipes[1];
+            this.pipedCommand = pipes[2];
+        }
+
+        if (this.content.split(' ').length > 1)
+            this.build(this.content);
+
+        console.log('--->', this.content)
     }
 }
 
