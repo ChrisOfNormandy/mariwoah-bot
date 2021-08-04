@@ -168,8 +168,6 @@ class MessageData {
 
         if (this.content.split(' ').length > 1)
             this.build(this.content);
-
-        console.log('--->', this.content)
     }
 }
 

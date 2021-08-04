@@ -5,5 +5,6 @@ import Output from './app/objects/Output';
 import client from './app/client';
 import groups from './app/groups';
 import chatFormat from './app/helpers/commands/chatFormat';
+import helpers from './app/helpers';
 import aws from './aws/helpers/adapter';
-export { Command, CommandGroup, MessageData, Output, client, groups, chatFormat, aws };
+export { Command, CommandGroup, MessageData, Output, client, groups, chatFormat, helpers, aws };

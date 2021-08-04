@@ -65,7 +65,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
                 let sc = null;
 
                 if (!!validCommands[index].subcommands.size) {
-                    sc = str.match(new RegExp(scRegX));
+                    sc = str.match(new RegExp(subCommandRegex));
 
                     if (sc !== null) {
                         str = str.replace(sc[0], '');

@@ -1,3 +1,3 @@
 module.exports = {
-    s3: require('./s3/index')
+    S3Helper: require('./s3/s3Helper')
 };

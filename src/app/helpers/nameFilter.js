@@ -2,8 +2,6 @@ const Discord = require('discord.js');
 
 const cache = require('./filter/cache');
 
-const filterBypass = require('./filter/bypassRoleNames.json');
-
 const getFilter = require('./filter/getName');
 
 function getFilters(bucket, guildId) {
@@ -114,7 +112,7 @@ function kick(member, reason = null) {
  * @returns {Promise<boolean>}
  */
 module.exports = (bucket, member, changeNickname = true, ignoreNickname = false, ignoreAdminBypass = false, logChannels = []) => {
-    if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES') || !!member.roles.cache.filter(role => { return filterBypass.includes(role.name.toLowerCase()); }).size))
+    if (!ignoreAdminBypass && (member.hasPermission('ADMINISTRATOR') || member.hasPermission('MANAGE_MESSAGES')))
         return Promise.resolve(true);
 
     return new Promise((resolve, reject) => {

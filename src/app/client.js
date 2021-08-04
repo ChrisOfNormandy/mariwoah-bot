@@ -6,8 +6,6 @@ const aws = require('../aws/aws-link');
 const chatFilter = require('./helpers/chatFilter');
 const nameFilter = require('./helpers/nameFilter');
 
-const aws_helpers = require('../aws/helpers/adapter');
-
 const logging = require('./objects/helpers/logging');
 
 const { byTimestamp } = require('./helpers/getAge');
@@ -16,7 +14,7 @@ const { byTimestamp } = require('./helpers/getAge');
  * 
  * @param {*} clientConfig 
  * @param {boolean} devEnabled 
- * @returns {Promise<Discord.Client>}
+ * @returns {Promise<{bot: Discord.Client, AWS: AWS}>}
  */
 function startup(clientConfig, devEnabled = false) {
     const client = new Discord.Client();
@@ -74,49 +72,52 @@ function startup(clientConfig, devEnabled = false) {
         // });
     }
 
-    client.on('message', (message) => {
-        if (!message.author.bot) {
-            let start = Date.now();
-
-            if (clientConfig.settings.filters.chat.enabled) {
-                chatFilter(clientConfig.settings.aws.s3.bucket, message)
-                    .then(pass => {
-                        if (pass)
-                            parser(client, message, prefix, devEnabled)
-                                .then(response => {
-                                    let end = Date.now();
-                                    if (clientConfig.settings.dev.enabled)
-                                        console.log(byTimestamp(start, end));
-                                })
-                                .catch(err => {
-                                    if (err !== null)
-                                        logging.error(err, message.content);
-                                });
-                        else {
-                            message.delete()
-                                .catch(err => message.channel.send(err.message));
-                        }
-                    })
-                    .catch(err => console.error(err));
-            }
-            else {
-                parser(client, message, prefix, devEnabled)
-                    .then(response => {
-                        let end = Date.now();
-                        if (clientConfig.settings.dev.enabled) {
-                            console.log(byTimestamp(start, end));
-                            console.log(response);
-                        }
-                    })
-                    .catch(err => {
-                        if (err !== null)
-                            logging.error(err, message.content);
-                    });
-            }
-        }
-    });
-
     return new Promise((resolve, reject) => {
+        client.on('message', (message) => {
+            if (!message.author.bot) {
+                let start = Date.now();
+
+                if (clientConfig.settings.filters.chat.enabled) {
+                    chatFilter(clientConfig.settings.aws.s3.bucket, message)
+                        .then(pass => {
+                            if (pass)
+                                parser(client, message, prefix, devEnabled)
+                                    .then(response => {
+                                        let end = Date.now();
+
+                                        if (clientConfig.settings.dev.enabled) {
+                                            console.log(byTimestamp(start, end));
+                                            console.log(response);
+                                        }
+                                    })
+                                    .catch(err => {
+                                        if (err !== null)
+                                            logging.error(err, message.content);
+                                    });
+                            else {
+                                message.delete()
+                                    .catch(err => message.channel.send(err.message));
+                            }
+                        })
+                        .catch(err => console.error(err));
+                }
+                else {
+                    parser(client, message, prefix, devEnabled)
+                        .then(response => {
+                            let end = Date.now();
+                            if (clientConfig.settings.dev.enabled) {
+                                console.log(byTimestamp(start, end));
+                                console.log(response);
+                            }
+                        })
+                        .catch(err => {
+                            if (err !== null)
+                                logging.error(err, message.content);
+                        });
+                }
+            }
+        });
+
         client.on('ready', () => {
             console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`);
             client.user.setActivity(`chat. | ~? | ~help`, { type: 'WATCHING' });
@@ -125,14 +126,14 @@ function startup(clientConfig, devEnabled = false) {
                 .then(res => {
                     console.log(`Logged in to AWS using:`, res.credentials.accessKeyId);
 
-                    aws_helpers.s3.setup(res.aws);
+                    resolve({ AWS: res.AWS, bot: client });
                 })
                 .catch(err => {
                     console.error(err);
                     console.log('Could not log in to AWS.');
-                });
 
-            resolve(client);
+                    resolve({ aws: null, bot: client });
+                });
         });
     });
 }
