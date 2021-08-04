@@ -28,7 +28,7 @@ function field(song, useLink = false) {
  */
 module.exports = (message, data) => {
     if (!queue.has(message.guild.id))
-        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.queue.no_data())));
+        return Promise.reject(new Output().setError(new Error('No active queue.')));
 
     let q = queue.get(message.guild.id);
 
@@ -38,7 +38,7 @@ module.exports = (message, data) => {
 
     let count = 0;
     let video;
-    while (count < q.songs.length && count < chatFormat.response.music.queue.list_length) {
+    while (count < q.songs.length && count < 20) {
         video = field(q.songs[count], data.flags.has('l'));
 
         if (count == 0) {
@@ -58,7 +58,7 @@ module.exports = (message, data) => {
         count++;
     }
 
-    if (q.songs.length > chatFormat.response.music.queue.list_length)
+    if (q.songs.length > 20)
         embed.setFooter(`... and ${q.songs.length - count} others.`);
 
     return Promise.resolve(new Output({embed}).setValues(q.songs).setOption('clear', { delay: 30 }));

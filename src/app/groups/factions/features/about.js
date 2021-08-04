@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 
+const responses = require('../../../responses.json');
+
 const cache = require('./cache');
 
 /**
@@ -13,17 +15,17 @@ module.exports = (message, data) => {
     const factionName = data.arguments[0];
 
     if (!factionName)
-        return Promise.reject(new Output().setError(new Error('No faction name specified.')));
+        return Promise.reject(new Output().setError(new Error(responses.groups.factions.error.noFactionName)));
 
     return new Promise((resolve, reject) => {
         cache.get(message.guild, factionName)
             .then(faction => {
                 let embed = new Discord.MessageEmbed()
-                    .setTitle(`About ${faction.getName()}`)
-                    .setColor(faction.getRoleColor() || chatFormat.colors.byName.darkred)
+                    .setTitle(`${responses.groups.factions.command.about.embed.title}${faction.getName()}`)
+                    .setColor(faction.getRoleColor() || responses.groups.factions.command.about.embed.color.default)
                     .setThumbnail(faction.getIcon());
 
-                faction.getMembers().forEach(user => embed.addField(user.getName(), user.getRoles().join(', ') || 'No roles.'));
+                faction.getMembers().forEach(user => embed.addField(user.getName(), user.getRoles().join(', ') || responses.groups.factions.error.noRoles));
 
                 resolve(new Output({embed}).setValues(faction));
             })

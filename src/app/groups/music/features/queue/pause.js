@@ -27,11 +27,11 @@ function resume(message) {
     let activeQueue = queue.get(message.guild.id);
 
     if (!activeQueue || !activeQueue.dispatcher)
-        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.pause.no_stream())));
+        return Promise.reject(new Output().setError(new Error('No active queue.')));
 
     activeQueue.dispatcher.resume();
     
-    return Promise.resolve(new Output(chatFormat.response.music.pause.no()));
+    return Promise.resolve(new Output('Cannot pause.'));
 }
 
 module.exports = {

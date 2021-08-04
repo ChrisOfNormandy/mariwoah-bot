@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
-const getVc = require('../../../helpers/getVoiceChannel');
+const { getVoiceChannel } = helpers;
 
 /**
  * 
@@ -13,7 +13,7 @@ module.exports = (message) => {
     if (roll > 6)
         roll = 6;
 
-    let vc = getVc(message);
+    let vc = getVoiceChannel(message);
 
     if (!vc)
         return Promise.reject(new Output().setError(new Error("Must be in a voice channel to play VC Roulette.")));

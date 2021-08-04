@@ -24,13 +24,6 @@ const list = [
         .setRegex(/list/)
         .setCommandDescription('List all factions in the server.'),
     new Command(
-        'remove',
-        (message, data) => groups.factions.remove(message, data)
-    )
-        .setRegex(/remove/, /\s(\w+)/, [1])
-        .setCommandDescription('Deletes a faction from the server.')
-        .setArgumentDescription(0, 'Name', 'The name of a faction.'),
-    new Command(
         'setcolor',
         (message, data) => groups.factions.setColor(message, data)
     )

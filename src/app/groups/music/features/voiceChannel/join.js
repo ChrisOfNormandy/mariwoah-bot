@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
-const getVC = require('../../../../helpers/getVoiceChannel');
+const { getVoiceChannel} = helpers;
 
 /**
  * 
@@ -10,7 +10,7 @@ const getVC = require('../../../../helpers/getVoiceChannel');
  */
 module.exports = (message) => {
     return new Promise((resolve, reject) => {
-        const vc = getVC(message);
+        const vc = getVoiceChannel(message);
 
         if (!vc)
             resolve(new Output().setError(new Error(chatFormat.response.music.join.no_vc())));

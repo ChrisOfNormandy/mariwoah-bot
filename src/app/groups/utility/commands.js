@@ -26,7 +26,7 @@ module.exports = [
         'utility',
         (message, data) => groups.utility.roll(data)
     )
-        .setRegex(/(roll\s)|(r)|(d)/, /(\d+)(\s(\d+))?/, [1, 3])
+        .setRegex(/(roll)|(r)|(d)/, /\s?(\d+)?(\s(\d+))?/, [1, 3])
         .setCommandDescription('Rolls a number between 1 and a given value.')
         .setArgumentDescription(0, 'Sides', 'Any integer between 1 and 2^53-1. Defaults to 6.', true)
         .setArgumentDescription(1, 'Count', 'Any integer between 1 and 50', true),

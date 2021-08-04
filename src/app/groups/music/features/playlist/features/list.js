@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
 const path = require('path');
 
-const { s3 } = require('../../../../../../aws/helpers/adapter');
+const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { s3 } = require('../../../../../helpers/aws');
 
 /**
  * 

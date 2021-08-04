@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
-const shuffle = require('../../../../helpers/shuffle');
+const { shuffle, getVoiceChannel } = helpers;
+
 const queue = require('./map');
-const getVC = require('../../../../helpers/getVoiceChannel');
 const play = require('./play');
 const getEmbed = require('../../helpers/getEmbedSongInfo');
 
@@ -78,11 +78,11 @@ module.exports = (message, songs, flags) => {
         if (!songs.length)
             reject(new Output().setError(new Error('Tried to add 0 songs to the active queue.')));
         else {
-            const voiceChannel = getVC(message);
+            const voiceChannel = getVoiceChannel(message);
             let startFlag = false;
 
             if (!voiceChannel)
-                reject(new Output().setError(new Error(chatFormat.response.music.no_vc())));
+                reject(new Output().setError(new Error('No voice channel.')));
             else {
                 if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
                     let activeQueue = {

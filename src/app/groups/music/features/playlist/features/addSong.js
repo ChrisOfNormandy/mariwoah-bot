@@ -1,4 +1,4 @@
-const { s3 } = require('../../../../../../aws/helpers/adapter');
+const { s3 } = require('../../../../../helpers/aws');
 
 const getSongObject = require('../../../helpers/getSong');
 

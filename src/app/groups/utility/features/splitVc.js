@@ -1,8 +1,7 @@
 const Discord = require('discord.js');
-const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
-const shuffle = require('../../../helpers/shuffle');
-const getVc = require('../../../helpers/getVoiceChannel');
+const { shuffle, getVoiceChannel } = helpers;
 
 /**
  * 
@@ -12,7 +11,7 @@ const getVc = require('../../../helpers/getVoiceChannel');
  */
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
-        let channel = getVc(message);
+        let channel = getVoiceChannel(message);
 
         let name = channel.name;
 

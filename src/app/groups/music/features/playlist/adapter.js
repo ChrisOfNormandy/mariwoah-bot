@@ -36,7 +36,7 @@ function _addSong(message, data) {
                         .catch(err => reject(new Output().setError(err)));
                 }
                 else
-                    reject(new Output().setError(new Error(chatFormat.response.music.queue.no_active())));
+                    reject(new Output().setError(new Error('No queue.')));
             }
             else {
                 addSong.byName(message, playlistName, songName)

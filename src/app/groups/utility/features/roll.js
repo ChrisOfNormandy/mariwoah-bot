@@ -51,6 +51,6 @@ module.exports = (data) => {
                 : `Flipped: ${rolls.join(", ")}\n\nHeads: ${sum}\nTails: ${rolls.length - sum}`;
         }
 
-        resolve(new Output(value).setValues(rolls));
+        resolve(new Output(value).setValues(...rolls));
     });
 };

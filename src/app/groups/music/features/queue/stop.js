@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
-const getVC = require('../../../../helpers/getVoiceChannel');
+const { getVoiceChannel } = helpers;
 const queue = require('../queue/map');
 
 /**
@@ -11,7 +11,7 @@ const queue = require('../queue/map');
  * @returns {Promise<Output>}
  */
 module.exports = function (message, reason = null) {
-    const vc = getVC(message);
+    const vc = getVoiceChannel(message);
     
     if (!vc)
         return Promise.reject(new Output().setError(new Error(chatFormat.response.music.no_vc())));
@@ -20,7 +20,7 @@ module.exports = function (message, reason = null) {
         return Promise.reject(new Output().setError(new Error(chatFormat.response.music.stop.no_queue())));
 
     queue.delete(message.guild.id);
-    getVC(message).leave();
+    getVoiceChannel(message).leave();
 
     return Promise.resolve(new Output(
         reason

@@ -1,5 +1,5 @@
 const append = require('../../queue/append');
-const { s3 } = require('../../../../../../aws/helpers/adapter');
+const { s3 } = require('../../../../../helpers/aws');
 
 module.exports = (message, data) => {
     return new Promise((resolve, reject) => {

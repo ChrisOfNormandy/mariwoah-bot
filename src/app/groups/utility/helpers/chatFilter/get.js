@@ -1,9 +1,8 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { s3 } = require('../../../../helpers/aws');
 
-const { s3 } = require('../../../../../aws/helpers/adapter');
-
-const getFilter = require('../../../../helpers/filter/getChat');
+const { getChat} = helpers.filter;
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
@@ -21,7 +20,7 @@ module.exports = (message, data) => {
         return Promise.reject(new Output().setError(new Error('Unsupported chat filter name.\nUse \`warned\`, \`kicked\` or \`banned\`.')));
 
     return new Promise((resolve, reject) => {
-        getFilter(guildId, filterName)
+        getChat(guildId, filterName)
             .then(json => {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Chat filter list for \`${filterName}\` phrases.`)

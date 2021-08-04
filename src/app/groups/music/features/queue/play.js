@@ -15,7 +15,7 @@ const stop = require('./stop');
 function next(message, id, song) {
     if (!queue.has(id)) {
         return new Promise((resolve, reject) => {
-            stop(message, chatFormat.response.music.queue.end())
+            stop(message, 'End of active queue.')
                 .then(() => reject(new Output().setError(new Error('No queue.'))))
                 .catch(err => reject(new Output().setError(err)));
         });
@@ -34,7 +34,7 @@ function next(message, id, song) {
                 .catch(err => reject(new Output().setError(err)));
         }
         else
-            stop(message, chatFormat.response.music.queue.end())
+            stop(message, 'End of active queue')
                 .then(r => resolve(new Output().setValues(r)))
                 .catch(err => reject(new Output().setError(err)));
     });

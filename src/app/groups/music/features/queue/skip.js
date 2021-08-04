@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./map');
-const getVC = require('../../../../helpers/getVoiceChannel');
+const { getVoiceChannel} = helpers;
 const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
 
 /**
@@ -11,7 +11,7 @@ const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
  * @returns {Promise<Output>}
  */
 module.exports = (message) => {
-    if (!getVC(message))
+    if (!getVoiceChannel(message))
         return Promise.reject(new Output().setError(new Error(chatFormat.response.music.no_vc())));
 
     if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active)

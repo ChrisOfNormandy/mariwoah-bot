@@ -5,7 +5,7 @@
     "main": "bot.js",
     "author": "ChrisOfNormandy",
     "dependencies": {
-        "@chrisofnormandy/mariwoah-bot": "^0.0.3",
+        "@chrisofnormandy/mariwoah-bot": "../_testing/mariwoah-bot",
         "axios": "^0.21.1",
         "ddg": "^0.0.3",
         "discord.js": "^12.5.3",

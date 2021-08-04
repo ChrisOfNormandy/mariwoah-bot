@@ -8,6 +8,11 @@ const groups = require('../../groups');
 module.exports = [
     new Command(
         'general',
+        (message, data) => groups.general.say(message, data)
+    )
+        .setRegex(/(say)/, /\s(.+)/, [1]),
+    new Command(
+        'general',
         (message, data) => groups.general.ping(message)
     )
         .setRegex(/(ping)/)

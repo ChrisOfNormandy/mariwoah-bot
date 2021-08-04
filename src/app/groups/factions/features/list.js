@@ -8,7 +8,7 @@ const getList = require('./getList');
  * @param {Discord.Message} message 
  * @returns 
  */
-module.exports = (message) => {
+module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         getList(message.guild)
             .then(names => {

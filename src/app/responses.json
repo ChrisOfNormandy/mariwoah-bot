@@ -1,0 +1,26 @@
+{
+    "groups": {
+        "factions": {
+            "error": {
+                "noFactionName": "No faction name specified.",
+                "noRoles": "No roles."
+            },
+            "command": {
+                "about": {
+                    "embed": {
+                        "title": "About ",
+                        "color": {
+                            "default": "#990000"
+                        }
+                    }
+                }
+            }
+        },
+        "fetch": {},
+        "games": {},
+        "general": {},
+        "misc": {},
+        "music": {},
+        "utility": {}
+    }
+}
