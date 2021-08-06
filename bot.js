@@ -7,8 +7,10 @@ client.startup(config, true)
 
         const commands = require('./src/commands');
 
-        for (let i in commands)
-            commands[i].forEach(command => groups.addCommandGroup(i).addCommand(command));
+        for (let i in commands) {
+            let g = groups.addCommandGroup(i);
+            commands[i].forEach(command => g.addCommand(command));
+        }
 
         if (config.settings.logging.enabled) {
             config.settings.logging.channels.forEach(log => {

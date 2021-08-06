@@ -13,10 +13,10 @@ module.exports = (message) => {
         const vc = getVoiceChannel(message);
 
         if (!vc)
-            resolve(new Output().setError(new Error(chatFormat.response.music.join.no_vc())));
+            resolve(new Output().setError(new Error('No voice channel.')));
         else
             vc.join()
                 .then(r => resolve(new Output().setValues(r)))
-                .catch(err => reject(new Output(chatFormat.response.music.join.join_error()).setError(err)));
+                .catch(err => reject(new Output().setError(err)));
     });
 };

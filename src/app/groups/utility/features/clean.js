@@ -40,14 +40,20 @@ module.exports = (message, data) => {
             .then(messages => {
                 if (!!message.mentions.users.size) {
                     message.mentions.users.forEach((user, id, m) => {
+
                         const userMessages = messages.filter((msg) => {
                             return msg.author.id == id && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14;
                         });
 
-                        const userMessagesDeleted = userMessages.array().length;
+                        let arr = userMessages.array();
+                        arr = !!data.arguments.length
+                            ? arr.slice(0, data.arguments[0])
+                            : arr;
 
-                        channel.bulkDelete(userMessages)
-                            .then(msgs => resolve(new Output(chatFormat.response.cleanChat.user(user, userMessagesDeleted)).setValues(msgs, userMessagesDeleted).setOption('clear', {delay: 10})))
+                        const userMessagesDeleted = arr.length;
+
+                        channel.bulkDelete(arr)
+                            .then(msgs => resolve(new Output(`Cleared ${userMessagesDeleted} messages.`).setValues(msgs, userMessagesDeleted).setOption('clear', {delay: 10})))
                             .catch(err => reject(new Output().setError(err)));
                     });
                 }
@@ -62,16 +68,24 @@ module.exports = (message, data) => {
                         return prefix == msg.content.charAt(0) && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14;
                     });
 
-                    const botMessagesDeleted = botMessages.array().length;
-                    const cmdMessagesDeleted = cmdMessages.array().length;
+                    let arr1 = botMessages.array();
+                    let arr2 = cmdMessages.array();
+
+                    if (!!data.arguments.length) {
+                        arr1 = arr1.slice(0, data.arguments[0]);
+                        arr2 = arr2.slice(0, data.arguments[0]);
+                    }
+
+                    const botMessagesDeleted = arr1.length;
+                    const cmdMessagesDeleted = arr2.length;
 
                     let arr = [
-                        channel.bulkDelete(botMessages),
-                        channel.bulkDelete(cmdMessages)
+                        channel.bulkDelete(arr1),
+                        channel.bulkDelete(arr2)
                     ];
 
                     Promise.all(arr)
-                        .then(msgs => resolve(new Output(chatFormat.response.cleanChat.all(botMessagesDeleted, cmdMessagesDeleted))
+                        .then(msgs => resolve(new Output(`Cleared ${botMessagesDeleted} bot messages, ${cmdMessagesDeleted} commands.`)
                             .setValues(msgs, botMessagesDeleted, cmdMessagesDeleted)
                             .setOption('clear', { delay: 10 })))
                         .catch(err => reject(new Output().setError(err)));

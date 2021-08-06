@@ -14,10 +14,10 @@ module.exports = function (message, reason = null) {
     const vc = getVoiceChannel(message);
     
     if (!vc)
-        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.no_vc())));
+        return Promise.reject(new Output().setError(new Error('No voice channel.')));
 
     if (!queue.has(message.guild.id))
-        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.stop.no_queue())));
+        return Promise.reject(new Output().setError(new Error('No active queue.')));
 
     queue.delete(message.guild.id);
     getVoiceChannel(message).leave();
@@ -25,6 +25,6 @@ module.exports = function (message, reason = null) {
     return Promise.resolve(new Output(
         reason
             ? reason
-            : chatFormat.response.music.stop.plain()
+            : 'Stopping.'
     ).setValues(reason));
 };

@@ -89,7 +89,7 @@ module.exports = {
                         resolve(embedSongInfo(songs[0]));
                     }
                     else
-                        resolve(chatFormat.response.music.queue.no_active());
+                        resolve('No active queue.');
                 }
                 else {
                     getSong.byName(message, data.arguments.join(' '))

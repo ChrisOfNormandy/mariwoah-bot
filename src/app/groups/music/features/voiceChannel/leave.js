@@ -14,7 +14,7 @@ module.exports = (message) => {
     const vc = getVoiceChannel(message);
 
     if (!vc)
-        return Promise.resolve(new Output().setError(new Error(chatFormat.response.music.no_vc())));
+        return Promise.resolve(new Output().setError(new Error('No voice channel.')));
     else {
         vc.leave();
 

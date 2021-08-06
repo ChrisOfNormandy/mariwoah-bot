@@ -50,14 +50,14 @@ function play(message, song) {
     const id = message.guild.id;
 
     if (!queue.has(id))
-        return Promise.reject(new Output().setError(new Error(chatFormat.response.music.queue.no_active())));
+        return Promise.reject(new Output().setError(new Error('No active queue.')));
 
     return new Promise((resolve, reject) => {
         queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
             .on('finish', () => next(message, id, song))
             .on('error', error => {
                 next(message, id, song)
-                    .then(r => reject(new Output(chatFormat.response.music.play.error(song.title)).setValues(r).setError(error)))
+                    .then(r => reject(new Output(`Failed to play ${song.title}.`).setValues(r).setError(error)))
                     .catch(err => reject(new Output().setError(err)));
             });
 

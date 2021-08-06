@@ -18,10 +18,9 @@ module.exports = [
         'utility',
         (message, data) => groups.utility.clean(message, data)
     )
-        .setRegex(/(clean)/, /\s(<USER:\d+>)/, [1], true)
+        .setRegex(/(clean)/, /\s(\d+)/, [1], true)
         .setCommandDescription('Cleans chat of bot messages and commands. Can be used to clean specific user messages.')
-        .setArgumentDescription(0, 'Mention', 'Ping of one or more users.', true)
-        .setSetting('delay', 10),
+        .setArgumentDescription(0, 'Message count', 'How many messages to delete. Max 50 total.', true),
     new Command(
         'utility',
         (message, data) => groups.utility.roll(data)

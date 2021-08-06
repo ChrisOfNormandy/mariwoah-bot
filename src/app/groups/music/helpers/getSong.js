@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const ytSearch = require('yt-search');
-const { MessageData, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, chatFormat, helpers, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const { shuffle } = helpers;
 
@@ -55,7 +55,7 @@ function search(name, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    reject(chatFormat.response.music.timeout(name));
+                    reject(name);
                 }
                 else {
                     if (data.videos.length)
@@ -81,7 +81,7 @@ function metaSearch_pl(listId, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    reject(chatFormat.response.music.timeout('playlist id ' + metadata));
+                    reject(metadata);
                 }
                 else {
                     if (data.videos.length)
@@ -107,7 +107,7 @@ function metaSearch(metadata, timeOut = 0) {
                 reject(err);
             else {
                 if (timeOut > 10) {
-                    reject(chatFormat.response.music.timeout('song id ' + metadata));
+                    reject(metadata);
                 }
                 else {
                     if (data)
@@ -182,7 +182,7 @@ module.exports = {
      */
     byPlaylist: function (message, playlistName, data, index = 0) {
         return new Promise((resolve, reject) => {
-            message.channel.send(chatFormat.response.music.getSong.playlist())
+            message.channel.send('Playing playlist.')
                 .then(msg => {
                     search(playlistName)
                         .then(songData => {
@@ -192,7 +192,7 @@ module.exports = {
                             else {
                                 metaSearch_pl(playlists[index].listId)
                                     .then(pl => {
-                                        msg.edit(chatFormat.response.music.getSong.playlist_result(pl));
+                                        msg.edit(pl);
                                         const videos = pl.videos;
 
                                         if (data.flags.has('s')) {
@@ -213,7 +213,7 @@ module.exports = {
                                         }
                                     })
                                     .catch(e => {
-                                        msg.edit(chatFormat.response.music.getSong.playlist_undefined(playlists[index].listId));
+                                        msg.edit(playlists[index].listId);
                                         this.byPlaylist(message, playlistName, data, index + 1)
                                             .then(r => resolve(r))
                                             .catch(e => reject(e));
