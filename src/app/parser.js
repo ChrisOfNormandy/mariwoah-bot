@@ -19,12 +19,11 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
     );
 
     if (!validCommands.length)
-        return Promise.reject(null);
+        return Promise.reject(new Output().setOption('output', false).setError(new Error('Valid commands length was 0.')));
 
     let index = 0, finished = false;
 
     let data = new MessageData(client, content, message.member, prefix, ingest, ingestData);
-    console.log(data.content);
 
     let regex, commandStringRegex, subCommandRegex, str;
     while (!finished && index < validCommands.length) {
@@ -82,8 +81,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
 
                     if (match === null) {
                         if (!validCommands[index].regex.argsOptional) {
-                            message.channel.send('Missing arguments.');
-                            return Promise.reject(null);
+                            return Promise.reject(new Output().setError(new Error('Missing arguments.')));
                         }
                     }
                     else {
@@ -104,8 +102,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
 
                         if (match === null) {
                             if (!validCommands[index].getSubcommand(data.subcommand).getRegex().argsOptional) {
-                                message.channel.send('Missing arguments.');
-                                return Promise.reject(null);
+                                return Promise.reject(new Output().setError(new Error('Missing arguments.')));
                             }
                         }
                         else
@@ -117,15 +114,14 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
             finished = true;
 
             if (!validCommands[index].enabled)
-                return Promise.reject(null);
+                return Promise.reject(new Output().setOption('output', false).setError(new Error('Command not enabled.')));
 
             if (!!validCommands[index].adminOnly && !data.admin)
-                return Promise.reject(null);
+                return Promise.reject(new Output().setOption('output', false).setError(new Error('User lacks admin permissions.')));
 
             return new Promise((resolve, reject) => {
                 validCommands[index].run(message, data)
                     .then(response => {
-                        // console.log(data.outputs, data.vars, response.values);
                         data.outputs.forEach(v => data.vars.set(v, response.values[0]));
 
                         if (data.pipedCommand !== null) {
@@ -141,8 +137,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
         }
     }
 
-    console.log("Failed to parse.");
-    return Promise.reject(null);
+    return Promise.reject(new Output().setOption('output', false).setError(new Error('Failed to parse.')));
 }
 
 /**
@@ -170,14 +165,27 @@ function parse(client, message, prefix, devEnabled) {
                     });
                 })
                 .catch(err => {
-                    err.getContent().forEach(msg => {
-                        if (!!msg)
-                            message.channel.send(msg);
-                    });
-                    if (devEnabled)
-                        reject(err.getErrors());
-                    else
-                        reject(null);
+                    if (err !== null) {
+                        try {
+                            if (err.options.has('output') && err.options.get('output')) {
+                                err.getContent().forEach(msg => {
+                                    if (!!msg)
+                                        message.channel.send(msg);
+                                });
+
+                                if (devEnabled)
+                                    reject(err.getErrors());
+                                else
+                                    reject(null);
+                            }
+                            else if (devEnabled)
+                                console.error(err);
+                        }
+                        catch (e) {
+                            console.error(e);
+                            reject(e);
+                        }
+                    }
                 });
         });
 
