@@ -70,8 +70,6 @@ class MessageData {
                 let val = variables[v].match(variableRegex_)[1];
                 this.variables.push(val);
 
-                console.log(val, variables[v], this.vars, this.vars.get(val));
-
                 if (this.vars.has(val) && this.vars.get(val) !== undefined)
                     str = str.replace(variables[v], this.vars.get(val));
             }
@@ -140,7 +138,7 @@ class MessageData {
         this.vars = new Map();
         this.outputs = [];
         
-        this.admin = member.hasPermission('ADMINISTRATOR');
+        this.admin = member.permissions.has('ADMINISTRATOR');
 
         this.hasData = true;
 
@@ -148,10 +146,8 @@ class MessageData {
 
         this.pipedCommand = null;
 
-        if (ingestData !== undefined) {
-            console.log('>>>', ingestData.vars);
+        if (ingestData !== undefined)
             ingestData.vars.forEach((v, k) => this.vars.set(k, v));
-        }
 
         let v = this.content.match(varOutputRegex);
         if (v !== null) {

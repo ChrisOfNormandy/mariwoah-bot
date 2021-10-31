@@ -1,4 +1,4 @@
-module.exports = function (map) {
+module.exports = (map) => {
     let obj = {};
     for (let [key, val] of map)
         obj[key] = val;

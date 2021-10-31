@@ -6,10 +6,12 @@ const cmdList = require('./commands');
 
 /**
  * 
- * @param {*} client 
- * @param {*} content 
- * @param {*} prefix 
- * @param {*} message 
+ * @param {Discord.Client} client 
+ * @param {string} content 
+ * @param {string} prefix 
+ * @param {Discord.Message} message 
+ * @param {Output} ingest
+ * @param {MessageData} ingestData
  * @returns {Promise<Output>}
  */
 function parseString(client, content, prefix, message, ingest = undefined, ingestData = undefined) {
@@ -146,7 +148,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
  * @param {Discord.Message} message
  * @param {string} prefix
  * @param {boolean} devEnabled
- * @returns {Promise<*>}
+ * @returns {Promise<Output>}
  */
 function parse(client, message, prefix, devEnabled) {
     if (message.content.indexOf(prefix) == 0 && message.content[1] !== prefix)
@@ -192,12 +194,4 @@ function parse(client, message, prefix, devEnabled) {
     return Promise.reject(null);
 }
 
-/**
- * 
- * @param {Discord.Client} client 
- * @param {Discord.Message} message 
- * @param {string} prefix 
- * @param {boolean} devEnabled 
- * @returns {Promise<*>}
- */
 module.exports = parse;

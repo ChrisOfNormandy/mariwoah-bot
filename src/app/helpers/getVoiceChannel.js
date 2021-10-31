@@ -7,7 +7,5 @@ const Discord = require('discord.js');
  */
 module.exports = (message) => {
     const vc = message.member.voice.channel;
-    if (!vc)
-        return undefined;
-    return vc;
+    return !vc ? undefined : vc;
 };

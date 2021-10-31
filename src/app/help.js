@@ -218,5 +218,5 @@ module.exports = (data, list) => {
         });
     }
 
-    return Promise.resolve(new Output(embed).setValues(list));
+    return Promise.resolve(new Output({ embeds: [embed] }).setValues(list));
 };

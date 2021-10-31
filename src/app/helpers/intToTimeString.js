@@ -1,4 +1,4 @@
-module.exports = function (seconds) {
+module.exports = (seconds) => {
     let sec = seconds % 60;
     let min_ = (seconds - sec) / 60;
     let min = min_ % 60;
