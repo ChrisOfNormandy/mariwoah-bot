@@ -18,8 +18,14 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
         new RegExp(`${prefix}(${cmd.getRegex().command.source})`).test(content)
     );
 
-    if (!validCommands.length)
+    if (!validCommands.length) {
+        if (new RegExp(`${prefix}:`).test(content)) {
+            let data = new MessageData(client, content, message.member, prefix, ingest, ingestData);
+            return Promise.resolve(new Output('Yes.'));
+        }
+        
         return Promise.reject(new Output().setOption('output', false).setError(new Error('Valid commands length was 0.')));
+    }
 
     let index = 0, finished = false;
 

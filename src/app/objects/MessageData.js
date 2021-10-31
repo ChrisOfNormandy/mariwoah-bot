@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const Output = require('./Output');
 
+const _eval = require('./helpers/eval');
+
 const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
 
 const flagRegex = /\s-[a-zA-Z]+\b/g;
@@ -125,7 +127,7 @@ class MessageData {
         this.client = client;
 
         this.prefix = prefix;
-        this.content = content;
+        this.content = _eval(content);
 
         this.command = null;
         this.subcommand = null;
@@ -148,10 +150,8 @@ class MessageData {
 
         this.pipedCommand = null;
 
-        if (ingestData !== undefined) {
-            console.log('>>>', ingestData.vars);
+        if (ingestData !== undefined)
             ingestData.vars.forEach((v, k) => this.vars.set(k, v));
-        }
 
         let v = this.content.match(varOutputRegex);
         if (v !== null) {
