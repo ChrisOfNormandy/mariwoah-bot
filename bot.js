@@ -1,7 +1,8 @@
+const { Intents } = require('discord.js');
 const { groups, client, aws } = require('@chrisofnormandy/mariwoah-bot');
 const config = require('./config/config.json');
 
-client.startup(config, true)
+client.startup(config, [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES], true)
     .then(res => {
         require('./src/app/helpers/aws').s3 = new aws.S3Helper(res.AWS);
 
