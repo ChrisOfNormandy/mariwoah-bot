@@ -5,7 +5,7 @@
     "main": "bot.js",
     "author": "ChrisOfNormandy",
     "dependencies": {
-        "@chrisofnormandy/mariwoah-bot": "../_testing/mariwoah-bot",
+        "@chrisofnormandy/mariwoah-bot": "0.0.6",
         "ddg": "^0.0.3",
         "discord.js": "^13.3.0",
         "duckduckgo-images-api": "^1.0.5",
