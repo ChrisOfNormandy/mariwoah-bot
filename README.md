@@ -16,8 +16,6 @@ And what's supported by the bot:
     - Both can be enabled / disabled in the config settings.
 - Detailed command output handling.
 - Detailed error handling with multiple kinds of logging.
-- AWS S3 support for data storage.
-    - Keep your local machine light with minimal local file storage!
 
 Install using
 > npm install @chrisofnormandy/mariwoah-bot
@@ -35,7 +33,6 @@ If you're not new to Node projects, skip steps 1 and 2.
 3. Create the following in the directory your bot will be hosted from:
     - `./config/` - A folder named `config`.
     - `./config/config.json` - A file named `config.json`.
-    - `./config/aws-credentials.json` - A file named `aws-credentials.json`.
     - `./bot.js` - The entry point for your bot application. Alternatively `index.js` or whatever you would like to name it.
 
 4. Copy the example data from `Examples.md` to the respective new files.

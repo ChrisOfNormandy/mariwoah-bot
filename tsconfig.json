@@ -1,11 +1,13 @@
 {
     "compilerOptions": {
-        "target": "ES6",
+        "target": "ES2020",
         "module": "CommonJS",
+        "moduleResolution": "node",
         "declaration": true,
         "strict": true,
-        "outDir": "./typings",
+        "outDir": "./lib",
+        "allowJs": true
     },
     "include": ["src/**.*"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules"],
 }
