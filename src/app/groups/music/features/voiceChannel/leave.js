@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, chatFormat, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { getVoiceChannel} = helpers;
+const { getVoiceChannel } = handlers.channels;
 const stop = require('../queue/stop');
 const queue = require('../queue/map');
 

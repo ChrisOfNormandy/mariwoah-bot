@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { getVoiceChannel } = helpers;
+const { getVoiceChannel } = handlers.channels;
 
 /**
  * 

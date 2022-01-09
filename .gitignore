@@ -1,8 +1,11 @@
-/node_modules
-/src/app/common/playlists
-/src/app/common/roleManager/servers
-/private
-/config
+node_modules/
+
+src/app/common/playlists/
+src/app/common/roleManager/servers/
+
+private/
+config/
+temp/
+
 .gitignore
 package-lock.json
-/temp

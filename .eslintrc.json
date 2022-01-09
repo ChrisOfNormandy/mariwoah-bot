@@ -1,0 +1,31 @@
+{
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 11
+    },
+    "rules": {
+        "no-undef": "warn",
+        "multiline-ternary": "warn",
+        "arrow-parens": "warn",
+        "arrow-spacing": "warn",
+        "capitalized-comments": "warn",
+        "eqeqeq": "warn",
+        "no-else-return": "error",
+        "no-duplicate-case": "error",
+        "no-eval": "error",
+        "no-this-before-super": "error",
+        "no-var": "warn",
+        "newline-before-return": "warn",
+        "quotes": [
+            "warn",
+            "single"
+        ],
+        "semi": "warn"
+    }
+}

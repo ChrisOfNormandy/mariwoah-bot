@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
-const { MessageData, Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { shuffle, getVoiceChannel } = helpers;
+const { shuffle } = handlers.arrays;
+const { getVoiceChannel } = handlers.channels;
 
 /**
  * 

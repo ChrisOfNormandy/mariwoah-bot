@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
 const ytSearch = require('yt-search');
-const { MessageData, chatFormat, helpers, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageData, handlers, Output } = require('@chrisofnormandy/mariwoah-bot');
 
-const { shuffle } = helpers;
+const { shuffle } = handlers.arrays;
 
 /**
  * 

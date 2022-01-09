@@ -1,7 +1,9 @@
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
-const { Output, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { shuffle, getVoiceChannel } = helpers;
+const { shuffle } = handlers.arrays;
+const { getVoiceChannel } = handlers.channels;
 
 const queue = require('./map');
 const play = require('./play');
@@ -22,20 +24,20 @@ function f(message, songs, flags, startFlag) {
 
         if (flags.has('n'))
             play(message, queue.get(message.guild.id).songs[0])
-                .then(r => resolve(r))
-                .catch(err => reject(err));
+                .then((r) => resolve(r))
+                .catch((err) => reject(err));
         else {
             let fromPlaylist = !!queue.get(message.guild.id).songs[0].playlist.title;
 
             if (startFlag) {
                 getEmbed.single('Now playing...', queue.get(message.guild.id), 0, fromPlaylist)
-                    .then(embed => resolve(new Output({embed}).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', { delay: queue.get(message.guild.id).songs[0].duration.seconds })))
-                    .catch(err => reject(new Output().setError(err)));
+                    .then((embed) => resolve(new Output({ embed }).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', { delay: queue.get(message.guild.id).songs[0].duration.seconds })))
+                    .catch((err) => reject(new Output().setError(err)));
             }
             else {
                 getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1, fromPlaylist)
-                    .then(embed => resolve(new Output({embed}).setValues(queue.get(message.guild.id).songs)))
-                    .catch(err => reject(new Output().setError(err)));
+                    .then((embed) => resolve(new Output({ embed }).setValues(queue.get(message.guild.id).songs)))
+                    .catch((err) => reject(new Output().setError(err)));
             }
         }
     });
@@ -53,16 +55,16 @@ function p(message, flags, songs, startFlag) {
     return new Promise((resolve, reject) => {
         if (flags.has('s'))
             shuffle(songs)
-                .then(songs => {
+                .then((songs) => {
                     f(message, songs, flags, startFlag)
-                        .then(res => resolve(res))
-                        .catch(err => reject(err));
+                        .then((res) => resolve(res))
+                        .catch((err) => reject(err));
                 })
-                .catch(err => reject(new Output().setError(err)));
+                .catch((err) => reject(new Output().setError(err)));
         else
             f(message, songs, flags, startFlag)
-                .then(res => resolve(res))
-                .catch(err => reject(err));
+                .then((res) => resolve(res))
+                .catch((err) => reject(err));
     });
 }
 
@@ -101,19 +103,19 @@ module.exports = (message, songs, flags) => {
 
                 if (queue.get(message.guild.id).connection === null) {
                     voiceChannel.join()
-                        .then(connection => {
+                        .then((connection) => {
                             queue.get(message.guild.id).connection = connection;
 
                             p(message, flags, songs, startFlag)
-                                .then(r => resolve(new Output().setValues(r)))
-                                .catch(err => reject(new Output().setError(err)));
+                                .then((r) => resolve(new Output().setValues(r)))
+                                .catch((err) => reject(new Output().setError(err)));
                         })
-                        .catch(err => reject(new Output().setError(err)));
+                        .catch((err) => reject(new Output().setError(err)));
                 }
                 else
                     p(message, flags, songs, startFlag)
-                        .then(r => resolve(new Output().setValues(r)))
-                        .catch(err => reject(new Output().setError(err)));
+                        .then((r) => resolve(new Output().setValues(r)))
+                        .catch((err) => reject(new Output().setError(err)));
             }
         }
     });

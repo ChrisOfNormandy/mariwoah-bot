@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, chatFormat, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { getVoiceChannel } = helpers;
+const { getVoiceChannel } = handlers;
 const queue = require('../queue/map');
 
 /**
@@ -12,7 +12,7 @@ const queue = require('../queue/map');
  */
 module.exports = function (message, reason = null) {
     const vc = getVoiceChannel(message);
-    
+
     if (!vc)
         return Promise.reject(new Output().setError(new Error('No voice channel.')));
 
