@@ -12,7 +12,8 @@ const groups = {
      * @returns {CommandGroup}
      */
     addCommandGroup: (name) => {
-        groups.cache.set(name, new CommandGroup(name));
+        if (!groups.cache.has(name))
+            groups.cache.set(name, new CommandGroup(name));
 
         return groups.cache.get(name);
     },

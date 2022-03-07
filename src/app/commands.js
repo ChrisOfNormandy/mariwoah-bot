@@ -13,7 +13,7 @@ function getCommandList() {
     list.push(
         new Command(
             'general',
-            (message, data) => help(data, list)
+            (message, data) => help(data, commands.getList())
         )
             .setRegex(/(\?)|(help)/, /\s([\w?]+)/, [1], true)
             .setCommandDescription('Displays a list of commands and syntaxes.')
@@ -26,7 +26,6 @@ function getCommandList() {
 
     return list;
 }
-
 
 const commands = {
     /**

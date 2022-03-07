@@ -6,7 +6,7 @@ const { colors } = require('./handlers').chat;
 /**
  * 
  * @param {MessageData} data 
- * @param {Command[]} list 
+ * @param {Command[]} list
  * @returns {Promise<Output>}
  */
 function help(data, list) {
@@ -102,7 +102,7 @@ function help(data, list) {
                         });
 
                         embed.addField('Arguments', msg);
-                        embed.setFooter('Arguments in italics are optional.');
+                        embed.setFooter({ text: 'Arguments in italics are optional.' });
                     }
 
                     // Command flag list.

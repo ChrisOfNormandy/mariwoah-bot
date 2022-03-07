@@ -1,7 +1,7 @@
 {
     "name": "@chrisofnormandy/mariwoah-bot",
     "author": "ChrisOfNormandy",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "Bot import package for Discord.",
     "main": "indexJS.js",
     "typings": "./lib/indexTS.d.ts",
