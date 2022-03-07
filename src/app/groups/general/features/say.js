@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -10,8 +10,8 @@ const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-b
 module.exports = (message, data) => {
     const embed = new Discord.MessageEmbed()
         .setTitle('Announcement')
-        .setColor(chatFormat.colors.byName.white)
+        .setColor(handlers.chat.colors.byName.white)
         .addField(message.member.nickname || message.author.username, data.arguments[0]);
 
-    return Promise.resolve(new Output({embed}).setValues(data.arguments[0]));
+    return Promise.resolve(new Output({ embed }).setValues(data.arguments[0]));
 };

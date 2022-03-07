@@ -7,7 +7,7 @@
 //             .then(() => {
 //                 let embed = new Discord.MessageEmbed()
 //                     .setTitle(name)
-//                     .setColor(chatFormat.colors.byName.lightgreen)
+//                     .setColor(handlers.chat.colors.byName.lightgreen)
 //                     .addField(`Changed visibility to ${value ? 'public' : 'private'}.`, `${value ? 'All available Discord servers can see this playlist.' : 'Only this Discord server can see this playlist.'}`);
 //                 resolve(Output.valid([value], [embed]));
 //             })

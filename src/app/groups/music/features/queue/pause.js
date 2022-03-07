@@ -1,5 +1,4 @@
-const Discord = require('discord.js');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./map');
 
@@ -30,7 +29,7 @@ function resume(message) {
         return Promise.reject(new Output().setError(new Error('No active queue.')));
 
     activeQueue.dispatcher.resume();
-    
+
     return Promise.resolve(new Output('Cannot pause.'));
 }
 

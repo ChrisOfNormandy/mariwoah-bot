@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
-const { Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./map');
 const stop = require('./stop');
@@ -17,7 +17,7 @@ function next(message, id, song) {
         return new Promise((resolve, reject) => {
             stop(message, 'End of active queue.')
                 .then(() => reject(new Output().setError(new Error('No queue.'))))
-                .catch(err => reject(new Output().setError(err)));
+                .catch((err) => reject(new Output().setError(err)));
         });
     }
 
@@ -30,13 +30,13 @@ function next(message, id, song) {
                 queue.get(id).songs.shift();
 
             play(message, queue.get(id).songs[0])
-                .then(r => resolve(new Output().setValues(r)))
-                .catch(err => reject(new Output().setError(err)));
+                .then((r) => resolve(new Output().setValues(r)))
+                .catch((err) => reject(new Output().setError(err)));
         }
         else
             stop(message, 'End of active queue')
-                .then(r => resolve(new Output().setValues(r)))
-                .catch(err => reject(new Output().setError(err)));
+                .then((r) => resolve(new Output().setValues(r)))
+                .catch((err) => reject(new Output().setError(err)));
     });
 }
 
@@ -55,10 +55,10 @@ function play(message, song) {
     return new Promise((resolve, reject) => {
         queue.get(message.guild.id).dispatcher = queue.get(id).connection.play(ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }), { highWaterMark: 1 })
             .on('finish', () => next(message, id, song))
-            .on('error', error => {
+            .on('error', (error) => {
                 next(message, id, song)
-                    .then(r => reject(new Output(`Failed to play ${song.title}.`).setValues(r).setError(error)))
-                    .catch(err => reject(new Output().setError(err)));
+                    .then((r) => reject(new Output(`Failed to play ${song.title}.`).setValues(r).setError(error)))
+                    .catch((err) => reject(new Output().setError(err)));
             });
 
         queue.get(message.guild.id).dispatcher.setVolumeLogarithmic(queue.get(id).volume / 5);

@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat} = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const search = require('duckduckgo-images-api').image_search;
 
@@ -17,19 +17,21 @@ module.exports = (data) => {
 
     return new Promise((resolve, reject) => {
         search(params)
-            .then(res => {
-                const index = !!data.flags.has('r') ? Math.floor(Math.random() * res.length) : 0;
+            .then((res) => {
+                const index = data.flags.has('r')
+                    ? Math.floor(Math.random() * res.length)
+                    : 0;
                 const img = res[index];
 
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Results for ${query}`)
-                    .setColor(chatFormat.colors.byName.aqua)
+                    .setColor(handlers.chat.colors.byName.aqua)
                     .setImage(img.image)
                     .setDescription(`Image ${index + 1} of ${res.length}`)
                     .setFooter(`Source: ${img.url}\nFetched from ${img.source} via duckduckgo.`);
 
-                resolve(new Output({embed}).setValues(img));
+                resolve(new Output({ embed }).setValues(img));
             })
-            .catch(err => reject(new Output().setError(err)));
+            .catch((err) => reject(new Output().setError(err)));
     });
 };

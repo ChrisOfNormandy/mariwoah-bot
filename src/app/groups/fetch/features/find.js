@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const ddg = require('node-duckduckgo').duckIt;
 
@@ -18,22 +18,22 @@ module.exports = (data) => {
     if (data.flags.has('d'))
         query = `\\${query}`;
 
-    if (/\!bing\s.+/.test(query) || data.flags.has('b'))
+    if (/!bing\s.+/.test(query) || data.flags.has('b'))
         searchType = 'bing';
     if (data.flags.has('b'))
         query = `!bing ${query}`;
 
     return new Promise((resolve, reject) => {
         ddg(query, { noHtml: true, parentalFilter: 'Moderate' })
-            .then(response => {
+            .then((response) => {
                 const res = response.data;
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Search results for ${query}`)
-                    .setColor(chatFormat.colors.byName.aqua);
+                    .setColor(handlers.chat.colors.byName.aqua);
 
                 switch (searchType) {
                     case 'direct': {
-                        if (!!response.headers.link) {
+                        if (response.headers.link) {
                             const link = response.headers.link.split(';')[0].match(/<([^>]+)>/)[1];
                             embed.setURL(link);
                             embed.addField(`From ${response.request.host}`, link);
@@ -52,7 +52,7 @@ module.exports = (data) => {
 
                         let rList = response.data.match(/(<cite>)([\w.:/<>]+)(<\/cite>)+?/g);
                         let str = '', i = 0;
-                        rList.forEach(html => {
+                        rList.forEach((html) => {
                             const link = html.replace(/<\/?\w+>/g, '');
 
                             if (!/\.\.\./.test(link) && /https?:\/\//.test(link)) {
@@ -70,10 +70,10 @@ module.exports = (data) => {
                         if (!!res.Abstract && !!res.AbstractSource)
                             embed.addField(`From ${res.AbstractSource}`, res.Abstract);
 
-                        if (!!res.AbstractURL)
+                        if (res.AbstractURL)
                             embed.setURL(res.AbstractURL);
 
-                        if (!!res.RelatedTopics) {
+                        if (res.RelatedTopics) {
                             let inc = 0, max = 3;
                             const length = res.RelatedTopics.length;
                             let str = '';
@@ -82,7 +82,7 @@ module.exports = (data) => {
                             for (let count = 0; count < length; count++) {
                                 const topic = res.RelatedTopics[count];
 
-                                if (!!!topic.FirstURL) {
+                                if (!topic.FirstURL) {
                                     other[topic.Name] = topic.Topics[0];
                                     continue;
                                 }
@@ -99,7 +99,7 @@ module.exports = (data) => {
                             if (str !== '')
                                 embed.addField('From DuckDuckGo - Related topics:', str);
 
-                            if (!!other)
+                            if (other)
                                 for (let i in other) {
                                     embed.addField(`From DuckDuckGo - ${i}`, `${other[i].Text}\n${other[i].FirstURL}`);
                                 }
@@ -112,8 +112,8 @@ module.exports = (data) => {
                 if (!embed.fields.length)
                     embed.addField('Nothing found.', 'Try a different search term.');
 
-                resolve(new Output({embed}));
+                resolve(new Output({ embed }));
             })
-            .catch(err => reject(new Output().setError(err)));
+            .catch((err) => reject(new Output().setError(err)));
     });
 };

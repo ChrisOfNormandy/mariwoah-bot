@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { MessageData, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const getSong = require('./getSong');
 const queue = require('../features/queue/map');
@@ -12,7 +12,7 @@ const queue = require('../features/queue/map');
 function embedSongInfo(song) {
     let embed = new Discord.MessageEmbed()
         .setTitle(song.title)
-        .setColor(chatFormat.colors.youtube)
+        .setColor(handlers.chat.colors.youtube)
         .setImage(song.thumbnail)
         .setURL(song.url)
         .addField(song.author, `Duration: ${song.duration.timestamp}`);
@@ -37,7 +37,7 @@ module.exports = {
         const requested = activeQueue.songs[index].requested || 'Unknown';
 
         const embed = {
-            color: chatFormat.colors.youtube,
+            color: handlers.chat.colors.youtube,
             title: title,
             url: song.url,
             footer: {
@@ -56,7 +56,9 @@ module.exports = {
                         : song.playlist.title
                             ? `Playlist: ${song.playlist.title}`
                             : 'Enjoy!',
-                    value: `Queue position: ${index == 0 ? 'Right now!' : index}`
+                    value: `Queue position: ${index === 0
+                        ? 'Right now!'
+                        : index}`
                 }
             ]
         };
@@ -79,8 +81,8 @@ module.exports = {
         return new Promise((resolve, reject) => {
             if (data.urls.length) {
                 getSong.byURL(message, data.urls[0])
-                    .then(video => resolve(embedSongInfo(video)))
-                    .catch(e => reject(e));
+                    .then((video) => resolve(embedSongInfo(video)))
+                    .catch((e) => reject(e));
             }
             else {
                 if (data.arguments.join(' ').trim() === 'this') {
@@ -94,7 +96,7 @@ module.exports = {
                 else {
                     getSong.byName(message, data.arguments.join(' '))
                         .then((song) => resolve(embedSongInfo(song)))
-                        .catch(e => reject(e));
+                        .catch((e) => reject(e));
                 }
             }
         });

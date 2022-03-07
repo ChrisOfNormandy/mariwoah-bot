@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const { MessageData, Output, chatFormat, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, helpers, handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { s3 } = require('../../../../helpers/aws');
 
-const { getChat} = helpers.filter;
+const { getChat } = helpers.filter;
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 
@@ -17,14 +17,14 @@ module.exports = (message, data) => {
     let filterName = data.arguments[0];
 
     if (!acceptedFilters.includes(filterName))
-        return Promise.reject(new Output().setError(new Error('Unsupported chat filter name.\nUse \`warned\`, \`kicked\` or \`banned\`.')));
+        return Promise.reject(new Output().setError(new Error('Unsupported chat filter name.\nUse `warned`, `kicked` or `banned`.')));
 
     return new Promise((resolve, reject) => {
         getChat(guildId, filterName)
-            .then(json => {
+            .then((json) => {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Chat filter list for \`${filterName}\` phrases.`)
-                    .setColor(chatFormat.colors.byName.darkred);
+                    .setColor(handlers.chat.colors.byName.darkred);
 
                 let str = '';
                 for (let i in json) {
@@ -37,13 +37,13 @@ module.exports = (message, data) => {
 
                 embed.addField('List:', str);
 
-                resolve(new Output({embed}).setValues(json));
+                resolve(new Output({ embed }).setValues(json));
             })
-            .catch(err => {
-                if (err.code == 'NoSuchKey') {
+            .catch((err) => {
+                if (err.code === 'NoSuchKey') {
                     s3.object.putData('mariwoah', `guilds/${guildId}/chat_filters`, `${filterName}.json`, '[]')
-                        .then(r => resolve(new Output(`No existing filter \`${filterName}\`. One has been created automatically.`).setValues(r)))
-                        .catch(err => reject(new Output().setError(err)));
+                        .then((r) => resolve(new Output(`No existing filter \`${filterName}\`. One has been created automatically.`).setValues(r)))
+                        .catch((err) => reject(new Output().setError(err)));
                 }
                 else
                     reject(reject(new Output().setError(err)));

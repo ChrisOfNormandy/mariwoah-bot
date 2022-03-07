@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { MessageData, Command, Output, chatFormat } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -9,9 +9,9 @@ const { MessageData, Command, Output, chatFormat } = require('@chrisofnormandy/m
  */
 module.exports = (data, list) => {
     const embed = new Discord.MessageEmbed()
-        .setColor(chatFormat.colors.information);
+        .setColor(handlers.chat.colors.information);
 
-    if (!!data.arguments.length) {
+    if (data.arguments.length) {
         let command = data.arguments[0];
 
         if (/\?/.test(command))
@@ -19,13 +19,13 @@ module.exports = (data, list) => {
 
         embed.setTitle(`Help - ${command}`);
 
-        const cmdSource = list.filter(cmd => { return cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g).includes(command) && cmd.enabled; });
+        const cmdSource = list.filter((cmd) => { return cmd.getRegex().command.source.replace(/[/()]/g, '').split(/\|/g).includes(command) && cmd.enabled; });
 
-        if (!!cmdSource.length) {
-            cmdSource.forEach(cmd => {
+        if (cmdSource.length) {
+            cmdSource.forEach((cmd) => {
                 // Command description.
-                if (!!cmd.subcommands.size) {
-                    cmd.subcommands.forEach(sc => {
+                if (cmd.subcommands.size) {
+                    cmd.subcommands.forEach((sc) => {
                         let desc = sc.getDescription();
 
                         // Command description.
@@ -35,11 +35,15 @@ module.exports = (data, list) => {
                         field += `**Syntax**\n ${data.prefix}${command} ${sc.name}\n`;
 
                         // Command argument list.
-                        if (!!desc.arguments.length) {
+                        if (desc.arguments.length) {
                             let msg = '';
 
                             desc.arguments.forEach((arg, i) => {
-                                msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
+                                msg += `${arg.optional
+                                    ? '_'
+                                    : ''}${arg._}: ${arg.d}${arg.optional
+                                        ? '_'
+                                        : ''}`;
 
                                 if (i < desc.arguments.length - 1)
                                     msg += '\n';
@@ -50,11 +54,15 @@ module.exports = (data, list) => {
                         }
 
                         // Command flag list.
-                        if (!!desc.flags.length) {
+                        if (desc.flags.length) {
                             let msg = '';
 
                             desc.flags.forEach((flag, i) => {
-                                msg += `${flag.optional ? '_' : ''}${flag._} : ${flag.d}${flag.optional ? '_' : ''}`;
+                                msg += `${flag.optional
+                                    ? '_'
+                                    : ''}${flag._} : ${flag.d}${flag.optional
+                                        ? '_'
+                                        : ''}`;
 
                                 if (i < desc.flags.length)
                                     msg += '\n';
@@ -70,16 +78,20 @@ module.exports = (data, list) => {
                     embed.addField('Description', cmd.getDescription().command);
 
                     // Command syntax.
-                    embed.addField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[\/\(\)]/g, '').split(/[\|]/g)[0]}`);
+                    embed.addField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[/()]/g, '').split(/\|/g)[0]}`);
 
                     let desc = cmd.getDescription();
 
                     // Command argument list.
-                    if (!!desc.arguments.length) {
+                    if (desc.arguments.length) {
                         let msg = '';
 
                         desc.arguments.forEach((arg, i) => {
-                            msg += `${arg.optional ? '_' : ''}${arg._}: ${arg.d}${arg.optional ? '_' : ''}`;
+                            msg += `${arg.optional
+                                ? '_'
+                                : ''}${arg._}: ${arg.d}${arg.optional
+                                    ? '_'
+                                    : ''}`;
 
                             if (i < desc.arguments.length - 1)
                                 msg += '\n';
@@ -90,7 +102,7 @@ module.exports = (data, list) => {
                     }
 
                     // Command flag list.
-                    if (!!desc.flags.length) {
+                    if (desc.flags.length) {
                         let msg = '';
 
                         desc.flags.forEach((flag, i) => {
@@ -111,7 +123,7 @@ module.exports = (data, list) => {
              */
             let groups = new Map();
 
-            list.forEach(cmd => {
+            list.forEach((cmd) => {
                 if (cmd.getGroup() === command) {
                     if (groups.has(cmd.getGroup()))
                         groups.get(cmd.getGroup()).push(cmd);
@@ -120,25 +132,25 @@ module.exports = (data, list) => {
                 }
             });
 
-            if (!!groups.size) {
+            if (groups.size) {
                 groups.forEach((cmdArr, g) => {
                     let msg = '';
 
                     const arr = cmdArr.filter((cmd, index) => {
-                        return cmdArr.findIndex(t => t.getRegex().command.source === cmd.getRegex().command.source) === index;
+                        return cmdArr.findIndex((t) => t.getRegex().command.source === cmd.getRegex().command.source) === index;
                     });
 
                     const l = arr.length;
 
                     for (let i = 0; i < l; i++) {
                         if (arr[i].enabled) {
-                            msg += arr[i].getRegex().command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+                            msg += arr[i].getRegex().command.source.replace(/[/()]/g, '').replace(/\|/g, ' | ');
 
-                            if (!!arr[i].subcommands.size) {
+                            if (arr[i].subcommands.size) {
                                 msg += '\n';
 
                                 let d = 0;
-                                arr[i].subcommands.forEach(v => {
+                                arr[i].subcommands.forEach((v) => {
                                     if (v.enabled) {
                                         msg += `-- ${v.name}`;
                                         if (d < arr[i].subcommands.size - 1)
@@ -168,7 +180,7 @@ module.exports = (data, list) => {
          */
         let groups = new Map();
 
-        list.forEach(cmd => {
+        list.forEach((cmd) => {
             if (groups.has(cmd.getGroup()))
                 groups.get(cmd.getGroup()).push(cmd);
             else
@@ -179,20 +191,20 @@ module.exports = (data, list) => {
             let msg = '';
 
             const arr = cmdArr.filter((cmd, index) => {
-                return cmdArr.findIndex(t => t.getRegex().command.source === cmd.getRegex().command.source) === index;
+                return cmdArr.findIndex((t) => t.getRegex().command.source === cmd.getRegex().command.source) === index;
             });
 
             const l = arr.length;
 
             for (let i = 0; i < l; i++) {
                 if (arr[i].enabled) {
-                    msg += arr[i].getRegex().command.source.replace(/[\/\(\)]/g, '').replace(/[\|]/g, ' | ');
+                    msg += arr[i].getRegex().command.source.replace(/[/()]/g, '').replace(/\|/g, ' | ');
 
-                    if (!!arr[i].subcommands.size) {
+                    if (arr[i].subcommands.size) {
                         msg += '\n';
 
                         let d = 0;
-                        arr[i].subcommands.forEach(v => {
+                        arr[i].subcommands.forEach((v) => {
                             if (v.enabled) {
                                 msg += `-- ${v.name}`;
                                 if (d < arr[i].subcommands.size - 1)
@@ -211,5 +223,5 @@ module.exports = (data, list) => {
         });
     }
 
-    return Promise.resolve(new Output({embed}).setValues(list));
+    return Promise.resolve(new Output({ embed }).setValues(list));
 };

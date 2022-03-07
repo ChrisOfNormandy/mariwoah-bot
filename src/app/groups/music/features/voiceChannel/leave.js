@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { Output, chatFormat, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const { getVoiceChannel } = handlers.channels;
 const stop = require('../queue/stop');
@@ -15,12 +15,11 @@ module.exports = (message) => {
 
     if (!vc)
         return Promise.resolve(new Output().setError(new Error('No voice channel.')));
-    else {
-        vc.leave();
 
-        if (queue.has(message.guild.id))
-            return stop(message);
+    vc.leave();
 
-        return Promise.resolve(new Output("Left the voice channel."));
-    }
+    if (queue.has(message.guild.id))
+        return stop(message);
+
+    return Promise.resolve(new Output("Left the voice channel."));
 };
