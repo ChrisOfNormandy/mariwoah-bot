@@ -75,17 +75,40 @@ class Bot {
                 }
             };
 
-            const onReady = () => {
+            /**
+             * 
+             * @param {Client} client 
+             */
+            const onReady = (client) => {
                 console.log(this._formatStr(this.startupMessage));
                 this.setStatus(this.status, this.statusType);
+
+                if (this.config.settings.logging.enabled) {
+                    this.config.settings.logging.channels.forEach((log) => {
+                        client.guilds.fetch(log.guild)
+                            .then((guild) => {
+                                if (log.options.onStart)
+                                    guild.channels.cache
+                                        .get(log.channel)
+                                        .send('This bot has been configured to output logging notifications to this channel.\nThis is a startup notice.');
+                            })
+                            .catch((err) => console.error('Failed to fetch guild.', err));
+                    });
+                }
+            };
+
+            const onError = (err) => {
+                console.error(err);
             };
 
             const onLogin = () => {
-                this.client.on('messageCreate', (message) => onMessage(message));
+                console.log('Logged in successfully.');
 
-                this.client.on('error', (err) => console.error(err));
+                this.client.on('ready', onReady);
 
-                this.client.on('ready', () => onReady);
+                this.client.on('error', onError);
+
+                this.client.on('messageCreate', onMessage);
             };
 
             if (this.config.auth.token) {

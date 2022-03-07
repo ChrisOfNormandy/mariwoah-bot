@@ -1,6 +1,12 @@
 export = Bot;
 declare class Bot {
-    constructor(config: any, intents: any);
+    /**
+     *
+     * @param {*} config
+     * @param {Intents[]} intents
+     * @param {*} commands
+     */
+    constructor(config: any, intents: Intents[], commands: any);
     /**
      *
      * @param {{devEnabled: boolean}} options
@@ -27,9 +33,10 @@ declare class Bot {
     status: string;
     statusType: string;
     config: any;
-    intents: any;
+    intents: Intents[];
     client: Client<boolean>;
     prefix: any;
     startupMessage: string;
 }
+import { Intents } from "discord.js";
 import { Client } from "discord.js";
