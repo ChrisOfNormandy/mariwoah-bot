@@ -54,7 +54,7 @@ function help(data, list) {
                             });
 
                             field += `**Arguments**\n ${msg}`;
-                            embed.setFooter('Arguments in italics are optional.');
+                            embed.setFooter({ text: 'Arguments in italics are optional.' });
                         }
 
                         // Command flag list.
@@ -204,26 +204,27 @@ function help(data, list) {
             const l = arr.length;
 
             for (let i = 0; i < l; i++) {
-                if (arr[i].enabled) {
-                    msg += arr[i].getRegex().command.source.replace(/[/()]/g, '').replace(/[|]/g, ' | ');
+                if (!arr[i].enabled)
+                    continue;
 
-                    if (arr[i].subcommands.size) {
-                        msg += '\n';
+                msg += arr[i].getRegex().command.source.replace(/[/()]/g, '').replace(/[|]/g, ' | ');
 
-                        let d = 0;
-                        arr[i].subcommands.forEach((v) => {
-                            if (v.enabled) {
-                                msg += `-- ${v.name}`;
-                                if (d < arr[i].subcommands.size - 1)
-                                    msg += '\n';
-                            }
-                            d++;
-                        });
-                    }
+                if (arr[i].subcommands.size) {
+                    msg += '\n';
 
-                    if (i < cmdArr.length - 1)
-                        msg += '\n';
+                    let d = 0;
+                    arr[i].subcommands.forEach((v) => {
+                        if (v.enabled) {
+                            msg += `-- ${v.name}`;
+                            if (d < arr[i].subcommands.size - 1)
+                                msg += '\n';
+                        }
+                        d++;
+                    });
                 }
+
+                if (i < cmdArr.length - 1)
+                    msg += '\n';
             }
 
             embed.addField(g, msg, true);

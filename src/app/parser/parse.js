@@ -1,7 +1,7 @@
 const Output = require('../objects/Output');
 const MessageData = require('../objects/MessageData');
 
-const { getList } = require('../commands');
+const commands = require('../commands');
 
 /**
  * 
@@ -14,7 +14,7 @@ const { getList } = require('../commands');
  * @returns {Promise<Output>}
  */
 function parseString(client, content, prefix, message, ingest = undefined, ingestData = undefined) {
-    const validCommands = getList().filter((cmd) =>
+    const validCommands = commands.getList().filter((cmd) =>
         !!cmd.getRegex().command &&
         new RegExp(`${prefix}(${cmd.getRegex().command.source})`).test(content)
     );
@@ -27,6 +27,7 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
     let data = new MessageData(client, content, message.member, prefix, ingest, ingestData);
 
     let regex, commandStringRegex, subCommandRegex, str;
+
     while (!finished && index < validCommands.length) {
         regex = validCommands[index].getRegex();
 
@@ -144,6 +145,48 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
 }
 
 /**
+ * 
+ * @param {Error} err 
+ * @param {Message} message 
+ * @param {*} options 
+ * @param {function} reject 
+ */
+function onParseError(err, message, options, reject) {
+    if (err.error === null) {
+        err.getContent().forEach((msg) => {
+            if (msg)
+                message.channel.send(msg);
+        });
+
+        if (options.devEnabled)
+            reject(err.getErrors());
+        else
+            reject(null);
+    }
+    else {
+        try {
+            if (err.options.has('output') && err.options.get('output')) {
+                err.getContent().forEach((msg) => {
+                    if (msg)
+                        message.channel.send(msg);
+                });
+
+                if (options.devEnabled)
+                    reject(err.getErrors());
+                else
+                    reject(null);
+            }
+            else if (options.devEnabled)
+                console.error(err);
+        }
+        catch (e) {
+            console.error(err);
+            reject(err);
+        }
+    }
+}
+
+/**
  *
  * @param {Discord.Client} client
  * @param {Discord.Message} message
@@ -152,65 +195,35 @@ function parseString(client, content, prefix, message, ingest = undefined, inges
  * @returns {Promise<Output>}
  */
 function parse(client, message, prefix, options) {
-    if (new RegExp(`^${prefix}`).test(message.content))
-        return new Promise((resolve, reject) => {
-            parseString(client, message.content, prefix, message)
-                .then((response) => {
-                    console.log('RESPONSE:', response);
+    const prefixCheck = new RegExp(`^${prefix}`);
 
-                    response.getContent().forEach((msg) => {
-                        message.channel.send(msg)
-                            .then((msg) => {
-                                if (response.options.has('clear'))
-                                    setTimeout(() => msg.delete().catch((err) => reject(err)), response.options.get('clear').delay * 1000);
+    if (!prefixCheck.test(message.content))
+        return Promise.reject(null);
 
-                                resolve(response);
-                            })
-                            .catch((err) => reject(err));
-                    });
-                })
-                .catch((err) => {
-                    console.log('FAILED TO PARSE COMMAND.');
-                    console.error(err);
+    return new Promise((resolve, reject) => {
+        parseString(client, message.content, prefix, message)
+            .then((response) => {
+                console.log('RESPONSE:', response);
 
-                    if (err !== null) {
-                        if (err.error === null) {
-                            err.getContent().forEach((msg) => {
-                                if (msg)
-                                    message.channel.send(msg);
-                            });
+                response.getContent().forEach((msg) => {
+                    message.channel.send(msg)
+                        .then((msg) => {
+                            if (response.options.has('clear'))
+                                setTimeout(() => msg.delete().catch((err) => reject(err)), response.options.get('clear').delay * 1000);
 
-                            if (options.devEnabled)
-                                reject(err.getErrors());
-                            else
-                                reject(null);
-                        }
-                        else {
-                            try {
-                                if (err.options.has('output') && err.options.get('output')) {
-                                    err.getContent().forEach((msg) => {
-                                        if (msg)
-                                            message.channel.send(msg);
-                                    });
-
-                                    if (options.devEnabled)
-                                        reject(err.getErrors());
-                                    else
-                                        reject(null);
-                                }
-                                else if (options.devEnabled)
-                                    console.error(err);
-                            }
-                            catch (e) {
-                                console.error(err);
-                                reject(err);
-                            }
-                        }
-                    }
+                            resolve(response);
+                        })
+                        .catch((err) => reject(err));
                 });
-        });
+            })
+            .catch((err) => {
+                console.log('FAILED TO PARSE COMMAND.');
+                console.error(err);
 
-    return Promise.reject(null);
+                if (err !== null)
+                    onParseError(err, message, options, reject);
+            });
+    });
 }
 
 module.exports = parse;

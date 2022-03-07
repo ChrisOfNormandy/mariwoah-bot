@@ -5,7 +5,7 @@ declare class Command {
      * @param {string} group
      * @param {function(Discord.Message, MessageData)} func
      */
-    constructor(group?: string, func?: (arg0: Discord.Message, arg1: MessageData) => any, ...args: any[]);
+    constructor(group?: string, func?: (arg0: Discord.Message, arg1: MessageData) => any);
     /**
      *
      * @returns {string}
@@ -29,7 +29,7 @@ declare class Command {
      * @param {boolean} optional
      * @returns {Command}
      */
-    setRegex(command: RegExp, args?: RegExp, indexes?: number[], optional?: boolean, ...args: any[]): Command;
+    setRegex(command: RegExp, args?: RegExp, indexes?: number[], optional?: boolean): Command;
     /**
      * @type {{command: RegExp, arguments: RegExp, argumentIndexes: number[], argsOptional: boolean}}
      */

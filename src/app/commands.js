@@ -7,11 +7,8 @@ const help = require('./help');
  * 
  * @returns {Command[]}
  */
-function getList() {
+function getCommandList() {
     let list = [];
-    Array.from(groups.cache.values()).forEach((group) => {
-        group.getCommands().forEach((command) => list.push(command));
-    });
 
     list.push(
         new Command(
@@ -24,6 +21,8 @@ function getList() {
             .setSetting('responseClear', { delay: 30 })
             .setSetting('commandClear', { delay: 0 })
     );
+
+    groups.cache.forEach((group) => group.getCommands().forEach((command) => list.push(command)));
 
     return list;
 }
@@ -39,11 +38,12 @@ const commands = {
      * 
      * @returns {Command[]}
      */
-    getList: () => {
-        return commands.cache.length
-            ? commands.cache
-            : getList();
+    getList() {
+        if (!this.cache.length)
+            this.cache = getCommandList();
+
+        return this.cache;
     }
 };
 
-module.exports = { commands };
+module.exports = commands;
