@@ -13,5 +13,5 @@ module.exports = (message, data) => {
         .setColor(handlers.chat.colors.byName.white)
         .addField(message.member.nickname || message.author.username, data.arguments[0]);
 
-    return Promise.resolve(new Output({ embed }).setValues(data.arguments[0]));
+    return Promise.resolve(new Output({ embeds: [embed] }).setValues(data.arguments[0]));
 };

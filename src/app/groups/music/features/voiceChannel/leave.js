@@ -1,9 +1,9 @@
-const Discord = require('discord.js');
+const stop = require('../queue/stop');
+const queue = require('../queue/queue');
+
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { getVoiceChannel } = handlers.channels;
-const stop = require('../queue/stop');
-const queue = require('../queue/map');
+const { voiceChannel } = handlers.channels;
 
 /**
  * 
@@ -11,15 +11,15 @@ const queue = require('../queue/map');
  * @returns {Promise<Output>}
  */
 module.exports = (message) => {
-    const vc = getVoiceChannel(message);
+    const vc = voiceChannel.get(message);
 
     if (!vc)
         return Promise.resolve(new Output().setError(new Error('No voice channel.')));
 
-    vc.leave();
+    voiceChannel.leave(message);
 
-    if (queue.has(message.guild.id))
+    if (queue.exists(message.guild.id))
         return stop(message);
 
-    return Promise.resolve(new Output("Left the voice channel."));
+    return Promise.resolve(new Output('Left the voice channel.'));
 };

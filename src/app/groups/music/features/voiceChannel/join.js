@@ -16,7 +16,7 @@ module.exports = (message) => {
             resolve(new Output().setError(new Error('No voice channel.')));
         else
             vc.join()
-                .then(r => resolve(new Output().setValues(r)))
-                .catch(err => reject(new Output().setError(err)));
+                .then((r) => resolve(new Output().setValues(r)))
+                .catch((err) => reject(new Output().setError(err)));
     });
 };

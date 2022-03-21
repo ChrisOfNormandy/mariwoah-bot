@@ -16,7 +16,7 @@ module.exports = (message, playlistName) => {
                     .setColor(handlers.chat.colors.byName.green)
                     .addField('Successfully created playlist:', playlistName);
 
-                resolve(new Output({ embed }).setValues(res));
+                resolve(new Output({ embeds: [embed] }).setValues(res));
             })
             .catch(err => {
                 let embed = new Discord.MessageEmbed()
@@ -24,7 +24,7 @@ module.exports = (message, playlistName) => {
                     .setColor(handlers.chat.colors.byName.red)
                     .addField('There already exists a playlist named:', playlistName);
 
-                reject(new Output({ embed }).setError(err));
+                reject(new Output({ embeds: [embed] }).setError(err));
             });
     });
 };

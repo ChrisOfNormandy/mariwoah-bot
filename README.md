@@ -13,3 +13,5 @@ Functions the bot performs:
 
 > Prefixes can be custom per server. Default is ~ (tilde).
 > Allows setting server MOTDs using Discord MessageEmbeds.
+
+Start `psql` in WSL2: `sudo service postgresql start`

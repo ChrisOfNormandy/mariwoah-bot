@@ -1,8 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const { getVoiceChannel } = handlers;
-const queue = require('../queue/map');
+const { voiceChannel } = handlers.channels;
+const queue = require('./queue');
+const leave = require('../voiceChannel/leave');
 
 /**
  * 
@@ -10,21 +12,23 @@ const queue = require('../queue/map');
  * @param {string} reason 
  * @returns {Promise<Output>}
  */
-module.exports = function (message, reason = null) {
-    const vc = getVoiceChannel(message);
+module.exports = (message) => {
+    const vc = voiceChannel.get(message);
 
     if (!vc)
         return Promise.reject(new Output().setError(new Error('No voice channel.')));
 
-    if (!queue.has(message.guild.id))
+    if (!queue.exists(message.guild.id))
         return Promise.reject(new Output().setError(new Error('No active queue.')));
 
-    queue.delete(message.guild.id);
-    getVoiceChannel(message).leave();
+    const q = queue.get(message.guild.id);
+    q.player.stop();
 
-    return Promise.resolve(new Output(
-        reason
-            ? reason
-            : 'Stopping.'
-    ).setValues(reason));
+    queue.delete(message.guild.id);
+
+    return new Promise((resolve, reject) => {
+        leave(message)
+            .then((r) => resolve(r))
+            .catch((err) => reject(err));
+    });
 };

@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { Output, helpers, handlers } = require('@chrisofnormandy/mariwoah-bot');
-const { s3 } = require('../../../../helpers/aws');
+// const { s3 } = require('../../../../helpers/aws');
 
 const { getChat } = helpers.filter;
 
@@ -37,7 +37,7 @@ module.exports = (message, data) => {
 
                 embed.addField('List:', str);
 
-                resolve(new Output({ embed }).setValues(json));
+                resolve(new Output({ embeds: [embed] }).setValues(json));
             })
             .catch((err) => {
                 if (err.code === 'NoSuchKey') {

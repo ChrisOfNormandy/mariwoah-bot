@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const ddg = require('node-duckduckgo').duckIt;
+const { duckIt } = require('node-duckduckgo');
+const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
  * 
@@ -15,18 +15,21 @@ module.exports = (data) => {
 
     if (/\\.+/.test(query) || data.flags.has('d'))
         searchType = 'direct';
+
     if (data.flags.has('d'))
         query = `\\${query}`;
 
     if (/!bing\s.+/.test(query) || data.flags.has('b'))
         searchType = 'bing';
+
     if (data.flags.has('b'))
         query = `!bing ${query}`;
 
     return new Promise((resolve, reject) => {
-        ddg(query, { noHtml: true, parentalFilter: 'Moderate' })
+        duckIt(query, { noHtml: true, parentalFilter: 'Moderate' })
             .then((response) => {
                 const res = response.data;
+
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Search results for ${query}`)
                     .setColor(handlers.chat.colors.byName.aqua);
@@ -64,6 +67,7 @@ module.exports = (data) => {
                         });
 
                         embed.addField('Search Results', str);
+
                         break;
                     }
                     default: {
@@ -112,7 +116,7 @@ module.exports = (data) => {
                 if (!embed.fields.length)
                     embed.addField('Nothing found.', 'Try a different search term.');
 
-                resolve(new Output({ embed }));
+                resolve(new Output({ embeds: [embed] }));
             })
             .catch((err) => reject(new Output().setError(err)));
     });

@@ -1,45 +1,84 @@
-const getSong = require('../../helpers/getSong');
 const append = require('./append');
+const getSong = require('../../helpers/getSong');
+
 const { handlers } = require('@chrisofnormandy/mariwoah-bot');
+
 const { shuffle } = handlers.arrays;
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 function byName(message, data) {
     return new Promise((resolve, reject) => {
-        getSong.byName(message, data.arguments.join(' '), data)
-            .then((song) => resolve(append(message, [song], data.flags)))
-            .catch((e) => reject(e));
+        getSong.byName(message, data.arguments.join(' '))
+            .then((song) => {
+                append(message, [song], data.flags)
+                    .then((r) => resolve(r))
+                    .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 function byURLArray(message, data) {
     return new Promise((resolve, reject) => {
         getSong.byURLArray(message, data.urls)
             .then((arr) => {
                 if (data.flags.has('s')) {
-                    shuffle(arr)
-                        .then((arr_) => resolve(append(message, arr_, data.flags)))
-                        .catch((e) => reject(e));
+                    const songs = shuffle(arr);
+
+                    append(message, songs, data.flags)
+                        .then((r) => resolve(r))
+                        .catch((err) => reject(err));
                 }
-                else
-                    resolve(append(message, arr, data.flags));
+                else {
+                    append(message, arr, data.flags)
+                        .then((r) => resolve(r))
+                        .catch((err) => reject(err));
+                }
             })
-            .catch((e) => reject(e));
+            .catch((err) => reject(err));
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns {Promise<Output>}
+ */
 function byPlaylist(message, data) {
     return new Promise((resolve, reject) => {
         getSong.byPlaylist(message, data.arguments.join(' '), data)
-            .then((playlistData) => resolve(append(message, playlistData, data.flags)))
-            .catch((e) => reject(e));
+            .then((playlistData) => {
+                append(message, playlistData, data.flags)
+                    .then((r) => resolve(r))
+                    .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
     });
 }
 
+/**
+ * 
+ * @param {Discord.Message} message 
+ * @param {MessageData} data 
+ * @returns 
+ */
 module.exports = (message, data) => {
     if (data.urls.length)
         return byURLArray(message, data);
 
-    return (data.flags.p)
+    return (data.flags.has('p'))
         ? byPlaylist(message, data)
         : byName(message, data);
 };

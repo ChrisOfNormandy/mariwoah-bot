@@ -1,72 +1,21 @@
-const Discord = require('discord.js');
-const { handlers } = require('@chrisofnormandy/mariwoah-bot');
-
 const getSong = require('./getSong');
-const queue = require('../features/queue/map');
+const Discord = require('discord.js');
+const queue = require('../features/queue/queue');
 
-/**
- * 
- * @param {*} song 
- * @returns {Discord.MessageEmbed}
- */
-function embedSongInfo(song) {
-    let embed = new Discord.MessageEmbed()
-        .setTitle(song.title)
-        .setColor(handlers.chat.colors.youtube)
-        .setImage(song.thumbnail)
-        .setURL(song.url)
-        .addField(song.author, `Duration: ${song.duration.timestamp}`);
-
-    return embed;
-}
+const { handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 module.exports = {
     /**
      * 
-     * @param {string} title 
-     * @param {*} activeQueue 
-     * @param {number} index 
-     * @param {*} fromPlaylist 
+     * @param {SongData} songData
      * @returns {Promise<Discord.MessageEmbed>}
      */
-    single: (title, activeQueue, index, fromPlaylist = false) => {
-        if (!activeQueue.songs[index])
-            return Promise.reject(new Error('No active queue.'));
-
-        const song = activeQueue.songs[index] || null;
-        const requested = activeQueue.songs[index].requested || 'Unknown';
-
-        const embed = {
-            color: handlers.chat.colors.youtube,
-            title: title,
-            url: song.url,
-            footer: {
-                text: 'Powered by YouTube and pure rage.'
-            },
-            image: undefined,
-            thumbnail: undefined,
-            fields: [
-                {
-                    name: song.title,
-                    value: `${song.author} | Requested: ${requested}`
-                },
-                {
-                    name: song.duration.timestamp
-                        ? `Duration: ${song.duration.timestamp}`
-                        : song.playlist.title
-                            ? `Playlist: ${song.playlist.title}`
-                            : 'Enjoy!',
-                    value: `Queue position: ${index === 0
-                        ? 'Right now!'
-                        : index}`
-                }
-            ]
-        };
-
-        if (fromPlaylist)
-            embed.thumbnail = { url: song.thumbnail };
-        else
-            embed.image = { url: song.thumbnail };
+    single(songData) {
+        const embed = new Discord.MessageEmbed()
+            .setTitle(songData.title)
+            .setColor(handlers.chat.colors.youtube)
+            .setURL(songData.url)
+            .setFooter({ text: 'Powered by YouTube and pure rage.' });
 
         return Promise.resolve(embed);
     },
@@ -77,26 +26,22 @@ module.exports = {
      * @param {MessageData} data 
      * @returns {Promise<Discord.MessageEmbed>}
      */
-    songInfo: function (message, data) {
+    songInfo(message, data) {
         return new Promise((resolve, reject) => {
             if (data.urls.length) {
                 getSong.byURL(message, data.urls[0])
-                    .then((video) => resolve(embedSongInfo(video)))
+                    .then((ret) => resolve(ret.getEmbed()))
                     .catch((e) => reject(e));
             }
             else {
-                if (data.arguments.join(' ').trim() === 'this') {
-                    if (queue.has(message.guild.id)) {
-                        let songs = queue.get(message.guild.id).songs;
-                        resolve(embedSongInfo(songs[0]));
-                    }
-                    else
-                        resolve('No active queue.');
-                }
+                let name = data.arguments.join(' ').trim();
+
+                if (name === 'this' && queue.exists(message.guild.id))
+                    resolve(queue.get(message.guild.id).songs[0].getEmbed());
                 else {
-                    getSong.byName(message, data.arguments.join(' '))
-                        .then((song) => resolve(embedSongInfo(song)))
-                        .catch((e) => reject(e));
+                    getSong.byName(message, name)
+                        .then((song) => resolve(song.getEmbed()))
+                        .catch((err) => reject(err));
                 }
             }
         });

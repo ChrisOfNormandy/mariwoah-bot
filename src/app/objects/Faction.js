@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { s3 } = require('../helpers/aws');
+// const { s3 } = require('../helpers/aws');
 
 const faction = require('./helpers/faction');
 
@@ -236,7 +236,7 @@ class Faction {
                 this.delete()
                     .then(() => reject(new Error('No members; Deleting.')))
                     .catch(err => reject(err));
-            });            
+            });
         }
 
         return new Promise((resolve, reject) => {

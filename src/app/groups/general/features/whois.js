@@ -74,7 +74,7 @@ module.exports = {
         return new Promise((resolve) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-            resolve(new Output({ embed }).setValues(user));
+            resolve(new Output({ embeds: [embed] }).setValues(user));
         });
     },
 
@@ -92,7 +92,7 @@ module.exports = {
         return new Promise((resolve) => {
             const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-            resolve(new Output({ embed }).setValues(user));
+            resolve(new Output({ embeds: [embed] }).setValues(user));
         });
     }
 };

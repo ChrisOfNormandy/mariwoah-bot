@@ -1,9 +1,12 @@
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const queue = require('./map');
-const { getVoiceChannel } = handlers.channels;
-const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
+const queue = require('./queue');
+const { voiceChannel } = handlers.channels;
+
+const play = require('./play');
+const stop = require('./stop');
 
 /**
  * 
@@ -11,17 +14,29 @@ const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
  * @returns {Promise<Output>}
  */
 module.exports = (message) => {
-    if (!getVoiceChannel(message))
+    const vc = voiceChannel.get(message);
+
+    if (!vc)
         return Promise.reject(new Output().setError(new Error('No voice channel.')));
 
-    if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active)
+    if (!queue.exists(message.guild.id))
         return Promise.reject(new Output().setError(new Error('No active queue.')));
 
-    queue.get(message.guild.id).connection.dispatcher.end();
+    const q = queue.get(message.guild.id);
 
-    return Promise.resolve(new Output(
-        queue.get(message.guild.id).songs.length > 1
-            ? getEmbedSongInfo.single('Now playing...', queue.get(message.guild.id), 1)
-            : 'Skipping.')
-    );
+    return new Promise((resolve, reject) => {
+        q.player.stop();
+        q.songs.shift();
+
+        if (q.songs.length) {
+            play(message, q)
+                .then((r) => resolve(r))
+                .catch((err) => reject(err));
+        }
+        else {
+            stop(message)
+                .then((r) => resolve(r))
+                .catch((err) => reject(err));
+        }
+    });
 };

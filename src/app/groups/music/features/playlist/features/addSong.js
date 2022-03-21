@@ -1,6 +1,8 @@
-const { s3 } = require('../../../../../helpers/aws');
-
 const getSongObject = require('../../../helpers/getSong');
+
+const { handlers } = require('@chrisofnormandy/mariwoah-bot');
+
+const { database } = handlers;
 
 function byName(message, playlistName, songName) {
     return new Promise((resolve, reject) => {

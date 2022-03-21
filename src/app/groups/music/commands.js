@@ -86,19 +86,19 @@ function getMusicCommands() {
             'music',
             (message) => groups.music.voiceChannel.leave(message)
         )
-            .setRegex(/(leave)|(bye)|(dc)/)
+            .setRegex(/(leave)|(bye)|(dc\b)/)
             .setCommandDescription('Removes the bot from the voice channel.'),
         new Command(
             'music',
             (message) => groups.music.queue.skip(message)
         )
-            .setRegex(/(skip)|(next)/)
+            .setRegex(/(skip)|(next)|(n\b)/)
             .setCommandDescription('Skips the current video in the active queue.'),
         new Command(
             'music',
             (message) => groups.music.queue.stop(message)
         )
-            .setRegex(/(stop)/)
+            .setRegex(/(stop)|(s\b)/)
             .setCommandDescription('Stops the active queue.'),
         new Command(
             'music',
@@ -106,6 +106,12 @@ function getMusicCommands() {
         )
             .setRegex(/(queue)|(q\b)/)
             .setCommandDescription('Lists the videos in the active queue.'),
+        new Command(
+            'music',
+            (message) => groups.music.queue.loop(message)
+        )
+            .setRegex(/(loop)/)
+            .setCommandDescription('Loops the current track.'),
         new Command(
             'music',
             (message) => groups.music.queue.pause(message)

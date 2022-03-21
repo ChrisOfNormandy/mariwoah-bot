@@ -3,6 +3,7 @@ module.exports = {
     queue: {
         skip: require('./features/queue/skip'),
         list: require('./features/queue/list'),
+        loop: require('./features/queue/loop'),
         stop: require('./features/queue/stop'),
         pause: require('./features/queue/pause').pause,
         resume: require('./features/queue/pause').resume,

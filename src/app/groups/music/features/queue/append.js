@@ -3,43 +3,31 @@ const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const { shuffle } = handlers.arrays;
-const { getVoiceChannel } = handlers.channels;
+const { voiceChannel } = handlers.channels;
 
-const queue = require('./map');
+const queue = require('./queue');
 const play = require('./play');
-const getEmbed = require('../../helpers/getEmbedSongInfo');
+// eslint-disable-next-line no-unused-vars
+const Queue = require('../../helpers/Queue');
 
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} songs 
- * @param {Map} flags 
- * @param {*} startFlag 
+ * @param {SongData[]} songs 
+ * @param {Map<string, *>} flags 
+ * @param {Queue} q
  * @returns {Promise<Output>}
  */
-function f(message, songs, flags, startFlag) {
+function start(message, songs, flags, q) {
+    if (!songs.length)
+        return Promise.reject(new Output().setError(new Error('No songs to add.')));
+
     return new Promise((resolve, reject) => {
-        for (let i in songs)
-            queue.get(message.guild.id).songs.push(songs[i]);
+        q.add(message.member, ...songs);
 
-        if (flags.has('n'))
-            play(message, queue.get(message.guild.id).songs[0])
-                .then((r) => resolve(r))
-                .catch((err) => reject(err));
-        else {
-            let fromPlaylist = !!queue.get(message.guild.id).songs[0].playlist.title;
-
-            if (startFlag) {
-                getEmbed.single('Now playing...', queue.get(message.guild.id), 0, fromPlaylist)
-                    .then((embed) => resolve(new Output({ embed }).setValues(play(message, queue.get(message.guild.id).songs[0])).setOption('clear', { delay: queue.get(message.guild.id).songs[0].duration.seconds })))
-                    .catch((err) => reject(new Output().setError(err)));
-            }
-            else {
-                getEmbed.single('Added to queue:', queue.get(message.guild.id), queue.get(message.guild.id).songs.length - 1, fromPlaylist)
-                    .then((embed) => resolve(new Output({ embed }).setValues(queue.get(message.guild.id).songs)))
-                    .catch((err) => reject(new Output().setError(err)));
-            }
-        }
+        play(message, q)
+            .then((r) => resolve(r))
+            .catch((err) => reject(err));
     });
 }
 
@@ -47,22 +35,22 @@ function f(message, songs, flags, startFlag) {
  * 
  * @param {Discord.Message} message 
  * @param {Map} flags 
- * @param {*} songs 
- * @param {*} startFlag 
+ * @param {SongData[]} songs 
+ * @param {Queue} q
  * @returns {Promise<Output>}
  */
-function p(message, flags, songs, startFlag) {
+function process(message, songs, flags, q) {
     return new Promise((resolve, reject) => {
         if (flags.has('s'))
             shuffle(songs)
                 .then((songs) => {
-                    f(message, songs, flags, startFlag)
+                    start(message, songs, flags, q)
                         .then((res) => resolve(res))
                         .catch((err) => reject(err));
                 })
                 .catch((err) => reject(new Output().setError(err)));
         else
-            f(message, songs, flags, startFlag)
+            start(message, songs, flags, q)
                 .then((res) => resolve(res))
                 .catch((err) => reject(err));
     });
@@ -71,8 +59,8 @@ function p(message, flags, songs, startFlag) {
 /**
  * 
  * @param {Discord.Message} message 
- * @param {*} songs 
- * @param {Map} flags 
+ * @param {SongData[]} songs 
+ * @param {Map<string, *>} flags 
  * @returns {Promise<Output>}
  */
 module.exports = (message, songs, flags) => {
@@ -80,42 +68,23 @@ module.exports = (message, songs, flags) => {
         if (!songs.length)
             reject(new Output().setError(new Error('Tried to add 0 songs to the active queue.')));
         else {
-            const voiceChannel = getVoiceChannel(message);
-            let startFlag = false;
+            const vc = voiceChannel.get(message);
 
-            if (!voiceChannel)
+            if (!vc)
                 reject(new Output().setError(new Error('No voice channel.')));
             else {
-                if (!queue.has(message.guild.id) || !queue.get(message.guild.id).active) {
-                    let activeQueue = {
-                        voiceChannel: voiceChannel,
-                        connection: null,
-                        songs: [],
-                        volume: 5,
-                        active: true,
-                        previousSong: null,
-                        dispatcher: null
-                    };
-
-                    queue.set(message.guild.id, activeQueue);
-                    startFlag = true;
+                if (!queue.exists(message.guild.id)) {
+                    queue.add(message.guild.id, vc.id);
                 }
 
-                if (queue.get(message.guild.id).connection === null) {
-                    voiceChannel.join()
-                        .then((connection) => {
-                            queue.get(message.guild.id).connection = connection;
+                const q = queue.get(message.guild.id);
 
-                            p(message, flags, songs, startFlag)
-                                .then((r) => resolve(new Output().setValues(r)))
-                                .catch((err) => reject(new Output().setError(err)));
-                        })
-                        .catch((err) => reject(new Output().setError(err)));
-                }
-                else
-                    p(message, flags, songs, startFlag)
-                        .then((r) => resolve(new Output().setValues(r)))
-                        .catch((err) => reject(new Output().setError(err)));
+                const connection = voiceChannel.join(message, vc.id);
+                queue.get(message.guild.id).connect(connection);
+
+                process(message, songs, flags, q)
+                    .then((r) => resolve(new Output().setValues(r)))
+                    .catch((err) => reject(new Output().setError(err)));
             }
         }
     });

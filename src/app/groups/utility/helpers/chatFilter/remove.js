@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
 
-const { s3 } = require('../../../../helpers/aws');
+// const { s3 } = require('../../../../helpers/aws');
 
 const acceptedFilters = ['warned', 'kicked', 'banned'];
 

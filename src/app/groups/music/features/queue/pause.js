@@ -1,6 +1,6 @@
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
-const queue = require('./map');
+const queue = require('./queue');
 
 /**
  * 

@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
@@ -223,5 +224,5 @@ module.exports = (data, list) => {
         });
     }
 
-    return Promise.resolve(new Output({ embed }).setValues(list));
+    return Promise.resolve(new Output({ embeds: [embed] }).setValues(list));
 };
