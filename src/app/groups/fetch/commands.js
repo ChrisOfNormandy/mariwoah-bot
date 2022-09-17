@@ -8,6 +8,7 @@ const { Command } = require('@chrisofnormandy/mariwoah-bot');
 module.exports = [
     new Command(
         'fetch',
+        'find-image',
         (message, data) => groups.fetch.findImg(data)
     )
         .setRegex(/(findimg\b)|(img\b)/, /\s(.+)/, [1])
@@ -18,6 +19,7 @@ module.exports = [
 
     new Command(
         'fetch',
+        'find',
         (message, data) => groups.fetch.find(data)
     )
         .setRegex(/(find\b)|(search\b)/, /\s(.+)/, [1])

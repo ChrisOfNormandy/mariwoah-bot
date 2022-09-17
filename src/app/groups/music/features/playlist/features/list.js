@@ -2,17 +2,20 @@ const Discord = require('discord.js');
 const path = require('path');
 
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
-// const { s3 } = require('../../../../../helpers/aws');
+const { database } = handlers;
 
 /**
  * 
- * @param {string} guild_id 
- * @returns {Promise<AWS.S3.ObjectList>}
+ * @param {string} guildId 
+ * @returns {Promise<*[]>}
  */
-function getList(guild_id) {
+function getList(guildId) {
     return new Promise((resolve, reject) => {
-        s3.object.list('mariwoah', `guilds/${guild_id}/playlists`)
-            .then((list) => resolve(list))
+        database.select('playlists', { guild_created_id: guildId })
+            .then((r) => {
+                console.log(r);
+                resolve(r);
+            })
             .catch((err) => reject(err));
     });
 }
@@ -92,7 +95,7 @@ function all(guild_id) {
  * @returns {Promise<Output>}
  */
 module.exports = (message, data) => {
-    return (data.arguments[0])
+    return data.arguments.length
         ? byName(message.guild.id, data.arguments[0])
         : all(message.guild.id);
 };

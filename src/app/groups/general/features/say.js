@@ -1,5 +1,5 @@
-const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed } = handlers.embed;
 
 /**
  * 
@@ -8,10 +8,13 @@ const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
  * @returns {Promise<Output>}
  */
 module.exports = (message, data) => {
-    const embed = new Discord.MessageEmbed()
+    const embed = new MessageEmbed()
         .setTitle('Announcement')
         .setColor(handlers.chat.colors.byName.white)
-        .addField(message.member.nickname || message.author.username, data.arguments[0]);
+        .makeField(message.member.nickname || message.author.username, data.arguments[0]);
 
-    return Promise.resolve(new Output({ embeds: [embed] }).setValues(data.arguments[0]));
+    return new Output()
+        .addEmbed(embed)
+        .setValues(data.arguments[0])
+        .resolve();
 };

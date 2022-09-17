@@ -1,13 +1,21 @@
-const { Command } = require('@chrisofnormandy/mariwoah-bot');
+const { Command, handlers, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { shuffle, divideArray } = handlers.arrays;
 
 const groups = require('../../groups');
 
-function shuffle(message, data) {
-    return new Promise((resolve, reject) => {
-        require('./app/helpers/shuffle')(data.arguments[0].split(/,\s*/))
-            .then(arr => resolve({ values: arr, content: [arr.join(', ')] }))
-            .catch(e => reject({ rejections: [e], content: [] }));
-    });
+function _shuffle(message, data) {
+    const v = shuffle(data.arguments[0].split(/,\s*/g));
+
+    return new Output(v.join(', ')).setValues(v).resolve();
+}
+
+function _divide(message, data) {
+    const list = data.arguments[1].split(/,\s*/g);
+    const size = Number(data.arguments[0]);
+
+    const v = divideArray(list, size);
+
+    return new Output(v.map((l) => l.join(', ')).join('\n')).setValues(v).resolve();
 }
 
 /**
@@ -16,6 +24,7 @@ function shuffle(message, data) {
 module.exports = [
     new Command(
         'utility',
+        'clean-chat',
         (message, data) => groups.utility.clean(message, data)
     )
         .setRegex(/(clean)/, /\s(\d+)/, [1], true)
@@ -23,6 +32,7 @@ module.exports = [
         .setArgumentDescription(0, 'Message count', 'How many messages to delete. Max 50 total.', true),
     new Command(
         'utility',
+        'roll-dice',
         (message, data) => groups.utility.roll(data)
     )
         .setRegex(/(roll)|(r)|(d)/, /\s?(\d+)?(\s(\d+))?/, [1, 3])
@@ -31,13 +41,24 @@ module.exports = [
         .setArgumentDescription(1, 'Count', 'Any integer between 1 and 50', true),
     new Command(
         'utility',
-        (message, data) => shuffle(message, data)
+        'shuffle',
+        (message, data) => _shuffle(message, data)
     )
         .setRegex(/(shuffle)/, /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/, [0])
         .setCommandDescription('Shuffles a set of comma-separated values.')
         .setArgumentDescription(0, 'List', 'A list of comma-separated values.'),
     new Command(
         'utility',
+        'split',
+        (message, data) => _divide(message, data)
+    )
+        .setRegex(/(split)/, /\s(\d+)\s((\s*[^\s,],\s*)*[^\s,])/, [1, 2])
+        .setCommandDescription('Divides a set of comma-separated values.')
+        .setArgumentDescription(0, 'Size', 'How many sections to divide into.')
+        .setArgumentDescription(1, 'List', 'A list of comma-separated values.'),
+    new Command(
+        'utility',
+        'color-role',
         (message, data) => groups.utility.colorMe(message, data)
     )
         .setRegex(/(colorme)|(clrme)/, /\s(.+)/, [1])
@@ -45,12 +66,14 @@ module.exports = [
         .setArgumentDescription(0, 'Color', 'Any standard color.'),
     new Command(
         'utility',
-        (message, data) => groups.utility.vcRoulette(message)
+        'vc-roulette',
+        (message) => groups.utility.vcRoulette(message)
     )
         .setRegex(/(roulette)|(vcr)/)
         .setCommandDescription('Roll and 1 and get disconnected.'),
     new Command(
         'utility',
+        'split-vc',
         (message, data) => groups.utility.splitVc(message, data)
     )
         .setRegex(/(splitvc)|(svc)/, /\s(.+)/, [1])

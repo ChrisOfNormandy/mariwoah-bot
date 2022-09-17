@@ -1,7 +1,8 @@
-const Discord = require('discord.js');
-
 const { duckIt } = require('node-duckduckgo');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { embed } = require('@chrisofnormandy/mariwoah-bot').handlers;
+
+const { MessageEmbed, createField } = embed;
 
 /**
  * 
@@ -30,7 +31,7 @@ module.exports = (data) => {
             .then((response) => {
                 const res = response.data;
 
-                const embed = new Discord.MessageEmbed()
+                const embed = new MessageEmbed()
                     .setTitle(`Search results for ${query}`)
                     .setColor(handlers.chat.colors.byName.aqua);
 
@@ -39,19 +40,19 @@ module.exports = (data) => {
                         if (response.headers.link) {
                             const link = response.headers.link.split(';')[0].match(/<([^>]+)>/)[1];
                             embed.setURL(link);
-                            embed.addField(`From ${response.request.host}`, link);
+                            embed.addField(createField(`From ${response.request.host}`, link));
                         }
                         else {
                             const url = response.request.res.responseUrl;
                             embed.setURL(url);
-                            embed.addField(`From ${response.request.host}`, url);
+                            embed.addField(createField(`From ${response.request.host}`, url));
                         }
                         break;
                     }
                     case 'bing': {
                         const url = response.request.res.responseUrl;
                         embed.setURL(url);
-                        embed.addField(`From ${response.request.host}`, url);
+                        embed.addField(createField(`From ${response.request.host}`, url));
 
                         let rList = response.data.match(/(<cite>)([\w.:/<>]+)(<\/cite>)+?/g);
                         let str = '', i = 0;
@@ -66,13 +67,13 @@ module.exports = (data) => {
                             }
                         });
 
-                        embed.addField('Search Results', str);
+                        embed.addField(createField('Search Results', str));
 
                         break;
                     }
                     default: {
                         if (!!res.Abstract && !!res.AbstractSource)
-                            embed.addField(`From ${res.AbstractSource}`, res.Abstract);
+                            embed.addField(createField(`From ${res.AbstractSource}`, res.Abstract));
 
                         if (res.AbstractURL)
                             embed.setURL(res.AbstractURL);
@@ -101,11 +102,11 @@ module.exports = (data) => {
                             }
 
                             if (str !== '')
-                                embed.addField('From DuckDuckGo - Related topics:', str);
+                                embed.addField(createField('From DuckDuckGo - Related topics:', str));
 
                             if (other)
                                 for (let i in other) {
-                                    embed.addField(`From DuckDuckGo - ${i}`, `${other[i].Text}\n${other[i].FirstURL}`);
+                                    embed.addField(createField(`From DuckDuckGo - ${i}`, `${other[i].Text}\n${other[i].FirstURL}`));
                                 }
                         }
 
@@ -114,9 +115,9 @@ module.exports = (data) => {
                 }
 
                 if (!embed.fields.length)
-                    embed.addField('Nothing found.', 'Try a different search term.');
+                    embed.addField(createField('Nothing found.', 'Try a different search term.'));
 
-                resolve(new Output({ embeds: [embed] }));
+                resolve(new Output({ embeds: [embed.build()] }));
             })
             .catch((err) => reject(new Output().setError(err)));
     });

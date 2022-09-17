@@ -5,24 +5,26 @@
     "main": "bot.js",
     "author": "ChrisOfNormandy",
     "dependencies": {
-        "@chrisofnormandy/mariwoah-bot": "/home/chris/npm-mariwoah-bot/",
-        "@discordjs/voice": "^0.8.0",
+        "@chrisofnormandy/mariwoah-bot": "0.2.0",
+        "axios": "^0.27.2",
         "ddg": "^0.0.3",
-        "discord.js": "^13.6.0",
         "duckduckgo-images-api": "^1.0.5",
-        "eslint": "^8.10.0",
         "ffmpeg": "^0.0.4",
         "node-duckduckgo": "^2.0.17",
-        "pg": "^8.7.3",
-        "tweetnacl": "^1.0.3",
+        "pg": "^8.8.0",
+        "uuid": "^8.3.2",
         "yt-search": "^2.10.3",
-        "ytdl-core": "^4.11.0"
+        "ytdl-core": "^4.11.2"
+    },
+    "devDependencies": {
+        "eslint": "^8.23.0"
     },
     "repository": {},
     "scripts": {
         "startDb": "sudo service postgresql start",
-        "dev": "yarn startDb && nodemon",
-        "start": "startDb && node bot.js"
+        "dev": "nodemon",
+        "reload": "rm yarn.lock; yarn && yarn dev",
+        "start": "yarn startDb && node bot.js"
     },
     "private": true,
     "license": "GNU General Public License (GPL)"

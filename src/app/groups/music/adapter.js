@@ -16,5 +16,8 @@ module.exports = {
     voiceChannel: {
         join: require('./features/voiceChannel/join'),
         leave: require('./features/voiceChannel/leave')
+    },
+    spotify: {
+        playlist: require('./features/spotify/handlers')
     }
 };

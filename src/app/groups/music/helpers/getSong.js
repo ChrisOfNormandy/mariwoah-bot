@@ -115,6 +115,7 @@ function metaSearch(metadata, timeOut = 0) {
 }
 
 module.exports = {
+    search,
     /**
      * 
      * @param {Discord.Message} message 

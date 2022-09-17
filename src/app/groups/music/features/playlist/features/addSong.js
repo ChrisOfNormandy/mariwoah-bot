@@ -1,36 +1,43 @@
+const { Output } = require('@chrisofnormandy/mariwoah-bot');
 const getSongObject = require('../../../helpers/getSong');
 
-const { handlers } = require('@chrisofnormandy/mariwoah-bot');
-
-const { database } = handlers;
+const { getPlaylist } = require('../helpers/pl-helpers');
 
 function byName(message, playlistName, songName) {
     return new Promise((resolve, reject) => {
-        getSongObject.byName(message, songName)
-            .then((song) => {
-                s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/${playlistName}.json`)
-                    .then((obj) => {
-                        let list = JSON.parse(obj.Body.toString());
+        getPlaylist(message.guild.id, playlistName)
+            .then((playlist) => {
+                console.log(playlist);
 
-                        if (list[song.id])
-                            reject({ message: 'Playlist already contains value.' });
-                        else {
-                            list[song.id] = song;
-
-                            s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify(list))
-                                .then(() => resolve(list))
-                                .catch((err) => reject(err));
-                        }
-                    })
-                    .catch((err) => {
-                        console.error(err);
-
-                        s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify({ [songName]: song }))
-                            .then(() => resolve(file.data))
-                            .catch((err) => reject(err));
-                    });
+                resolve(new Output());
             })
-            .catch((e) => reject(e));
+            .catch((err) => reject(err));
+
+        // getSongObject.byName(message, songName)
+        //     .then((song) => {
+        //         s3.object.get('mariwoah', `guilds/${message.guild.id}/playlists/${playlistName}.json`)
+        //             .then((obj) => {
+        //                 let list = JSON.parse(obj.Body.toString());
+
+        //                 if (list[song.id])
+        //                     reject({ message: 'Playlist already contains value.' });
+        //                 else {
+        //                     list[song.id] = song;
+
+        //                     s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify(list))
+        //                         .then(() => resolve(list))
+        //                         .catch((err) => reject(err));
+        //                 }
+        //             })
+        //             .catch((err) => {
+        //                 console.error(err);
+
+        //                 s3.object.putData('mariwoah', `guilds/${message.guild.id}/playlists`, `${playlistName}.json`, JSON.stringify({ [songName]: song }))
+        //                     .then(() => resolve(file.data))
+        //                     .catch((err) => reject(err));
+        //             });
+        //     })
+        //     .catch((e) => reject(e));
     });
 }
 

@@ -1,5 +1,7 @@
-const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed } = handlers.embed;
+
+const { errOuput } = handlers.error;
 
 const addSong = require('./features/addSong');
 const queue = require('../queue/queue');
@@ -14,53 +16,60 @@ function _addSong(message, data) {
     return new Promise((resolve, reject) => {
         let playlistName = data.arguments[0];
 
-        if (data.urls.length) {
+        if (data.urls.length)
             resolve(addSong.byURLs(message, playlistName, data.urls));
-        }
         else {
             let songName = data.arguments[1];
 
-            if (songName == 'this') {
+            if (songName === 'this') {
                 if (queue.has(message.guild.id)) {
                     addSong.bySong(message, playlistName, queue.get(message.guild.id).songs[0])
                         .then((song) => {
-                            let embed = new Discord.MessageEmbed()
+                            let embed = new MessageEmbed()
                                 .setTitle(`${song.title}`)
                                 .setColor(handlers.chat.colors.byName.green)
-                                .setThumbnail(song.thumbnail)
+                                .makeThumbnail(song.thumbnail)
                                 .setURL(song.url)
-                                .addField(':writing_hand: Success!', 'Added song to the playlist.');
+                                .makeField(':writing_hand: Success!', 'Added song to the playlist.');
 
-                            resolve(new Output({ embeds: [embed] }).setValues(song));
+                            new Output()
+                                .addEmbed(embed)
+                                .setValues(song)
+                                .handleAsync(resolve);
                         })
-                        .catch((err) => reject(new Output().setError(err)));
+                        .catch((err) => errOuput(err, reject));
                 }
                 else
-                    reject(new Output().setError(new Error('No queue.')));
+                    errOuput(new Error('No queue.'), reject);
             }
             else {
                 addSong.byName(message, playlistName, songName)
                     .then((song) => {
-                        let embed = new Discord.MessageEmbed();
+                        let embed = new MessageEmbed();
 
                         if (song) {
                             embed.setTitle(`${song.title}`)
                                 .setColor(handlers.chat.colors.byName.green)
-                                .setThumbnail(song.thumbnail)
+                                .makeThumbnail(song.thumbnail)
                                 .setURL(song.url)
-                                .addField(':writing_hand: Success!', 'Added song to the playlist.');
+                                .makeField(':writing_hand: Success!', 'Added song to the playlist.');
 
-                            resolve(new Output({ embeds: [embed] }).setValues(song));
+                            new Output()
+                                .setValues(song)
+                                .addEmbed(embed)
+                                .handleAsync(resolve);
                         }
                         else {
                             embed.setTitle('Error')
                                 .setColor(handlers.chat.colors.byName.red)
-                                .addField(':interrobang: Oops!', 'Failed to add song to playlist.');
+                                .makeField(':interrobang: Oops!', 'Failed to add song to playlist.');
 
-                            resolve(new Output({ embeds: [embed] }));
+                            new Output()
+                                .addEmbed(embed)
+                                .handleAsync(resolve);
                         }
                     })
-                    .catch((err) => reject(new Output().setError(err)));
+                    .catch((err) => errOuput(err, reject));
             }
         }
     });

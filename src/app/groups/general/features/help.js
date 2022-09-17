@@ -1,6 +1,5 @@
-const Discord = require('discord.js');
-
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed, createFooter, createField } = handlers.embed;
 
 /**
  * 
@@ -9,7 +8,7 @@ const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
  * @returns {Promise<Output>}
  */
 module.exports = (data, list) => {
-    const embed = new Discord.MessageEmbed()
+    const embed = new MessageEmbed()
         .setColor(handlers.chat.colors.information);
 
     if (data.arguments.length) {
@@ -51,7 +50,7 @@ module.exports = (data, list) => {
                             });
 
                             field += `**Arguments**\n ${msg}`;
-                            embed.setFooter('Arguments in italics are optional.');
+                            embed.setFooter(createFooter('Arguments in italics are optional.'));
                         }
 
                         // Command flag list.
@@ -72,14 +71,14 @@ module.exports = (data, list) => {
                             field += `**Flags**\n ${msg}`;
                         }
 
-                        embed.addField(`__${sc.name}__`, field, true);
+                        embed.addField(createField(`__${sc.name}__`, field, true));
                     });
                 }
                 else {
-                    embed.addField('Description', cmd.getDescription().command);
+                    embed.addField(createField('Description', cmd.getDescription().command));
 
                     // Command syntax.
-                    embed.addField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[/()]/g, '').split(/\|/g)[0]}`);
+                    embed.addField(createField('Syntax', `${data.prefix}${cmd.getRegex().command.source.replace(/[/()]/g, '').split(/\|/g)[0]}`));
 
                     let desc = cmd.getDescription();
 
@@ -98,8 +97,8 @@ module.exports = (data, list) => {
                                 msg += '\n';
                         });
 
-                        embed.addField('Arguments', msg);
-                        embed.setFooter('Arguments in italics are optional.');
+                        embed.addField(createField('Arguments', msg));
+                        embed.setFooter(createFooter('Arguments in italics are optional.'));
                     }
 
                     // Command flag list.
@@ -113,7 +112,7 @@ module.exports = (data, list) => {
                                 msg += '\n';
                         });
 
-                        embed.addField('Flags', msg);
+                        embed.addField(createField('Flags', msg));
                     }
                 }
             });
@@ -166,11 +165,11 @@ module.exports = (data, list) => {
                         }
                     }
 
-                    embed.addField(g, msg, true);
+                    embed.addField(createField(g, msg, true));
                 });
             }
             else
-                embed.addField('Oops!', `Could not find a command or group matching "${command}".`);
+                embed.addField(createField('Oops!', `Could not find a command or group matching "${command}".`));
         }
     }
     else {
@@ -220,7 +219,7 @@ module.exports = (data, list) => {
                 }
             }
 
-            embed.addField(g, msg, true);
+            embed.addField(createField(g, msg, true));
         });
     }
 

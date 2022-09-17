@@ -1,7 +1,6 @@
 const stream = require('stream');
-const Discord = require('discord.js');
 const { handlers } = require('@chrisofnormandy/mariwoah-bot');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed } = handlers.embed;
 
 module.exports = class SongData {
 
@@ -90,12 +89,12 @@ module.exports = class SongData {
     }
 
     getEmbed() {
-        this.embed = new Discord.MessageEmbed()
+        this.embed = new MessageEmbed()
             .setTitle(this.title)
             .setColor(handlers.chat.colors.youtube)
-            .setImage(this.thumbnail)
+            .makeImage(this.thumbnail)
             .setURL(this.url)
-            .addField(this.author, `Duration: ${this.duration.timestamp}`);
+            .makeField(this.author, `Duration: ${this.duration.timestamp}`);
 
         return this.embed;
     }

@@ -1,7 +1,6 @@
-const Discord = require('discord.js');
-
 const { image_search } = require('duckduckgo-images-api');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed, createFooter, createImage } = handlers.embed;
 
 /**
  * 
@@ -23,14 +22,14 @@ module.exports = (data) => {
                     : 0;
                 const img = res[index];
 
-                const embed = new Discord.MessageEmbed()
+                const embed = new MessageEmbed()
                     .setTitle(`Results for ${query}`)
                     .setColor(handlers.chat.colors.byName.aqua)
-                    .setImage(img.image)
+                    .setImage(createImage(img.image))
                     .setDescription(`Image ${index + 1} of ${res.length}`)
-                    .setFooter({ text: `Source: ${img.url}\nFetched from ${img.source} via duckduckgo.` });
+                    .setFooter(createFooter(`Source: ${img.url}\nFetched from ${img.source} via duckduckgo.`));
 
-                resolve(new Output({ embeds: [embed] }).setValues(img));
+                resolve(new Output({ embeds: [embed.build()] }).setValues(img));
             })
             .catch((err) => reject(new Output().setError(err)));
     });

@@ -1,21 +1,21 @@
 const getSong = require('./getSong');
-const Discord = require('discord.js');
 const queue = require('../features/queue/queue');
 
 const { handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed } = handlers.embed;
 
 module.exports = {
     /**
      * 
      * @param {SongData} songData
-     * @returns {Promise<Discord.MessageEmbed>}
+     * @returns {Promise<MessageEmbed>}
      */
     single(songData) {
-        const embed = new Discord.MessageEmbed()
+        const embed = new MessageEmbed()
             .setTitle(songData.title)
             .setColor(handlers.chat.colors.youtube)
             .setURL(songData.url)
-            .setFooter({ text: 'Powered by YouTube and pure rage.' });
+            .makeFooter('Powered by YouTube and pure rage.');
 
         return Promise.resolve(embed);
     },
@@ -24,7 +24,7 @@ module.exports = {
      * 
      * @param {Discord.Message} message 
      * @param {MessageData} data 
-     * @returns {Promise<Discord.MessageEmbed>}
+     * @returns {Promise<MessageEmbed>}
      */
     songInfo(message, data) {
         return new Promise((resolve, reject) => {

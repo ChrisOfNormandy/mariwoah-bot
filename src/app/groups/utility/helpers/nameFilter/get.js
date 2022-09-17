@@ -1,7 +1,7 @@
-const Discord = require('discord.js');
 const { Output, handlers, helpers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed } = handlers.embed;
 
-// const { s3 } = require('../../../../helpers/aws');
+// Const { s3 } = require('../../../../helpers/aws');
 
 const { getName } = helpers.filter;
 
@@ -23,7 +23,7 @@ module.exports = (message, data) => {
     return new Promise((resolve, reject) => {
         getName(guildId, filterName)
             .then((json) => {
-                const embed = new Discord.MessageEmbed()
+                const embed = new MessageEmbed()
                     .setTitle(`Name filter list for \`${filterName}\` phrases.`)
                     .setColor(handlers.chat.colors.byName.darkred);
 
@@ -36,9 +36,12 @@ module.exports = (message, data) => {
                 if (!str)
                     str = 'No active filters.';
 
-                embed.addField('List:', str);
+                embed.makeField('List:', str);
 
-                resolve(new Output({ embeds: [embed] }).setValues(json));
+                new Output()
+                    .setValues(json)
+                    .addEmbed(embed)
+                    .handleAsync(resolve);
             })
             .catch((err) => {
                 if (err.code === 'NoSuchKey') {

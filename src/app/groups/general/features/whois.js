@@ -1,5 +1,5 @@
-const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { MessageEmbed, createField } = handlers.embed;
 
 /**
  * 
@@ -15,14 +15,16 @@ function formatEmbed(name, joinDate, roleList, member) {
     if (user.bot)
         name += ' -=[BOT]=-';
 
-    let embed = new Discord.MessageEmbed()
+    let embed = new MessageEmbed()
         .setTitle(name)
         .setColor(handlers.chat.colors.information)
-        .addField('Join date', joinDate)
-        .addField('Roles', roleList, true)
-        .addField('Admin', member.hasPermission('ADMINISTRATOR')
-            ? 'Yes'
-            : 'No', true);
+        .addField(
+            createField('Join date', joinDate),
+            createField('Roles', roleList, true),
+            createField('Admin', member.permissions.has('Administrator')
+                ? 'Yes'
+                : 'No', true)
+        );
 
     return embed;
 }
@@ -45,14 +47,14 @@ function getDate(date) {
  * @returns {string}
  */
 function getRoles(member) {
-    let roles = '';
-    let count = 0;
+    let roles = '',
+        count = 0;
 
     member.roles.cache.forEach((role) => {
         roles += `${role}`;
-        roles += (member.roles.cache.size > 1 && count < member.roles.cache.size - 1)
-            ? ', '
-            : '';
+        if (member.roles.cache.size > 1 && count < member.roles.cache.size - 1)
+            roles += ', ';
+
         count++;
     });
 
@@ -71,11 +73,9 @@ module.exports = {
         const joinDate = getDate(new Date(member.joinedTimestamp));
         const roles = getRoles(member, message);
 
-        return new Promise((resolve) => {
-            const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
+        const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-            resolve(new Output({ embeds: [embed] }).setValues(user));
-        });
+        return Promise.resolve(new Output().addEmbed(embed).setValues(user));
     },
 
     /**
@@ -89,10 +89,8 @@ module.exports = {
         const joinDate = getDate(new Date(member.joinedTimestamp));
         const roles = getRoles(member, message);
 
-        return new Promise((resolve) => {
-            const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
+        const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-            resolve(new Output({ embeds: [embed] }).setValues(user));
-        });
+        return Promise.resolve(new Output().addEmbed(embed.build()).setValues(user));
     }
 };
