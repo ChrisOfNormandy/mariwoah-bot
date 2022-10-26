@@ -3,8 +3,8 @@ const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { MessageEmbed, createFooter, createImage } = handlers.embed;
 
 /**
- * 
- * @param {MessageData} data 
+ *
+ * @param {MessageData} data
  * @returns {Promise<Output>}
  */
 module.exports = (data) => {

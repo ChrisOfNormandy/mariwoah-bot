@@ -5,7 +5,7 @@
     "main": "bot.js",
     "author": "ChrisOfNormandy",
     "dependencies": {
-        "@chrisofnormandy/mariwoah-bot": "0.2.0",
+        "@chrisofnormandy/mariwoah-bot": "^0.3.1",
         "axios": "^0.27.2",
         "ddg": "^0.0.3",
         "duckduckgo-images-api": "^1.0.5",
