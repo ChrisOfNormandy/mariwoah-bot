@@ -9,7 +9,7 @@ module.exports = [
     new Command(
         'fetch',
         'find-image',
-        (message, data) => groups.fetch.findImg(data)
+        groups.fetch.findImg
     )
         .setRegex(/(findimg\b)|(img\b)/, /\s(.+)/, [1])
         .setCommandDescription('Searches for an image.')
@@ -20,7 +20,7 @@ module.exports = [
     new Command(
         'fetch',
         'find',
-        (message, data) => groups.fetch.find(data)
+        groups.fetch.find
     )
         .setRegex(/(find\b)|(search\b)/, /\s(.+)/, [1])
         .setCommandDescription('Fetches resuts for a search query.')

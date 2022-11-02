@@ -4,36 +4,67 @@ const { MessageEmbed } = handlers.embed;
 
 module.exports = class SongData {
 
+    /**
+     *
+     * @param {string} title
+     * @returns
+     */
     setTitle(title) {
         this.title = title;
 
         return this;
     }
 
+    /**
+     *
+     * @param {string} url
+     * @returns
+     */
     setUrl(url) {
         this.url = url;
 
         return this;
     }
 
+    /**
+     *
+     * @param {string} id
+     * @returns
+     */
     setId(id) {
         this.id = id;
 
         return this;
     }
 
+    /**
+     *
+     * @param {string} author
+     * @returns
+     */
     setAuthor(author) {
         this.author = author;
 
         return this;
     }
 
+    /**
+     *
+     * @param {*} user
+     * @returns
+     */
     setRequestedBy(user) {
         this.requestedBy = user;
 
         return this;
     }
 
+    /**
+     *
+     * @param {*} timestamp
+     * @param {*} seconds
+     * @returns
+     */
     setDuration(timestamp, seconds) {
         this.duration.timestamp = timestamp;
         this.duration.seconds = seconds;
@@ -41,6 +72,13 @@ module.exports = class SongData {
         return this;
     }
 
+    /**
+     *
+     * @param {*} title
+     * @param {*} url
+     * @param {*} videoCount
+     * @returns
+     */
     setPlaylist(title, url, videoCount) {
         this.playlist.title = title;
         this.playlist.url = url;
@@ -49,6 +87,11 @@ module.exports = class SongData {
         return this;
     }
 
+    /**
+     *
+     * @param {*} thumbnail
+     * @returns
+     */
     setThumbnail(thumbnail) {
         this.thumbnail = thumbnail;
 
@@ -56,9 +99,9 @@ module.exports = class SongData {
     }
 
     /**
-     * 
-     * @param {Readable} stream 
-     * @returns 
+     *
+     * @param {Readable} stream
+     * @returns
      */
     setStream(stream) {
         this.stream = stream;
@@ -66,12 +109,20 @@ module.exports = class SongData {
         return this;
     }
 
+    /**
+     *
+     * @returns
+     */
     remove() {
         this.removed = true;
 
         return this;
     }
 
+    /**
+     *
+     * @returns
+     */
     getResource() {
         const a = new stream.PassThrough();
         const b = new stream.PassThrough();
@@ -84,10 +135,18 @@ module.exports = class SongData {
         return handlers.channels.audioPlayer.createResource(a);
     }
 
+    /**
+     *
+     * @returns
+     */
     getNext() {
         return this.next;
     }
 
+    /**
+     *
+     * @returns
+     */
     getEmbed() {
         this.embed = new MessageEmbed()
             .setTitle(this.title)
@@ -99,10 +158,14 @@ module.exports = class SongData {
         return this.embed;
     }
 
+    /**
+     *
+     * @param {*} songData
+     */
     constructor(songData) {
         this.title = songData.title || 'Unknown';
         this.id = songData.videoId || null;
-        this.url = (songData.url || `https://www.youtube.com/watch?v=${songData.videoId}`) || null;
+        this.url = songData.url || `https://www.youtube.com/watch?v=${songData.videoId}` || null;
         this.author = songData.author.name || 'Unknown';
         this.requestedBy = null;
         this.duration = {
@@ -121,7 +184,7 @@ module.exports = class SongData {
             videoCount: 0
         };
 
-        this.thumbnail = (songData.thumbnail || songData.thumbnailUrl) || null;
+        this.thumbnail = songData.thumbnail || songData.thumbnailUrl || null;
         this.removed = false;
 
         if (songData.duration) {

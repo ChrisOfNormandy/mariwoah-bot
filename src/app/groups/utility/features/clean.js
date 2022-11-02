@@ -1,9 +1,8 @@
-const Discord = require('discord.js');
 const { Output } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
- * 
- * @param {number} timestamp 
+ *
+ * @param {number} timestamp
  * @returns {Date}
  */
 function timestampToDate(timestamp) {
@@ -11,9 +10,9 @@ function timestampToDate(timestamp) {
 }
 
 /**
- * 
- * @param {Date} a 
- * @param {Date} b 
+ *
+ * @param {Date} a
+ * @param {Date} b
  * @returns {number}
  */
 function getAge(a, b) {
@@ -28,8 +27,8 @@ function getAge(a, b) {
 
 const antiE = /^[eE\n\s]+$/;
 /**
- * 
- * @param {string} str 
+ *
+ * @param {string} str
  */
 const antiESpam = (str) => {
     let s = str.replace(/[\n\s]/g, '');
@@ -42,22 +41,21 @@ const antiESpam = (str) => {
 };
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
- * @returns 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns
  */
-module.exports = (message, data) => {
+module.exports = (data) => {
     return new Promise((resolve, reject) => {
-        const channel = message.channel;
+        const channel = data.message.channel;
 
         channel.messages.fetch()
             .then((messages) => {
-                if (message.mentions.users.size) {
-                    message.mentions.users.forEach((user, id) => {
+                if (data.message.mentions.users.size) {
+                    data.message.mentions.users.forEach((user, id) => {
 
                         const userMessages = messages.filter((msg) => {
-                            return msg.author.id === id && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14 && (data.flags.has('e') && antiE.test(msg.content));
+                            return msg.author.id === id && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(data.message.createdTimestamp)) < 14 && (data.flags.has('e') && antiE.test(msg.content));
                         });
 
                         let arr = Array.from(userMessages);
@@ -68,19 +66,29 @@ module.exports = (message, data) => {
                         const userMessagesDeleted = arr.length;
 
                         channel.bulkDelete(arr)
-                            .then((msgs) => resolve(new Output(`Cleared ${userMessagesDeleted} messages.`).setValues(msgs, userMessagesDeleted).setOption('clear', { delay: 10 })))
-                            .catch((err) => reject(new Output().setError(err)));
+                            .then((msgs) => new Output(`Cleared ${userMessagesDeleted} messages.`).setValues(msgs, userMessagesDeleted).setOption('clear', { delay: 10 }).resolve(resolve))
+                            .catch((err) => new Output().setError(err).reject(reject));
                     });
                 }
                 else {
                     const prefix = data.prefix;
 
                     const botMessages = messages.filter((msg) => {
-                        return msg.author.bot && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14;
+                        return msg.author.bot && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(data.message.createdTimestamp)) < 14;
                     });
 
                     const cmdMessages = messages.filter((msg) => {
-                        return (((data.flags.has('e') && antiE.test(msg.content) || (data.flags.has('E') && !antiESpam(msg.content)))) || prefix === msg.content.charAt(0)) && getAge(timestampToDate(msg.createdTimestamp), timestampToDate(message.createdTimestamp)) < 14;
+                        return (
+                            data.flags.has('e') &&
+                            antiE.test(msg.content) ||
+                            data.flags.has('E') &&
+                            !antiESpam(msg.content) ||
+                            prefix === msg.content.charAt(0)
+                        ) &&
+                            getAge(
+                                timestampToDate(msg.createdTimestamp),
+                                timestampToDate(data.message.createdTimestamp)
+                            ) < 14;
                     });
 
                     let arr1 = botMessages;
@@ -100,12 +108,14 @@ module.exports = (message, data) => {
                     ];
 
                     Promise.all(arr)
-                        .then((msgs) => resolve(new Output(`Cleared ${botMessagesDeleted} bot messages, ${cmdMessagesDeleted} user messages.`)
+                        .then((msgs) => new Output(`Cleared ${botMessagesDeleted} bot messages, ${cmdMessagesDeleted} user messages.`)
                             .setValues(msgs, botMessagesDeleted, cmdMessagesDeleted)
-                            .setOption('clear', { delay: 10 })))
-                        .catch((err) => reject(new Output().setError(err)));
+                            .setOption('clear', { delay: 10 })
+                            .resolve(resolve)
+                        )
+                        .catch((err) => new Output().setError(err).reject(reject));
                 }
             })
-            .catch((err) => reject(new Output().setError(err)));
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

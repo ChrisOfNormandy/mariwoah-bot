@@ -1,22 +1,21 @@
-const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const { getVoiceChannel } = handlers.channels;
 
 /**
- * 
- * @param {Discord.Message} message 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-module.exports = (message) => {
-    return new Promise((resolve, reject) => {
-        const vc = getVoiceChannel(message);
+module.exports = (data) => {
+    const vc = getVoiceChannel(data.message);
 
-        if (!vc)
-            resolve(new Output().setError(new Error('No voice channel.')));
-        else
-            vc.join()
-                .then((r) => resolve(new Output().setValues(r)))
-                .catch((err) => reject(new Output().setError(err)));
+    if (!vc)
+        return new Output().makeError('No voice channel.').reject();
+
+    return new Promise((resolve, reject) => {
+        vc.join()
+            .then((r) => new Output().setValues(r).resolve(resolve))
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

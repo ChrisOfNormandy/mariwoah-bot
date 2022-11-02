@@ -1,84 +1,71 @@
 const append = require('./append');
 const getSong = require('../../helpers/getSong');
 
-const { handlers } = require('@chrisofnormandy/mariwoah-bot');
+const { handlers, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const { shuffle } = handlers.arrays;
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-function byName(message, data) {
+function byName(data) {
     return new Promise((resolve, reject) => {
-        getSong.byName(message, data.arguments.join(' '))
-            .then((song) => {
-                append(message, [song], data.flags)
-                    .then((r) => resolve(r))
-                    .catch((err) => reject(err));
-            })
-            .catch((err) => reject(err));
+        getSong.byName(data.message, data.arguments.join(' '))
+            .then((song) => append(data.message, [song], data.flags))
+            .then(resolve)
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-function byURLArray(message, data) {
+function byURLArray(data) {
     return new Promise((resolve, reject) => {
-        getSong.byURLArray(message, data.urls)
+        getSong.byURLArray(data.message, data.urls)
             .then((arr) => {
-                if (data.flags.has('s')) {
-                    const songs = shuffle(arr);
+                const songs = data.flags.has('s')
+                    ? shuffle(arr)
+                    : arr;
 
-                    append(message, songs, data.flags)
-                        .then((r) => resolve(r))
-                        .catch((err) => reject(err));
-                }
-                else {
-                    append(message, arr, data.flags)
-                        .then((r) => resolve(r))
-                        .catch((err) => reject(err));
-                }
+                append(data.message, songs, data.flags)
+                    .then(resolve)
+                    .catch((err) => new Output().setError(err).reject(reject));
             })
-            .catch((err) => reject(err));
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-function byPlaylist(message, data) {
+function byPlaylist(data) {
     return new Promise((resolve, reject) => {
-        getSong.byPlaylist(message, data.arguments.join(' '), data)
-            .then((playlistData) => {
-                append(message, playlistData, data.flags)
-                    .then((r) => resolve(r))
-                    .catch((err) => reject(err));
-            })
-            .catch((err) => reject(err));
+        getSong.byPlaylist(data.arguments.join(' '), data)
+            .then((playlistData) => append(data.message, playlistData, data.flags))
+            .then(resolve)
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
- * @returns 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns
  */
-module.exports = (message, data) => {
+function add(data) {
     if (data.urls.length)
-        return byURLArray(message, data);
+        return byURLArray(data);
 
-    return (data.flags.has('p'))
-        ? byPlaylist(message, data)
-        : byName(message, data);
-};
+    return data.flags.has('p')
+        ? byPlaylist(data)
+        : byName(data);
+}
+
+module.exports = add;

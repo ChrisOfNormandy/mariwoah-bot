@@ -95,7 +95,7 @@ module.exports = class PlaylistData {
             if (this.videos.length > 10)
                 str.push(`... and ${this.videos.length - 10} more.`);
 
-            this.embed.addField('Available to Play', str.join('\n'));
+            this.embed.makeField('Available to Play', str.join('\n'));
         }
 
         return this.embed;
@@ -104,7 +104,7 @@ module.exports = class PlaylistData {
     constructor(playlistData) {
         this.title = playlistData.title || 'Unknown';
         this.id = playlistData.listId || null;
-        this.url = (playlistData.url || `https://www.youtube.com/playlist?listId=${playlistData.listId}`) || null;
+        this.url = playlistData.url || `https://www.youtube.com/playlist?listId=${playlistData.listId}` || null;
         this.size = playlistData.size || 0;
         this.views = playlistData.views || 0;
         this.image = playlistData.image || 0;

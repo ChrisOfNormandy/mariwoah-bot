@@ -1,63 +1,67 @@
-const fs = require('fs');
 const ytdl = require('ytdl-core');
 const getSong = require('../../helpers/getSong');
 
-const { Output } = require('@chrisofnormandy/mariwoah-bot');
+const { Output, Discord } = require('@chrisofnormandy/mariwoah-bot');
 
 /**
- * 
- * @param {string} url 
+ *
+ * @param {string} url
  * @returns {Promise<Discord.MessageAttachment>}
  */
-function get(url) {
-    return new Promise((resolve) => {
-        const name = ytdl.getURLVideoID(url);
-        const path = `temp/video_${name}.mp4`;
+function get(url, audioOnly = false) {
+    const options = {
+        quality: 'lowest',
+        // filter: 'audioonly',
+        highWaterMark: 1 << 25
+    };
 
-        if (!fs.existsSync('temp/'))
-            fs.mkdirSync('temp/');
+    if (audioOnly)
+        options.filter = 'audioonly';
 
-        fs.open(path, (err) => {
-            if (err) {
-                const stream = fs.createWriteStream(path);
+    const p = ytdl(url, options);
 
-                ytdl(url, { quality: 'lowest' }).pipe(stream);
+    const buffers = [];
 
-                stream.on('finish', () => resolve({ attachment: path, name: 'ytdl_download.mp4', description: 'Downloaded from YouTube.' }));
+    return new Promise((resolve, reject) => {
+        p.on('data', (c) => {
+            buffers.push(c);
+        });
+
+        p.on('end', () => {
+            const buffer = Buffer.concat(buffers);
+
+            console.log(buffer.length);
+
+            if (buffer.length / 1024 / 1024 < 8) {
+                const attachment = new Discord.AttachmentBuilder(buffer, { name: 'ytdl_download.mp4', description: 'Downloaded from YouTube,' }).attachment;
+
+                resolve({ attachment, name: 'ytdl_download.mp4' });
             }
             else
-                resolve({ attachment: path, name: 'ytdl_download.mp4', description: 'Downloaded from YouTube.' });
+                reject(new Error('Video too long / file size greater than 8MB.'));
         });
     });
 }
 
 /**
- * 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
 function download(data) {
-    let arr = [];
-
     if (data.urls.length) {
-        for (let i in data.urls)
-            arr.push(get(data.urls[i]));
-
         return new Promise((resolve, reject) => {
-            Promise.all(arr)
-                .then((results) => resolve(new Output().addFile(...results).setValues(results).setOption('files', results)))
-                .catch((err) => reject(new Output().setError(err)));
+            Promise.all(data.urls.map((url) => get(url, data.flags.has('a'))))
+                .then((results) => new Output().addFile(...results).setValues(results).setOption('files', results).resolve(resolve))
+                .catch((err) => new Output().setError(err).reject(reject));
         });
     }
 
     return new Promise((resolve, reject) => {
         getSong.byName({ author: null }, data.arguments.join(' '))
-            .then((song) => {
-                get(song.url)
-                    .then((result) => resolve(new Output().addFile(result).setValues(result).setOption('files', result)))
-                    .catch((err) => reject(new Output().setError(err)));
-            })
-            .catch((err) => reject(new Output().setError(err)));
+            .then((song) => get(song.url, data.flags.has('a')))
+            .then((result) => new Output().addFile(result).setValues(result).setOption('files', result).resolve(resolve))
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 
 }

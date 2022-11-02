@@ -1,36 +1,37 @@
-const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
-
 const queue = require('./queue');
 
+const { Output } = require('@chrisofnormandy/mariwoah-bot');
+
 /**
- * 
- * @param {Discord.Message} message 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-function pause(message) {
-    return Promise.reject(new Output().setError(new Error('This command works, but resuming does not with the current Node version.')));
-    // let activeQueue = queue.get(message.guild.id);
-    // if (!activeQueue || !activeQueue.dispatcher)
-    //     return Promise.reject(Output.error([], [chatFormat.response.music.pause.no_stream()]));
+function pause(data) {
+    const q = queue.get(data.message.guild.id);
 
-    // activeQueue.dispatcher.pause(true);
-    // return Promise.resolve(Output.valid([], [chatFormat.response.music.pause.yes()]));
+    if (!q || !q.status())
+        return new Output().makeError('No active queue.').reject();
+
+    const v = q.player.pause(true);
+
+    return new Output().setValues(v).resolve();
 }
 
 /**
- * 
- * @param {Discord.Message} message 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-function resume(message) {
-    let activeQueue = queue.get(message.guild.id);
+function resume(data) {
+    const q = queue.get(data.message.guild.id);
 
-    if (!activeQueue || !activeQueue.dispatcher)
-        return Promise.reject(new Output().setError(new Error('No active queue.')));
+    if (!q || !q.status())
+        return new Output().makeError('No active queue.').reject();
 
-    activeQueue.dispatcher.resume();
+    const v = q.player.unpause();
 
-    return Promise.resolve(new Output('Cannot pause.'));
+    return new Output().setValues(v).resolve();
 }
 
 module.exports = {

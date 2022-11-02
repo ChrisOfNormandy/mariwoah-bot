@@ -1,4 +1,4 @@
-const axios = require('axios').default;
+const axios = require('axios');
 const { stringify } = require('querystring');
 const config = require('../../../../../../config/spotify.json');
 
@@ -15,7 +15,7 @@ let tokenExpires = Date.now();
  */
 
 /**
- * 
+ *
  * @returns {Promise<SpotifyToken>}
  */
 function login() {
@@ -49,10 +49,18 @@ function login() {
     });
 }
 
+/**
+ *
+ * @returns
+ */
 function getToken() {
     return login();
 }
 
+/**
+ *
+ * @returns
+ */
 function getAccessToken() {
     return new Promise((resolve, reject) => {
         getToken()
@@ -61,6 +69,11 @@ function getAccessToken() {
     });
 }
 
+/**
+ *
+ * @param {*} url
+ * @returns
+ */
 function spotify(url) {
     return new Promise((resolve, reject) => {
         getAccessToken()

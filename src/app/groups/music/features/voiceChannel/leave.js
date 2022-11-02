@@ -6,20 +6,22 @@ const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { voiceChannel } = handlers.channels;
 
 /**
- * 
- * @param {Discord.Message} message 
- * @returns {Promise<Output>}
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns {Promise<impot('@chrisofnormandy/mariwoah-bot').Output>}
  */
-module.exports = (message) => {
-    const vc = voiceChannel.get(message);
+function leave(data) {
+    const vc = voiceChannel.get(data.message);
 
     if (!vc)
-        return Promise.resolve(new Output().setError(new Error('No voice channel.')));
+        return new Output().makeError('No voice channel.').reject();
 
-    voiceChannel.leave(message);
+    voiceChannel.leave(data.message);
 
-    if (queue.exists(message.guild.id))
-        return stop(message);
+    if (queue.exists(data.message.guild.id))
+        return stop(data);
 
-    return Promise.resolve(new Output('Left the voice channel.'));
-};
+    return new Output('Left the voice channel.').resolve();
+}
+
+module.exports = leave;

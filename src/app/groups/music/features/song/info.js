@@ -3,15 +3,14 @@ const { Output } = require('@chrisofnormandy/mariwoah-bot');
 const getEmbedSongInfo = require('../../helpers/getEmbedSongInfo');
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-module.exports = (message, data) => {
+module.exports = (data) => {
     return new Promise((resolve, reject) => {
-        getEmbedSongInfo.songInfo(message, data)
-            .then((embed) => resolve(new Output().addEmbed(embed)))
-            .catch((err) => reject(new Output().setError(err)));
+        getEmbedSongInfo.songInfo(data)
+            .then((embed) => new Output().addEmbed(embed).resolve(resolve))
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

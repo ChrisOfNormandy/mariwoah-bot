@@ -5,24 +5,28 @@ const { handlers, Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const { voiceChannel } = handlers.channels;
 
-module.exports = (message) => {
-    const vc = voiceChannel.get(message);
+/**
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns
+ */
+function loop(data) {
+    const vc = voiceChannel.get(data.message);
 
     if (!vc)
-        return Promise.reject(new Output().setError(new Error('No voice channel.')));
+        return new Output().makeError('No voice channel.').reject();
 
-    if (!queue.exists(message.guild.id))
-        return Promise.reject(new Output().setError('No active queue.'));
+    const q = queue.get(data.message.guild.id);
 
-    const q = queue.get(message.guild.id);
-
-    if (!q.songs.length)
-        return Promise.reject(new Output().setError(new Error('No songs.')));
+    if (!q || !q.status())
+        return new Output().makeError('No active queue.').reject();
 
     q.current().next = q.current();
 
     const embed = new MessageEmbed()
-        .addField('Queue Changed', `Looping ${q.current().title}.`);
+        .makeField('Queue Changed', `Looping ${q.current().title}.`);
 
-    return Promise.resolve(new Output().addEmbed(embed));
-};
+    return new Output().addEmbed(embed).resolve();
+}
+
+module.exports = loop;

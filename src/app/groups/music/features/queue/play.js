@@ -12,90 +12,72 @@ const SongData = require('../../helpers/SongData');
 const stop = require('./stop');
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {Queue} q 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @param {Queue} q
  * @returns {Promise<Output>}
  */
-function next(message, q) {
-    q.previousSong = q.songs[0];
-
-    let nextSong = q.songs[0].next;
-
-    console.log('Next:', nextSong);
+function next(data, q) {
+    let current = q.current();
+    q.previousSong = current;
+    let nextSong = q.next();
 
     if (!nextSong)
-        q.songs.shift();
+        return stop(data);
 
-    while (q.songs[0] && q.songs[0].removed)
-        q.songs.shift();
+    current = nextSong;
 
-    return new Promise((resolve, reject) => {
-        if (!q.songs[0]) {
-            stop(message)
-                .then((r) => resolve(r))
-                .catch((err) => reject(err));
-        }
-        else {
-            play(message, q)
-                .then((r) => resolve(r))
-                .catch((err) => reject(err));
-        }
-    });
+    while (current && current.removed)
+        current = current.next();
+
+    if (!current)
+        return stop(data);
+
+    return play(data, q);
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {Queue} q 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @param {Queue} q
  * @returns {Promise<Output>}
  */
-function play(message, q) {
+function play(data, q) {
+    if (!q.songs.length)
+        return new Output().makeError('No songs to play.').reject();
+
     return new Promise((resolve, reject) => {
-        if (!q.songs.length) {
-            reject(new Output().setError(new Error('No songs to play.')));
-        }
-        else {
-            /**
-             * @type {Readable}
-             */
-            let stream;
-            if (q.current().stream)
-                stream = q.current().stream;
-            else {
-                stream = ytdl(
-                    q.current().url,
-                    {
-                        filter: 'audioonly',
-                        quality: 'highestaudio',
-                        highWaterMark: 1 << 25
-                    }
-                );
+        /**
+         * @type {Readable}
+         */
+        const stream = q.current().stream || ytdl(
+            q.current().url,
+            {
+                filter: 'audioonly',
+                quality: 'highestaudio',
+                highWaterMark: 1 << 25
             }
+        );
 
-            q.current().setStream(stream);
+        q.current().setStream(stream);
 
-            // This is not when the song is finished.
-            // This is when the video buffer has been filled.
-            stream.on('finish', () => {
-                q.play(stream)
-                    .then((r) => resolve(r))
-                    .catch((err) => reject(err));
+        // This is not when the song is finished.
+        // This is when the video buffer has been filled.
+        stream.on('finish', () => {
+            q.play(stream)
+                .then((embed) => new Output().addEmbed(embed).resolve(resolve))
+                .catch((err) => new Output().setError(err).reject(reject));
 
-                q.player.on(AudioPlayerStatus.Idle, () => {
-                    next(message, q)
-                        .then((r) => resolve(r))
-                        .catch((err) => reject(err));
-                });
-            });
+            q.player.on(AudioPlayerStatus.Idle, () => next(data, q));
+        });
 
-            stream.on('error', (error) => {
-                q.songs.shift();
-                next(message, q)
-                    .then((r) => reject(new Output(`Failed to play ${q.songs[0].title}.`).setValues(r).setError(error)))
-                    .catch((err) => reject(new Output().setError(err)));
-            });
-        }
+        stream.on('error', (error) => {
+            q.songs.shift();
+
+            console.error(error);
+
+            next(data, q);
+        });
     });
 }
 

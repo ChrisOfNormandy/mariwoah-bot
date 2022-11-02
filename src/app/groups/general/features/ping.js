@@ -1,25 +1,25 @@
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
-const { MessageEmbed, createField } = handlers.embed;
+const { MessageEmbed } = handlers.embed;
 
 /**
- * 
- * @param {Discord.Message} message 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-module.exports = (message) => {
+module.exports = (data) => {
     const embed = new MessageEmbed()
         .setTitle('Ping')
         .setColor(handlers.chat.colors.information);
 
     return new Promise((resolve, reject) => {
-        message.channel.send('Please wait...')
+        data.message.channel.send('Please wait...')
             .then((msg) => {
-                embed.addField(createField('Message latency', `${msg.createdTimestamp - message.createdTimestamp}ms.`));
+                embed.makeField('Message latency', `${msg.createdTimestamp - data.message.createdTimestamp}ms.`);
 
                 msg.delete()
-                    .then(() => resolve(new Output().addEmbed(embed).setValues(msg.createdTimestamp - message.createdTimestamp).setOption('clear', { delay: 10 })))
-                    .catch((err) => reject(new Output().setError(err)));
+                    .then(() => new Output().addEmbed(embed).setValues(msg.createdTimestamp - data.message.createdTimestamp).setOption('clear', { delay: 10 }).resolve(resolve))
+                    .catch((err) => new Output().setError(err).reject(reject));
             })
-            .catch((err) => reject(new Output().setError(err)));
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

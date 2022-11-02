@@ -4,7 +4,7 @@ const { MessageEmbed, createFooter, createImage } = handlers.embed;
 
 /**
  *
- * @param {MessageData} data
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
 module.exports = (data) => {
@@ -29,8 +29,8 @@ module.exports = (data) => {
                     .setDescription(`Image ${index + 1} of ${res.length}`)
                     .setFooter(createFooter(`Source: ${img.url}\nFetched from ${img.source} via duckduckgo.`));
 
-                resolve(new Output({ embeds: [embed.build()] }).setValues(img));
+                new Output().addEmbed(embed).setValues(img).resolve(resolve);
             })
-            .catch((err) => reject(new Output().setError(err)));
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

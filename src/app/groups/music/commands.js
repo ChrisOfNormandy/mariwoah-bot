@@ -6,7 +6,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-play',
-        (message, data) => groups.music.playlist.play(message, data)
+        groups.music.playlist.play
     )
         .setRegex(/play/, /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/, [1, 2])
         .setCommandDescription('Fetches all songs from a playlist and adds them to the music queue.')
@@ -14,7 +14,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-list',
-        (message, data) => groups.music.playlist.list(message, data)
+        groups.music.playlist.list
     )
         .setRegex(/list/, /\s([\w\s]+)/, [1], true)
         .setCommandDescription('Lists all available playlists or songs within a specified playlist.')
@@ -22,7 +22,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-create',
-        (message, data) => groups.music.playlist.create(message, data)
+        groups.music.playlist.create
     )
         .setRegex(/create/, /\s([\w\s]+)/, [1])
         .setCommandDescription('Creates a new server playlist.')
@@ -30,7 +30,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-add',
-        (message, data) => groups.music.playlist.addSong(message, data)
+        groups.music.playlist.addSong
     )
         .setRegex(/add/, /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [1, 2])
         .setCommandDescription('Adds a video to the specified playlist.')
@@ -39,7 +39,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-delete',
-        (message, data) => groups.music.playlist.delete(message, data)
+        groups.music.playlist.delete
     )
         .setRegex(/delete/, /\s([\w\s]+)|((<URL:\d+>(,\s?)?)+)/, [1, 2])
         .setCommandDescription('Removes a playlist from the server.')
@@ -47,7 +47,7 @@ let plList = [
     new Command(
         'playlist',
         'playlist-remove',
-        (message, data) => groups.music.playlist.remove(message, data)
+        groups.music.playlist.remove
     )
         .setRegex(/remove/, /\s([\w\s]+)\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [1, 2])
         .setCommandDescription('Removes a video, or list of videos, from the specified playlist.')
@@ -55,15 +55,19 @@ let plList = [
         .setArgumentDescription(1, 'Video(s)', 'One or more YouTube URLs or the title of a video or playlist.')
 ];
 
+/**
+ *
+ * @returns
+ */
 function getPlaylistCommands() {
     let playlistCommand = new Command('music', 'playlist');
 
-    playlistCommand.setFunction((message, data) => {
+    playlistCommand.setFunction((data) => {
         let sc = playlistCommand.getSubcommand(data.subcommand);
 
         return sc
-            ? sc.run(message, data)
-            : Promise.reject(new Output().setError(new Error('Subcommand not found.')));
+            ? sc.run(data)
+            : new Output().makeError('Subcommand not found.').reject();
     })
         .setRegex(/(playlist)|(pl)/)
         .setCommandDescription('Playlist commands.');
@@ -73,12 +77,16 @@ function getPlaylistCommands() {
     return [playlistCommand];
 }
 
+/**
+ *
+ * @returns
+ */
 function getMusicCommands() {
     return [
         new Command(
             'music',
             'music-queue-add',
-            (message, data) => groups.music.queue.add(message, data)
+            groups.music.queue.add
         )
             .setRegex(/(play)|(p\b)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
             .setCommandDescription('Adds a video, or list of videos, to the music queue.')
@@ -86,49 +94,49 @@ function getMusicCommands() {
         new Command(
             'music',
             'music-vc-join',
-            (message) => groups.music.voiceChannel.join(message)
+            groups.music.voiceChannel.join
         )
             .setRegex(/(join)|(vc\b)/)
             .setCommandDescription('Puts the bot into the requested voice channel.'),
         new Command(
             'music',
             'music-vc-leave',
-            (message) => groups.music.voiceChannel.leave(message)
+            groups.music.voiceChannel.leave
         )
             .setRegex(/(leave)|(bye)|(dc\b)/)
             .setCommandDescription('Removes the bot from the voice channel.'),
         new Command(
             'music',
             'music-queue-skip',
-            (message) => groups.music.queue.skip(message)
+            groups.music.queue.skip
         )
             .setRegex(/(skip)|(next)|(n\b)/)
             .setCommandDescription('Skips the current video in the active queue.'),
         new Command(
             'music',
             'music-queue-stop',
-            (message) => groups.music.queue.stop(message)
+            groups.music.queue.stop
         )
             .setRegex(/(stop)|(s\b)/)
             .setCommandDescription('Stops the active queue.'),
         new Command(
             'music',
             'music-queue-list',
-            (message, data) => groups.music.queue.list(message, data)
+            groups.music.queue.list
         )
             .setRegex(/(queue)|(q\b)/)
             .setCommandDescription('Lists the videos in the active queue.'),
         new Command(
             'music',
             'music-queue-loop',
-            (message) => groups.music.queue.loop(message)
+            groups.music.queue.loop
         )
             .setRegex(/(loop)/)
             .setCommandDescription('Loops the current track.'),
         new Command(
             'music',
             'music-queue-pause',
-            (message) => groups.music.queue.pause(message)
+            groups.music.queue.pause
         )
             .setRegex(/(pause)/)
             .setCommandDescription('Pauses the active queue.')
@@ -136,7 +144,7 @@ function getMusicCommands() {
         new Command(
             'music',
             'music-queue-resume',
-            (message) => groups.music.queue.resume(message)
+            groups.music.queue.resume
         )
             .setRegex(/(resume)/)
             .setCommandDescription('Resumes the paused, active queue.')
@@ -144,7 +152,7 @@ function getMusicCommands() {
         new Command(
             'music',
             'music-song-info',
-            (message, data) => groups.music.song.info(message, data)
+            groups.music.song.info
         )
             .setRegex(/(song\?)|(songinfo)/, /\s(([\w\s]+)|((<URL:\d+>(,\s?)?)+))/, [2, 3])
             .setCommandDescription('Gathers information about one or more videos.')
@@ -152,7 +160,7 @@ function getMusicCommands() {
         new Command(
             'music',
             'music-song-download',
-            (message, data) => groups.music.song.download(data)
+            groups.music.song.download
         )
             .setRegex(/(ytdl)/, /\s(([\w\s]+)|(<URL:\d+>))/, [2, 3])
             .setCommandDescription('Downloads an MP4 audio file of a specified video.')
@@ -160,12 +168,16 @@ function getMusicCommands() {
     ];
 }
 
+/**
+ *
+ * @returns
+ */
 function spotifyCommands() {
     return [
         new Command(
             'spotify',
             'spotify-playlist-get',
-            (message, data) => groups.music.spotify.playlist.getPlaylist(message, data)
+            groups.music.spotify.getPlaylist
         )
             .setRegex(/(spotify-playlist)|(spotifypl)/, /\s(<URL:0>)(\s(\d+))?/, [1, 3])
             .setCommandDescription('Gets a Spotify playlist by ID.')
@@ -174,7 +186,7 @@ function spotifyCommands() {
         new Command(
             'spotify',
             'spotify-track-get',
-            (message, data) => groups.music.spotify.playlist.getTrack(message, data)
+            groups.music.spotify.getTrack
         )
             .setRegex(/(spotify-track)|(spotify)/, /\s(<URL:0>)/, [1])
             .setCommandDescription('Gets a Spotify track by ID.')
@@ -182,7 +194,7 @@ function spotifyCommands() {
         new Command(
             'spotify',
             'spotify-track-find',
-            (message, data) => groups.music.spotify.playlist.findTrack(message, data)
+            groups.music.spotify.findTrack
         )
             .setRegex(/(spotify-find)|(spotify\?)/, /\s([\w\s]+)/, [1])
             .setCommandDescription('Searches for a track on Spotify.')
@@ -190,7 +202,7 @@ function spotifyCommands() {
         new Command(
             'spotify',
             'spotify-to-youtube',
-            (message, data) => groups.music.spotify.playlist.spotifyToYouTube(message, data)
+            groups.music.spotify.spotifyToYouTube
         )
             .setRegex(/(s2yt)/, /\s(<URL:0>)/, [1])
             .setCommandDescription('Fetches a YouTube video matching the Spotify track.')

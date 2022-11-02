@@ -2,18 +2,18 @@
 const Discord = require('discord.js');
 const SongData = require('./SongData');
 
-const { handlers, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { AudioPlayerStatus, AudioPlayer } = require('@discordjs/voice');
 const getEmbedSongInfo = require('./getEmbedSongInfo');
 
 const { audioPlayer } = handlers.channels;
 
-module.exports = class Queue {
+class Queue {
 
     /**
-     * 
-     * @param {Discord.VoiceBasedChannel} connection 
-     * @returns 
+     *
+     * @param {Discord.VoiceBasedChannel} connection
+     * @returns
      */
     connect(connection) {
         this.connection = connection;
@@ -23,14 +23,14 @@ module.exports = class Queue {
         return this;
     }
 
-    destroy() {
-        this.active = false;
+    status() {
+        return this.songs.length > 0;
     }
 
     /**
-     * 
-     * @param  {...SongData} songs 
-     * @returns 
+     *
+     * @param  {...SongData} songs
+     * @returns
      */
     add(member, ...songs) {
         let songArr = songs.map((song) => {
@@ -47,9 +47,9 @@ module.exports = class Queue {
     play(stream) {
         const resource = audioPlayer.createResource(stream);
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.player.on(AudioPlayerStatus.Playing, () => {
-                resolve(this.songs[0].embed);
+                resolve(this.songs[0].getEmbed());
             });
 
             this.player.on('error', (error) => {
@@ -65,7 +65,11 @@ module.exports = class Queue {
     }
 
     next() {
-        return this.songs[1];
+        const cur = this.current();
+        if (cur)
+            return cur.getNext() || null;
+
+        return null;
     }
 
     previous() {
@@ -73,8 +77,8 @@ module.exports = class Queue {
     }
 
     /**
-     * 
-     * @param {Discord.VoiceBasedChannel} voiceChannel 
+     *
+     * @param {Discord.VoiceBasedChannel} voiceChannel
      */
     constructor(voiceChannel) {
         this.voiceChannel = voiceChannel;
@@ -96,4 +100,6 @@ module.exports = class Queue {
          */
         this.player = audioPlayer.create();
     }
-};
+}
+
+module.exports = Queue;

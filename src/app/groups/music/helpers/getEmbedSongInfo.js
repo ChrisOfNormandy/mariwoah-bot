@@ -6,7 +6,7 @@ const { MessageEmbed } = handlers.embed;
 
 module.exports = {
     /**
-     * 
+     *
      * @param {SongData} songData
      * @returns {Promise<MessageEmbed>}
      */
@@ -21,27 +21,26 @@ module.exports = {
     },
 
     /**
-     * 
-     * @param {Discord.Message} message 
-     * @param {MessageData} data 
+     *
+     * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
      * @returns {Promise<MessageEmbed>}
      */
-    songInfo(message, data) {
+    songInfo(data) {
         return new Promise((resolve, reject) => {
             if (data.urls.length) {
-                getSong.byURL(message, data.urls[0])
+                getSong.byURL(data.message, data.urls[0])
                     .then((ret) => resolve(ret.getEmbed()))
-                    .catch((e) => reject(e));
+                    .catch(reject);
             }
             else {
                 let name = data.arguments.join(' ').trim();
 
-                if (name === 'this' && queue.exists(message.guild.id))
-                    resolve(queue.get(message.guild.id).songs[0].getEmbed());
+                if (name === 'this' && queue.exists(data.message.guild.id))
+                    resolve(queue.get(data.message.guild.id).songs[0].getEmbed());
                 else {
-                    getSong.byName(message, name)
+                    getSong.byName(data.message, name)
                         .then((song) => resolve(song.getEmbed()))
-                        .catch((err) => reject(err));
+                        .catch(reject);
                 }
             }
         });

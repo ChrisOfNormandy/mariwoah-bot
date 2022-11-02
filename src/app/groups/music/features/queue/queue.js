@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-const Discord = require('discord.js');
-
 const Queue = require('../../helpers/Queue');
 
 const queue = {
@@ -10,12 +7,15 @@ const queue = {
     map: new Map(),
 
     /**
-     * 
-     * @param {string} guildId 
-     * @param {Discord.VoiceBasedChannel} voiceChannel 
-     * @returns 
+     *
+     * @param {string} guildId
+     * @param {import('@chrisofnormandy/mariwoah-bot')Discord.VoiceBasedChannel} voiceChannel
+     * @returns
      */
     add(guildId, voiceChannel) {
+        if (this.map.has(guildId))
+            return this.map.get(guildId);
+
         const q = new Queue(voiceChannel);
         this.map.set(guildId, q);
 
@@ -23,27 +23,27 @@ const queue = {
     },
 
     /**
-     * 
-     * @param {string} guildId 
-     * @returns 
+     *
+     * @param {string} guildId
+     * @returns
      */
     get(guildId) {
         return this.map.get(guildId);
     },
 
     /**
-     * 
-     * @param {string} guildId 
-     * @returns 
+     *
+     * @param {string} guildId
+     * @returns
      */
     exists(guildId) {
         return this.map.has(guildId);
     },
 
     /**
-     * 
-     * @param {string} guildId 
-     * @returns 
+     *
+     * @param {string} guildId
+     * @returns
      */
     delete(guildId) {
         return this.map.delete(guildId);

@@ -1,5 +1,4 @@
-const Discord = require('discord.js');
-const { MessageData, Output } = require('@chrisofnormandy/mariwoah-bot');
+const { Output } = require('@chrisofnormandy/mariwoah-bot');
 
 const colorList = [
     'red',
@@ -25,38 +24,42 @@ const colorList = [
 ];
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-module.exports = (message, data) => {
+module.exports = (data) => {
+    if (!colorList.includes(data.arguments[0]))
+        return new Output().makeError('Color not supported.').reject();
+
     return new Promise((resolve, reject) => {
-        if (!colorList.includes(data.arguments[0]))
-            reject(new Output().setError(new Error('Color not supported.')));
-        else {
-            let flag = null;
-            message.member.roles.cache.forEach((v, k) => {
-                if (colorList.includes(v.name.toLowerCase().replace(' ', '_')))
-                    message.member.roles.remove(k)
-                        .catch(err => reject(new Output().setError(err)));
-            });
+        let removeList = [];
 
-            message.guild.roles.cache.forEach((v, k) => {
-                if (flag !== null)
-                    return;
+        data.message.member.roles.cache.forEach((v, k) => {
+            if (colorList.includes(v.name.toLowerCase().replace(' ', '_')))
+                removeList.push(data.message.member.roles.remove(k));
+        });
 
-                if (v.name.toLowerCase() == data.arguments[0] || v.name.toLowerCase().replace(' ', '_') === data.arguments[0])
-                    flag = k;
-            });
+        Promise.all(removeList)
+            .then(() => {
+                let flag = null;
 
-            if (flag !== null) {
-                message.member.roles.add(flag)
-                    .then(r => resolve(new Output('Done!').setValues(r)))
-                    .catch(err => reject(new Output().setError(err)));
-            }
-            else
-                reject(new Output().setError(new Error('No role found.')));
-        }
+                data.message.guild.roles.cache.forEach((v, k) => {
+                    if (flag !== null)
+                        return;
+
+                    if (v.name.toLowerCase() === data.arguments[0] || v.name.toLowerCase().replace(' ', '_') === data.arguments[0])
+                        flag = k;
+                });
+
+                if (flag !== null) {
+                    data.message.member.roles.add(flag)
+                        .then((r) => new Output('Done!').setValues(r).resolve(resolve))
+                        .catch((err) => new Output().setError(err).reject(reject));
+                }
+                else
+                    new Output().setError('No role found.').reject(reject);
+            })
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

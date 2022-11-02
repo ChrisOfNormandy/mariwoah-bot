@@ -8,14 +8,8 @@ const groups = require('../../groups');
 module.exports = [
     new Command(
         'general',
-        'say',
-        (message, data) => groups.general.say(message, data)
-    )
-        .setRegex(/(say)/, /\s(.+)/, [1]),
-    new Command(
-        'general',
         'ping',
-        (message) => groups.general.ping(message)
+        groups.general.ping
     )
         .setRegex(/(ping)/)
         .setCommandDescription('Gauge Discord\'s message latency.')
@@ -23,7 +17,7 @@ module.exports = [
     new Command(
         'general',
         'whois-self',
-        (message) => groups.general.whois.self(message)
+        groups.general.whois.self
     )
         .setRegex(/(whoami)|(me)/)
         .setCommandDescription('Gathers and displays information about yourself.')
@@ -32,7 +26,7 @@ module.exports = [
     new Command(
         'general',
         'whois-member',
-        (message) => groups.general.whois.member(message)
+        groups.general.whois.member
     )
         .setRegex(/(whoareyou)|(whoru)|(whois)/, /\s(<USER:\d+>)/, [1])
         .setCommandDescription('Gathers and displays information about another user.')

@@ -3,13 +3,23 @@ const { shuffle, divideArray } = handlers.arrays;
 
 const groups = require('../../groups');
 
-function _shuffle(message, data) {
+/**
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns
+ */
+function _shuffle(data) {
     const v = shuffle(data.arguments[0].split(/,\s*/g));
 
     return new Output(v.join(', ')).setValues(v).resolve();
 }
 
-function _divide(message, data) {
+/**
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
+ * @returns
+ */
+function _divide(data) {
     const list = data.arguments[1].split(/,\s*/g);
     const size = Number(data.arguments[0]);
 
@@ -25,7 +35,7 @@ module.exports = [
     new Command(
         'utility',
         'clean-chat',
-        (message, data) => groups.utility.clean(message, data)
+        groups.utility.clean
     )
         .setRegex(/(clean)/, /\s(\d+)/, [1], true)
         .setCommandDescription('Cleans chat of bot messages and commands. Can be used to clean specific user messages.')
@@ -33,7 +43,7 @@ module.exports = [
     new Command(
         'utility',
         'roll-dice',
-        (message, data) => groups.utility.roll(data)
+        groups.utility.roll
     )
         .setRegex(/(roll)|(r)|(d)/, /\s?(\d+)?(\s(\d+))?/, [1, 3])
         .setCommandDescription('Rolls a number between 1 and a given value.')
@@ -42,7 +52,7 @@ module.exports = [
     new Command(
         'utility',
         'shuffle',
-        (message, data) => _shuffle(message, data)
+        _shuffle
     )
         .setRegex(/(shuffle)/, /\s((([^",\s]+)|("([^"\\]*(?:\\[^,][^"\\]*)*)"))(,\s?)?)+/, [0])
         .setCommandDescription('Shuffles a set of comma-separated values.')
@@ -50,7 +60,7 @@ module.exports = [
     new Command(
         'utility',
         'split',
-        (message, data) => _divide(message, data)
+        _divide
     )
         .setRegex(/(split)/, /\s(\d+)\s((\s*[^\s,],\s*)*[^\s,])/, [1, 2])
         .setCommandDescription('Divides a set of comma-separated values.')
@@ -59,7 +69,7 @@ module.exports = [
     new Command(
         'utility',
         'color-role',
-        (message, data) => groups.utility.colorMe(message, data)
+        groups.utility.colorMe
     )
         .setRegex(/(colorme)|(clrme)/, /\s(.+)/, [1])
         .setCommandDescription('Assigns a user a colored role.')
@@ -67,14 +77,14 @@ module.exports = [
     new Command(
         'utility',
         'vc-roulette',
-        (message) => groups.utility.vcRoulette(message)
+        groups.utility.vcRoulette
     )
         .setRegex(/(roulette)|(vcr)/)
         .setCommandDescription('Roll and 1 and get disconnected.'),
     new Command(
         'utility',
         'split-vc',
-        (message, data) => groups.utility.splitVc(message, data)
+        groups.utility.splitVc
     )
         .setRegex(/(splitvc)|(svc)/, /\s(.+)/, [1])
         .setCommandDescription('Splits the VC into two groups.')

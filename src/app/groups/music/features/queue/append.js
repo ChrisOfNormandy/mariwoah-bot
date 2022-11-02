@@ -7,85 +7,57 @@ const { voiceChannel } = handlers.channels;
 
 const queue = require('./queue');
 const play = require('./play');
-// eslint-disable-next-line no-unused-vars
-const Queue = require('../../helpers/Queue');
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {SongData[]} songs 
- * @param {Map<string, *>} flags 
- * @param {Queue} q
- * @returns {Promise<Output>}
+ *
+ * @param {Discord.Message} message
+ * @param {SongData[]} songs
+ * @param {Map<string, *>} flags
+ * @param {import('../../helpers/Queue')} q
+ * @returns
  */
 function start(message, songs, flags, q) {
     if (!songs.length)
-        return Promise.reject(new Output().setError(new Error('No songs to add.')));
+        return new Output().makeError('No songs to add.').reject();
 
-    return new Promise((resolve, reject) => {
-        q.add(message.member, ...songs);
-
-        play(message, q)
-            .then((r) => resolve(r))
-            .catch((err) => reject(err));
-    });
+    return play(message, q.add(message.member, ...songs));
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {Map} flags 
- * @param {SongData[]} songs 
- * @param {Queue} q
- * @returns {Promise<Output>}
+ *
+ * @param {Discord.Message} message
+ * @param {Map} flags
+ * @param {SongData[]} songs
+ * @param {import('../../helpers/Queue')} q
+ * @returns
  */
 function process(message, songs, flags, q) {
-    return new Promise((resolve, reject) => {
-        if (flags.has('s'))
-            shuffle(songs)
-                .then((songs) => {
-                    start(message, songs, flags, q)
-                        .then((res) => resolve(res))
-                        .catch((err) => reject(err));
-                })
-                .catch((err) => reject(new Output().setError(err)));
-        else
-            start(message, songs, flags, q)
-                .then((res) => resolve(res))
-                .catch((err) => reject(err));
-    });
+    if (flags.has('s'))
+        return start(message, shuffle(songs), flags, q);
+
+    return start(message, songs, flags, q);
 }
 
 /**
- * 
- * @param {Discord.Message} message 
- * @param {SongData[]} songs 
- * @param {Map<string, *>} flags 
- * @returns {Promise<Output>}
+ *
+ * @param {Discord.Message} message
+ * @param {SongData[]} songs
+ * @param {Map<string, *>} flags
+ * @returns
  */
 module.exports = (message, songs, flags) => {
-    return new Promise((resolve, reject) => {
-        if (!songs.length)
-            reject(new Output().setError(new Error('Tried to add 0 songs to the active queue.')));
-        else {
-            const vc = voiceChannel.get(message);
+    if (!songs.length)
+        return new Output().makeError('Tried to add 0 songs to the active queue.').reject();
 
-            if (!vc)
-                reject(new Output().setError(new Error('No voice channel.')));
-            else {
-                if (!queue.exists(message.guild.id)) {
-                    queue.add(message.guild.id, vc.id);
-                }
+    const vc = voiceChannel.get(message);
 
-                const q = queue.get(message.guild.id);
+    if (!vc)
+        return new Output().makeError('No voice channel.').reject();
 
-                const connection = voiceChannel.join(message, vc.id);
-                queue.get(message.guild.id).connect(connection);
+    const q = queue.add(message.guild.id, vc.id);
 
-                process(message, songs, flags, q)
-                    .then((r) => resolve(new Output().setValues(r)))
-                    .catch((err) => reject(new Output().setError(err)));
-            }
-        }
-    });
+    const connection = voiceChannel.join(message, vc.id);
+    queue.get(message.guild.id).connect(connection);
+
+    return process(message, songs, flags, q);
 };

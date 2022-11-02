@@ -2,21 +2,22 @@ const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { MessageEmbed, createField } = handlers.embed;
 
 /**
- * 
- * @param {string} name 
- * @param {string} joinDate 
- * @param {string} roleList 
- * @param {Discord.GuildMember} member 
- * @returns 
+ *
+ * @param {string} name
+ * @param {string} joinDate
+ * @param {string} roleList
+ * @param {Discord.GuildMember} member
+ * @returns
  */
 function formatEmbed(name, joinDate, roleList, member) {
     const user = member.user;
+    let n = name;
 
     if (user.bot)
-        name += ' -=[BOT]=-';
+        n += ' -=[BOT]=-';
 
     let embed = new MessageEmbed()
-        .setTitle(name)
+        .setTitle(n)
         .setColor(handlers.chat.colors.information)
         .addField(
             createField('Join date', joinDate),
@@ -30,8 +31,8 @@ function formatEmbed(name, joinDate, roleList, member) {
 }
 
 /**
- * 
- * @param {Date} date 
+ *
+ * @param {Date} date
  * @returns {string}
  */
 function getDate(date) {
@@ -42,8 +43,8 @@ function getDate(date) {
 }
 
 /**
- * 
- * @param {Discord.GuildMember} member 
+ *
+ * @param {Discord.GuildMember} member
  * @returns {string}
  */
 function getRoles(member) {
@@ -63,34 +64,34 @@ function getRoles(member) {
 
 module.exports = {
     /**
-     * 
-     * @param {Discord.Message} message 
+     *
+     * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
      * @returns {Promise<Output>}
      */
-    self: (message) => {
-        const member = message.member;
+    self: (data) => {
+        const member = data.message.member;
         const user = member.user;
         const joinDate = getDate(new Date(member.joinedTimestamp));
-        const roles = getRoles(member, message);
+        const roles = getRoles(member, data.message);
 
         const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-        return Promise.resolve(new Output().addEmbed(embed).setValues(user));
+        return new Output().addEmbed(embed).setValues(user).resolve();
     },
 
     /**
-     * 
-     * @param {Discord.Message} message 
+     *
+     * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
      * @returns {Promise<Output>}
      */
-    member: (message) => {
-        const user = message.mentions.users.first();
-        const member = message.guild.member(user);
+    member: (data) => {
+        const user = data.message.mentions.users.first();
+        const member = data.message.guild.member(user);
         const joinDate = getDate(new Date(member.joinedTimestamp));
-        const roles = getRoles(member, message);
+        const roles = getRoles(member, data.message);
 
         const embed = formatEmbed(`${user.username}#${user.discriminator}`, joinDate, roles, member);
 
-        return Promise.resolve(new Output().addEmbed(embed.build()).setValues(user));
+        return new Output().addEmbed(embed).setValues(user).resolve();
     }
 };

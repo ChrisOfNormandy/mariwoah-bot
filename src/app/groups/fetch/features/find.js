@@ -2,11 +2,11 @@ const { duckIt } = require('node-duckduckgo');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 const { embed } = require('@chrisofnormandy/mariwoah-bot').handlers;
 
-const { MessageEmbed, createField } = embed;
+const { MessageEmbed } = embed;
 
 /**
- * 
- * @param {MessageData} data 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
 module.exports = (data) => {
@@ -40,22 +40,23 @@ module.exports = (data) => {
                         if (response.headers.link) {
                             const link = response.headers.link.split(';')[0].match(/<([^>]+)>/)[1];
                             embed.setURL(link);
-                            embed.addField(createField(`From ${response.request.host}`, link));
+                            embed.makeField(`From ${response.request.host}`, link);
                         }
                         else {
                             const url = response.request.res.responseUrl;
                             embed.setURL(url);
-                            embed.addField(createField(`From ${response.request.host}`, url));
+                            embed.makeField(`From ${response.request.host}`, url);
                         }
                         break;
                     }
                     case 'bing': {
                         const url = response.request.res.responseUrl;
                         embed.setURL(url);
-                        embed.addField(createField(`From ${response.request.host}`, url));
+                        embed.makeField(`From ${response.request.host}`, url);
 
                         let rList = response.data.match(/(<cite>)([\w.:/<>]+)(<\/cite>)+?/g);
-                        let str = '', i = 0;
+                        let str = '',
+                            i = 0;
                         rList.forEach((html) => {
                             const link = html.replace(/<\/?\w+>/g, '');
 
@@ -67,19 +68,20 @@ module.exports = (data) => {
                             }
                         });
 
-                        embed.addField(createField('Search Results', str));
+                        embed.makeField('Search Results', str);
 
                         break;
                     }
                     default: {
                         if (!!res.Abstract && !!res.AbstractSource)
-                            embed.addField(createField(`From ${res.AbstractSource}`, res.Abstract));
+                            embed.makeField(`From ${res.AbstractSource}`, res.Abstract);
 
                         if (res.AbstractURL)
                             embed.setURL(res.AbstractURL);
 
                         if (res.RelatedTopics) {
-                            let inc = 0, max = 3;
+                            let inc = 0,
+                                max = 3;
                             const length = res.RelatedTopics.length;
                             let str = '';
                             let other = {};
@@ -102,11 +104,11 @@ module.exports = (data) => {
                             }
 
                             if (str !== '')
-                                embed.addField(createField('From DuckDuckGo - Related topics:', str));
+                                embed.makeField('From DuckDuckGo - Related topics:', str);
 
                             if (other)
                                 for (let i in other) {
-                                    embed.addField(createField(`From DuckDuckGo - ${i}`, `${other[i].Text}\n${other[i].FirstURL}`));
+                                    embed.makeField(`From DuckDuckGo - ${i}`, `${other[i].Text}\n${other[i].FirstURL}`);
                                 }
                         }
 
@@ -115,10 +117,10 @@ module.exports = (data) => {
                 }
 
                 if (!embed.fields.length)
-                    embed.addField(createField('Nothing found.', 'Try a different search term.'));
+                    embed.makeField('Nothing found.', 'Try a different search term.');
 
-                resolve(new Output({ embeds: [embed.build()] }));
+                new Output().addEmbed(embed).setValues(response.data).resolve(resolve);
             })
-            .catch((err) => reject(new Output().setError(err)));
+            .catch((err) => new Output().setError(err).reject(reject));
     });
 };

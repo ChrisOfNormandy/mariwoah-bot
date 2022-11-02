@@ -1,5 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-const Discord = require('discord.js');
 const { Output, handlers } = require('@chrisofnormandy/mariwoah-bot');
 
 const queue = require('./queue');
@@ -9,34 +7,26 @@ const play = require('./play');
 const stop = require('./stop');
 
 /**
- * 
- * @param {Discord.Message} message 
+ *
+ * @param {import('@chrisofnormandy/mariwoah-bot').MessageData} data
  * @returns {Promise<Output>}
  */
-module.exports = (message) => {
-    const vc = voiceChannel.get(message);
+module.exports = (data) => {
+    const vc = voiceChannel.get(data.message);
 
     if (!vc)
-        return Promise.reject(new Output().setError(new Error('No voice channel.')));
+        return new Output().makeError('No voice channel.').reject();
 
-    if (!queue.exists(message.guild.id))
-        return Promise.reject(new Output().setError(new Error('No active queue.')));
+    const q = queue.get(data.message.guild.id);
 
-    const q = queue.get(message.guild.id);
+    if (!q || !q.status())
+        return new Output().makeError('No active queue.').reject();
 
-    return new Promise((resolve, reject) => {
-        q.player.stop();
-        q.songs.shift();
+    q.player.stop();
+    q.songs.shift();
 
-        if (q.songs.length) {
-            play(message, q)
-                .then((r) => resolve(r))
-                .catch((err) => reject(err));
-        }
-        else {
-            stop(message)
-                .then((r) => resolve(r))
-                .catch((err) => reject(err));
-        }
-    });
+    if (q.songs.length)
+        return play(data, q);
+
+    return stop(data);
 };

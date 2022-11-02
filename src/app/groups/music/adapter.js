@@ -5,8 +5,7 @@ module.exports = {
         list: require('./features/queue/list'),
         loop: require('./features/queue/loop'),
         stop: require('./features/queue/stop'),
-        pause: require('./features/queue/pause').pause,
-        resume: require('./features/queue/pause').resume,
+        ...require('./features/queue/pause'),
         add: require('./features/queue/add')
     },
     song: {
@@ -18,6 +17,6 @@ module.exports = {
         leave: require('./features/voiceChannel/leave')
     },
     spotify: {
-        playlist: require('./features/spotify/handlers')
+        ...require('./features/spotify/adapter')
     }
 };

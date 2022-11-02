@@ -5,7 +5,7 @@
     "main": "bot.js",
     "author": "ChrisOfNormandy",
     "dependencies": {
-        "@chrisofnormandy/mariwoah-bot": "^0.3.1",
+        "@chrisofnormandy/mariwoah-bot": "0.3.6",
         "axios": "^1.1.3",
         "ddg": "^0.0.3",
         "duckduckgo-images-api": "^1.0.5",
@@ -24,7 +24,8 @@
         "startDb": "sudo service postgresql start",
         "dev": "nodemon",
         "reload": "rm yarn.lock; yarn && yarn dev",
-        "start": "yarn startDb && node bot.js"
+        "start": "yarn startDb && node bot.js",
+        "bundle": "rm -r private/bundle; mkdir private/bundle && cp -r src private/bundle/ && cp bot.js private/bundle/ && cp package.json private/bundle/ && cd private/bundle && zip -r bundle.zip *"
     },
     "private": true,
     "license": "GNU General Public License (GPL)"
